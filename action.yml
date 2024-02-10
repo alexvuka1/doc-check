@@ -9,7 +9,7 @@ branding:
 
 # Define your inputs here.
 inputs:
-  swagger-path:
+  openapi-path:
     required: true
   doc-path:
     required: true

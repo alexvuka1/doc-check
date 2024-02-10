@@ -2817,12 +2817,19 @@ var __webpack_exports__ = {};
 
 // EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
 var core = __nccwpck_require__(186);
+;// CONCATENATED MODULE: external "fs/promises"
+const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("fs/promises");
 ;// CONCATENATED MODULE: ./src/main.ts
+
 
 const run = async () => {
     try {
-        const str = core.getInput('str', { required: true });
-        core.debug(`Hello ${str}`);
+        const oasPath = core.getInput('openapi-path', { required: true });
+        const docPath = core.getInput('doc-path', { required: true });
+        const oas = await (0,promises_namespaceObject.readFile)(oasPath, 'utf8');
+        core.debug(oas);
+        const doc = await (0,promises_namespaceObject.readFile)(docPath, 'utf8');
+        core.debug(doc);
         core.setOutput('time', new Date().toTimeString());
     }
     catch (error) {

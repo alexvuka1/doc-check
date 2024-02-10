@@ -9,7 +9,9 @@ branding:
 
 # Define your inputs here.
 inputs:
-  str:
+  swagger-path:
+    required: true
+  doc-path:
     required: true
 
 outputs:

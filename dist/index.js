@@ -69314,8 +69314,10 @@ const run = async () => {
             ? errors.join('\n')
             : 'Success - No inconsistencies found!';
         if (context.eventName === 'pull_request') {
+            const issue_number = context.payload.pull_request?.number ?? context.issue.number;
+            core.debug(`Commenting on issue ${issue_number}`);
             await octokit.rest.issues.createComment({
-                issue_number: context.issue.number,
+                issue_number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 body,

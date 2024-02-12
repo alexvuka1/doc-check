@@ -36,7 +36,7 @@ jobs:
 
       - name: Test
         id: bun-ci-test
-        run: bun run ci-test
+        run: bun test
 
   check-dist:
     name: Check dist/

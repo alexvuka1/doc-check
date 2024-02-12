@@ -21,7 +21,7 @@ const methodMap = {
   patch: 'PATCH',
 } as const satisfies Record<Methods, string>;
 
-export const run = async (): Promise<void> => {
+export const run = async () => {
   try {
     const oasPath = core.getInput('openapi-path', { required: true });
     const docPath = core.getInput('doc-path', { required: true });
@@ -42,10 +42,10 @@ export const run = async (): Promise<void> => {
     const docEndpoints: string[] = [];
     visit(tree, 'strong', v => {
       visit(v, 'text', t => {
-        Object.values(methodMap).forEach(m => {
+        for (const m of Object.values(methodMap)) {
           if (!t.value.includes(m) || !t.value.includes('/')) return;
           docEndpoints.push(t.value);
-        });
+        }
       });
     });
 

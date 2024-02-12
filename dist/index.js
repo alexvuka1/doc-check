@@ -22177,7 +22177,7 @@ module.exports = makeNext()
 
 /***/ }),
 
-/***/ 171:
+/***/ 8171:
 /***/ ((module) => {
 
 
@@ -41450,7 +41450,7 @@ function bail(error) {
 }
 
 // EXTERNAL MODULE: ./node_modules/extend/index.js
-var extend = __nccwpck_require__(171);
+var extend = __nccwpck_require__(8171);
 ;// CONCATENATED MODULE: ./node_modules/devlop/lib/default.js
 function deprecate(fn) {
   return fn
@@ -46276,11 +46276,11 @@ const run = async () => {
         const docEndpoints = [];
         visit(tree, 'strong', v => {
             visit(v, 'text', t => {
-                Object.values(methodMap).forEach(m => {
+                for (const m of Object.values(methodMap)) {
                     if (!t.value.includes(m) || !t.value.includes('/'))
                         return;
                     docEndpoints.push(t.value);
-                });
+                }
             });
         });
         const notDocumented = lodash_es_difference(endpoints, docEndpoints);

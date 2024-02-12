@@ -3,14 +3,13 @@
  */
 
 import * as main from '../src/main';
+import { expect, test, spyOn } from 'bun:test';
 
 // Mock the action's entrypoint
-const runMock = jest.spyOn(main, 'run').mockImplementation();
+const runMock = spyOn(main, 'run');
 
-describe('index', () => {
-  it('calls run when imported', async () => {
-    await import('../src/index');
+test('index', async () => {
+  await import('../src/index');
 
-    expect(runMock).toHaveBeenCalled();
-  });
+  expect(runMock).toHaveBeenCalled();
 });

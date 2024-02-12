@@ -74,3 +74,23 @@ jobs:
         with:
           name: dist
           path: dist/
+
+  test-action:
+    name: GitHub Actions Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          openapi-path: ${{ github.workspace }}/__tests__/data/openapi.json
+          doc-path: ${{ github.workspace }}/__tests__/data/api.md
+
+      - name: Print Output
+        id: output
+        run: echo "${{ steps.test-action.outputs.time }}"

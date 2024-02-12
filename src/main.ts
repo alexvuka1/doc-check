@@ -6,6 +6,7 @@ import { read } from 'to-vfile';
 import { visit } from 'unist-util-visit';
 import { objectEntries } from './utils';
 import { difference } from 'lodash-es';
+import * as github from '@actions/github';
 
 type Methods = OpenAPIV2.HttpMethods &
   OpenAPIV3.HttpMethods &
@@ -25,6 +26,9 @@ export const run = async () => {
   try {
     const oasPath = core.getInput('openapi-path', { required: true });
     const docPath = core.getInput('doc-path', { required: true });
+    const token = core.getInput('token', { required: true });
+    const octokit = github.getOctokit(token);
+    const { context } = github;
 
     const oas = await SwaggerParser.validate(oasPath);
     const endpoints = oas.paths
@@ -59,11 +63,25 @@ export const run = async () => {
     if (outdated.length > 0) {
       errors.push(`Outdated: ${outdated.join(', ')}`);
     }
-    if (errors.length > 0) {
-      throw new Error(errors.join('\n'));
+
+    const body =
+      errors.length > 0
+        ? errors.join('\n')
+        : 'Success - No inconsistencies found!';
+
+    if (context.eventName === 'pull_request') {
+      await octokit.rest.issues.createComment({
+        issue_number: context.issue.number,
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        body,
+      });
     }
 
-    core.debug('Success - No inconsistencies found!');
+    if (errors.length > 0) {
+      throw new Error(body);
+    }
+    core.debug(body);
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message);

@@ -90,7 +90,4 @@ jobs:
         with:
           openapi-path: ${{ github.workspace }}/__tests__/data/openapi.json
           doc-path: ${{ github.workspace }}/__tests__/data/api.md
-
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.time }}"
+          token: ${{ secrets.GITHUB_TOKEN }}

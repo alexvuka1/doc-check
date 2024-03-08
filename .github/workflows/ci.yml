@@ -88,6 +88,7 @@ jobs:
         id: test-action
         uses: ./
         with:
-          openapi-path: ${{ github.workspace }}/__tests__/data/openapi.json
-          doc-path: ${{ github.workspace }}/__tests__/data/api.md
+          openapi-path:
+            ${{ github.workspace }}/__tests__/data/basic/success/openapi.json
+          doc-path: ${{ github.workspace }}/__tests__/data/basic/success/api.md
           token: ${{ secrets.GITHUB_TOKEN }}

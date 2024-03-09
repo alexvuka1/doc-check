@@ -49811,309 +49811,6 @@ var intersection = _baseRest(function(arrays) {
 
 /* harmony default export */ const lodash_es_intersection = (intersection);
 
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseDifference.js
-
-
-
-
-
-
-
-/** Used as the size to enable large array optimizations. */
-var LARGE_ARRAY_SIZE = 200;
-
-/**
- * The base implementation of methods like `_.difference` without support
- * for excluding multiple arrays or iteratee shorthands.
- *
- * @private
- * @param {Array} array The array to inspect.
- * @param {Array} values The values to exclude.
- * @param {Function} [iteratee] The iteratee invoked per element.
- * @param {Function} [comparator] The comparator invoked per element.
- * @returns {Array} Returns the new array of filtered values.
- */
-function baseDifference(array, values, iteratee, comparator) {
-  var index = -1,
-      includes = _arrayIncludes,
-      isCommon = true,
-      length = array.length,
-      result = [],
-      valuesLength = values.length;
-
-  if (!length) {
-    return result;
-  }
-  if (iteratee) {
-    values = _arrayMap(values, _baseUnary(iteratee));
-  }
-  if (comparator) {
-    includes = _arrayIncludesWith;
-    isCommon = false;
-  }
-  else if (values.length >= LARGE_ARRAY_SIZE) {
-    includes = _cacheHas;
-    isCommon = false;
-    values = new _SetCache(values);
-  }
-  outer:
-  while (++index < length) {
-    var value = array[index],
-        computed = iteratee == null ? value : iteratee(value);
-
-    value = (comparator || value !== 0) ? value : 0;
-    if (isCommon && computed === computed) {
-      var valuesIndex = valuesLength;
-      while (valuesIndex--) {
-        if (values[valuesIndex] === computed) {
-          continue outer;
-        }
-      }
-      result.push(value);
-    }
-    else if (!includes(values, computed, comparator)) {
-      result.push(value);
-    }
-  }
-  return result;
-}
-
-/* harmony default export */ const _baseDifference = (baseDifference);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_arrayPush.js
-/**
- * Appends the elements of `values` to `array`.
- *
- * @private
- * @param {Array} array The array to modify.
- * @param {Array} values The values to append.
- * @returns {Array} Returns `array`.
- */
-function arrayPush(array, values) {
-  var index = -1,
-      length = values.length,
-      offset = array.length;
-
-  while (++index < length) {
-    array[offset + index] = values[index];
-  }
-  return array;
-}
-
-/* harmony default export */ const _arrayPush = (arrayPush);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseIsArguments.js
-
-
-
-/** `Object#toString` result references. */
-var argsTag = '[object Arguments]';
-
-/**
- * The base implementation of `_.isArguments`.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- */
-function baseIsArguments(value) {
-  return lodash_es_isObjectLike(value) && _baseGetTag(value) == argsTag;
-}
-
-/* harmony default export */ const _baseIsArguments = (baseIsArguments);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/isArguments.js
-
-
-
-/** Used for built-in method references. */
-var isArguments_objectProto = Object.prototype;
-
-/** Used to check objects for own properties. */
-var isArguments_hasOwnProperty = isArguments_objectProto.hasOwnProperty;
-
-/** Built-in value references. */
-var propertyIsEnumerable = isArguments_objectProto.propertyIsEnumerable;
-
-/**
- * Checks if `value` is likely an `arguments` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an `arguments` object,
- *  else `false`.
- * @example
- *
- * _.isArguments(function() { return arguments; }());
- * // => true
- *
- * _.isArguments([1, 2, 3]);
- * // => false
- */
-var isArguments = _baseIsArguments(function() { return arguments; }()) ? _baseIsArguments : function(value) {
-  return lodash_es_isObjectLike(value) && isArguments_hasOwnProperty.call(value, 'callee') &&
-    !propertyIsEnumerable.call(value, 'callee');
-};
-
-/* harmony default export */ const lodash_es_isArguments = (isArguments);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/isArray.js
-/**
- * Checks if `value` is classified as an `Array` object.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an array, else `false`.
- * @example
- *
- * _.isArray([1, 2, 3]);
- * // => true
- *
- * _.isArray(document.body.children);
- * // => false
- *
- * _.isArray('abc');
- * // => false
- *
- * _.isArray(_.noop);
- * // => false
- */
-var isArray = Array.isArray;
-
-/* harmony default export */ const lodash_es_isArray = (isArray);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_isFlattenable.js
-
-
-
-
-/** Built-in value references. */
-var spreadableSymbol = _Symbol ? _Symbol.isConcatSpreadable : undefined;
-
-/**
- * Checks if `value` is a flattenable `arguments` object or array.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is flattenable, else `false`.
- */
-function isFlattenable(value) {
-  return lodash_es_isArray(value) || lodash_es_isArguments(value) ||
-    !!(spreadableSymbol && value && value[spreadableSymbol]);
-}
-
-/* harmony default export */ const _isFlattenable = (isFlattenable);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseFlatten.js
-
-
-
-/**
- * The base implementation of `_.flatten` with support for restricting flattening.
- *
- * @private
- * @param {Array} array The array to flatten.
- * @param {number} depth The maximum recursion depth.
- * @param {boolean} [predicate=isFlattenable] The function invoked per iteration.
- * @param {boolean} [isStrict] Restrict to values that pass `predicate` checks.
- * @param {Array} [result=[]] The initial result value.
- * @returns {Array} Returns the new flattened array.
- */
-function baseFlatten(array, depth, predicate, isStrict, result) {
-  var index = -1,
-      length = array.length;
-
-  predicate || (predicate = _isFlattenable);
-  result || (result = []);
-
-  while (++index < length) {
-    var value = array[index];
-    if (depth > 0 && predicate(value)) {
-      if (depth > 1) {
-        // Recursively flatten arrays (susceptible to call stack limits).
-        baseFlatten(value, depth - 1, predicate, isStrict, result);
-      } else {
-        _arrayPush(result, value);
-      }
-    } else if (!isStrict) {
-      result[result.length] = value;
-    }
-  }
-  return result;
-}
-
-/* harmony default export */ const _baseFlatten = (baseFlatten);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/last.js
-/**
- * Gets the last element of `array`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Array
- * @param {Array} array The array to query.
- * @returns {*} Returns the last element of `array`.
- * @example
- *
- * _.last([1, 2, 3]);
- * // => 3
- */
-function last(array) {
-  var length = array == null ? 0 : array.length;
-  return length ? array[length - 1] : undefined;
-}
-
-/* harmony default export */ const lodash_es_last = (last);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/differenceWith.js
-
-
-
-
-
-
-/**
- * This method is like `_.difference` except that it accepts `comparator`
- * which is invoked to compare elements of `array` to `values`. The order and
- * references of result values are determined by the first array. The comparator
- * is invoked with two arguments: (arrVal, othVal).
- *
- * **Note:** Unlike `_.pullAllWith`, this method returns a new array.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Array
- * @param {Array} array The array to inspect.
- * @param {...Array} [values] The values to exclude.
- * @param {Function} [comparator] The comparator invoked per element.
- * @returns {Array} Returns the new array of filtered values.
- * @example
- *
- * var objects = [{ 'x': 1, 'y': 2 }, { 'x': 2, 'y': 1 }];
- *
- * _.differenceWith(objects, [{ 'x': 1, 'y': 2 }], _.isEqual);
- * // => [{ 'x': 2, 'y': 1 }]
- */
-var differenceWith = _baseRest(function(array, values) {
-  var comparator = lodash_es_last(values);
-  if (lodash_es_isArrayLikeObject(comparator)) {
-    comparator = undefined;
-  }
-  return lodash_es_isArrayLikeObject(array)
-    ? _baseDifference(array, _baseFlatten(values, 1, lodash_es_isArrayLikeObject, true), undefined, comparator)
-    : [];
-});
-
-/* harmony default export */ const lodash_es_differenceWith = (differenceWith);
-
 ;// CONCATENATED MODULE: ./node_modules/lodash-es/_stackClear.js
 
 
@@ -50189,7 +49886,7 @@ function stackHas(key) {
 
 
 /** Used as the size to enable large array optimizations. */
-var _stackSet_LARGE_ARRAY_SIZE = 200;
+var LARGE_ARRAY_SIZE = 200;
 
 /**
  * Sets the stack `key` to `value`.
@@ -50205,7 +49902,7 @@ function stackSet(key, value) {
   var data = this.__data__;
   if (data instanceof _ListCache) {
     var pairs = data.__data__;
-    if (!_Map || (pairs.length < _stackSet_LARGE_ARRAY_SIZE - 1)) {
+    if (!_Map || (pairs.length < LARGE_ARRAY_SIZE - 1)) {
       pairs.push([key, value]);
       this.size = ++data.size;
       return this;
@@ -50521,6 +50218,56 @@ function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
 
 /* harmony default export */ const _equalByTag = (equalByTag);
 
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_arrayPush.js
+/**
+ * Appends the elements of `values` to `array`.
+ *
+ * @private
+ * @param {Array} array The array to modify.
+ * @param {Array} values The values to append.
+ * @returns {Array} Returns `array`.
+ */
+function arrayPush(array, values) {
+  var index = -1,
+      length = values.length,
+      offset = array.length;
+
+  while (++index < length) {
+    array[offset + index] = values[index];
+  }
+  return array;
+}
+
+/* harmony default export */ const _arrayPush = (arrayPush);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/isArray.js
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+/* harmony default export */ const lodash_es_isArray = (isArray);
+
 ;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseGetAllKeys.js
 
 
@@ -50603,7 +50350,7 @@ function stubArray() {
 var _getSymbols_objectProto = Object.prototype;
 
 /** Built-in value references. */
-var _getSymbols_propertyIsEnumerable = _getSymbols_objectProto.propertyIsEnumerable;
+var propertyIsEnumerable = _getSymbols_objectProto.propertyIsEnumerable;
 
 /* Built-in method references for those with the same name as other `lodash` methods. */
 var nativeGetSymbols = Object.getOwnPropertySymbols;
@@ -50621,7 +50368,7 @@ var getSymbols = !nativeGetSymbols ? lodash_es_stubArray : function(object) {
   }
   object = Object(object);
   return _arrayFilter(nativeGetSymbols(object), function(symbol) {
-    return _getSymbols_propertyIsEnumerable.call(object, symbol);
+    return propertyIsEnumerable.call(object, symbol);
   });
 };
 
@@ -50648,6 +50395,64 @@ function baseTimes(n, iteratee) {
 }
 
 /* harmony default export */ const _baseTimes = (baseTimes);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseIsArguments.js
+
+
+
+/** `Object#toString` result references. */
+var argsTag = '[object Arguments]';
+
+/**
+ * The base implementation of `_.isArguments`.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ */
+function baseIsArguments(value) {
+  return lodash_es_isObjectLike(value) && _baseGetTag(value) == argsTag;
+}
+
+/* harmony default export */ const _baseIsArguments = (baseIsArguments);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/isArguments.js
+
+
+
+/** Used for built-in method references. */
+var isArguments_objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var isArguments_hasOwnProperty = isArguments_objectProto.hasOwnProperty;
+
+/** Built-in value references. */
+var isArguments_propertyIsEnumerable = isArguments_objectProto.propertyIsEnumerable;
+
+/**
+ * Checks if `value` is likely an `arguments` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an `arguments` object,
+ *  else `false`.
+ * @example
+ *
+ * _.isArguments(function() { return arguments; }());
+ * // => true
+ *
+ * _.isArguments([1, 2, 3]);
+ * // => false
+ */
+var isArguments = _baseIsArguments(function() { return arguments; }()) ? _baseIsArguments : function(value) {
+  return lodash_es_isObjectLike(value) && isArguments_hasOwnProperty.call(value, 'callee') &&
+    !isArguments_propertyIsEnumerable.call(value, 'callee');
+};
+
+/* harmony default export */ const lodash_es_isArguments = (isArguments);
 
 ;// CONCATENATED MODULE: ./node_modules/lodash-es/stubFalse.js
 /**
@@ -51383,6 +51188,201 @@ function isEqual(value, other) {
 }
 
 /* harmony default export */ const lodash_es_isEqual = (isEqual);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseDifference.js
+
+
+
+
+
+
+
+/** Used as the size to enable large array optimizations. */
+var _baseDifference_LARGE_ARRAY_SIZE = 200;
+
+/**
+ * The base implementation of methods like `_.difference` without support
+ * for excluding multiple arrays or iteratee shorthands.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {Array} values The values to exclude.
+ * @param {Function} [iteratee] The iteratee invoked per element.
+ * @param {Function} [comparator] The comparator invoked per element.
+ * @returns {Array} Returns the new array of filtered values.
+ */
+function baseDifference(array, values, iteratee, comparator) {
+  var index = -1,
+      includes = _arrayIncludes,
+      isCommon = true,
+      length = array.length,
+      result = [],
+      valuesLength = values.length;
+
+  if (!length) {
+    return result;
+  }
+  if (iteratee) {
+    values = _arrayMap(values, _baseUnary(iteratee));
+  }
+  if (comparator) {
+    includes = _arrayIncludesWith;
+    isCommon = false;
+  }
+  else if (values.length >= _baseDifference_LARGE_ARRAY_SIZE) {
+    includes = _cacheHas;
+    isCommon = false;
+    values = new _SetCache(values);
+  }
+  outer:
+  while (++index < length) {
+    var value = array[index],
+        computed = iteratee == null ? value : iteratee(value);
+
+    value = (comparator || value !== 0) ? value : 0;
+    if (isCommon && computed === computed) {
+      var valuesIndex = valuesLength;
+      while (valuesIndex--) {
+        if (values[valuesIndex] === computed) {
+          continue outer;
+        }
+      }
+      result.push(value);
+    }
+    else if (!includes(values, computed, comparator)) {
+      result.push(value);
+    }
+  }
+  return result;
+}
+
+/* harmony default export */ const _baseDifference = (baseDifference);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_isFlattenable.js
+
+
+
+
+/** Built-in value references. */
+var spreadableSymbol = _Symbol ? _Symbol.isConcatSpreadable : undefined;
+
+/**
+ * Checks if `value` is a flattenable `arguments` object or array.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is flattenable, else `false`.
+ */
+function isFlattenable(value) {
+  return lodash_es_isArray(value) || lodash_es_isArguments(value) ||
+    !!(spreadableSymbol && value && value[spreadableSymbol]);
+}
+
+/* harmony default export */ const _isFlattenable = (isFlattenable);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseFlatten.js
+
+
+
+/**
+ * The base implementation of `_.flatten` with support for restricting flattening.
+ *
+ * @private
+ * @param {Array} array The array to flatten.
+ * @param {number} depth The maximum recursion depth.
+ * @param {boolean} [predicate=isFlattenable] The function invoked per iteration.
+ * @param {boolean} [isStrict] Restrict to values that pass `predicate` checks.
+ * @param {Array} [result=[]] The initial result value.
+ * @returns {Array} Returns the new flattened array.
+ */
+function baseFlatten(array, depth, predicate, isStrict, result) {
+  var index = -1,
+      length = array.length;
+
+  predicate || (predicate = _isFlattenable);
+  result || (result = []);
+
+  while (++index < length) {
+    var value = array[index];
+    if (depth > 0 && predicate(value)) {
+      if (depth > 1) {
+        // Recursively flatten arrays (susceptible to call stack limits).
+        baseFlatten(value, depth - 1, predicate, isStrict, result);
+      } else {
+        _arrayPush(result, value);
+      }
+    } else if (!isStrict) {
+      result[result.length] = value;
+    }
+  }
+  return result;
+}
+
+/* harmony default export */ const _baseFlatten = (baseFlatten);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/last.js
+/**
+ * Gets the last element of `array`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Array
+ * @param {Array} array The array to query.
+ * @returns {*} Returns the last element of `array`.
+ * @example
+ *
+ * _.last([1, 2, 3]);
+ * // => 3
+ */
+function last(array) {
+  var length = array == null ? 0 : array.length;
+  return length ? array[length - 1] : undefined;
+}
+
+/* harmony default export */ const lodash_es_last = (last);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/differenceWith.js
+
+
+
+
+
+
+/**
+ * This method is like `_.difference` except that it accepts `comparator`
+ * which is invoked to compare elements of `array` to `values`. The order and
+ * references of result values are determined by the first array. The comparator
+ * is invoked with two arguments: (arrVal, othVal).
+ *
+ * **Note:** Unlike `_.pullAllWith`, this method returns a new array.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Array
+ * @param {Array} array The array to inspect.
+ * @param {...Array} [values] The values to exclude.
+ * @param {Function} [comparator] The comparator invoked per element.
+ * @returns {Array} Returns the new array of filtered values.
+ * @example
+ *
+ * var objects = [{ 'x': 1, 'y': 2 }, { 'x': 2, 'y': 1 }];
+ *
+ * _.differenceWith(objects, [{ 'x': 1, 'y': 2 }], _.isEqual);
+ * // => [{ 'x': 2, 'y': 1 }]
+ */
+var differenceWith = _baseRest(function(array, values) {
+  var comparator = lodash_es_last(values);
+  if (lodash_es_isArrayLikeObject(comparator)) {
+    comparator = undefined;
+  }
+  return lodash_es_isArrayLikeObject(array)
+    ? _baseDifference(array, _baseFlatten(values, 1, lodash_es_isArrayLikeObject, true), undefined, comparator)
+    : [];
+});
+
+/* harmony default export */ const lodash_es_differenceWith = (differenceWith);
 
 // EXTERNAL MODULE: ./node_modules/openapi-types/dist/index.js
 var dist = __nccwpck_require__(5194);
@@ -74544,10 +74544,18 @@ const objectEntries = (obj) => Object.entries(obj);
 
 
 const methods = lodash_es_intersection(Object.values(dist/* OpenAPIV2.HttpMethods */.KJ.HttpMethods), Object.values(dist/* OpenAPIV3.HttpMethods */.ZT.HttpMethods));
-const methodRegex = new RegExp(`\\b(?<!\\/)(\\[?${methods.join('|')}\\]?)(?!\\/)\\b`, 'i');
+const methodsSet = new Set(methods);
+const getMethodRegex = (matchMethods) => {
+    const matchUnionStr = matchMethods.join('|');
+    return new RegExp(`\\b(?<!\\/)\\[?${matchUnionStr}|${matchUnionStr.toUpperCase()}\\]?(?!\\/)\\b`);
+};
 const getPathRegex = (path) => {
     const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return new RegExp(`(\\w)?(?<!\\w)${escapedPath}(?!\\w)(\\w)?`);
+};
+const extractPath = (str) => {
+    const match = str.match(/\/\S*?(?=\s|\?|$)/);
+    return match && !match[0].includes(' ') ? match[0] : null;
 };
 const mdastLiterals = (/* unused pure expression or super */ null && ([
     'code',
@@ -74560,6 +74568,7 @@ const literalsToCheck = [
     'inlineCode',
     'text',
 ];
+const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
 const run = async () => {
     try {
         const oasPath = core.getInput('openapi-path', { required: true });
@@ -74592,40 +74601,46 @@ const run = async () => {
         for (const l of literalsToCheck) {
             visitParents(tree, l, (litNode, ancestors) => {
                 const endpoint = oasParsed.endpoints.find(e => getPathRegex(e.path).test(litNode.value) &&
-                    methodRegex.test(litNode.value));
-                if (!endpoint) {
+                    getMethodRegex([e.method]).test(litNode.value));
+                if (!endpoint ||
+                    documentedEndpoints.some(d => lodash_es_isEqual(d.endpoint, endpoint))) {
                     return;
                 }
                 documentedEndpoints.push({
                     node: litNode,
                     endpoint,
-                    parent: ancestors[ancestors.length - 1],
-                    selector: [...ancestors.map(a => a.type), litNode.type].join(' > '),
+                    // parent: ancestors[ancestors.length - 1],
+                    parentSelector: ancestors.map(a => a.type).join(' > '),
                 });
             });
         }
         docParsed.endpoints = structuredClone(documentedEndpoints.map(d => d.endpoint));
-        for (const { node, parent, selector } of documentedEndpoints) {
-            // console.log(selector);
-            const a = selectAll(selector, tree);
-            console.log(a);
-            // visitChildren(child => {
-            //   if (!isLiteralNode(child) || child === node) return;
-            //   console.log(child.value);
-            // for (const method of methods) {
-            //   if (!child.value.includes(method) || !child.value.includes('/')) {
-            //     return;
-            //   }
-            //   docParsed.endpoints.push(child.value);
-            // }
-            // })(parent);
+        for (const { node, parentSelector } of documentedEndpoints) {
+            const siblingSelector = literalsToCheck
+                .map(l => [parentSelector, l].join(' > '))
+                .join(', ');
+            const siblings = selectAll(siblingSelector, tree);
+            for (const sibling of siblings) {
+                if (!isLiteralNode(sibling) || sibling === node)
+                    continue;
+                const matches = getMethodRegex(methods).exec(sibling.value);
+                if (!matches || !sibling.value.includes('/'))
+                    continue;
+                const match = matches[0].toLowerCase();
+                if (!methodsSet.has(match)) {
+                    throw new Error(`Matched method is not a valid method: ${match}`);
+                }
+                const method = match;
+                const path = extractPath(sibling.value);
+                if (!path)
+                    continue;
+                const endpoint = { method, path };
+                if (documentedEndpoints.some(d => lodash_es_isEqual(d.endpoint, endpoint))) {
+                    continue;
+                }
+                docParsed.endpoints.push(endpoint);
+            }
         }
-        // visitParents(tree, 'text', t => {
-        //   for (const method of methods) {
-        //     if (!t.value.includes(method) || !t.value.includes('/')) return;
-        //     docParsed.endpoints.push(t.value);
-        //   }
-        // });
         const notDocumented = lodash_es_differenceWith(oasParsed.endpoints, docParsed.endpoints, lodash_es_isEqual);
         const outdated = lodash_es_differenceWith(docParsed.endpoints, oasParsed.endpoints, lodash_es_isEqual);
         const errors = [];

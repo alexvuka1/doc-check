@@ -2,30 +2,42 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import { differenceWith, intersection, isEqual } from 'lodash-es';
-import { Literals, Node, Parent, Root } from 'mdast';
+import { Literals, Node, Root } from 'mdast';
 import { OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 import { remark } from 'remark';
 import remarkSectionize from 'remark-sectionize';
 import { read } from 'to-vfile';
 import { selectAll } from 'unist-util-select';
-import { visitParents } from 'unist-util-visit-parents';
+import {
+  visitParents,
+  type InclusiveDescendant,
+  type Matches,
+} from 'unist-util-visit-parents';
 import { UnionToArray, objectEntries } from './utils';
 
 const methods = intersection(
   Object.values(OpenAPIV2.HttpMethods),
   Object.values(OpenAPIV3.HttpMethods),
 ) as (`${OpenAPIV2.HttpMethods}` & `${OpenAPIV3.HttpMethods}`)[];
+const methodsSet = new Set(methods);
 
 type Method = (typeof methods)[number];
 
-const methodRegex = new RegExp(
-  `\\b(?<!\\/)(\\[?${methods.join('|')}\\]?)(?!\\/)\\b`,
-  'i',
-);
+const getMethodRegex = (matchMethods: Method[]) => {
+  const matchUnionStr = matchMethods.join('|');
+  return new RegExp(
+    `\\b(?<!\\/)\\[?${matchUnionStr}|${matchUnionStr.toUpperCase()}\\]?(?!\\/)\\b`,
+  );
+};
 
 const getPathRegex = (path: string) => {
   const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return new RegExp(`(\\w)?(?<!\\w)${escapedPath}(?!\\w)(\\w)?`);
+};
+
+const extractPath = (str: string) => {
+  const match = str.match(/\/\S*?(?=\s|\?|$)/);
+  return match && !match[0].includes(' ') ? match[0] : null;
 };
 
 type Endpoint = {
@@ -58,6 +70,14 @@ const literalsToCheck = [
   'inlineCode',
   'text',
 ] as const satisfies (typeof mdastLiterals)[number][];
+
+type LiteralNode = Matches<
+  InclusiveDescendant<Root>,
+  (typeof literalsToCheck)[number]
+>;
+
+const isLiteralNode = (node: Node): node is LiteralNode =>
+  literalsToCheck.some(l => l === node.type);
 
 export const run = async () => {
   try {
@@ -93,8 +113,8 @@ export const run = async () => {
 
     const documentedEndpoints: {
       node: Node & { type: (typeof literalsToCheck)[number] };
-      parent: Parent;
-      selector: string;
+      // parent: Parent;
+      parentSelector: string;
       endpoint: Endpoint;
     }[] = [];
 
@@ -103,16 +123,19 @@ export const run = async () => {
         const endpoint = oasParsed.endpoints.find(
           e =>
             getPathRegex(e.path).test(litNode.value) &&
-            methodRegex.test(litNode.value),
+            getMethodRegex([e.method]).test(litNode.value),
         );
-        if (!endpoint) {
+        if (
+          !endpoint ||
+          documentedEndpoints.some(d => isEqual(d.endpoint, endpoint))
+        ) {
           return;
         }
         documentedEndpoints.push({
           node: litNode,
           endpoint,
-          parent: ancestors[ancestors.length - 1],
-          selector: [...ancestors.map(a => a.type), litNode.type].join(' > '),
+          // parent: ancestors[ancestors.length - 1],
+          parentSelector: ancestors.map(a => a.type).join(' > '),
         });
       });
     }
@@ -121,27 +144,29 @@ export const run = async () => {
       documentedEndpoints.map(d => d.endpoint),
     );
 
-    for (const { node, parent, selector } of documentedEndpoints) {
-      // console.log(selector);
-      const a = selectAll(selector, tree);
-      console.log(a);
-      // visitChildren(child => {
-      //   if (!isLiteralNode(child) || child === node) return;
-      //   console.log(child.value);
-      // for (const method of methods) {
-      //   if (!child.value.includes(method) || !child.value.includes('/')) {
-      //     return;
-      //   }
-      //   docParsed.endpoints.push(child.value);
-      // }
-      // })(parent);
+    for (const { node, parentSelector } of documentedEndpoints) {
+      const siblingSelector = literalsToCheck
+        .map(l => [parentSelector, l].join(' > '))
+        .join(', ');
+      const siblings = selectAll(siblingSelector, tree);
+      for (const sibling of siblings) {
+        if (!isLiteralNode(sibling) || sibling === node) continue;
+        const matches = getMethodRegex(methods).exec(sibling.value);
+        if (!matches || !sibling.value.includes('/')) continue;
+        const match = matches[0].toLowerCase();
+        if (!methodsSet.has(match as Method)) {
+          throw new Error(`Matched method is not a valid method: ${match}`);
+        }
+        const method = match as Method;
+        const path = extractPath(sibling.value);
+        if (!path) continue;
+        const endpoint: Endpoint = { method, path };
+        if (documentedEndpoints.some(d => isEqual(d.endpoint, endpoint))) {
+          continue;
+        }
+        docParsed.endpoints.push(endpoint);
+      }
     }
-    // visitParents(tree, 'text', t => {
-    //   for (const method of methods) {
-    //     if (!t.value.includes(method) || !t.value.includes('/')) return;
-    //     docParsed.endpoints.push(t.value);
-    //   }
-    // });
 
     const notDocumented = differenceWith(
       oasParsed.endpoints,

@@ -50114,6 +50114,1276 @@ var differenceWith = _baseRest(function(array, values) {
 
 /* harmony default export */ const lodash_es_differenceWith = (differenceWith);
 
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_stackClear.js
+
+
+/**
+ * Removes all key-value entries from the stack.
+ *
+ * @private
+ * @name clear
+ * @memberOf Stack
+ */
+function stackClear() {
+  this.__data__ = new _ListCache;
+  this.size = 0;
+}
+
+/* harmony default export */ const _stackClear = (stackClear);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_stackDelete.js
+/**
+ * Removes `key` and its value from the stack.
+ *
+ * @private
+ * @name delete
+ * @memberOf Stack
+ * @param {string} key The key of the value to remove.
+ * @returns {boolean} Returns `true` if the entry was removed, else `false`.
+ */
+function stackDelete(key) {
+  var data = this.__data__,
+      result = data['delete'](key);
+
+  this.size = data.size;
+  return result;
+}
+
+/* harmony default export */ const _stackDelete = (stackDelete);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_stackGet.js
+/**
+ * Gets the stack value for `key`.
+ *
+ * @private
+ * @name get
+ * @memberOf Stack
+ * @param {string} key The key of the value to get.
+ * @returns {*} Returns the entry value.
+ */
+function stackGet(key) {
+  return this.__data__.get(key);
+}
+
+/* harmony default export */ const _stackGet = (stackGet);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_stackHas.js
+/**
+ * Checks if a stack value for `key` exists.
+ *
+ * @private
+ * @name has
+ * @memberOf Stack
+ * @param {string} key The key of the entry to check.
+ * @returns {boolean} Returns `true` if an entry for `key` exists, else `false`.
+ */
+function stackHas(key) {
+  return this.__data__.has(key);
+}
+
+/* harmony default export */ const _stackHas = (stackHas);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_stackSet.js
+
+
+
+
+/** Used as the size to enable large array optimizations. */
+var _stackSet_LARGE_ARRAY_SIZE = 200;
+
+/**
+ * Sets the stack `key` to `value`.
+ *
+ * @private
+ * @name set
+ * @memberOf Stack
+ * @param {string} key The key of the value to set.
+ * @param {*} value The value to set.
+ * @returns {Object} Returns the stack cache instance.
+ */
+function stackSet(key, value) {
+  var data = this.__data__;
+  if (data instanceof _ListCache) {
+    var pairs = data.__data__;
+    if (!_Map || (pairs.length < _stackSet_LARGE_ARRAY_SIZE - 1)) {
+      pairs.push([key, value]);
+      this.size = ++data.size;
+      return this;
+    }
+    data = this.__data__ = new _MapCache(pairs);
+  }
+  data.set(key, value);
+  this.size = data.size;
+  return this;
+}
+
+/* harmony default export */ const _stackSet = (stackSet);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_Stack.js
+
+
+
+
+
+
+
+/**
+ * Creates a stack cache object to store key-value pairs.
+ *
+ * @private
+ * @constructor
+ * @param {Array} [entries] The key-value pairs to cache.
+ */
+function Stack(entries) {
+  var data = this.__data__ = new _ListCache(entries);
+  this.size = data.size;
+}
+
+// Add methods to `Stack`.
+Stack.prototype.clear = _stackClear;
+Stack.prototype['delete'] = _stackDelete;
+Stack.prototype.get = _stackGet;
+Stack.prototype.has = _stackHas;
+Stack.prototype.set = _stackSet;
+
+/* harmony default export */ const _Stack = (Stack);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_arraySome.js
+/**
+ * A specialized version of `_.some` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {boolean} Returns `true` if any element passes the predicate check,
+ *  else `false`.
+ */
+function arraySome(array, predicate) {
+  var index = -1,
+      length = array == null ? 0 : array.length;
+
+  while (++index < length) {
+    if (predicate(array[index], index, array)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/* harmony default export */ const _arraySome = (arraySome);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_equalArrays.js
+
+
+
+
+/** Used to compose bitmasks for value comparisons. */
+var COMPARE_PARTIAL_FLAG = 1,
+    COMPARE_UNORDERED_FLAG = 2;
+
+/**
+ * A specialized version of `baseIsEqualDeep` for arrays with support for
+ * partial deep comparisons.
+ *
+ * @private
+ * @param {Array} array The array to compare.
+ * @param {Array} other The other array to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} stack Tracks traversed `array` and `other` objects.
+ * @returns {boolean} Returns `true` if the arrays are equivalent, else `false`.
+ */
+function equalArrays(array, other, bitmask, customizer, equalFunc, stack) {
+  var isPartial = bitmask & COMPARE_PARTIAL_FLAG,
+      arrLength = array.length,
+      othLength = other.length;
+
+  if (arrLength != othLength && !(isPartial && othLength > arrLength)) {
+    return false;
+  }
+  // Check that cyclic values are equal.
+  var arrStacked = stack.get(array);
+  var othStacked = stack.get(other);
+  if (arrStacked && othStacked) {
+    return arrStacked == other && othStacked == array;
+  }
+  var index = -1,
+      result = true,
+      seen = (bitmask & COMPARE_UNORDERED_FLAG) ? new _SetCache : undefined;
+
+  stack.set(array, other);
+  stack.set(other, array);
+
+  // Ignore non-index properties.
+  while (++index < arrLength) {
+    var arrValue = array[index],
+        othValue = other[index];
+
+    if (customizer) {
+      var compared = isPartial
+        ? customizer(othValue, arrValue, index, other, array, stack)
+        : customizer(arrValue, othValue, index, array, other, stack);
+    }
+    if (compared !== undefined) {
+      if (compared) {
+        continue;
+      }
+      result = false;
+      break;
+    }
+    // Recursively compare arrays (susceptible to call stack limits).
+    if (seen) {
+      if (!_arraySome(other, function(othValue, othIndex) {
+            if (!_cacheHas(seen, othIndex) &&
+                (arrValue === othValue || equalFunc(arrValue, othValue, bitmask, customizer, stack))) {
+              return seen.push(othIndex);
+            }
+          })) {
+        result = false;
+        break;
+      }
+    } else if (!(
+          arrValue === othValue ||
+            equalFunc(arrValue, othValue, bitmask, customizer, stack)
+        )) {
+      result = false;
+      break;
+    }
+  }
+  stack['delete'](array);
+  stack['delete'](other);
+  return result;
+}
+
+/* harmony default export */ const _equalArrays = (equalArrays);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_Uint8Array.js
+
+
+/** Built-in value references. */
+var Uint8Array = _root.Uint8Array;
+
+/* harmony default export */ const _Uint8Array = (Uint8Array);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_mapToArray.js
+/**
+ * Converts `map` to its key-value pairs.
+ *
+ * @private
+ * @param {Object} map The map to convert.
+ * @returns {Array} Returns the key-value pairs.
+ */
+function mapToArray(map) {
+  var index = -1,
+      result = Array(map.size);
+
+  map.forEach(function(value, key) {
+    result[++index] = [key, value];
+  });
+  return result;
+}
+
+/* harmony default export */ const _mapToArray = (mapToArray);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_setToArray.js
+/**
+ * Converts `set` to an array of its values.
+ *
+ * @private
+ * @param {Object} set The set to convert.
+ * @returns {Array} Returns the values.
+ */
+function setToArray(set) {
+  var index = -1,
+      result = Array(set.size);
+
+  set.forEach(function(value) {
+    result[++index] = value;
+  });
+  return result;
+}
+
+/* harmony default export */ const _setToArray = (setToArray);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_equalByTag.js
+
+
+
+
+
+
+
+/** Used to compose bitmasks for value comparisons. */
+var _equalByTag_COMPARE_PARTIAL_FLAG = 1,
+    _equalByTag_COMPARE_UNORDERED_FLAG = 2;
+
+/** `Object#toString` result references. */
+var boolTag = '[object Boolean]',
+    dateTag = '[object Date]',
+    errorTag = '[object Error]',
+    mapTag = '[object Map]',
+    numberTag = '[object Number]',
+    regexpTag = '[object RegExp]',
+    setTag = '[object Set]',
+    stringTag = '[object String]',
+    symbolTag = '[object Symbol]';
+
+var arrayBufferTag = '[object ArrayBuffer]',
+    dataViewTag = '[object DataView]';
+
+/** Used to convert symbols to primitives and strings. */
+var symbolProto = _Symbol ? _Symbol.prototype : undefined,
+    symbolValueOf = symbolProto ? symbolProto.valueOf : undefined;
+
+/**
+ * A specialized version of `baseIsEqualDeep` for comparing objects of
+ * the same `toStringTag`.
+ *
+ * **Note:** This function only supports comparing values with tags of
+ * `Boolean`, `Date`, `Error`, `Number`, `RegExp`, or `String`.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {string} tag The `toStringTag` of the objects to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} stack Tracks traversed `object` and `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+function equalByTag(object, other, tag, bitmask, customizer, equalFunc, stack) {
+  switch (tag) {
+    case dataViewTag:
+      if ((object.byteLength != other.byteLength) ||
+          (object.byteOffset != other.byteOffset)) {
+        return false;
+      }
+      object = object.buffer;
+      other = other.buffer;
+
+    case arrayBufferTag:
+      if ((object.byteLength != other.byteLength) ||
+          !equalFunc(new _Uint8Array(object), new _Uint8Array(other))) {
+        return false;
+      }
+      return true;
+
+    case boolTag:
+    case dateTag:
+    case numberTag:
+      // Coerce booleans to `1` or `0` and dates to milliseconds.
+      // Invalid dates are coerced to `NaN`.
+      return lodash_es_eq(+object, +other);
+
+    case errorTag:
+      return object.name == other.name && object.message == other.message;
+
+    case regexpTag:
+    case stringTag:
+      // Coerce regexes to strings and treat strings, primitives and objects,
+      // as equal. See http://www.ecma-international.org/ecma-262/7.0/#sec-regexp.prototype.tostring
+      // for more details.
+      return object == (other + '');
+
+    case mapTag:
+      var convert = _mapToArray;
+
+    case setTag:
+      var isPartial = bitmask & _equalByTag_COMPARE_PARTIAL_FLAG;
+      convert || (convert = _setToArray);
+
+      if (object.size != other.size && !isPartial) {
+        return false;
+      }
+      // Assume cyclic values are equal.
+      var stacked = stack.get(object);
+      if (stacked) {
+        return stacked == other;
+      }
+      bitmask |= _equalByTag_COMPARE_UNORDERED_FLAG;
+
+      // Recursively compare objects (susceptible to call stack limits).
+      stack.set(object, other);
+      var result = _equalArrays(convert(object), convert(other), bitmask, customizer, equalFunc, stack);
+      stack['delete'](object);
+      return result;
+
+    case symbolTag:
+      if (symbolValueOf) {
+        return symbolValueOf.call(object) == symbolValueOf.call(other);
+      }
+  }
+  return false;
+}
+
+/* harmony default export */ const _equalByTag = (equalByTag);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseGetAllKeys.js
+
+
+
+/**
+ * The base implementation of `getAllKeys` and `getAllKeysIn` which uses
+ * `keysFunc` and `symbolsFunc` to get the enumerable property names and
+ * symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Function} keysFunc The function to get the keys of `object`.
+ * @param {Function} symbolsFunc The function to get the symbols of `object`.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function baseGetAllKeys(object, keysFunc, symbolsFunc) {
+  var result = keysFunc(object);
+  return lodash_es_isArray(object) ? result : _arrayPush(result, symbolsFunc(object));
+}
+
+/* harmony default export */ const _baseGetAllKeys = (baseGetAllKeys);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_arrayFilter.js
+/**
+ * A specialized version of `_.filter` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} predicate The function invoked per iteration.
+ * @returns {Array} Returns the new filtered array.
+ */
+function arrayFilter(array, predicate) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      resIndex = 0,
+      result = [];
+
+  while (++index < length) {
+    var value = array[index];
+    if (predicate(value, index, array)) {
+      result[resIndex++] = value;
+    }
+  }
+  return result;
+}
+
+/* harmony default export */ const _arrayFilter = (arrayFilter);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/stubArray.js
+/**
+ * This method returns a new empty array.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {Array} Returns the new empty array.
+ * @example
+ *
+ * var arrays = _.times(2, _.stubArray);
+ *
+ * console.log(arrays);
+ * // => [[], []]
+ *
+ * console.log(arrays[0] === arrays[1]);
+ * // => false
+ */
+function stubArray() {
+  return [];
+}
+
+/* harmony default export */ const lodash_es_stubArray = (stubArray);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_getSymbols.js
+
+
+
+/** Used for built-in method references. */
+var _getSymbols_objectProto = Object.prototype;
+
+/** Built-in value references. */
+var _getSymbols_propertyIsEnumerable = _getSymbols_objectProto.propertyIsEnumerable;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeGetSymbols = Object.getOwnPropertySymbols;
+
+/**
+ * Creates an array of the own enumerable symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of symbols.
+ */
+var getSymbols = !nativeGetSymbols ? lodash_es_stubArray : function(object) {
+  if (object == null) {
+    return [];
+  }
+  object = Object(object);
+  return _arrayFilter(nativeGetSymbols(object), function(symbol) {
+    return _getSymbols_propertyIsEnumerable.call(object, symbol);
+  });
+};
+
+/* harmony default export */ const _getSymbols = (getSymbols);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseTimes.js
+/**
+ * The base implementation of `_.times` without support for iteratee shorthands
+ * or max array length checks.
+ *
+ * @private
+ * @param {number} n The number of times to invoke `iteratee`.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the array of results.
+ */
+function baseTimes(n, iteratee) {
+  var index = -1,
+      result = Array(n);
+
+  while (++index < n) {
+    result[index] = iteratee(index);
+  }
+  return result;
+}
+
+/* harmony default export */ const _baseTimes = (baseTimes);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/stubFalse.js
+/**
+ * This method returns `false`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.13.0
+ * @category Util
+ * @returns {boolean} Returns `false`.
+ * @example
+ *
+ * _.times(2, _.stubFalse);
+ * // => [false, false]
+ */
+function stubFalse() {
+  return false;
+}
+
+/* harmony default export */ const lodash_es_stubFalse = (stubFalse);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/isBuffer.js
+
+
+
+/** Detect free variable `exports`. */
+var freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+
+/** Detect free variable `module`. */
+var freeModule = freeExports && typeof module == 'object' && module && !module.nodeType && module;
+
+/** Detect the popular CommonJS extension `module.exports`. */
+var moduleExports = freeModule && freeModule.exports === freeExports;
+
+/** Built-in value references. */
+var Buffer = moduleExports ? _root.Buffer : undefined;
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeIsBuffer = Buffer ? Buffer.isBuffer : undefined;
+
+/**
+ * Checks if `value` is a buffer.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.3.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a buffer, else `false`.
+ * @example
+ *
+ * _.isBuffer(new Buffer(2));
+ * // => true
+ *
+ * _.isBuffer(new Uint8Array(2));
+ * // => false
+ */
+var isBuffer = nativeIsBuffer || lodash_es_stubFalse;
+
+/* harmony default export */ const lodash_es_isBuffer = (isBuffer);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_isIndex.js
+/** Used as references for various `Number` constants. */
+var _isIndex_MAX_SAFE_INTEGER = 9007199254740991;
+
+/** Used to detect unsigned integer values. */
+var reIsUint = /^(?:0|[1-9]\d*)$/;
+
+/**
+ * Checks if `value` is a valid array-like index.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {number} [length=MAX_SAFE_INTEGER] The upper bounds of a valid index.
+ * @returns {boolean} Returns `true` if `value` is a valid index, else `false`.
+ */
+function isIndex(value, length) {
+  var type = typeof value;
+  length = length == null ? _isIndex_MAX_SAFE_INTEGER : length;
+
+  return !!length &&
+    (type == 'number' ||
+      (type != 'symbol' && reIsUint.test(value))) &&
+        (value > -1 && value % 1 == 0 && value < length);
+}
+
+/* harmony default export */ const _isIndex = (isIndex);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseIsTypedArray.js
+
+
+
+
+/** `Object#toString` result references. */
+var _baseIsTypedArray_argsTag = '[object Arguments]',
+    arrayTag = '[object Array]',
+    _baseIsTypedArray_boolTag = '[object Boolean]',
+    _baseIsTypedArray_dateTag = '[object Date]',
+    _baseIsTypedArray_errorTag = '[object Error]',
+    _baseIsTypedArray_funcTag = '[object Function]',
+    _baseIsTypedArray_mapTag = '[object Map]',
+    _baseIsTypedArray_numberTag = '[object Number]',
+    objectTag = '[object Object]',
+    _baseIsTypedArray_regexpTag = '[object RegExp]',
+    _baseIsTypedArray_setTag = '[object Set]',
+    _baseIsTypedArray_stringTag = '[object String]',
+    weakMapTag = '[object WeakMap]';
+
+var _baseIsTypedArray_arrayBufferTag = '[object ArrayBuffer]',
+    _baseIsTypedArray_dataViewTag = '[object DataView]',
+    float32Tag = '[object Float32Array]',
+    float64Tag = '[object Float64Array]',
+    int8Tag = '[object Int8Array]',
+    int16Tag = '[object Int16Array]',
+    int32Tag = '[object Int32Array]',
+    uint8Tag = '[object Uint8Array]',
+    uint8ClampedTag = '[object Uint8ClampedArray]',
+    uint16Tag = '[object Uint16Array]',
+    uint32Tag = '[object Uint32Array]';
+
+/** Used to identify `toStringTag` values of typed arrays. */
+var typedArrayTags = {};
+typedArrayTags[float32Tag] = typedArrayTags[float64Tag] =
+typedArrayTags[int8Tag] = typedArrayTags[int16Tag] =
+typedArrayTags[int32Tag] = typedArrayTags[uint8Tag] =
+typedArrayTags[uint8ClampedTag] = typedArrayTags[uint16Tag] =
+typedArrayTags[uint32Tag] = true;
+typedArrayTags[_baseIsTypedArray_argsTag] = typedArrayTags[arrayTag] =
+typedArrayTags[_baseIsTypedArray_arrayBufferTag] = typedArrayTags[_baseIsTypedArray_boolTag] =
+typedArrayTags[_baseIsTypedArray_dataViewTag] = typedArrayTags[_baseIsTypedArray_dateTag] =
+typedArrayTags[_baseIsTypedArray_errorTag] = typedArrayTags[_baseIsTypedArray_funcTag] =
+typedArrayTags[_baseIsTypedArray_mapTag] = typedArrayTags[_baseIsTypedArray_numberTag] =
+typedArrayTags[objectTag] = typedArrayTags[_baseIsTypedArray_regexpTag] =
+typedArrayTags[_baseIsTypedArray_setTag] = typedArrayTags[_baseIsTypedArray_stringTag] =
+typedArrayTags[weakMapTag] = false;
+
+/**
+ * The base implementation of `_.isTypedArray` without Node.js optimizations.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+ */
+function baseIsTypedArray(value) {
+  return lodash_es_isObjectLike(value) &&
+    lodash_es_isLength(value.length) && !!typedArrayTags[_baseGetTag(value)];
+}
+
+/* harmony default export */ const _baseIsTypedArray = (baseIsTypedArray);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_nodeUtil.js
+
+
+/** Detect free variable `exports`. */
+var _nodeUtil_freeExports = typeof exports == 'object' && exports && !exports.nodeType && exports;
+
+/** Detect free variable `module`. */
+var _nodeUtil_freeModule = _nodeUtil_freeExports && typeof module == 'object' && module && !module.nodeType && module;
+
+/** Detect the popular CommonJS extension `module.exports`. */
+var _nodeUtil_moduleExports = _nodeUtil_freeModule && _nodeUtil_freeModule.exports === _nodeUtil_freeExports;
+
+/** Detect free variable `process` from Node.js. */
+var freeProcess = _nodeUtil_moduleExports && _freeGlobal.process;
+
+/** Used to access faster Node.js helpers. */
+var nodeUtil = (function() {
+  try {
+    // Use `util.types` for Node.js 10+.
+    var types = _nodeUtil_freeModule && _nodeUtil_freeModule.require && _nodeUtil_freeModule.require('util').types;
+
+    if (types) {
+      return types;
+    }
+
+    // Legacy `process.binding('util')` for Node.js < 10.
+    return freeProcess && freeProcess.binding && freeProcess.binding('util');
+  } catch (e) {}
+}());
+
+/* harmony default export */ const _nodeUtil = (nodeUtil);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/isTypedArray.js
+
+
+
+
+/* Node.js helper references. */
+var nodeIsTypedArray = _nodeUtil && _nodeUtil.isTypedArray;
+
+/**
+ * Checks if `value` is classified as a typed array.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a typed array, else `false`.
+ * @example
+ *
+ * _.isTypedArray(new Uint8Array);
+ * // => true
+ *
+ * _.isTypedArray([]);
+ * // => false
+ */
+var isTypedArray = nodeIsTypedArray ? _baseUnary(nodeIsTypedArray) : _baseIsTypedArray;
+
+/* harmony default export */ const lodash_es_isTypedArray = (isTypedArray);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_arrayLikeKeys.js
+
+
+
+
+
+
+
+/** Used for built-in method references. */
+var _arrayLikeKeys_objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var _arrayLikeKeys_hasOwnProperty = _arrayLikeKeys_objectProto.hasOwnProperty;
+
+/**
+ * Creates an array of the enumerable property names of the array-like `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @param {boolean} inherited Specify returning inherited property names.
+ * @returns {Array} Returns the array of property names.
+ */
+function arrayLikeKeys(value, inherited) {
+  var isArr = lodash_es_isArray(value),
+      isArg = !isArr && lodash_es_isArguments(value),
+      isBuff = !isArr && !isArg && lodash_es_isBuffer(value),
+      isType = !isArr && !isArg && !isBuff && lodash_es_isTypedArray(value),
+      skipIndexes = isArr || isArg || isBuff || isType,
+      result = skipIndexes ? _baseTimes(value.length, String) : [],
+      length = result.length;
+
+  for (var key in value) {
+    if ((inherited || _arrayLikeKeys_hasOwnProperty.call(value, key)) &&
+        !(skipIndexes && (
+           // Safari 9 has enumerable `arguments.length` in strict mode.
+           key == 'length' ||
+           // Node.js 0.10 has enumerable non-index properties on buffers.
+           (isBuff && (key == 'offset' || key == 'parent')) ||
+           // PhantomJS 2 has enumerable non-index properties on typed arrays.
+           (isType && (key == 'buffer' || key == 'byteLength' || key == 'byteOffset')) ||
+           // Skip index properties.
+           _isIndex(key, length)
+        ))) {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+/* harmony default export */ const _arrayLikeKeys = (arrayLikeKeys);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_isPrototype.js
+/** Used for built-in method references. */
+var _isPrototype_objectProto = Object.prototype;
+
+/**
+ * Checks if `value` is likely a prototype object.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a prototype, else `false`.
+ */
+function isPrototype(value) {
+  var Ctor = value && value.constructor,
+      proto = (typeof Ctor == 'function' && Ctor.prototype) || _isPrototype_objectProto;
+
+  return value === proto;
+}
+
+/* harmony default export */ const _isPrototype = (isPrototype);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_overArg.js
+/**
+ * Creates a unary function that invokes `func` with its argument transformed.
+ *
+ * @private
+ * @param {Function} func The function to wrap.
+ * @param {Function} transform The argument transform.
+ * @returns {Function} Returns the new function.
+ */
+function overArg(func, transform) {
+  return function(arg) {
+    return func(transform(arg));
+  };
+}
+
+/* harmony default export */ const _overArg = (overArg);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_nativeKeys.js
+
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var nativeKeys = _overArg(Object.keys, Object);
+
+/* harmony default export */ const _nativeKeys = (nativeKeys);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseKeys.js
+
+
+
+/** Used for built-in method references. */
+var _baseKeys_objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var _baseKeys_hasOwnProperty = _baseKeys_objectProto.hasOwnProperty;
+
+/**
+ * The base implementation of `_.keys` which doesn't treat sparse arrays as dense.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ */
+function baseKeys(object) {
+  if (!_isPrototype(object)) {
+    return _nativeKeys(object);
+  }
+  var result = [];
+  for (var key in Object(object)) {
+    if (_baseKeys_hasOwnProperty.call(object, key) && key != 'constructor') {
+      result.push(key);
+    }
+  }
+  return result;
+}
+
+/* harmony default export */ const _baseKeys = (baseKeys);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/keys.js
+
+
+
+
+/**
+ * Creates an array of the own enumerable property names of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects. See the
+ * [ES spec](http://ecma-international.org/ecma-262/7.0/#sec-object.keys)
+ * for more details.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.keys(new Foo);
+ * // => ['a', 'b'] (iteration order is not guaranteed)
+ *
+ * _.keys('hi');
+ * // => ['0', '1']
+ */
+function keys(object) {
+  return lodash_es_isArrayLike(object) ? _arrayLikeKeys(object) : _baseKeys(object);
+}
+
+/* harmony default export */ const lodash_es_keys = (keys);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_getAllKeys.js
+
+
+
+
+/**
+ * Creates an array of own enumerable property names and symbols of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property names and symbols.
+ */
+function getAllKeys(object) {
+  return _baseGetAllKeys(object, lodash_es_keys, _getSymbols);
+}
+
+/* harmony default export */ const _getAllKeys = (getAllKeys);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_equalObjects.js
+
+
+/** Used to compose bitmasks for value comparisons. */
+var _equalObjects_COMPARE_PARTIAL_FLAG = 1;
+
+/** Used for built-in method references. */
+var _equalObjects_objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var _equalObjects_hasOwnProperty = _equalObjects_objectProto.hasOwnProperty;
+
+/**
+ * A specialized version of `baseIsEqualDeep` for objects with support for
+ * partial deep comparisons.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} stack Tracks traversed `object` and `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+function equalObjects(object, other, bitmask, customizer, equalFunc, stack) {
+  var isPartial = bitmask & _equalObjects_COMPARE_PARTIAL_FLAG,
+      objProps = _getAllKeys(object),
+      objLength = objProps.length,
+      othProps = _getAllKeys(other),
+      othLength = othProps.length;
+
+  if (objLength != othLength && !isPartial) {
+    return false;
+  }
+  var index = objLength;
+  while (index--) {
+    var key = objProps[index];
+    if (!(isPartial ? key in other : _equalObjects_hasOwnProperty.call(other, key))) {
+      return false;
+    }
+  }
+  // Check that cyclic values are equal.
+  var objStacked = stack.get(object);
+  var othStacked = stack.get(other);
+  if (objStacked && othStacked) {
+    return objStacked == other && othStacked == object;
+  }
+  var result = true;
+  stack.set(object, other);
+  stack.set(other, object);
+
+  var skipCtor = isPartial;
+  while (++index < objLength) {
+    key = objProps[index];
+    var objValue = object[key],
+        othValue = other[key];
+
+    if (customizer) {
+      var compared = isPartial
+        ? customizer(othValue, objValue, key, other, object, stack)
+        : customizer(objValue, othValue, key, object, other, stack);
+    }
+    // Recursively compare objects (susceptible to call stack limits).
+    if (!(compared === undefined
+          ? (objValue === othValue || equalFunc(objValue, othValue, bitmask, customizer, stack))
+          : compared
+        )) {
+      result = false;
+      break;
+    }
+    skipCtor || (skipCtor = key == 'constructor');
+  }
+  if (result && !skipCtor) {
+    var objCtor = object.constructor,
+        othCtor = other.constructor;
+
+    // Non `Object` object instances with different constructors are not equal.
+    if (objCtor != othCtor &&
+        ('constructor' in object && 'constructor' in other) &&
+        !(typeof objCtor == 'function' && objCtor instanceof objCtor &&
+          typeof othCtor == 'function' && othCtor instanceof othCtor)) {
+      result = false;
+    }
+  }
+  stack['delete'](object);
+  stack['delete'](other);
+  return result;
+}
+
+/* harmony default export */ const _equalObjects = (equalObjects);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_DataView.js
+
+
+
+/* Built-in method references that are verified to be native. */
+var DataView = _getNative(_root, 'DataView');
+
+/* harmony default export */ const _DataView = (DataView);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_Promise.js
+
+
+
+/* Built-in method references that are verified to be native. */
+var _Promise_Promise = _getNative(_root, 'Promise');
+
+/* harmony default export */ const _Promise = (_Promise_Promise);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_Set.js
+
+
+
+/* Built-in method references that are verified to be native. */
+var _Set_Set = _getNative(_root, 'Set');
+
+/* harmony default export */ const _Set = (_Set_Set);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_WeakMap.js
+
+
+
+/* Built-in method references that are verified to be native. */
+var WeakMap = _getNative(_root, 'WeakMap');
+
+/* harmony default export */ const _WeakMap = (WeakMap);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_getTag.js
+
+
+
+
+
+
+
+
+/** `Object#toString` result references. */
+var _getTag_mapTag = '[object Map]',
+    _getTag_objectTag = '[object Object]',
+    promiseTag = '[object Promise]',
+    _getTag_setTag = '[object Set]',
+    _getTag_weakMapTag = '[object WeakMap]';
+
+var _getTag_dataViewTag = '[object DataView]';
+
+/** Used to detect maps, sets, and weakmaps. */
+var dataViewCtorString = _toSource(_DataView),
+    mapCtorString = _toSource(_Map),
+    promiseCtorString = _toSource(_Promise),
+    setCtorString = _toSource(_Set),
+    weakMapCtorString = _toSource(_WeakMap);
+
+/**
+ * Gets the `toStringTag` of `value`.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+var getTag = _baseGetTag;
+
+// Fallback for data views, maps, sets, and weak maps in IE 11 and promises in Node.js < 6.
+if ((_DataView && getTag(new _DataView(new ArrayBuffer(1))) != _getTag_dataViewTag) ||
+    (_Map && getTag(new _Map) != _getTag_mapTag) ||
+    (_Promise && getTag(_Promise.resolve()) != promiseTag) ||
+    (_Set && getTag(new _Set) != _getTag_setTag) ||
+    (_WeakMap && getTag(new _WeakMap) != _getTag_weakMapTag)) {
+  getTag = function(value) {
+    var result = _baseGetTag(value),
+        Ctor = result == _getTag_objectTag ? value.constructor : undefined,
+        ctorString = Ctor ? _toSource(Ctor) : '';
+
+    if (ctorString) {
+      switch (ctorString) {
+        case dataViewCtorString: return _getTag_dataViewTag;
+        case mapCtorString: return _getTag_mapTag;
+        case promiseCtorString: return promiseTag;
+        case setCtorString: return _getTag_setTag;
+        case weakMapCtorString: return _getTag_weakMapTag;
+      }
+    }
+    return result;
+  };
+}
+
+/* harmony default export */ const _getTag = (getTag);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseIsEqualDeep.js
+
+
+
+
+
+
+
+
+
+/** Used to compose bitmasks for value comparisons. */
+var _baseIsEqualDeep_COMPARE_PARTIAL_FLAG = 1;
+
+/** `Object#toString` result references. */
+var _baseIsEqualDeep_argsTag = '[object Arguments]',
+    _baseIsEqualDeep_arrayTag = '[object Array]',
+    _baseIsEqualDeep_objectTag = '[object Object]';
+
+/** Used for built-in method references. */
+var _baseIsEqualDeep_objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var _baseIsEqualDeep_hasOwnProperty = _baseIsEqualDeep_objectProto.hasOwnProperty;
+
+/**
+ * A specialized version of `baseIsEqual` for arrays and objects which performs
+ * deep comparisons and tracks traversed objects enabling objects with circular
+ * references to be compared.
+ *
+ * @private
+ * @param {Object} object The object to compare.
+ * @param {Object} other The other object to compare.
+ * @param {number} bitmask The bitmask flags. See `baseIsEqual` for more details.
+ * @param {Function} customizer The function to customize comparisons.
+ * @param {Function} equalFunc The function to determine equivalents of values.
+ * @param {Object} [stack] Tracks traversed `object` and `other` objects.
+ * @returns {boolean} Returns `true` if the objects are equivalent, else `false`.
+ */
+function baseIsEqualDeep(object, other, bitmask, customizer, equalFunc, stack) {
+  var objIsArr = lodash_es_isArray(object),
+      othIsArr = lodash_es_isArray(other),
+      objTag = objIsArr ? _baseIsEqualDeep_arrayTag : _getTag(object),
+      othTag = othIsArr ? _baseIsEqualDeep_arrayTag : _getTag(other);
+
+  objTag = objTag == _baseIsEqualDeep_argsTag ? _baseIsEqualDeep_objectTag : objTag;
+  othTag = othTag == _baseIsEqualDeep_argsTag ? _baseIsEqualDeep_objectTag : othTag;
+
+  var objIsObj = objTag == _baseIsEqualDeep_objectTag,
+      othIsObj = othTag == _baseIsEqualDeep_objectTag,
+      isSameTag = objTag == othTag;
+
+  if (isSameTag && lodash_es_isBuffer(object)) {
+    if (!lodash_es_isBuffer(other)) {
+      return false;
+    }
+    objIsArr = true;
+    objIsObj = false;
+  }
+  if (isSameTag && !objIsObj) {
+    stack || (stack = new _Stack);
+    return (objIsArr || lodash_es_isTypedArray(object))
+      ? _equalArrays(object, other, bitmask, customizer, equalFunc, stack)
+      : _equalByTag(object, other, objTag, bitmask, customizer, equalFunc, stack);
+  }
+  if (!(bitmask & _baseIsEqualDeep_COMPARE_PARTIAL_FLAG)) {
+    var objIsWrapped = objIsObj && _baseIsEqualDeep_hasOwnProperty.call(object, '__wrapped__'),
+        othIsWrapped = othIsObj && _baseIsEqualDeep_hasOwnProperty.call(other, '__wrapped__');
+
+    if (objIsWrapped || othIsWrapped) {
+      var objUnwrapped = objIsWrapped ? object.value() : object,
+          othUnwrapped = othIsWrapped ? other.value() : other;
+
+      stack || (stack = new _Stack);
+      return equalFunc(objUnwrapped, othUnwrapped, bitmask, customizer, stack);
+    }
+  }
+  if (!isSameTag) {
+    return false;
+  }
+  stack || (stack = new _Stack);
+  return _equalObjects(object, other, bitmask, customizer, equalFunc, stack);
+}
+
+/* harmony default export */ const _baseIsEqualDeep = (baseIsEqualDeep);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseIsEqual.js
+
+
+
+/**
+ * The base implementation of `_.isEqual` which supports partial comparisons
+ * and tracks traversed objects.
+ *
+ * @private
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @param {boolean} bitmask The bitmask flags.
+ *  1 - Unordered comparison
+ *  2 - Partial comparison
+ * @param {Function} [customizer] The function to customize comparisons.
+ * @param {Object} [stack] Tracks traversed `value` and `other` objects.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ */
+function baseIsEqual(value, other, bitmask, customizer, stack) {
+  if (value === other) {
+    return true;
+  }
+  if (value == null || other == null || (!lodash_es_isObjectLike(value) && !lodash_es_isObjectLike(other))) {
+    return value !== value && other !== other;
+  }
+  return _baseIsEqualDeep(value, other, bitmask, customizer, baseIsEqual, stack);
+}
+
+/* harmony default export */ const _baseIsEqual = (baseIsEqual);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/isEqual.js
+
+
+/**
+ * Performs a deep comparison between two values to determine if they are
+ * equivalent.
+ *
+ * **Note:** This method supports comparing arrays, array buffers, booleans,
+ * date objects, error objects, maps, numbers, `Object` objects, regexes,
+ * sets, strings, symbols, and typed arrays. `Object` objects are compared
+ * by their own, not inherited, enumerable properties. Functions and DOM
+ * nodes are compared by strict equality, i.e. `===`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to compare.
+ * @param {*} other The other value to compare.
+ * @returns {boolean} Returns `true` if the values are equivalent, else `false`.
+ * @example
+ *
+ * var object = { 'a': 1 };
+ * var other = { 'a': 1 };
+ *
+ * _.isEqual(object, other);
+ * // => true
+ *
+ * object === other;
+ * // => false
+ */
+function isEqual(value, other) {
+  return _baseIsEqual(value, other);
+}
+
+/* harmony default export */ const lodash_es_isEqual = (isEqual);
+
 // EXTERNAL MODULE: ./node_modules/openapi-types/dist/index.js
 var dist = __nccwpck_require__(5194);
 ;// CONCATENATED MODULE: ./node_modules/mdast-util-to-string/lib/index.js
@@ -69134,6 +70404,1161 @@ function lib_isUint8Array(value) {
  */
 const remark = unified().use(remarkParse).use(remarkStringify).freeze()
 
+;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-find-after/node_modules/unist-util-is/lib/index.js
+/**
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ */
+
+/**
+ * @typedef {Record<string, unknown>} Props
+ * @typedef {null | undefined | string | Props | TestFunctionAnything | Array<string | Props | TestFunctionAnything>} Test
+ *   Check for an arbitrary node, unaware of TypeScript inferral.
+ *
+ * @callback TestFunctionAnything
+ *   Check if a node passes a test, unaware of TypeScript inferral.
+ * @param {unknown} this
+ *   The given context.
+ * @param {Node} node
+ *   A node.
+ * @param {number | null | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} [parent]
+ *   The node’s parent.
+ * @returns {boolean | void}
+ *   Whether this node passes the test.
+ */
+
+/**
+ * @template {Node} Kind
+ *   Node type.
+ * @typedef {Kind['type'] | Partial<Kind> | TestFunctionPredicate<Kind> | Array<Kind['type'] | Partial<Kind> | TestFunctionPredicate<Kind>>} PredicateTest
+ *   Check for a node that can be inferred by TypeScript.
+ */
+
+/**
+ * Check if a node passes a certain test.
+ *
+ * @template {Node} Kind
+ *   Node type.
+ * @callback TestFunctionPredicate
+ *   Complex test function for a node that can be inferred by TypeScript.
+ * @param {Node} node
+ *   A node.
+ * @param {number | null | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} [parent]
+ *   The node’s parent.
+ * @returns {node is Kind}
+ *   Whether this node passes the test.
+ */
+
+/**
+ * @callback AssertAnything
+ *   Check that an arbitrary value is a node, unaware of TypeScript inferral.
+ * @param {unknown} [node]
+ *   Anything (typically a node).
+ * @param {number | null | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} [parent]
+ *   The node’s parent.
+ * @returns {boolean}
+ *   Whether this is a node and passes a test.
+ */
+
+/**
+ * Check if a node is a node and passes a certain node test.
+ *
+ * @template {Node} Kind
+ *   Node type.
+ * @callback AssertPredicate
+ *   Check that an arbitrary value is a specific node, aware of TypeScript.
+ * @param {unknown} [node]
+ *   Anything (typically a node).
+ * @param {number | null | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} [parent]
+ *   The node’s parent.
+ * @returns {node is Kind}
+ *   Whether this is a node and passes a test.
+ */
+
+/**
+ * Check if `node` is a `Node` and whether it passes the given test.
+ *
+ * @param node
+ *   Thing to check, typically `Node`.
+ * @param test
+ *   A check for a specific node.
+ * @param index
+ *   The node’s position in its parent.
+ * @param parent
+ *   The node’s parent.
+ * @returns
+ *   Whether `node` is a node and passes a test.
+ */
+const lib_is =
+  /**
+   * @type {(
+   *   (() => false) &
+   *   (<Kind extends Node = Node>(node: unknown, test: PredicateTest<Kind>, index: number, parent: Parent, context?: unknown) => node is Kind) &
+   *   (<Kind extends Node = Node>(node: unknown, test: PredicateTest<Kind>, index?: null | undefined, parent?: null | undefined, context?: unknown) => node is Kind) &
+   *   ((node: unknown, test: Test, index: number, parent: Parent, context?: unknown) => boolean) &
+   *   ((node: unknown, test?: Test, index?: null | undefined, parent?: null | undefined, context?: unknown) => boolean)
+   * )}
+   */
+  (
+    /**
+     * @param {unknown} [node]
+     * @param {Test} [test]
+     * @param {number | null | undefined} [index]
+     * @param {Parent | null | undefined} [parent]
+     * @param {unknown} [context]
+     * @returns {boolean}
+     */
+    // eslint-disable-next-line max-params
+    function is(node, test, index, parent, context) {
+      const check = lib_convert(test)
+
+      if (
+        index !== undefined &&
+        index !== null &&
+        (typeof index !== 'number' ||
+          index < 0 ||
+          index === Number.POSITIVE_INFINITY)
+      ) {
+        throw new Error('Expected positive finite index')
+      }
+
+      if (
+        parent !== undefined &&
+        parent !== null &&
+        (!is(parent) || !parent.children)
+      ) {
+        throw new Error('Expected parent node')
+      }
+
+      if (
+        (parent === undefined || parent === null) !==
+        (index === undefined || index === null)
+      ) {
+        throw new Error('Expected both parent and index')
+      }
+
+      // @ts-expect-error Looks like a node.
+      return node && node.type && typeof node.type === 'string'
+        ? Boolean(check.call(context, node, index, parent))
+        : false
+    }
+  )
+
+/**
+ * Generate an assertion from a test.
+ *
+ * Useful if you’re going to test many nodes, for example when creating a
+ * utility where something else passes a compatible test.
+ *
+ * The created function is a bit faster because it expects valid input only:
+ * a `node`, `index`, and `parent`.
+ *
+ * @param test
+ *   *   when nullish, checks if `node` is a `Node`.
+ *   *   when `string`, works like passing `(node) => node.type === test`.
+ *   *   when `function` checks if function passed the node is true.
+ *   *   when `object`, checks that all keys in test are in node, and that they have (strictly) equal values.
+ *   *   when `array`, checks if any one of the subtests pass.
+ * @returns
+ *   An assertion.
+ */
+const lib_convert =
+  /**
+   * @type {(
+   *   (<Kind extends Node>(test: PredicateTest<Kind>) => AssertPredicate<Kind>) &
+   *   ((test?: Test) => AssertAnything)
+   * )}
+   */
+  (
+    /**
+     * @param {Test} [test]
+     * @returns {AssertAnything}
+     */
+    function (test) {
+      if (test === undefined || test === null) {
+        return lib_ok
+      }
+
+      if (typeof test === 'string') {
+        return lib_typeFactory(test)
+      }
+
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? lib_anyFactory(test) : lib_propsFactory(test)
+      }
+
+      if (typeof test === 'function') {
+        return lib_castFactory(test)
+      }
+
+      throw new Error('Expected function, string, or object as test')
+    }
+  )
+
+/**
+ * @param {Array<string | Props | TestFunctionAnything>} tests
+ * @returns {AssertAnything}
+ */
+function lib_anyFactory(tests) {
+  /** @type {Array<AssertAnything>} */
+  const checks = []
+  let index = -1
+
+  while (++index < tests.length) {
+    checks[index] = lib_convert(tests[index])
+  }
+
+  return lib_castFactory(any)
+
+  /**
+   * @this {unknown}
+   * @param {Array<unknown>} parameters
+   * @returns {boolean}
+   */
+  function any(...parameters) {
+    let index = -1
+
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+
+    return false
+  }
+}
+
+/**
+ * Turn an object into a test for a node with a certain fields.
+ *
+ * @param {Props} check
+ * @returns {AssertAnything}
+ */
+function lib_propsFactory(check) {
+  return lib_castFactory(all)
+
+  /**
+   * @param {Node} node
+   * @returns {boolean}
+   */
+  function all(node) {
+    /** @type {string} */
+    let key
+
+    for (key in check) {
+      // @ts-expect-error: hush, it sure works as an index.
+      if (node[key] !== check[key]) return false
+    }
+
+    return true
+  }
+}
+
+/**
+ * Turn a string into a test for a node with a certain type.
+ *
+ * @param {string} check
+ * @returns {AssertAnything}
+ */
+function lib_typeFactory(check) {
+  return lib_castFactory(type)
+
+  /**
+   * @param {Node} node
+   */
+  function type(node) {
+    return node && node.type === check
+  }
+}
+
+/**
+ * Turn a custom test into a test for a node that passes that test.
+ *
+ * @param {TestFunctionAnything} check
+ * @returns {AssertAnything}
+ */
+function lib_castFactory(check) {
+  return assertion
+
+  /**
+   * @this {unknown}
+   * @param {unknown} node
+   * @param {Array<unknown>} parameters
+   * @returns {boolean}
+   */
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        // @ts-expect-error: fine.
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+
+function lib_ok() {
+  return true
+}
+
+;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-find-after/lib/index.js
+/**
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ * @typedef {import('unist-util-is').Test} Test
+ */
+
+
+
+/**
+ * Find the first node in `parent` after another `node` or after an index,
+ * that passes `test`.
+
+ * @param parent
+ *   Parent node.
+ * @param index
+ *   Child of `parent` or it’s index.
+ * @param test
+ *   `unist-util-is`-compatible test.
+ * @returns
+ *   Child of `parent` or `null`.
+ */
+const findAfter =
+  /**
+   * @type {(
+   *  (<T extends Node>(node: Parent, index: Node | number, test: import('unist-util-is').PredicateTest<T>) => T | null) &
+   *  ((node: Parent, index: Node | number, test?: Test) => Node | null)
+   * )}
+   */
+  (
+    /**
+     * @param {Parent} parent
+     * @param {Node | number} index
+     * @param {Test} [test]
+     * @returns {Node | null}
+     */
+    function (parent, index, test) {
+      const is = lib_convert(test)
+
+      if (!parent || !parent.type || !parent.children) {
+        throw new Error('Expected parent node')
+      }
+
+      if (typeof index === 'number') {
+        if (index < 0 || index === Number.POSITIVE_INFINITY) {
+          throw new Error('Expected positive finite number as index')
+        }
+      } else {
+        index = parent.children.indexOf(index)
+
+        if (index < 0) {
+          throw new Error('Expected child node or index')
+        }
+      }
+
+      while (++index < parent.children.length) {
+        if (is(parent.children[index], index, parent)) {
+          return parent.children[index]
+        }
+      }
+
+      return null
+    }
+  )
+
+;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-visit/node_modules/unist-util-is/lib/index.js
+/**
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ */
+
+/**
+ * @typedef {Record<string, unknown>} Props
+ * @typedef {null | undefined | string | Props | TestFunctionAnything | Array<string | Props | TestFunctionAnything>} Test
+ *   Check for an arbitrary node, unaware of TypeScript inferral.
+ *
+ * @callback TestFunctionAnything
+ *   Check if a node passes a test, unaware of TypeScript inferral.
+ * @param {unknown} this
+ *   The given context.
+ * @param {Node} node
+ *   A node.
+ * @param {number | null | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} [parent]
+ *   The node’s parent.
+ * @returns {boolean | void}
+ *   Whether this node passes the test.
+ */
+
+/**
+ * @template {Node} Kind
+ *   Node type.
+ * @typedef {Kind['type'] | Partial<Kind> | TestFunctionPredicate<Kind> | Array<Kind['type'] | Partial<Kind> | TestFunctionPredicate<Kind>>} PredicateTest
+ *   Check for a node that can be inferred by TypeScript.
+ */
+
+/**
+ * Check if a node passes a certain test.
+ *
+ * @template {Node} Kind
+ *   Node type.
+ * @callback TestFunctionPredicate
+ *   Complex test function for a node that can be inferred by TypeScript.
+ * @param {Node} node
+ *   A node.
+ * @param {number | null | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} [parent]
+ *   The node’s parent.
+ * @returns {node is Kind}
+ *   Whether this node passes the test.
+ */
+
+/**
+ * @callback AssertAnything
+ *   Check that an arbitrary value is a node, unaware of TypeScript inferral.
+ * @param {unknown} [node]
+ *   Anything (typically a node).
+ * @param {number | null | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} [parent]
+ *   The node’s parent.
+ * @returns {boolean}
+ *   Whether this is a node and passes a test.
+ */
+
+/**
+ * Check if a node is a node and passes a certain node test.
+ *
+ * @template {Node} Kind
+ *   Node type.
+ * @callback AssertPredicate
+ *   Check that an arbitrary value is a specific node, aware of TypeScript.
+ * @param {unknown} [node]
+ *   Anything (typically a node).
+ * @param {number | null | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} [parent]
+ *   The node’s parent.
+ * @returns {node is Kind}
+ *   Whether this is a node and passes a test.
+ */
+
+/**
+ * Check if `node` is a `Node` and whether it passes the given test.
+ *
+ * @param node
+ *   Thing to check, typically `Node`.
+ * @param test
+ *   A check for a specific node.
+ * @param index
+ *   The node’s position in its parent.
+ * @param parent
+ *   The node’s parent.
+ * @returns
+ *   Whether `node` is a node and passes a test.
+ */
+const unist_util_is_lib_is =
+  /**
+   * @type {(
+   *   (() => false) &
+   *   (<Kind extends Node = Node>(node: unknown, test: PredicateTest<Kind>, index: number, parent: Parent, context?: unknown) => node is Kind) &
+   *   (<Kind extends Node = Node>(node: unknown, test: PredicateTest<Kind>, index?: null | undefined, parent?: null | undefined, context?: unknown) => node is Kind) &
+   *   ((node: unknown, test: Test, index: number, parent: Parent, context?: unknown) => boolean) &
+   *   ((node: unknown, test?: Test, index?: null | undefined, parent?: null | undefined, context?: unknown) => boolean)
+   * )}
+   */
+  (
+    /**
+     * @param {unknown} [node]
+     * @param {Test} [test]
+     * @param {number | null | undefined} [index]
+     * @param {Parent | null | undefined} [parent]
+     * @param {unknown} [context]
+     * @returns {boolean}
+     */
+    // eslint-disable-next-line max-params
+    function is(node, test, index, parent, context) {
+      const check = unist_util_is_lib_convert(test)
+
+      if (
+        index !== undefined &&
+        index !== null &&
+        (typeof index !== 'number' ||
+          index < 0 ||
+          index === Number.POSITIVE_INFINITY)
+      ) {
+        throw new Error('Expected positive finite index')
+      }
+
+      if (
+        parent !== undefined &&
+        parent !== null &&
+        (!is(parent) || !parent.children)
+      ) {
+        throw new Error('Expected parent node')
+      }
+
+      if (
+        (parent === undefined || parent === null) !==
+        (index === undefined || index === null)
+      ) {
+        throw new Error('Expected both parent and index')
+      }
+
+      // @ts-expect-error Looks like a node.
+      return node && node.type && typeof node.type === 'string'
+        ? Boolean(check.call(context, node, index, parent))
+        : false
+    }
+  )
+
+/**
+ * Generate an assertion from a test.
+ *
+ * Useful if you’re going to test many nodes, for example when creating a
+ * utility where something else passes a compatible test.
+ *
+ * The created function is a bit faster because it expects valid input only:
+ * a `node`, `index`, and `parent`.
+ *
+ * @param test
+ *   *   when nullish, checks if `node` is a `Node`.
+ *   *   when `string`, works like passing `(node) => node.type === test`.
+ *   *   when `function` checks if function passed the node is true.
+ *   *   when `object`, checks that all keys in test are in node, and that they have (strictly) equal values.
+ *   *   when `array`, checks if any one of the subtests pass.
+ * @returns
+ *   An assertion.
+ */
+const unist_util_is_lib_convert =
+  /**
+   * @type {(
+   *   (<Kind extends Node>(test: PredicateTest<Kind>) => AssertPredicate<Kind>) &
+   *   ((test?: Test) => AssertAnything)
+   * )}
+   */
+  (
+    /**
+     * @param {Test} [test]
+     * @returns {AssertAnything}
+     */
+    function (test) {
+      if (test === undefined || test === null) {
+        return unist_util_is_lib_ok
+      }
+
+      if (typeof test === 'string') {
+        return unist_util_is_lib_typeFactory(test)
+      }
+
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? unist_util_is_lib_anyFactory(test) : unist_util_is_lib_propsFactory(test)
+      }
+
+      if (typeof test === 'function') {
+        return unist_util_is_lib_castFactory(test)
+      }
+
+      throw new Error('Expected function, string, or object as test')
+    }
+  )
+
+/**
+ * @param {Array<string | Props | TestFunctionAnything>} tests
+ * @returns {AssertAnything}
+ */
+function unist_util_is_lib_anyFactory(tests) {
+  /** @type {Array<AssertAnything>} */
+  const checks = []
+  let index = -1
+
+  while (++index < tests.length) {
+    checks[index] = unist_util_is_lib_convert(tests[index])
+  }
+
+  return unist_util_is_lib_castFactory(any)
+
+  /**
+   * @this {unknown}
+   * @param {Array<unknown>} parameters
+   * @returns {boolean}
+   */
+  function any(...parameters) {
+    let index = -1
+
+    while (++index < checks.length) {
+      if (checks[index].call(this, ...parameters)) return true
+    }
+
+    return false
+  }
+}
+
+/**
+ * Turn an object into a test for a node with a certain fields.
+ *
+ * @param {Props} check
+ * @returns {AssertAnything}
+ */
+function unist_util_is_lib_propsFactory(check) {
+  return unist_util_is_lib_castFactory(all)
+
+  /**
+   * @param {Node} node
+   * @returns {boolean}
+   */
+  function all(node) {
+    /** @type {string} */
+    let key
+
+    for (key in check) {
+      // @ts-expect-error: hush, it sure works as an index.
+      if (node[key] !== check[key]) return false
+    }
+
+    return true
+  }
+}
+
+/**
+ * Turn a string into a test for a node with a certain type.
+ *
+ * @param {string} check
+ * @returns {AssertAnything}
+ */
+function unist_util_is_lib_typeFactory(check) {
+  return unist_util_is_lib_castFactory(type)
+
+  /**
+   * @param {Node} node
+   */
+  function type(node) {
+    return node && node.type === check
+  }
+}
+
+/**
+ * Turn a custom test into a test for a node that passes that test.
+ *
+ * @param {TestFunctionAnything} check
+ * @returns {AssertAnything}
+ */
+function unist_util_is_lib_castFactory(check) {
+  return assertion
+
+  /**
+   * @this {unknown}
+   * @param {unknown} node
+   * @param {Array<unknown>} parameters
+   * @returns {boolean}
+   */
+  function assertion(node, ...parameters) {
+    return Boolean(
+      node &&
+        typeof node === 'object' &&
+        'type' in node &&
+        // @ts-expect-error: fine.
+        Boolean(check.call(this, node, ...parameters))
+    )
+  }
+}
+
+function unist_util_is_lib_ok() {
+  return true
+}
+
+;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-visit/node_modules/unist-util-visit-parents/lib/color.js
+/**
+ * @param {string} d
+ * @returns {string}
+ */
+function color_color(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-visit/node_modules/unist-util-visit-parents/lib/index.js
+/**
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ * @typedef {import('unist-util-is').Test} Test
+ */
+
+/**
+ * @typedef {boolean | 'skip'} Action
+ *   Union of the action types.
+ *
+ * @typedef {number} Index
+ *   Move to the sibling at `index` next (after node itself is completely
+ *   traversed).
+ *
+ *   Useful if mutating the tree, such as removing the node the visitor is
+ *   currently on, or any of its previous siblings.
+ *   Results less than 0 or greater than or equal to `children.length` stop
+ *   traversing the parent.
+ *
+ * @typedef {[(Action | null | undefined | void)?, (Index | null | undefined)?]} ActionTuple
+ *   List with one or two values, the first an action, the second an index.
+ *
+ * @typedef {Action | ActionTuple | Index | null | undefined | void} VisitorResult
+ *   Any value that can be returned from a visitor.
+ */
+
+/**
+ * @template {Node} [Visited=Node]
+ *   Visited node type.
+ * @template {Parent} [Ancestor=Parent]
+ *   Ancestor type.
+ * @callback Visitor
+ *   Handle a node (matching `test`, if given).
+ *
+ *   Visitors are free to transform `node`.
+ *   They can also transform the parent of node (the last of `ancestors`).
+ *
+ *   Replacing `node` itself, if `SKIP` is not returned, still causes its
+ *   descendants to be walked (which is a bug).
+ *
+ *   When adding or removing previous siblings of `node` (or next siblings, in
+ *   case of reverse), the `Visitor` should return a new `Index` to specify the
+ *   sibling to traverse after `node` is traversed.
+ *   Adding or removing next siblings of `node` (or previous siblings, in case
+ *   of reverse) is handled as expected without needing to return a new `Index`.
+ *
+ *   Removing the children property of an ancestor still results in them being
+ *   traversed.
+ * @param {Visited} node
+ *   Found node.
+ * @param {Array<Ancestor>} ancestors
+ *   Ancestors of `node`.
+ * @returns {VisitorResult}
+ *   What to do next.
+ *
+ *   An `Index` is treated as a tuple of `[CONTINUE, Index]`.
+ *   An `Action` is treated as a tuple of `[Action]`.
+ *
+ *   Passing a tuple back only makes sense if the `Action` is `SKIP`.
+ *   When the `Action` is `EXIT`, that action can be returned.
+ *   When the `Action` is `CONTINUE`, `Index` can be returned.
+ */
+
+/**
+ * @template {Node} [Tree=Node]
+ *   Tree type.
+ * @template {Test} [Check=string]
+ *   Test type.
+ * @typedef {Visitor<import('./complex-types.js').Matches<import('./complex-types.js').InclusiveDescendant<Tree>, Check>, Extract<import('./complex-types.js').InclusiveDescendant<Tree>, Parent>>} BuildVisitor
+ *   Build a typed `Visitor` function from a tree and a test.
+ *
+ *   It will infer which values are passed as `node` and which as `parents`.
+ */
+
+
+
+
+/**
+ * Continue traversing as normal.
+ */
+const lib_CONTINUE = true
+
+/**
+ * Stop traversing immediately.
+ */
+const lib_EXIT = false
+
+/**
+ * Do not traverse this node’s children.
+ */
+const lib_SKIP = 'skip'
+
+/**
+ * Visit nodes, with ancestral information.
+ *
+ * This algorithm performs *depth-first* *tree traversal* in *preorder*
+ * (**NLR**) or if `reverse` is given, in *reverse preorder* (**NRL**).
+ *
+ * You can choose for which nodes `visitor` is called by passing a `test`.
+ * For complex tests, you should test yourself in `visitor`, as it will be
+ * faster and will have improved type information.
+ *
+ * Walking the tree is an intensive task.
+ * Make use of the return values of the visitor when possible.
+ * Instead of walking a tree multiple times, walk it once, use `unist-util-is`
+ * to check if a node matches, and then perform different operations.
+ *
+ * You can change the tree.
+ * See `Visitor` for more info.
+ *
+ * @param tree
+ *   Tree to traverse.
+ * @param test
+ *   `unist-util-is`-compatible test
+ * @param visitor
+ *   Handle each node.
+ * @param reverse
+ *   Traverse in reverse preorder (NRL) instead of the default preorder (NLR).
+ * @returns
+ *   Nothing.
+ */
+const lib_visitParents =
+  /**
+   * @type {(
+   *   (<Tree extends Node, Check extends Test>(tree: Tree, test: Check, visitor: BuildVisitor<Tree, Check>, reverse?: boolean | null | undefined) => void) &
+   *   (<Tree extends Node>(tree: Tree, visitor: BuildVisitor<Tree>, reverse?: boolean | null | undefined) => void)
+   * )}
+   */
+  (
+    /**
+     * @param {Node} tree
+     * @param {Test} test
+     * @param {Visitor<Node>} visitor
+     * @param {boolean | null | undefined} [reverse]
+     * @returns {void}
+     */
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor
+        // @ts-expect-error no visitor given, so `visitor` is test.
+        visitor = test
+        test = null
+      }
+
+      const is = unist_util_is_lib_convert(test)
+      const step = reverse ? -1 : 1
+
+      factory(tree, undefined, [])()
+
+      /**
+       * @param {Node} node
+       * @param {number | undefined} index
+       * @param {Array<Parent>} parents
+       */
+      function factory(node, index, parents) {
+        /** @type {Record<string, unknown>} */
+        // @ts-expect-error: hush
+        const value = node && typeof node === 'object' ? node : {}
+
+        if (typeof value.type === 'string') {
+          const name =
+            // `hast`
+            typeof value.tagName === 'string'
+              ? value.tagName
+              : // `xast`
+              typeof value.name === 'string'
+              ? value.name
+              : undefined
+
+          Object.defineProperty(visit, 'name', {
+            value:
+              'node (' + color_color(node.type + (name ? '<' + name + '>' : '')) + ')'
+          })
+        }
+
+        return visit
+
+        function visit() {
+          /** @type {ActionTuple} */
+          let result = []
+          /** @type {ActionTuple} */
+          let subresult
+          /** @type {number} */
+          let offset
+          /** @type {Array<Parent>} */
+          let grandparents
+
+          if (!test || is(node, index, parents[parents.length - 1] || null)) {
+            result = lib_toResult(visitor(node, parents))
+
+            if (result[0] === lib_EXIT) {
+              return result
+            }
+          }
+
+          // @ts-expect-error looks like a parent.
+          if (node.children && result[0] !== lib_SKIP) {
+            // @ts-expect-error looks like a parent.
+            offset = (reverse ? node.children.length : -1) + step
+            // @ts-expect-error looks like a parent.
+            grandparents = parents.concat(node)
+
+            // @ts-expect-error looks like a parent.
+            while (offset > -1 && offset < node.children.length) {
+              // @ts-expect-error looks like a parent.
+              subresult = factory(node.children[offset], offset, grandparents)()
+
+              if (subresult[0] === lib_EXIT) {
+                return subresult
+              }
+
+              offset =
+                typeof subresult[1] === 'number' ? subresult[1] : offset + step
+            }
+          }
+
+          return result
+        }
+      }
+    }
+  )
+
+/**
+ * Turn a return value into a clean result.
+ *
+ * @param {VisitorResult} value
+ *   Valid return values from visitors.
+ * @returns {ActionTuple}
+ *   Clean result.
+ */
+function lib_toResult(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+
+  if (typeof value === 'number') {
+    return [lib_CONTINUE, value]
+  }
+
+  return [value]
+}
+
+;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-visit/lib/index.js
+/**
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ * @typedef {import('unist-util-is').Test} Test
+ * @typedef {import('unist-util-visit-parents').VisitorResult} VisitorResult
+ */
+
+/**
+ * Check if `Child` can be a child of `Ancestor`.
+ *
+ * Returns the ancestor when `Child` can be a child of `Ancestor`, or returns
+ * `never`.
+ *
+ * @template {Node} Ancestor
+ *   Node type.
+ * @template {Node} Child
+ *   Node type.
+ * @typedef {(
+ *   Ancestor extends Parent
+ *     ? Child extends Ancestor['children'][number]
+ *       ? Ancestor
+ *       : never
+ *     : never
+ * )} ParentsOf
+ */
+
+/**
+ * @template {Node} [Visited=Node]
+ *   Visited node type.
+ * @template {Parent} [Ancestor=Parent]
+ *   Ancestor type.
+ * @callback Visitor
+ *   Handle a node (matching `test`, if given).
+ *
+ *   Visitors are free to transform `node`.
+ *   They can also transform `parent`.
+ *
+ *   Replacing `node` itself, if `SKIP` is not returned, still causes its
+ *   descendants to be walked (which is a bug).
+ *
+ *   When adding or removing previous siblings of `node` (or next siblings, in
+ *   case of reverse), the `Visitor` should return a new `Index` to specify the
+ *   sibling to traverse after `node` is traversed.
+ *   Adding or removing next siblings of `node` (or previous siblings, in case
+ *   of reverse) is handled as expected without needing to return a new `Index`.
+ *
+ *   Removing the children property of `parent` still results in them being
+ *   traversed.
+ * @param {Visited} node
+ *   Found node.
+ * @param {Visited extends Node ? number | null : never} index
+ *   Index of `node` in `parent`.
+ * @param {Ancestor extends Node ? Ancestor | null : never} parent
+ *   Parent of `node`.
+ * @returns {VisitorResult}
+ *   What to do next.
+ *
+ *   An `Index` is treated as a tuple of `[CONTINUE, Index]`.
+ *   An `Action` is treated as a tuple of `[Action]`.
+ *
+ *   Passing a tuple back only makes sense if the `Action` is `SKIP`.
+ *   When the `Action` is `EXIT`, that action can be returned.
+ *   When the `Action` is `CONTINUE`, `Index` can be returned.
+ */
+
+/**
+ * Build a typed `Visitor` function from a node and all possible parents.
+ *
+ * It will infer which values are passed as `node` and which as `parent`.
+ *
+ * @template {Node} Visited
+ *   Node type.
+ * @template {Parent} Ancestor
+ *   Parent type.
+ * @typedef {Visitor<Visited, ParentsOf<Ancestor, Visited>>} BuildVisitorFromMatch
+ */
+
+/**
+ * Build a typed `Visitor` function from a list of descendants and a test.
+ *
+ * It will infer which values are passed as `node` and which as `parent`.
+ *
+ * @template {Node} Descendant
+ *   Node type.
+ * @template {Test} Check
+ *   Test type.
+ * @typedef {(
+ *   BuildVisitorFromMatch<
+ *     import('unist-util-visit-parents/complex-types.js').Matches<Descendant, Check>,
+ *     Extract<Descendant, Parent>
+ *   >
+ * )} BuildVisitorFromDescendants
+ */
+
+/**
+ * Build a typed `Visitor` function from a tree and a test.
+ *
+ * It will infer which values are passed as `node` and which as `parent`.
+ *
+ * @template {Node} [Tree=Node]
+ *   Node type.
+ * @template {Test} [Check=string]
+ *   Test type.
+ * @typedef {(
+ *   BuildVisitorFromDescendants<
+ *     import('unist-util-visit-parents/complex-types.js').InclusiveDescendant<Tree>,
+ *     Check
+ *   >
+ * )} BuildVisitor
+ */
+
+
+
+/**
+ * Visit nodes.
+ *
+ * This algorithm performs *depth-first* *tree traversal* in *preorder*
+ * (**NLR**) or if `reverse` is given, in *reverse preorder* (**NRL**).
+ *
+ * You can choose for which nodes `visitor` is called by passing a `test`.
+ * For complex tests, you should test yourself in `visitor`, as it will be
+ * faster and will have improved type information.
+ *
+ * Walking the tree is an intensive task.
+ * Make use of the return values of the visitor when possible.
+ * Instead of walking a tree multiple times, walk it once, use `unist-util-is`
+ * to check if a node matches, and then perform different operations.
+ *
+ * You can change the tree.
+ * See `Visitor` for more info.
+ *
+ * @param tree
+ *   Tree to traverse.
+ * @param test
+ *   `unist-util-is`-compatible test
+ * @param visitor
+ *   Handle each node.
+ * @param reverse
+ *   Traverse in reverse preorder (NRL) instead of the default preorder (NLR).
+ * @returns
+ *   Nothing.
+ */
+const lib_visit =
+  /**
+   * @type {(
+   *   (<Tree extends Node, Check extends Test>(tree: Tree, test: Check, visitor: BuildVisitor<Tree, Check>, reverse?: boolean | null | undefined) => void) &
+   *   (<Tree extends Node>(tree: Tree, visitor: BuildVisitor<Tree>, reverse?: boolean | null | undefined) => void)
+   * )}
+   */
+  (
+    /**
+     * @param {Node} tree
+     * @param {Test} test
+     * @param {Visitor} visitor
+     * @param {boolean | null | undefined} [reverse]
+     * @returns {void}
+     */
+    function (tree, test, visitor, reverse) {
+      if (typeof test === 'function' && typeof visitor !== 'function') {
+        reverse = visitor
+        visitor = test
+        test = null
+      }
+
+      lib_visitParents(tree, test, overload, reverse)
+
+      /**
+       * @param {Node} node
+       * @param {Array<Parent>} parents
+       */
+      function overload(node, parents) {
+        const parent = parents[parents.length - 1]
+        return visitor(
+          node,
+          parent ? parent.children.indexOf(node) : null,
+          parent
+        )
+      }
+    }
+  )
+
+
+
+;// CONCATENATED MODULE: ./node_modules/remark-sectionize/index.js
+
+
+
+const MAX_HEADING_DEPTH = 6
+
+function remark_sectionize_plugin () {
+  return transform
+}
+
+function transform (tree) {
+  for (let depth = MAX_HEADING_DEPTH; depth > 0; depth--) {
+    lib_visit(
+      tree,
+      node => node.type === 'heading' && node.depth === depth,
+      sectionize
+    )
+  }
+}
+
+function sectionize (node, index, parent) {
+  const start = node
+  const startIndex = index
+  const depth = start.depth
+
+  const isEnd = node => node.type === 'heading' && node.depth <= depth || node.type === 'export'
+  const end = findAfter(parent, start, isEnd)
+  const endIndex = parent.children.indexOf(end)
+
+  const between = parent.children.slice(
+    startIndex,
+    endIndex > 0 ? endIndex : undefined
+  )
+
+  const section = {
+    type: 'section',
+    depth: depth,
+    children: between,
+    data: {
+      hName: 'section'
+    }
+  }
+
+  parent.children.splice(startIndex, section.children.length, section)
+}
+
+/* harmony default export */ const remark_sectionize = (remark_sectionize_plugin);
+
 ;// CONCATENATED MODULE: external "node:fs"
 const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
 ;// CONCATENATED MODULE: ./node_modules/to-vfile/lib/index.js
@@ -69464,10 +71889,6 @@ function to_vfile_lib_isUint8Array(value) {
       'byteOffset' in value
   )
 }
-
-;// CONCATENATED MODULE: ./src/utils.ts
-const objectKeys = (obj) => Object.keys(obj);
-const objectEntries = (obj) => Object.entries(obj);
 
 ;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/indexes.js
 var emptyMulticharIndex = {};
@@ -72106,1160 +74527,9 @@ function createState(selector, tree) {
   }
 }
 
-;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-find-after/node_modules/unist-util-is/lib/index.js
-/**
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- */
-
-/**
- * @typedef {Record<string, unknown>} Props
- * @typedef {null | undefined | string | Props | TestFunctionAnything | Array<string | Props | TestFunctionAnything>} Test
- *   Check for an arbitrary node, unaware of TypeScript inferral.
- *
- * @callback TestFunctionAnything
- *   Check if a node passes a test, unaware of TypeScript inferral.
- * @param {unknown} this
- *   The given context.
- * @param {Node} node
- *   A node.
- * @param {number | null | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} [parent]
- *   The node’s parent.
- * @returns {boolean | void}
- *   Whether this node passes the test.
- */
-
-/**
- * @template {Node} Kind
- *   Node type.
- * @typedef {Kind['type'] | Partial<Kind> | TestFunctionPredicate<Kind> | Array<Kind['type'] | Partial<Kind> | TestFunctionPredicate<Kind>>} PredicateTest
- *   Check for a node that can be inferred by TypeScript.
- */
-
-/**
- * Check if a node passes a certain test.
- *
- * @template {Node} Kind
- *   Node type.
- * @callback TestFunctionPredicate
- *   Complex test function for a node that can be inferred by TypeScript.
- * @param {Node} node
- *   A node.
- * @param {number | null | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} [parent]
- *   The node’s parent.
- * @returns {node is Kind}
- *   Whether this node passes the test.
- */
-
-/**
- * @callback AssertAnything
- *   Check that an arbitrary value is a node, unaware of TypeScript inferral.
- * @param {unknown} [node]
- *   Anything (typically a node).
- * @param {number | null | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} [parent]
- *   The node’s parent.
- * @returns {boolean}
- *   Whether this is a node and passes a test.
- */
-
-/**
- * Check if a node is a node and passes a certain node test.
- *
- * @template {Node} Kind
- *   Node type.
- * @callback AssertPredicate
- *   Check that an arbitrary value is a specific node, aware of TypeScript.
- * @param {unknown} [node]
- *   Anything (typically a node).
- * @param {number | null | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} [parent]
- *   The node’s parent.
- * @returns {node is Kind}
- *   Whether this is a node and passes a test.
- */
-
-/**
- * Check if `node` is a `Node` and whether it passes the given test.
- *
- * @param node
- *   Thing to check, typically `Node`.
- * @param test
- *   A check for a specific node.
- * @param index
- *   The node’s position in its parent.
- * @param parent
- *   The node’s parent.
- * @returns
- *   Whether `node` is a node and passes a test.
- */
-const lib_is =
-  /**
-   * @type {(
-   *   (() => false) &
-   *   (<Kind extends Node = Node>(node: unknown, test: PredicateTest<Kind>, index: number, parent: Parent, context?: unknown) => node is Kind) &
-   *   (<Kind extends Node = Node>(node: unknown, test: PredicateTest<Kind>, index?: null | undefined, parent?: null | undefined, context?: unknown) => node is Kind) &
-   *   ((node: unknown, test: Test, index: number, parent: Parent, context?: unknown) => boolean) &
-   *   ((node: unknown, test?: Test, index?: null | undefined, parent?: null | undefined, context?: unknown) => boolean)
-   * )}
-   */
-  (
-    /**
-     * @param {unknown} [node]
-     * @param {Test} [test]
-     * @param {number | null | undefined} [index]
-     * @param {Parent | null | undefined} [parent]
-     * @param {unknown} [context]
-     * @returns {boolean}
-     */
-    // eslint-disable-next-line max-params
-    function is(node, test, index, parent, context) {
-      const check = lib_convert(test)
-
-      if (
-        index !== undefined &&
-        index !== null &&
-        (typeof index !== 'number' ||
-          index < 0 ||
-          index === Number.POSITIVE_INFINITY)
-      ) {
-        throw new Error('Expected positive finite index')
-      }
-
-      if (
-        parent !== undefined &&
-        parent !== null &&
-        (!is(parent) || !parent.children)
-      ) {
-        throw new Error('Expected parent node')
-      }
-
-      if (
-        (parent === undefined || parent === null) !==
-        (index === undefined || index === null)
-      ) {
-        throw new Error('Expected both parent and index')
-      }
-
-      // @ts-expect-error Looks like a node.
-      return node && node.type && typeof node.type === 'string'
-        ? Boolean(check.call(context, node, index, parent))
-        : false
-    }
-  )
-
-/**
- * Generate an assertion from a test.
- *
- * Useful if you’re going to test many nodes, for example when creating a
- * utility where something else passes a compatible test.
- *
- * The created function is a bit faster because it expects valid input only:
- * a `node`, `index`, and `parent`.
- *
- * @param test
- *   *   when nullish, checks if `node` is a `Node`.
- *   *   when `string`, works like passing `(node) => node.type === test`.
- *   *   when `function` checks if function passed the node is true.
- *   *   when `object`, checks that all keys in test are in node, and that they have (strictly) equal values.
- *   *   when `array`, checks if any one of the subtests pass.
- * @returns
- *   An assertion.
- */
-const lib_convert =
-  /**
-   * @type {(
-   *   (<Kind extends Node>(test: PredicateTest<Kind>) => AssertPredicate<Kind>) &
-   *   ((test?: Test) => AssertAnything)
-   * )}
-   */
-  (
-    /**
-     * @param {Test} [test]
-     * @returns {AssertAnything}
-     */
-    function (test) {
-      if (test === undefined || test === null) {
-        return lib_ok
-      }
-
-      if (typeof test === 'string') {
-        return lib_typeFactory(test)
-      }
-
-      if (typeof test === 'object') {
-        return Array.isArray(test) ? lib_anyFactory(test) : lib_propsFactory(test)
-      }
-
-      if (typeof test === 'function') {
-        return lib_castFactory(test)
-      }
-
-      throw new Error('Expected function, string, or object as test')
-    }
-  )
-
-/**
- * @param {Array<string | Props | TestFunctionAnything>} tests
- * @returns {AssertAnything}
- */
-function lib_anyFactory(tests) {
-  /** @type {Array<AssertAnything>} */
-  const checks = []
-  let index = -1
-
-  while (++index < tests.length) {
-    checks[index] = lib_convert(tests[index])
-  }
-
-  return lib_castFactory(any)
-
-  /**
-   * @this {unknown}
-   * @param {Array<unknown>} parameters
-   * @returns {boolean}
-   */
-  function any(...parameters) {
-    let index = -1
-
-    while (++index < checks.length) {
-      if (checks[index].call(this, ...parameters)) return true
-    }
-
-    return false
-  }
-}
-
-/**
- * Turn an object into a test for a node with a certain fields.
- *
- * @param {Props} check
- * @returns {AssertAnything}
- */
-function lib_propsFactory(check) {
-  return lib_castFactory(all)
-
-  /**
-   * @param {Node} node
-   * @returns {boolean}
-   */
-  function all(node) {
-    /** @type {string} */
-    let key
-
-    for (key in check) {
-      // @ts-expect-error: hush, it sure works as an index.
-      if (node[key] !== check[key]) return false
-    }
-
-    return true
-  }
-}
-
-/**
- * Turn a string into a test for a node with a certain type.
- *
- * @param {string} check
- * @returns {AssertAnything}
- */
-function lib_typeFactory(check) {
-  return lib_castFactory(type)
-
-  /**
-   * @param {Node} node
-   */
-  function type(node) {
-    return node && node.type === check
-  }
-}
-
-/**
- * Turn a custom test into a test for a node that passes that test.
- *
- * @param {TestFunctionAnything} check
- * @returns {AssertAnything}
- */
-function lib_castFactory(check) {
-  return assertion
-
-  /**
-   * @this {unknown}
-   * @param {unknown} node
-   * @param {Array<unknown>} parameters
-   * @returns {boolean}
-   */
-  function assertion(node, ...parameters) {
-    return Boolean(
-      node &&
-        typeof node === 'object' &&
-        'type' in node &&
-        // @ts-expect-error: fine.
-        Boolean(check.call(this, node, ...parameters))
-    )
-  }
-}
-
-function lib_ok() {
-  return true
-}
-
-;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-find-after/lib/index.js
-/**
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- * @typedef {import('unist-util-is').Test} Test
- */
-
-
-
-/**
- * Find the first node in `parent` after another `node` or after an index,
- * that passes `test`.
-
- * @param parent
- *   Parent node.
- * @param index
- *   Child of `parent` or it’s index.
- * @param test
- *   `unist-util-is`-compatible test.
- * @returns
- *   Child of `parent` or `null`.
- */
-const findAfter =
-  /**
-   * @type {(
-   *  (<T extends Node>(node: Parent, index: Node | number, test: import('unist-util-is').PredicateTest<T>) => T | null) &
-   *  ((node: Parent, index: Node | number, test?: Test) => Node | null)
-   * )}
-   */
-  (
-    /**
-     * @param {Parent} parent
-     * @param {Node | number} index
-     * @param {Test} [test]
-     * @returns {Node | null}
-     */
-    function (parent, index, test) {
-      const is = lib_convert(test)
-
-      if (!parent || !parent.type || !parent.children) {
-        throw new Error('Expected parent node')
-      }
-
-      if (typeof index === 'number') {
-        if (index < 0 || index === Number.POSITIVE_INFINITY) {
-          throw new Error('Expected positive finite number as index')
-        }
-      } else {
-        index = parent.children.indexOf(index)
-
-        if (index < 0) {
-          throw new Error('Expected child node or index')
-        }
-      }
-
-      while (++index < parent.children.length) {
-        if (is(parent.children[index], index, parent)) {
-          return parent.children[index]
-        }
-      }
-
-      return null
-    }
-  )
-
-;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-visit/node_modules/unist-util-is/lib/index.js
-/**
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- */
-
-/**
- * @typedef {Record<string, unknown>} Props
- * @typedef {null | undefined | string | Props | TestFunctionAnything | Array<string | Props | TestFunctionAnything>} Test
- *   Check for an arbitrary node, unaware of TypeScript inferral.
- *
- * @callback TestFunctionAnything
- *   Check if a node passes a test, unaware of TypeScript inferral.
- * @param {unknown} this
- *   The given context.
- * @param {Node} node
- *   A node.
- * @param {number | null | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} [parent]
- *   The node’s parent.
- * @returns {boolean | void}
- *   Whether this node passes the test.
- */
-
-/**
- * @template {Node} Kind
- *   Node type.
- * @typedef {Kind['type'] | Partial<Kind> | TestFunctionPredicate<Kind> | Array<Kind['type'] | Partial<Kind> | TestFunctionPredicate<Kind>>} PredicateTest
- *   Check for a node that can be inferred by TypeScript.
- */
-
-/**
- * Check if a node passes a certain test.
- *
- * @template {Node} Kind
- *   Node type.
- * @callback TestFunctionPredicate
- *   Complex test function for a node that can be inferred by TypeScript.
- * @param {Node} node
- *   A node.
- * @param {number | null | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} [parent]
- *   The node’s parent.
- * @returns {node is Kind}
- *   Whether this node passes the test.
- */
-
-/**
- * @callback AssertAnything
- *   Check that an arbitrary value is a node, unaware of TypeScript inferral.
- * @param {unknown} [node]
- *   Anything (typically a node).
- * @param {number | null | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} [parent]
- *   The node’s parent.
- * @returns {boolean}
- *   Whether this is a node and passes a test.
- */
-
-/**
- * Check if a node is a node and passes a certain node test.
- *
- * @template {Node} Kind
- *   Node type.
- * @callback AssertPredicate
- *   Check that an arbitrary value is a specific node, aware of TypeScript.
- * @param {unknown} [node]
- *   Anything (typically a node).
- * @param {number | null | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} [parent]
- *   The node’s parent.
- * @returns {node is Kind}
- *   Whether this is a node and passes a test.
- */
-
-/**
- * Check if `node` is a `Node` and whether it passes the given test.
- *
- * @param node
- *   Thing to check, typically `Node`.
- * @param test
- *   A check for a specific node.
- * @param index
- *   The node’s position in its parent.
- * @param parent
- *   The node’s parent.
- * @returns
- *   Whether `node` is a node and passes a test.
- */
-const unist_util_is_lib_is =
-  /**
-   * @type {(
-   *   (() => false) &
-   *   (<Kind extends Node = Node>(node: unknown, test: PredicateTest<Kind>, index: number, parent: Parent, context?: unknown) => node is Kind) &
-   *   (<Kind extends Node = Node>(node: unknown, test: PredicateTest<Kind>, index?: null | undefined, parent?: null | undefined, context?: unknown) => node is Kind) &
-   *   ((node: unknown, test: Test, index: number, parent: Parent, context?: unknown) => boolean) &
-   *   ((node: unknown, test?: Test, index?: null | undefined, parent?: null | undefined, context?: unknown) => boolean)
-   * )}
-   */
-  (
-    /**
-     * @param {unknown} [node]
-     * @param {Test} [test]
-     * @param {number | null | undefined} [index]
-     * @param {Parent | null | undefined} [parent]
-     * @param {unknown} [context]
-     * @returns {boolean}
-     */
-    // eslint-disable-next-line max-params
-    function is(node, test, index, parent, context) {
-      const check = unist_util_is_lib_convert(test)
-
-      if (
-        index !== undefined &&
-        index !== null &&
-        (typeof index !== 'number' ||
-          index < 0 ||
-          index === Number.POSITIVE_INFINITY)
-      ) {
-        throw new Error('Expected positive finite index')
-      }
-
-      if (
-        parent !== undefined &&
-        parent !== null &&
-        (!is(parent) || !parent.children)
-      ) {
-        throw new Error('Expected parent node')
-      }
-
-      if (
-        (parent === undefined || parent === null) !==
-        (index === undefined || index === null)
-      ) {
-        throw new Error('Expected both parent and index')
-      }
-
-      // @ts-expect-error Looks like a node.
-      return node && node.type && typeof node.type === 'string'
-        ? Boolean(check.call(context, node, index, parent))
-        : false
-    }
-  )
-
-/**
- * Generate an assertion from a test.
- *
- * Useful if you’re going to test many nodes, for example when creating a
- * utility where something else passes a compatible test.
- *
- * The created function is a bit faster because it expects valid input only:
- * a `node`, `index`, and `parent`.
- *
- * @param test
- *   *   when nullish, checks if `node` is a `Node`.
- *   *   when `string`, works like passing `(node) => node.type === test`.
- *   *   when `function` checks if function passed the node is true.
- *   *   when `object`, checks that all keys in test are in node, and that they have (strictly) equal values.
- *   *   when `array`, checks if any one of the subtests pass.
- * @returns
- *   An assertion.
- */
-const unist_util_is_lib_convert =
-  /**
-   * @type {(
-   *   (<Kind extends Node>(test: PredicateTest<Kind>) => AssertPredicate<Kind>) &
-   *   ((test?: Test) => AssertAnything)
-   * )}
-   */
-  (
-    /**
-     * @param {Test} [test]
-     * @returns {AssertAnything}
-     */
-    function (test) {
-      if (test === undefined || test === null) {
-        return unist_util_is_lib_ok
-      }
-
-      if (typeof test === 'string') {
-        return unist_util_is_lib_typeFactory(test)
-      }
-
-      if (typeof test === 'object') {
-        return Array.isArray(test) ? unist_util_is_lib_anyFactory(test) : unist_util_is_lib_propsFactory(test)
-      }
-
-      if (typeof test === 'function') {
-        return unist_util_is_lib_castFactory(test)
-      }
-
-      throw new Error('Expected function, string, or object as test')
-    }
-  )
-
-/**
- * @param {Array<string | Props | TestFunctionAnything>} tests
- * @returns {AssertAnything}
- */
-function unist_util_is_lib_anyFactory(tests) {
-  /** @type {Array<AssertAnything>} */
-  const checks = []
-  let index = -1
-
-  while (++index < tests.length) {
-    checks[index] = unist_util_is_lib_convert(tests[index])
-  }
-
-  return unist_util_is_lib_castFactory(any)
-
-  /**
-   * @this {unknown}
-   * @param {Array<unknown>} parameters
-   * @returns {boolean}
-   */
-  function any(...parameters) {
-    let index = -1
-
-    while (++index < checks.length) {
-      if (checks[index].call(this, ...parameters)) return true
-    }
-
-    return false
-  }
-}
-
-/**
- * Turn an object into a test for a node with a certain fields.
- *
- * @param {Props} check
- * @returns {AssertAnything}
- */
-function unist_util_is_lib_propsFactory(check) {
-  return unist_util_is_lib_castFactory(all)
-
-  /**
-   * @param {Node} node
-   * @returns {boolean}
-   */
-  function all(node) {
-    /** @type {string} */
-    let key
-
-    for (key in check) {
-      // @ts-expect-error: hush, it sure works as an index.
-      if (node[key] !== check[key]) return false
-    }
-
-    return true
-  }
-}
-
-/**
- * Turn a string into a test for a node with a certain type.
- *
- * @param {string} check
- * @returns {AssertAnything}
- */
-function unist_util_is_lib_typeFactory(check) {
-  return unist_util_is_lib_castFactory(type)
-
-  /**
-   * @param {Node} node
-   */
-  function type(node) {
-    return node && node.type === check
-  }
-}
-
-/**
- * Turn a custom test into a test for a node that passes that test.
- *
- * @param {TestFunctionAnything} check
- * @returns {AssertAnything}
- */
-function unist_util_is_lib_castFactory(check) {
-  return assertion
-
-  /**
-   * @this {unknown}
-   * @param {unknown} node
-   * @param {Array<unknown>} parameters
-   * @returns {boolean}
-   */
-  function assertion(node, ...parameters) {
-    return Boolean(
-      node &&
-        typeof node === 'object' &&
-        'type' in node &&
-        // @ts-expect-error: fine.
-        Boolean(check.call(this, node, ...parameters))
-    )
-  }
-}
-
-function unist_util_is_lib_ok() {
-  return true
-}
-
-;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-visit/node_modules/unist-util-visit-parents/lib/color.js
-/**
- * @param {string} d
- * @returns {string}
- */
-function color_color(d) {
-  return '\u001B[33m' + d + '\u001B[39m'
-}
-
-;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-visit/node_modules/unist-util-visit-parents/lib/index.js
-/**
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- * @typedef {import('unist-util-is').Test} Test
- */
-
-/**
- * @typedef {boolean | 'skip'} Action
- *   Union of the action types.
- *
- * @typedef {number} Index
- *   Move to the sibling at `index` next (after node itself is completely
- *   traversed).
- *
- *   Useful if mutating the tree, such as removing the node the visitor is
- *   currently on, or any of its previous siblings.
- *   Results less than 0 or greater than or equal to `children.length` stop
- *   traversing the parent.
- *
- * @typedef {[(Action | null | undefined | void)?, (Index | null | undefined)?]} ActionTuple
- *   List with one or two values, the first an action, the second an index.
- *
- * @typedef {Action | ActionTuple | Index | null | undefined | void} VisitorResult
- *   Any value that can be returned from a visitor.
- */
-
-/**
- * @template {Node} [Visited=Node]
- *   Visited node type.
- * @template {Parent} [Ancestor=Parent]
- *   Ancestor type.
- * @callback Visitor
- *   Handle a node (matching `test`, if given).
- *
- *   Visitors are free to transform `node`.
- *   They can also transform the parent of node (the last of `ancestors`).
- *
- *   Replacing `node` itself, if `SKIP` is not returned, still causes its
- *   descendants to be walked (which is a bug).
- *
- *   When adding or removing previous siblings of `node` (or next siblings, in
- *   case of reverse), the `Visitor` should return a new `Index` to specify the
- *   sibling to traverse after `node` is traversed.
- *   Adding or removing next siblings of `node` (or previous siblings, in case
- *   of reverse) is handled as expected without needing to return a new `Index`.
- *
- *   Removing the children property of an ancestor still results in them being
- *   traversed.
- * @param {Visited} node
- *   Found node.
- * @param {Array<Ancestor>} ancestors
- *   Ancestors of `node`.
- * @returns {VisitorResult}
- *   What to do next.
- *
- *   An `Index` is treated as a tuple of `[CONTINUE, Index]`.
- *   An `Action` is treated as a tuple of `[Action]`.
- *
- *   Passing a tuple back only makes sense if the `Action` is `SKIP`.
- *   When the `Action` is `EXIT`, that action can be returned.
- *   When the `Action` is `CONTINUE`, `Index` can be returned.
- */
-
-/**
- * @template {Node} [Tree=Node]
- *   Tree type.
- * @template {Test} [Check=string]
- *   Test type.
- * @typedef {Visitor<import('./complex-types.js').Matches<import('./complex-types.js').InclusiveDescendant<Tree>, Check>, Extract<import('./complex-types.js').InclusiveDescendant<Tree>, Parent>>} BuildVisitor
- *   Build a typed `Visitor` function from a tree and a test.
- *
- *   It will infer which values are passed as `node` and which as `parents`.
- */
-
-
-
-
-/**
- * Continue traversing as normal.
- */
-const lib_CONTINUE = true
-
-/**
- * Stop traversing immediately.
- */
-const lib_EXIT = false
-
-/**
- * Do not traverse this node’s children.
- */
-const lib_SKIP = 'skip'
-
-/**
- * Visit nodes, with ancestral information.
- *
- * This algorithm performs *depth-first* *tree traversal* in *preorder*
- * (**NLR**) or if `reverse` is given, in *reverse preorder* (**NRL**).
- *
- * You can choose for which nodes `visitor` is called by passing a `test`.
- * For complex tests, you should test yourself in `visitor`, as it will be
- * faster and will have improved type information.
- *
- * Walking the tree is an intensive task.
- * Make use of the return values of the visitor when possible.
- * Instead of walking a tree multiple times, walk it once, use `unist-util-is`
- * to check if a node matches, and then perform different operations.
- *
- * You can change the tree.
- * See `Visitor` for more info.
- *
- * @param tree
- *   Tree to traverse.
- * @param test
- *   `unist-util-is`-compatible test
- * @param visitor
- *   Handle each node.
- * @param reverse
- *   Traverse in reverse preorder (NRL) instead of the default preorder (NLR).
- * @returns
- *   Nothing.
- */
-const lib_visitParents =
-  /**
-   * @type {(
-   *   (<Tree extends Node, Check extends Test>(tree: Tree, test: Check, visitor: BuildVisitor<Tree, Check>, reverse?: boolean | null | undefined) => void) &
-   *   (<Tree extends Node>(tree: Tree, visitor: BuildVisitor<Tree>, reverse?: boolean | null | undefined) => void)
-   * )}
-   */
-  (
-    /**
-     * @param {Node} tree
-     * @param {Test} test
-     * @param {Visitor<Node>} visitor
-     * @param {boolean | null | undefined} [reverse]
-     * @returns {void}
-     */
-    function (tree, test, visitor, reverse) {
-      if (typeof test === 'function' && typeof visitor !== 'function') {
-        reverse = visitor
-        // @ts-expect-error no visitor given, so `visitor` is test.
-        visitor = test
-        test = null
-      }
-
-      const is = unist_util_is_lib_convert(test)
-      const step = reverse ? -1 : 1
-
-      factory(tree, undefined, [])()
-
-      /**
-       * @param {Node} node
-       * @param {number | undefined} index
-       * @param {Array<Parent>} parents
-       */
-      function factory(node, index, parents) {
-        /** @type {Record<string, unknown>} */
-        // @ts-expect-error: hush
-        const value = node && typeof node === 'object' ? node : {}
-
-        if (typeof value.type === 'string') {
-          const name =
-            // `hast`
-            typeof value.tagName === 'string'
-              ? value.tagName
-              : // `xast`
-              typeof value.name === 'string'
-              ? value.name
-              : undefined
-
-          Object.defineProperty(visit, 'name', {
-            value:
-              'node (' + color_color(node.type + (name ? '<' + name + '>' : '')) + ')'
-          })
-        }
-
-        return visit
-
-        function visit() {
-          /** @type {ActionTuple} */
-          let result = []
-          /** @type {ActionTuple} */
-          let subresult
-          /** @type {number} */
-          let offset
-          /** @type {Array<Parent>} */
-          let grandparents
-
-          if (!test || is(node, index, parents[parents.length - 1] || null)) {
-            result = lib_toResult(visitor(node, parents))
-
-            if (result[0] === lib_EXIT) {
-              return result
-            }
-          }
-
-          // @ts-expect-error looks like a parent.
-          if (node.children && result[0] !== lib_SKIP) {
-            // @ts-expect-error looks like a parent.
-            offset = (reverse ? node.children.length : -1) + step
-            // @ts-expect-error looks like a parent.
-            grandparents = parents.concat(node)
-
-            // @ts-expect-error looks like a parent.
-            while (offset > -1 && offset < node.children.length) {
-              // @ts-expect-error looks like a parent.
-              subresult = factory(node.children[offset], offset, grandparents)()
-
-              if (subresult[0] === lib_EXIT) {
-                return subresult
-              }
-
-              offset =
-                typeof subresult[1] === 'number' ? subresult[1] : offset + step
-            }
-          }
-
-          return result
-        }
-      }
-    }
-  )
-
-/**
- * Turn a return value into a clean result.
- *
- * @param {VisitorResult} value
- *   Valid return values from visitors.
- * @returns {ActionTuple}
- *   Clean result.
- */
-function lib_toResult(value) {
-  if (Array.isArray(value)) {
-    return value
-  }
-
-  if (typeof value === 'number') {
-    return [lib_CONTINUE, value]
-  }
-
-  return [value]
-}
-
-;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-visit/lib/index.js
-/**
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- * @typedef {import('unist-util-is').Test} Test
- * @typedef {import('unist-util-visit-parents').VisitorResult} VisitorResult
- */
-
-/**
- * Check if `Child` can be a child of `Ancestor`.
- *
- * Returns the ancestor when `Child` can be a child of `Ancestor`, or returns
- * `never`.
- *
- * @template {Node} Ancestor
- *   Node type.
- * @template {Node} Child
- *   Node type.
- * @typedef {(
- *   Ancestor extends Parent
- *     ? Child extends Ancestor['children'][number]
- *       ? Ancestor
- *       : never
- *     : never
- * )} ParentsOf
- */
-
-/**
- * @template {Node} [Visited=Node]
- *   Visited node type.
- * @template {Parent} [Ancestor=Parent]
- *   Ancestor type.
- * @callback Visitor
- *   Handle a node (matching `test`, if given).
- *
- *   Visitors are free to transform `node`.
- *   They can also transform `parent`.
- *
- *   Replacing `node` itself, if `SKIP` is not returned, still causes its
- *   descendants to be walked (which is a bug).
- *
- *   When adding or removing previous siblings of `node` (or next siblings, in
- *   case of reverse), the `Visitor` should return a new `Index` to specify the
- *   sibling to traverse after `node` is traversed.
- *   Adding or removing next siblings of `node` (or previous siblings, in case
- *   of reverse) is handled as expected without needing to return a new `Index`.
- *
- *   Removing the children property of `parent` still results in them being
- *   traversed.
- * @param {Visited} node
- *   Found node.
- * @param {Visited extends Node ? number | null : never} index
- *   Index of `node` in `parent`.
- * @param {Ancestor extends Node ? Ancestor | null : never} parent
- *   Parent of `node`.
- * @returns {VisitorResult}
- *   What to do next.
- *
- *   An `Index` is treated as a tuple of `[CONTINUE, Index]`.
- *   An `Action` is treated as a tuple of `[Action]`.
- *
- *   Passing a tuple back only makes sense if the `Action` is `SKIP`.
- *   When the `Action` is `EXIT`, that action can be returned.
- *   When the `Action` is `CONTINUE`, `Index` can be returned.
- */
-
-/**
- * Build a typed `Visitor` function from a node and all possible parents.
- *
- * It will infer which values are passed as `node` and which as `parent`.
- *
- * @template {Node} Visited
- *   Node type.
- * @template {Parent} Ancestor
- *   Parent type.
- * @typedef {Visitor<Visited, ParentsOf<Ancestor, Visited>>} BuildVisitorFromMatch
- */
-
-/**
- * Build a typed `Visitor` function from a list of descendants and a test.
- *
- * It will infer which values are passed as `node` and which as `parent`.
- *
- * @template {Node} Descendant
- *   Node type.
- * @template {Test} Check
- *   Test type.
- * @typedef {(
- *   BuildVisitorFromMatch<
- *     import('unist-util-visit-parents/complex-types.js').Matches<Descendant, Check>,
- *     Extract<Descendant, Parent>
- *   >
- * )} BuildVisitorFromDescendants
- */
-
-/**
- * Build a typed `Visitor` function from a tree and a test.
- *
- * It will infer which values are passed as `node` and which as `parent`.
- *
- * @template {Node} [Tree=Node]
- *   Node type.
- * @template {Test} [Check=string]
- *   Test type.
- * @typedef {(
- *   BuildVisitorFromDescendants<
- *     import('unist-util-visit-parents/complex-types.js').InclusiveDescendant<Tree>,
- *     Check
- *   >
- * )} BuildVisitor
- */
-
-
-
-/**
- * Visit nodes.
- *
- * This algorithm performs *depth-first* *tree traversal* in *preorder*
- * (**NLR**) or if `reverse` is given, in *reverse preorder* (**NRL**).
- *
- * You can choose for which nodes `visitor` is called by passing a `test`.
- * For complex tests, you should test yourself in `visitor`, as it will be
- * faster and will have improved type information.
- *
- * Walking the tree is an intensive task.
- * Make use of the return values of the visitor when possible.
- * Instead of walking a tree multiple times, walk it once, use `unist-util-is`
- * to check if a node matches, and then perform different operations.
- *
- * You can change the tree.
- * See `Visitor` for more info.
- *
- * @param tree
- *   Tree to traverse.
- * @param test
- *   `unist-util-is`-compatible test
- * @param visitor
- *   Handle each node.
- * @param reverse
- *   Traverse in reverse preorder (NRL) instead of the default preorder (NLR).
- * @returns
- *   Nothing.
- */
-const lib_visit =
-  /**
-   * @type {(
-   *   (<Tree extends Node, Check extends Test>(tree: Tree, test: Check, visitor: BuildVisitor<Tree, Check>, reverse?: boolean | null | undefined) => void) &
-   *   (<Tree extends Node>(tree: Tree, visitor: BuildVisitor<Tree>, reverse?: boolean | null | undefined) => void)
-   * )}
-   */
-  (
-    /**
-     * @param {Node} tree
-     * @param {Test} test
-     * @param {Visitor} visitor
-     * @param {boolean | null | undefined} [reverse]
-     * @returns {void}
-     */
-    function (tree, test, visitor, reverse) {
-      if (typeof test === 'function' && typeof visitor !== 'function') {
-        reverse = visitor
-        visitor = test
-        test = null
-      }
-
-      lib_visitParents(tree, test, overload, reverse)
-
-      /**
-       * @param {Node} node
-       * @param {Array<Parent>} parents
-       */
-      function overload(node, parents) {
-        const parent = parents[parents.length - 1]
-        return visitor(
-          node,
-          parent ? parent.children.indexOf(node) : null,
-          parent
-        )
-      }
-    }
-  )
-
-
-
-;// CONCATENATED MODULE: ./node_modules/remark-sectionize/index.js
-
-
-
-const MAX_HEADING_DEPTH = 6
-
-function remark_sectionize_plugin () {
-  return transform
-}
-
-function transform (tree) {
-  for (let depth = MAX_HEADING_DEPTH; depth > 0; depth--) {
-    lib_visit(
-      tree,
-      node => node.type === 'heading' && node.depth === depth,
-      sectionize
-    )
-  }
-}
-
-function sectionize (node, index, parent) {
-  const start = node
-  const startIndex = index
-  const depth = start.depth
-
-  const isEnd = node => node.type === 'heading' && node.depth <= depth || node.type === 'export'
-  const end = findAfter(parent, start, isEnd)
-  const endIndex = parent.children.indexOf(end)
-
-  const between = parent.children.slice(
-    startIndex,
-    endIndex > 0 ? endIndex : undefined
-  )
-
-  const section = {
-    type: 'section',
-    depth: depth,
-    children: between,
-    data: {
-      hName: 'section'
-    }
-  }
-
-  parent.children.splice(startIndex, section.children.length, section)
-}
-
-/* harmony default export */ const remark_sectionize = (remark_sectionize_plugin);
+;// CONCATENATED MODULE: ./src/utils.ts
+const objectKeys = (obj) => Object.keys(obj);
+const objectEntries = (obj) => Object.entries(obj);
 
 ;// CONCATENATED MODULE: ./src/main.ts
 
@@ -73273,10 +74543,12 @@ function sectionize (node, index, parent) {
 
 
 
-const methods = lodash_es_intersection([
-    ...Object.values(dist/* OpenAPIV2.HttpMethods */.KJ.HttpMethods),
-    ...Object.values(dist/* OpenAPIV3.HttpMethods */.ZT.HttpMethods),
-]);
+const methods = lodash_es_intersection(Object.values(dist/* OpenAPIV2.HttpMethods */.KJ.HttpMethods), Object.values(dist/* OpenAPIV3.HttpMethods */.ZT.HttpMethods));
+const methodRegex = new RegExp(`\\b(?<!\\/)(\\[?${methods.join('|')}\\]?)(?!\\/)\\b`, 'i');
+const getPathRegex = (path) => {
+    const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(`(\\w)?(?<!\\w)${escapedPath}(?!\\w)(\\w)?`);
+};
 const mdastLiterals = (/* unused pure expression or super */ null && ([
     'code',
     'html',
@@ -73284,6 +74556,10 @@ const mdastLiterals = (/* unused pure expression or super */ null && ([
     'text',
     'yaml',
 ]));
+const literalsToCheck = [
+    'inlineCode',
+    'text',
+];
 const run = async () => {
     try {
         const oasPath = core.getInput('openapi-path', { required: true });
@@ -73307,34 +74583,32 @@ const run = async () => {
                 }))
                 : [],
         };
-        const tree = (await remark()
-            .use(remark_sectionize)
-            .run(remark().parse(await read(docPath))));
+        const docAST = remark().parse(await read(docPath));
+        const tree = remark().use(remark_sectionize).runSync(docAST);
         const docParsed = {
             endpoints: [],
         };
-        const literalsToCheck = [
-            'inlineCode',
-            'text',
-        ];
-        const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
         const documentedEndpoints = [];
         for (const l of literalsToCheck) {
             visitParents(tree, l, (litNode, ancestors) => {
-                if (!oasParsed.endpoints.some(e => litNode.value.includes(e.path))) {
+                const endpoint = oasParsed.endpoints.find(e => getPathRegex(e.path).test(litNode.value) &&
+                    methodRegex.test(litNode.value));
+                if (!endpoint) {
                     return;
                 }
                 documentedEndpoints.push({
                     node: litNode,
+                    endpoint,
                     parent: ancestors[ancestors.length - 1],
                     selector: [...ancestors.map(a => a.type), litNode.type].join(' > '),
                 });
             });
         }
+        docParsed.endpoints = structuredClone(documentedEndpoints.map(d => d.endpoint));
         for (const { node, parent, selector } of documentedEndpoints) {
-            console.log(selector);
+            // console.log(selector);
             const a = selectAll(selector, tree);
-            // console.log(a);
+            console.log(a);
             // visitChildren(child => {
             //   if (!isLiteralNode(child) || child === node) return;
             //   console.log(child.value);
@@ -73346,15 +74620,14 @@ const run = async () => {
             // }
             // })(parent);
         }
-        visitParents(tree, 'text', t => {
-            for (const method of methods) {
-                if (!t.value.includes(method) || !t.value.includes('/'))
-                    return;
-                docParsed.endpoints.push(t.value);
-            }
-        });
-        const notDocumented = lodash_es_differenceWith(oasParsed.endpoints, docParsed.endpoints, (a, b) => b.toLowerCase().includes(a.method) && b.includes(a.path));
-        const outdated = lodash_es_differenceWith(docParsed.endpoints, oasParsed.endpoints, (b, a) => b.toLowerCase().includes(a.method) && b.includes(a.path));
+        // visitParents(tree, 'text', t => {
+        //   for (const method of methods) {
+        //     if (!t.value.includes(method) || !t.value.includes('/')) return;
+        //     docParsed.endpoints.push(t.value);
+        //   }
+        // });
+        const notDocumented = lodash_es_differenceWith(oasParsed.endpoints, docParsed.endpoints, lodash_es_isEqual);
+        const outdated = lodash_es_differenceWith(docParsed.endpoints, oasParsed.endpoints, lodash_es_isEqual);
         const errors = [];
         if (notDocumented.length > 0) {
             errors.push(`Not Documented: ${notDocumented.join(', ')}`);

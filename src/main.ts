@@ -1,43 +1,49 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import SwaggerParser from '@apidevtools/swagger-parser';
-import { differenceWith, intersection } from 'lodash-es';
+import { differenceWith, intersection, isEqual } from 'lodash-es';
 import { Literals, Node, Parent, Root } from 'mdast';
 import { OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 import { remark } from 'remark';
 import remarkSectionize from 'remark-sectionize';
 import { read } from 'to-vfile';
 import { selectAll } from 'unist-util-select';
-import {
-  visitParents,
-  type InclusiveDescendant,
-  type Matches,
-} from 'unist-util-visit-parents';
+import { visitParents } from 'unist-util-visit-parents';
 import { UnionToArray, objectEntries } from './utils';
 
-const methods = intersection([
-  ...(Object.values(OpenAPIV2.HttpMethods) as `${OpenAPIV2.HttpMethods}`[]),
-  ...(Object.values(OpenAPIV3.HttpMethods) as `${OpenAPIV3.HttpMethods}`[]),
-]) as (`${OpenAPIV2.HttpMethods}` & `${OpenAPIV3.HttpMethods}`)[];
+const methods = intersection(
+  Object.values(OpenAPIV2.HttpMethods),
+  Object.values(OpenAPIV3.HttpMethods),
+) as (`${OpenAPIV2.HttpMethods}` & `${OpenAPIV3.HttpMethods}`)[];
+
 type Method = (typeof methods)[number];
 
+const methodRegex = new RegExp(
+  `\\b(?<!\\/)(\\[?${methods.join('|')}\\]?)(?!\\/)\\b`,
+  'i',
+);
+
+const getPathRegex = (path: string) => {
+  const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(\\w)?(?<!\\w)${escapedPath}(?!\\w)(\\w)?`);
+};
+
+type Endpoint = {
+  path: string;
+  method: Method;
+};
+
 type OpenApiParsed = {
-  endpoints: {
-    path: string;
-    method: Method;
-  }[];
+  endpoints: Endpoint[];
 };
 
 type DocParsed = {
-  endpoints: string[];
+  endpoints: Endpoint[];
 };
 
 export type DocCheckErrors = {
-  outdated: {
-    path: string;
-    method: Method;
-  }[];
-  notDocumented: [];
+  outdated: Endpoint[];
+  notDocumented: Endpoint[];
 };
 
 const mdastLiterals = [
@@ -46,7 +52,12 @@ const mdastLiterals = [
   'inlineCode',
   'text',
   'yaml',
-] satisfies UnionToArray<Literals['type']>;
+] as const satisfies UnionToArray<Literals['type']>;
+
+const literalsToCheck = [
+  'inlineCode',
+  'text',
+] as const satisfies (typeof mdastLiterals)[number][];
 
 export const run = async () => {
   try {
@@ -73,50 +84,47 @@ export const run = async () => {
         : [],
     };
 
-    const tree = (await remark()
-      .use(remarkSectionize)
-      .run(remark().parse(await read(docPath)))) as Root;
+    const docAST = remark().parse(await read(docPath));
+    const tree = remark().use(remarkSectionize).runSync(docAST) as Root;
 
     const docParsed: DocParsed = {
       endpoints: [],
     };
 
-    const literalsToCheck = [
-      'inlineCode',
-      'text',
-    ] as const satisfies (typeof mdastLiterals)[number][];
-
-    type LiteralNode = Matches<
-      InclusiveDescendant<typeof tree>,
-      (typeof literalsToCheck)[number]
-    >;
-
-    const isLiteralNode = (node: Node): node is LiteralNode =>
-      literalsToCheck.some(l => l === node.type);
-
     const documentedEndpoints: {
       node: Node & { type: (typeof literalsToCheck)[number] };
       parent: Parent;
       selector: string;
+      endpoint: Endpoint;
     }[] = [];
 
     for (const l of literalsToCheck) {
       visitParents(tree, l, (litNode, ancestors) => {
-        if (!oasParsed.endpoints.some(e => litNode.value.includes(e.path))) {
+        const endpoint = oasParsed.endpoints.find(
+          e =>
+            getPathRegex(e.path).test(litNode.value) &&
+            methodRegex.test(litNode.value),
+        );
+        if (!endpoint) {
           return;
         }
         documentedEndpoints.push({
           node: litNode,
+          endpoint,
           parent: ancestors[ancestors.length - 1],
           selector: [...ancestors.map(a => a.type), litNode.type].join(' > '),
         });
       });
     }
 
+    docParsed.endpoints = structuredClone(
+      documentedEndpoints.map(d => d.endpoint),
+    );
+
     for (const { node, parent, selector } of documentedEndpoints) {
-      console.log(selector);
+      // console.log(selector);
       const a = selectAll(selector, tree);
-      // console.log(a);
+      console.log(a);
       // visitChildren(child => {
       //   if (!isLiteralNode(child) || child === node) return;
       //   console.log(child.value);
@@ -128,22 +136,22 @@ export const run = async () => {
       // }
       // })(parent);
     }
-    visitParents(tree, 'text', t => {
-      for (const method of methods) {
-        if (!t.value.includes(method) || !t.value.includes('/')) return;
-        docParsed.endpoints.push(t.value);
-      }
-    });
+    // visitParents(tree, 'text', t => {
+    //   for (const method of methods) {
+    //     if (!t.value.includes(method) || !t.value.includes('/')) return;
+    //     docParsed.endpoints.push(t.value);
+    //   }
+    // });
 
     const notDocumented = differenceWith(
       oasParsed.endpoints,
       docParsed.endpoints,
-      (a, b) => b.toLowerCase().includes(a.method) && b.includes(a.path),
+      isEqual,
     );
     const outdated = differenceWith(
       docParsed.endpoints,
       oasParsed.endpoints,
-      (b, a) => b.toLowerCase().includes(a.method) && b.includes(a.path),
+      isEqual,
     );
     const errors = [];
     if (notDocumented.length > 0) {

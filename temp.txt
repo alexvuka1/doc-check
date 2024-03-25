@@ -1,0 +1,3 @@
+https://github.com/openstf/stf/blob/master/lib/units/api/swagger/api_v1_generated.json https://github.com/openstf/stf/blob/master/doc/API.md
+https://github.com/gitlabhq/gitlabhq/blob/ce1d252f5dcda5534fa3b02d7e7df6e550ca5744/doc/development/geo/api.md?plain=1#L23 https://github.com/gitlabhq/gitlabhq/blob/ce1d252f5dcda5534fa3b02d7e7df6e550ca5744/doc/api/openapi/openapi.yaml
+https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/API.md https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/swagger/swagger.json

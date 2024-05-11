@@ -1,4 +1,4 @@
-import { Endpoint, Method, PathPart } from './parsing';
+import { Method, OasEndpoint, PathPart } from './parsing';
 
 export const getMethodRegex = (matchMethods: Method[]) => {
   const matchUnionStr = matchMethods
@@ -7,7 +7,7 @@ export const getMethodRegex = (matchMethods: Method[]) => {
   return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`);
 };
 
-const pathToRegexStr = (pathParts: PathPart[]) =>
+const pathPartsToRegexStr = (pathParts: PathPart[]) =>
   pathParts
     .map(p => {
       switch (p.type) {
@@ -19,15 +19,15 @@ const pathToRegexStr = (pathParts: PathPart[]) =>
     })
     .join('/');
 
-export const getPathRegex = (endpoint: Endpoint) => {
+export const oasGetEndpointRegex = (endpoint: OasEndpoint) => {
   const a = endpoint.servers
     .flatMap(s => {
       if (!s.basePath) return [];
-      return [`/${pathToRegexStr(s.basePath)}`];
+      return [`/${pathPartsToRegexStr(s.basePath)}`];
     })
     .join('|');
   const regex = new RegExp(
-    `(?<=\\s|^)(${a})?/${pathToRegexStr(endpoint.pathParts)}(?=\\s|$)`,
+    `(?<=\\s|^)(${a})?/${pathPartsToRegexStr(endpoint.pathParts)}(?=\\s|$)`,
   );
   return regex;
 };

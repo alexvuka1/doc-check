@@ -1,6 +1,6 @@
 import { includes } from 'lodash-es';
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
-import { PathPart, Scheme, ServerInfo, validSchemes } from '.';
+import { PathPart, Scheme, OasServerInfo, validSchemes } from '.';
 
 export const isV2 = (
   openapiDoc: OpenAPI.Document,
@@ -11,7 +11,7 @@ export const getServersInfo = (
   servers?: OpenAPIV3.ServerObject[] | OpenAPIV3_1.ServerObject[],
 ) => {
   if (!servers) return [];
-  return servers.map<ServerInfo>(s => {
+  return servers.map<OasServerInfo>(s => {
     if (s.variables) throw new Error('Server variables not supported yet');
     try {
       const url = new URL(s.url);

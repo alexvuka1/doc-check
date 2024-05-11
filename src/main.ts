@@ -10,17 +10,10 @@ import { read } from 'to-vfile';
 import { selectAll } from 'unist-util-select';
 import { visitParents } from 'unist-util-visit-parents';
 import { isLiteralNode, literalsToCheck } from './ast';
-import {
-  DocParsed,
-  Endpoint,
-  Method,
-  OpenApiParsed,
-  methods,
-  methodsSet,
-} from './parsing';
+import { Method, DocEndpoint, methods, OasEndpoint } from './parsing';
 import { mdCreateEndpoint } from './parsing/markdown';
 import { getServersInfo, isV2, oasParsePath } from './parsing/openapi';
-import { extractPath, getMethodRegex, getPathRegex } from './regex';
+import { extractPath, getMethodRegex, oasGetEndpointRegex } from './regex';
 import { objectEntries } from './utils';
 
 export const run = async () => {
@@ -31,9 +24,11 @@ export const run = async () => {
 
     const oasDoc = await SwaggerParser.validate(oasPath);
     const oas = isV2(oasDoc) ? (await convertObj(oasDoc, {})).openapi : oasDoc;
+
     const oasServers = getServersInfo(oas.servers);
-    const oasParsed: OpenApiParsed = {
-      endpoints: oas.paths
+
+    const oasIdToEndpoint = new Map<string, OasEndpoint>(
+      oas.paths
         ? objectEntries(oas.paths).flatMap(([path, pathItem]) =>
             methods.flatMap(method => {
               if (!pathItem) return [];
@@ -45,91 +40,127 @@ export const run = async () => {
                   ? getServersInfo(pathItem.servers)
                   : oasServers;
               return [
-                {
-                  method,
-                  servers: serversInfo,
-                  pathParts: oasParsePath(path),
-                } satisfies Endpoint,
-              ];
+                [
+                  // OpenAPI defines a unique operation as a combination of a path and an HTTP method.
+                  `${method} ${path}`,
+                  {
+                    method,
+                    servers: serversInfo,
+                    pathParts: oasParsePath(path),
+                  } satisfies OasEndpoint,
+                ],
+              ] as const;
             }),
           )
         : [],
-    };
+    );
 
     const docAST = remark().parse(await read(docPath));
     const tree = remark().use(remarkSectionize).runSync(docAST) as Root;
 
-    const docParsed: DocParsed = {
-      endpoints: [],
-    };
+    const oasEndpointIdToDocMatches = new Map<
+      string,
+      {
+        node: Node & { type: (typeof literalsToCheck)[number] };
+        parentSelector: string;
+      }[]
+    >([...oasIdToEndpoint.keys()].map(k => [k, []] as const));
 
-    const documentedEndpoints: {
-      node: Node & { type: (typeof literalsToCheck)[number] };
-      // parent: Parent;
-      parentSelector: string;
-      endpoint: Endpoint;
-    }[] = [];
+    const docSelectorToMatchedNodes = new Map<string, Set<Node>>();
 
-    for (const l of literalsToCheck) {
-      visitParents(tree, l, (litNode, ancestors) => {
-        const endpoint = oasParsed.endpoints.find(
-          e =>
-            getMethodRegex([e.method]).test(litNode.value) &&
-            getPathRegex(e).test(litNode.value),
-        );
-        if (
-          !endpoint ||
-          documentedEndpoints.some(d => isEqual(d.endpoint, endpoint))
-        ) {
-          return;
+    for (const literal of literalsToCheck) {
+      visitParents(tree, literal, (node, ancestors) => {
+        for (const [endpointId, endpoint] of oasIdToEndpoint.entries()) {
+          const containsMethod = getMethodRegex(methods).test(node.value);
+          if (!containsMethod) continue;
+          const containsPath = oasGetEndpointRegex(endpoint).test(node.value);
+          if (!containsPath) continue;
+          const docMatches = oasEndpointIdToDocMatches.get(endpointId);
+          if (!docMatches) {
+            throw new Error(
+              'Map should have been initialised to have entries for all oas paths',
+            );
+          }
+          const parentSelector = ancestors.map(a => a.type).join(' > ');
+          docMatches.push({ node, parentSelector });
+          let matchedNodes = docSelectorToMatchedNodes.get(parentSelector);
+          if (!matchedNodes) {
+            matchedNodes = new Set();
+            docSelectorToMatchedNodes.set(parentSelector, matchedNodes);
+          }
+          matchedNodes.add(node);
         }
-        documentedEndpoints.push({
-          node: litNode,
-          endpoint,
-          // parent: ancestors[ancestors.length - 1],
-          parentSelector: ancestors.map(a => a.type).join(' > '),
-        });
       });
     }
 
-    docParsed.endpoints = structuredClone(
-      documentedEndpoints.map(d => d.endpoint),
-    );
+    const docIdToUnmatchedEndpoint = new Map<string, DocEndpoint>();
 
-    for (const { node, parentSelector } of documentedEndpoints) {
+    for (const [
+      parentSelector,
+      matchedNodes,
+    ] of docSelectorToMatchedNodes.entries()) {
       const siblingSelector = literalsToCheck
         .map(l => [parentSelector, l].join(' > '))
         .join(', ');
       const siblings = selectAll(siblingSelector, tree);
       for (const sibling of siblings) {
-        if (!isLiteralNode(sibling) || sibling === node) continue;
-        const matches = getMethodRegex(methods).exec(sibling.value);
-        if (!matches || !sibling.value.includes('/')) continue;
-        const match = matches[0].toLowerCase();
-        if (!methodsSet.has(match as Method)) {
-          throw new Error(`Matched method is not a valid method: ${match}`);
-        }
-        const method = match as Method;
+        if (!isLiteralNode(sibling)) throw new Error('Expected literal node');
+        if (matchedNodes.has(sibling)) continue;
+        const method = getMethodRegex(methods)
+          .exec(sibling.value)?.[0]
+          .toLowerCase() as Method | undefined;
+        if (!method || !sibling.value.includes('/')) continue;
         const path = extractPath(sibling.value);
         if (!path) continue;
+        const id = `${method} ${path}`;
+        if (docIdToUnmatchedEndpoint.has(id)) continue;
         const endpoint = mdCreateEndpoint(method, path);
-        if (documentedEndpoints.some(d => isEqual(d.endpoint, endpoint))) {
-          continue;
-        }
-        docParsed.endpoints.push(endpoint);
+        docIdToUnmatchedEndpoint.set(id, endpoint);
       }
     }
 
+    const unmatchedOasPaths = differenceWith(
+      [...oasIdToEndpoint.keys()],
+      [...oasEndpointIdToDocMatches.keys()],
+      isEqual,
+    ).map(id => {
+      const oasEndpoint = oasIdToEndpoint.get(id);
+      if (!oasEndpoint) throw new Error('Expected oas path to be defined');
+      return oasEndpoint;
+    });
+
+    const areEqualEndpoints = (
+      oasEndpoint: OasEndpoint,
+      docEndpoint: DocEndpoint,
+    ) => {
+      const { scheme, host } = docEndpoint;
+      const docHasServer = scheme || host;
+      const server = docHasServer
+        ? oasEndpoint.servers.find(
+            s =>
+              (!scheme || s.schemes?.includes(scheme)) &&
+              (!host || s.host?.includes(host)),
+          )
+        : null;
+      if (docHasServer && !server) return false;
+      // Note assumes that the base path will be in the documentation path, which might not be the case in general
+      return isEqual(
+        [...(server?.basePath ?? []), ...oasEndpoint.pathParts],
+        docEndpoint.pathParts,
+      );
+    };
     const notDocumented = differenceWith(
-      oasParsed.endpoints,
-      docParsed.endpoints,
-      isEqual,
+      unmatchedOasPaths,
+      [...docIdToUnmatchedEndpoint.values()],
+      areEqualEndpoints,
     );
+
     const outdated = differenceWith(
-      docParsed.endpoints,
-      oasParsed.endpoints,
-      isEqual,
+      [...docIdToUnmatchedEndpoint.values()],
+      unmatchedOasPaths,
+      (docEndpt, oasEndpt) => areEqualEndpoints(oasEndpt, docEndpt),
     );
+
     const errors = [];
     if (notDocumented.length > 0) {
       errors.push(`Not Documented: ${notDocumented.join(', ')}`);

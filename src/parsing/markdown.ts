@@ -1,25 +1,19 @@
 import { includes } from 'lodash-es';
-import {
-  Endpoint,
-  Method,
-  PathPart,
-  Scheme,
-  ServerInfo,
-  validSchemes,
-} from '.';
+import { DocEndpoint, Method, PathPart, Scheme, validSchemes } from '.';
 
-export const mdCreateEndpoint = (method: Method, path: string): Endpoint => {
+export const mdCreateEndpoint = (method: Method, path: string): DocEndpoint => {
   const pathParts: PathPart[] = [];
-  const server: ServerInfo = {};
+  let scheme: DocEndpoint['scheme'];
+  let host: DocEndpoint['host'];
   const protocolSeparator = '://';
   if (path.includes(protocolSeparator)) {
     const [protocol, rest] = path.split(protocolSeparator);
-    if (includes(validSchemes, protocol)) server.schemes = [protocol as Scheme];
+    if (includes(validSchemes, protocol)) scheme = protocol as Scheme;
     path = rest;
   }
   if (path.includes('.')) {
     const hostEnd = path.indexOf('/');
-    server.host = path.substring(0, hostEnd);
+    host = path.substring(0, hostEnd);
     path = path.substring(hostEnd);
   }
   if (path.startsWith('/')) path = path.substring(1);
@@ -43,6 +37,7 @@ export const mdCreateEndpoint = (method: Method, path: string): Endpoint => {
   return {
     method,
     pathParts,
-    servers: [server],
+    scheme,
+    host,
   };
 };

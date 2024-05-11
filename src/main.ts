@@ -1,83 +1,27 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import SwaggerParser from '@apidevtools/swagger-parser';
-import { differenceWith, intersection, isEqual } from 'lodash-es';
-import { Literals, Node, Root } from 'mdast';
-import { OpenAPIV2, OpenAPIV3 } from 'openapi-types';
+import { differenceWith, isEqual } from 'lodash-es';
+import { Node, Root } from 'mdast';
 import { remark } from 'remark';
 import remarkSectionize from 'remark-sectionize';
+import { convertObj } from 'swagger2openapi';
 import { read } from 'to-vfile';
 import { selectAll } from 'unist-util-select';
+import { visitParents } from 'unist-util-visit-parents';
+import { isLiteralNode, literalsToCheck } from './ast';
 import {
-  visitParents,
-  type InclusiveDescendant,
-  type Matches,
-} from 'unist-util-visit-parents';
-import { UnionToArray, objectEntries } from './utils';
-
-const methods = intersection(
-  Object.values(OpenAPIV2.HttpMethods),
-  Object.values(OpenAPIV3.HttpMethods),
-) as (`${OpenAPIV2.HttpMethods}` & `${OpenAPIV3.HttpMethods}`)[];
-const methodsSet = new Set(methods);
-
-type Method = (typeof methods)[number];
-
-const getMethodRegex = (matchMethods: Method[]) => {
-  const matchUnionStr = matchMethods.join('|');
-  return new RegExp(
-    `\\b(?<!\\/)\\[?${matchUnionStr}|${matchUnionStr.toUpperCase()}\\]?(?!\\/)\\b`,
-  );
-};
-
-const getPathRegex = (path: string) => {
-  const escapedPath = path.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`(\\w)?(?<!\\w)${escapedPath}(?!\\w)(\\w)?`);
-};
-
-const extractPath = (str: string) => {
-  const match = str.match(/\/\S*?(?=\s|\?|$)/);
-  return match && !match[0].includes(' ') ? match[0] : null;
-};
-
-type Endpoint = {
-  path: string;
-  method: Method;
-};
-
-type OpenApiParsed = {
-  endpoints: Endpoint[];
-};
-
-type DocParsed = {
-  endpoints: Endpoint[];
-};
-
-export type DocCheckErrors = {
-  outdated: Endpoint[];
-  notDocumented: Endpoint[];
-};
-
-const mdastLiterals = [
-  'code',
-  'html',
-  'inlineCode',
-  'text',
-  'yaml',
-] as const satisfies UnionToArray<Literals['type']>;
-
-const literalsToCheck = [
-  'inlineCode',
-  'text',
-] as const satisfies (typeof mdastLiterals)[number][];
-
-type LiteralNode = Matches<
-  InclusiveDescendant<Root>,
-  (typeof literalsToCheck)[number]
->;
-
-const isLiteralNode = (node: Node): node is LiteralNode =>
-  literalsToCheck.some(l => l === node.type);
+  DocParsed,
+  Endpoint,
+  Method,
+  OpenApiParsed,
+  methods,
+  methodsSet,
+} from './parsing';
+import { mdCreateEndpoint } from './parsing/markdown';
+import { getServersInfo, isV2, oasParsePath } from './parsing/openapi';
+import { extractPath, getMethodRegex, getPathRegex } from './regex';
+import { objectEntries } from './utils';
 
 export const run = async () => {
   try {
@@ -85,7 +29,9 @@ export const run = async () => {
     const docPath = core.getInput('doc-path', { required: true });
     const token = core.getInput('token');
 
-    const oas = await SwaggerParser.validate(oasPath);
+    const oasDoc = await SwaggerParser.validate(oasPath);
+    const oas = isV2(oasDoc) ? (await convertObj(oasDoc, {})).openapi : oasDoc;
+    const oasServers = getServersInfo(oas.servers);
     const oasParsed: OpenApiParsed = {
       endpoints: oas.paths
         ? objectEntries(oas.paths).flatMap(([path, pathItem]) =>
@@ -93,11 +39,17 @@ export const run = async () => {
               if (!pathItem) return [];
               const operation = pathItem[method];
               if (!operation) return [];
+              const serversInfo = operation.servers
+                ? getServersInfo(operation.servers)
+                : pathItem.servers
+                  ? getServersInfo(pathItem.servers)
+                  : oasServers;
               return [
                 {
-                  path,
                   method,
-                },
+                  servers: serversInfo,
+                  pathParts: oasParsePath(path),
+                } satisfies Endpoint,
               ];
             }),
           )
@@ -122,8 +74,8 @@ export const run = async () => {
       visitParents(tree, l, (litNode, ancestors) => {
         const endpoint = oasParsed.endpoints.find(
           e =>
-            getPathRegex(e.path).test(litNode.value) &&
-            getMethodRegex([e.method]).test(litNode.value),
+            getMethodRegex([e.method]).test(litNode.value) &&
+            getPathRegex(e).test(litNode.value),
         );
         if (
           !endpoint ||
@@ -160,7 +112,7 @@ export const run = async () => {
         const method = match as Method;
         const path = extractPath(sibling.value);
         if (!path) continue;
-        const endpoint: Endpoint = { method, path };
+        const endpoint = mdCreateEndpoint(method, path);
         if (documentedEndpoints.some(d => isEqual(d.endpoint, endpoint))) {
           continue;
         }
@@ -209,7 +161,6 @@ export const run = async () => {
     }
     core.debug(successMsg);
   } catch (error) {
-    console.log(error);
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message);
   }

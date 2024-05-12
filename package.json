@@ -29,8 +29,9 @@
     "format:check": "prettier --check **/*.ts",
     "lint": "bunx eslint .",
     "package": "ncc build src/index.ts --license licenses.txt",
-    "package:watch": "bun run package -- --watch",
-    "all": "bun run format:write && bun run lint && bun test && bun run package"
+    "package:watch": "bun run package -- -w",
+    "all": "bun run format:write && bun run lint && bun test && bun run package",
+    "update-packages": "bunx npm-check-updates -ui"
   },
   "dependencies": {
     "@actions/core": "^1.10.1",

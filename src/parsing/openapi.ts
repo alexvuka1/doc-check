@@ -25,7 +25,7 @@ export const getServersInfo = (
       };
     } catch (_) {
       return {
-        basePath: oasParsePath(s.url.match(/(?<!\/)\/\w+/g)?.[0]),
+        basePath: oasParsePath(s.url.match(/(?<!\/)\/.+/g)?.[0]),
         host: s.url.match(/(?<=\/\/)(.*?)(?=\/|$)/g)?.[0] ?? void 0,
       };
     }

@@ -5,17 +5,17 @@ import { differenceWith, isEqual } from 'lodash-es';
 import { Node, Root } from 'mdast';
 import { remark } from 'remark';
 import remarkSectionize from 'remark-sectionize';
-import { convertObj } from 'swagger2openapi';
+import { convertFile } from 'swagger2openapi';
 import { read } from 'to-vfile';
 import { selectAll } from 'unist-util-select';
+import { visit } from 'unist-util-visit';
 import { visitParents } from 'unist-util-visit-parents';
 import { isLiteralNode, literalsToCheck } from './ast';
-import { Method, DocEndpoint, methods, OasEndpoint } from './parsing';
+import { DocEndpoint, Method, OasEndpoint, methods } from './parsing';
 import { mdCreateEndpoint } from './parsing/markdown';
 import { getServersInfo, isV2, oasParsePath } from './parsing/openapi';
 import { extractPath, getMethodRegex, oasGetEndpointRegex } from './regex';
 import { objectEntries } from './utils';
-import { visit } from 'unist-util-visit';
 
 export const run = async () => {
   try {
@@ -24,7 +24,9 @@ export const run = async () => {
     const token = core.getInput('token');
 
     const oasDoc = await SwaggerParser.validate(oasPath);
-    const oas = isV2(oasDoc) ? (await convertObj(oasDoc, {})).openapi : oasDoc;
+    const oas = isV2(oasDoc)
+      ? (await convertFile(oasPath, {})).openapi
+      : oasDoc;
 
     const oasServers = getServersInfo(oas.servers);
 

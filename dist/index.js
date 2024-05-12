@@ -87035,7 +87035,7 @@ const getServersInfo = (servers) => {
         }
         catch (_) {
             return {
-                basePath: oasParsePath(s.url.match(/(?<!\/)\/\w+/g)?.[0]),
+                basePath: oasParsePath(s.url.match(/(?<!\/)\/.+/g)?.[0]),
                 host: s.url.match(/(?<=\/\/)(.*?)(?=\/|$)/g)?.[0] ?? void 0,
             };
         }
@@ -87122,7 +87122,9 @@ const run = async () => {
         const docPath = core.getInput('doc-path', { required: true });
         const token = core.getInput('token');
         const oasDoc = await lib_default().validate(oasPath);
-        const oas = isV2(oasDoc) ? (await (0,swagger2openapi.convertObj)(oasDoc, {})).openapi : oasDoc;
+        const oas = isV2(oasDoc)
+            ? (await (0,swagger2openapi.convertFile)(oasPath, {})).openapi
+            : oasDoc;
         const oasServers = getServersInfo(oas.servers);
         const oasIdToEndpoint = new Map(oas.paths
             ? objectEntries(oas.paths).flatMap(([path, pathItem]) => methods.flatMap(method => {

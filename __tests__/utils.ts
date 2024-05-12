@@ -66,7 +66,7 @@ const getOrDownload = async (repoName: string, downloadUrl: string) => {
   const filePath = resolve(dirPath, fileName);
   if (existsSync(filePath)) return filePath;
 
-  const res = await fetch(downloadUrl);
+  const res = await fetch(`${downloadUrl}?raw=true`);
   if (!res.ok) throw new Error('Bad request');
   await write(filePath, res);
   return filePath;

@@ -15,6 +15,7 @@ import { mdCreateEndpoint } from './parsing/markdown';
 import { getServersInfo, isV2, oasParsePath } from './parsing/openapi';
 import { extractPath, getMethodRegex, oasGetEndpointRegex } from './regex';
 import { objectEntries } from './utils';
+import { visit } from 'unist-util-visit';
 
 export const run = async () => {
   try {
@@ -95,33 +96,52 @@ export const run = async () => {
 
     const docIdToUnmatchedEndpoint = new Map<string, DocEndpoint>();
 
-    for (const [
-      parentSelector,
-      matchedNodes,
-    ] of docSelectorToMatchedNodes.entries()) {
-      const siblingSelector = literalsToCheck
-        .map(l => [parentSelector, l].join(' > '))
-        .join(', ');
-      const siblings = selectAll(siblingSelector, tree);
-      for (const sibling of siblings) {
-        if (!isLiteralNode(sibling)) throw new Error('Expected literal node');
-        if (matchedNodes.has(sibling)) continue;
-        const method = getMethodRegex(methods)
-          .exec(sibling.value)?.[0]
-          .toLowerCase() as Method | undefined;
-        if (!method || !sibling.value.includes('/')) continue;
-        const path = extractPath(sibling.value);
-        if (!path) continue;
-        const id = `${method} ${path}`;
-        if (docIdToUnmatchedEndpoint.has(id)) continue;
-        const endpoint = mdCreateEndpoint(method, path);
-        docIdToUnmatchedEndpoint.set(id, endpoint);
+    if (docSelectorToMatchedNodes.size === 0) {
+      for (const literal of literalsToCheck) {
+        visit(tree, literal, node => {
+          const method = getMethodRegex(methods)
+            .exec(node.value)?.[0]
+            .toLowerCase() as Method | undefined;
+          if (!method || !node.value.includes('/')) return;
+          const path = extractPath(node.value);
+          if (!path) return;
+          const id = `${method} ${path}`;
+          if (docIdToUnmatchedEndpoint.has(id)) return;
+          const endpoint = mdCreateEndpoint(method, path);
+          docIdToUnmatchedEndpoint.set(id, endpoint);
+        });
+      }
+    } else {
+      for (const [
+        parentSelector,
+        matchedNodes,
+      ] of docSelectorToMatchedNodes.entries()) {
+        const siblingSelector = literalsToCheck
+          .map(l => [parentSelector, l].join(' > '))
+          .join(', ');
+        const siblings = selectAll(siblingSelector, tree);
+        for (const sibling of siblings) {
+          if (!isLiteralNode(sibling)) throw new Error('Expected literal node');
+          if (matchedNodes.has(sibling)) continue;
+          const method = getMethodRegex(methods)
+            .exec(sibling.value)?.[0]
+            .toLowerCase() as Method | undefined;
+          if (!method || !sibling.value.includes('/')) continue;
+          const path = extractPath(sibling.value);
+          if (!path) continue;
+          const id = `${method} ${path}`;
+          if (docIdToUnmatchedEndpoint.has(id)) continue;
+          const endpoint = mdCreateEndpoint(method, path);
+          docIdToUnmatchedEndpoint.set(id, endpoint);
+        }
       }
     }
 
     const unmatchedOasPaths = differenceWith(
       [...oasIdToEndpoint.keys()],
-      [...oasEndpointIdToDocMatches.keys()],
+      [...oasEndpointIdToDocMatches.entries()]
+        .filter(([, docMatches]) => docMatches.length > 0)
+        .map(([id]) => id),
       isEqual,
     ).map(id => {
       const oasEndpoint = oasIdToEndpoint.get(id);

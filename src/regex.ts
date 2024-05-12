@@ -14,7 +14,7 @@ const pathPartsToRegexStr = (pathParts: PathPart[]) =>
         case 'literal':
           return p.value;
         case 'parameter':
-          return p.name.replace(/(.*)/, `(\\{$1\\}|:$1)`);
+          return p.name.replace(/(.*)/, `(\\{$1\\}|<$1>|:$1)`);
       }
     })
     .join('/');

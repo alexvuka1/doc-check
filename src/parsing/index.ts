@@ -12,26 +12,27 @@ export type PathPart =
   | { type: 'literal'; value: string }
   | { type: 'parameter'; name: string };
 
+export type BaseEndpoint = {
+  pathParts: PathPart[];
+  method: Method;
+};
+
 export type OasServerInfo = Partial<{
   schemes: Scheme[];
   host: string;
   basePath: PathPart[];
 }>;
 
-export type OasEndpoint = {
+export type OasEndpoint = BaseEndpoint & {
   servers: OasServerInfo[];
-  pathParts: PathPart[];
-  method: Method;
 };
 
-export type DocEndpoint = {
+export type DocEndpoint = BaseEndpoint & {
   scheme?: Scheme;
   host?: string;
-  pathParts: PathPart[];
-  method: Method;
 };
 
 export type DocCheckErrors = {
-  notDocumented: OasEndpoint[];
-  outdated: DocEndpoint[];
+  oasOnly: OasEndpoint[];
+  docOnly: DocEndpoint[];
 };

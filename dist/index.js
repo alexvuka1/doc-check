@@ -87008,7 +87008,8 @@ const mdCreateEndpoint = (method, path) => {
     if (path.startsWith('/'))
         path = path.substring(1);
     pathParts.push(...path.split('/').map(s => {
-        if (s.startsWith('{') && s.endsWith('}')) {
+        if ((s.startsWith('{') && s.endsWith('}')) ||
+            (s.startsWith('<') && s.endsWith('>'))) {
             return {
                 type: 'parameter',
                 name: s.substring(1, s.length - 1),
@@ -87088,7 +87089,7 @@ const pathPartsToRegexStr = (pathParts) => pathParts
         case 'literal':
             return p.value;
         case 'parameter':
-            return p.name.replace(/(.*)/, `(\\{$1\\}|:$1)`);
+            return p.name.replace(/(.*)/, `(\\{$1\\}|<$1>|:$1)`);
     }
 })
     .join('/');
@@ -87263,14 +87264,14 @@ const run = async () => {
             // Note assumes that the base path will be in the documentation path, which might not be the case in general
             return lodash_es_isEqual([...(server?.basePath ?? []), ...oasEndpoint.pathParts], docEndpoint.pathParts);
         };
-        const notDocumented = lodash_es_differenceWith(unmatchedOasPaths, [...docIdToUnmatchedEndpoint.values()], areEqualEndpoints);
-        const outdated = lodash_es_differenceWith([...docIdToUnmatchedEndpoint.values()], unmatchedOasPaths, (docEndpt, oasEndpt) => areEqualEndpoints(oasEndpt, docEndpt));
+        const oasOnly = lodash_es_differenceWith(unmatchedOasPaths, [...docIdToUnmatchedEndpoint.values()], areEqualEndpoints);
+        const docOnly = lodash_es_differenceWith([...docIdToUnmatchedEndpoint.values()], unmatchedOasPaths, (docEndpt, oasEndpt) => areEqualEndpoints(oasEndpt, docEndpt));
         const errors = [];
-        if (notDocumented.length > 0) {
-            errors.push(`Not Documented: ${notDocumented.join(', ')}`);
+        if (oasOnly.length > 0) {
+            errors.push(`Not Documented: ${oasOnly.join(', ')}`);
         }
-        if (outdated.length > 0) {
-            errors.push(`Outdated: ${outdated.join(', ')}`);
+        if (docOnly.length > 0) {
+            errors.push(`Outdated: ${docOnly.join(', ')}`);
         }
         const successMsg = 'Success - No inconsistencies found!';
         if (token !== '') {
@@ -87288,7 +87289,8 @@ const run = async () => {
             }
         }
         if (errors.length > 0) {
-            throw new Error(JSON.stringify({ notDocumented, outdated }));
+            const docCheckErrors = { oasOnly, docOnly };
+            throw new Error(JSON.stringify(docCheckErrors));
         }
         core.debug(successMsg);
     }

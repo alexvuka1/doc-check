@@ -11,7 +11,13 @@ import { selectAll } from 'unist-util-select';
 import { visit } from 'unist-util-visit';
 import { visitParents } from 'unist-util-visit-parents';
 import { isLiteralNode, literalsToCheck } from './ast';
-import { DocEndpoint, Method, OasEndpoint, methods } from './parsing';
+import {
+  DocCheckErrors,
+  DocEndpoint,
+  Method,
+  OasEndpoint,
+  methods,
+} from './parsing';
 import { mdCreateEndpoint } from './parsing/markdown';
 import { getServersInfo, isV2, oasParsePath } from './parsing/openapi';
 import { extractPath, getMethodRegex, oasGetEndpointRegex } from './regex';
@@ -171,24 +177,24 @@ export const run = async () => {
         docEndpoint.pathParts,
       );
     };
-    const notDocumented = differenceWith(
+    const oasOnly = differenceWith(
       unmatchedOasPaths,
       [...docIdToUnmatchedEndpoint.values()],
       areEqualEndpoints,
     );
 
-    const outdated = differenceWith(
+    const docOnly = differenceWith(
       [...docIdToUnmatchedEndpoint.values()],
       unmatchedOasPaths,
       (docEndpt, oasEndpt) => areEqualEndpoints(oasEndpt, docEndpt),
     );
 
     const errors = [];
-    if (notDocumented.length > 0) {
-      errors.push(`Not Documented: ${notDocumented.join(', ')}`);
+    if (oasOnly.length > 0) {
+      errors.push(`Not Documented: ${oasOnly.join(', ')}`);
     }
-    if (outdated.length > 0) {
-      errors.push(`Outdated: ${outdated.join(', ')}`);
+    if (docOnly.length > 0) {
+      errors.push(`Outdated: ${docOnly.join(', ')}`);
     }
 
     const successMsg = 'Success - No inconsistencies found!';
@@ -210,7 +216,8 @@ export const run = async () => {
     }
 
     if (errors.length > 0) {
-      throw new Error(JSON.stringify({ notDocumented, outdated }));
+      const docCheckErrors: DocCheckErrors = { oasOnly, docOnly };
+      throw new Error(JSON.stringify(docCheckErrors));
     }
     core.debug(successMsg);
   } catch (error) {

@@ -45,7 +45,7 @@ describe('action', () => {
     await main.run();
 
     expectFail(setFailedMock).toEqual({
-      notDocumented: [
+      oasOnly: [
         {
           method: 'get',
           servers: [
@@ -62,7 +62,66 @@ describe('action', () => {
           ],
         },
       ],
-      outdated: [],
+      docOnly: [],
+    });
+  });
+
+  it('handles backstage/backstage', async () => {
+    await setupInputRepo(getInputMock, {
+      repoName: 'backstage/backstage',
+      urlOpenApi:
+        'https://github.com/backstage/backstage/blob/2f6e3e6b47d7c710ef8f137625699080cda8cb79/plugins/catalog-backend/src/schema/openapi.yaml',
+      urlDoc:
+        'https://github.com/backstage/backstage/blob/2f6e3e6b47d7c710ef8f137625699080cda8cb79/docs/features/software-catalog/api.md',
+    });
+
+    await main.run();
+
+    expectFail(setFailedMock).toEqual({
+      oasOnly: [
+        {
+          method: 'post',
+          servers: [{ basePath: [] }],
+          pathParts: [{ type: 'literal', value: 'refresh' }],
+        },
+        {
+          method: 'get',
+          servers: [{ basePath: [] }],
+          pathParts: [
+            { type: 'literal', value: 'entities' },
+            { type: 'literal', value: 'by-name' },
+            { type: 'parameter', name: 'kind' },
+            { type: 'parameter', name: 'namespace' },
+            { type: 'parameter', name: 'name' },
+            { type: 'literal', value: 'ancestry' },
+          ],
+        },
+        {
+          method: 'get',
+          servers: [{ basePath: [] }],
+          pathParts: [{ type: 'literal', value: 'entity-facets' }],
+        },
+        {
+          method: 'post',
+          servers: [{ basePath: [] }],
+          pathParts: [{ type: 'literal', value: 'analyze-location' }],
+        },
+        {
+          method: 'post',
+          servers: [{ basePath: [] }],
+          pathParts: [{ type: 'literal', value: 'validate-entity' }],
+        },
+      ],
+      docOnly: [
+        {
+          method: 'delete',
+          pathParts: [
+            { type: 'literal', value: 'locations' },
+            // TODO here the name of the parameter in the oas is id instead of uid
+            { type: 'parameter', name: 'uid' },
+          ],
+        },
+      ],
     });
   });
 });

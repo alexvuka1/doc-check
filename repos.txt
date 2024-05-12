@@ -1,21 +1,19 @@
 # Sourcegraph search
 context:global repo:has.path((openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:api\.md$ content:Endpoints)
 
-https://github.com/openstf/stf/blob/master/lib/units/api/swagger/api_v1_generated.json https://github.com/openstf/stf/blob/master/doc/API.md
-https://github.com/gitlabhq/gitlabhq/blob/ce1d252f5dcda5534fa3b02d7e7df6e550ca5744/doc/development/geo/api.md?plain=1#L23 https://github.com/gitlabhq/gitlabhq/blob/ce1d252f5dcda5534fa3b02d7e7df6e550ca5744/doc/api/openapi/openapi.yaml
-https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/API.md https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/swagger/swagger.json
-https://github.com/gothinkster/realworld/blob/main/apps/documentation/docs/specs/backend-specs/endpoints.md https://github.com/gothinkster/realworld/blob/main/api/openapi.yml
-https://github.com/backstage/backstage/blob/master/docs/features/software-catalog/api.md https://github.com/backstage/backstage/blob/master/plugins/catalog-backend/src/schema/openapi.yaml
-
 # md is older than api spec
 https://github.com/moby/moby/blob/master/docs/api/v1.24.md https://github.com/moby/moby/blob/master/api/swagger.yaml
-
-# looks like auto generated
-https://github.com/usememos/memos/blob/main/server/route/api/v2/apidocs.swagger.md https://github.com/usememos/memos/blob/main/server/route/api/v2/apidocs.swagger.yaml
-https://github.com/usememos/memos/blob/main/server/route/api/v1/swagger.md https://github.com/usememos/memos/blob/main/server/route/api/v1/swagger.yaml
 
 # very big one
 https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/groups.md https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/openapi/openapi_v2.yaml 
 
 # just docs
 https://github.com/previnder/discuit-docs/blob/master/api.md
+
+# done
+https://github.com/openstf/stf/blob/master/lib/units/api/swagger/api_v1_generated.json https://github.com/openstf/stf/blob/master/doc/API.md
+https://github.com/gothinkster/realworld/blob/main/apps/documentation/docs/specs/backend-specs/endpoints.md https://github.com/gothinkster/realworld/blob/main/api/openapi.yml
+https://github.com/backstage/backstage/blob/master/docs/features/software-catalog/api.md https://github.com/backstage/backstage/blob/master/plugins/catalog-backend/src/schema/openapi.yaml
+
+# docs are deprecated (but format is unusual and could be useful)
+https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/API.md https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/swagger/swagger.json

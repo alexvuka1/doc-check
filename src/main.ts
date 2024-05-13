@@ -22,7 +22,7 @@ import {
 import { mdCreateEndpoint } from './parsing/markdown';
 import { getServersInfo, isV2, oasParsePath } from './parsing/openapi';
 import { extractPath, getMethodRegex, oasGetEndpointRegex } from './regex';
-import { objectEntries } from './utils';
+import { mapIncrement, objectEntries } from './utils';
 
 export const run = async () => {
   try {
@@ -81,7 +81,9 @@ export const run = async () => {
     for (const literal of literalsToCheck) {
       visitParents(tree, literal, (node, ancestors) => {
         for (const [endpointId, endpoint] of oasIdToEndpoint.entries()) {
-          const containsMethod = getMethodRegex(methods).test(node.value);
+          const containsMethod = getMethodRegex([endpoint.method]).test(
+            node.value,
+          );
           if (!containsMethod) continue;
           const containsPath = oasGetEndpointRegex(endpoint).test(node.value);
           if (!containsPath) continue;
@@ -213,16 +215,24 @@ export const run = async () => {
       (_, i) => !matchedDocIndices.has(i),
     );
 
-    let unmatchedEndpointsTable: (Inconsistency[] | 'different-endpoints')[][] =
-      [...Array(unmatchedOasEndpoints.length)].map(() =>
-        Array(unmatchedDocEndpoints.length).fill('different-endpoints'),
-      );
+    const unmatchedEndpointsTable: (
+      | Inconsistency[]
+      | 'different-endpoints'
+    )[][] = [...Array(unmatchedOasEndpoints.length)].map(() =>
+      Array(unmatchedDocEndpoints.length).fill('different-endpoints'),
+    );
 
     for (const [i, oasEndpoint] of unmatchedOasEndpoints.entries()) {
       for (const [j, docEndpoint] of unmatchedDocEndpoints.entries()) {
+        // TODO might have to make this more sophisticated
         if (
-          oasEndpoint.servers.length === 0 &&
-          oasEndpoint.pathParts.length !== docEndpoint.pathParts.length
+          (oasEndpoint.servers.length === 0 &&
+            oasEndpoint.pathParts.length !== docEndpoint.pathParts.length) ||
+          oasEndpoint.servers.every(
+            s =>
+              (s.basePath?.length ?? 0) + oasEndpoint.pathParts.length !==
+              docEndpoint.pathParts.length,
+          )
         ) {
           continue;
         }
@@ -342,16 +352,50 @@ export const run = async () => {
       handledDocIndices.add(index);
     }
 
-    unmatchedEndpointsTable = unmatchedEndpointsTable.flatMap((row, i) => {
-      if (handledOasIndices.has(i)) return [];
-      return [
-        row.flatMap((inconsistency, j) => {
-          if (handledDocIndices.has(j)) return [];
-          return [inconsistency];
-        }),
-      ];
-    });
-    console.log(unmatchedOasEndpoints, unmatchedDocEndpoints);
+    const indicesToInconsistencies = new Map<
+      [number, number],
+      Inconsistency[]
+    >();
+    const oasIndexToNInconsistencyMatches = new Map<number, number>();
+    const docIndexToNInconsistencyMatches = new Map<number, number>();
+    for (const [i, row] of unmatchedEndpointsTable.entries()) {
+      if (handledOasIndices.has(i)) continue;
+      for (const [j, inconsistencies] of row.entries()) {
+        if (
+          handledDocIndices.has(j) ||
+          inconsistencies === 'different-endpoints'
+        ) {
+          continue;
+        }
+        indicesToInconsistencies.set([i, j], inconsistencies);
+        mapIncrement(oasIndexToNInconsistencyMatches, i);
+        mapIncrement(docIndexToNInconsistencyMatches, j);
+      }
+    }
+
+    for (const [
+      [i, j],
+      inconsistencies,
+    ] of indicesToInconsistencies.entries()) {
+      if (
+        (oasIndexToNInconsistencyMatches.get(i) ?? 0) > 1 ||
+        (docIndexToNInconsistencyMatches.get(j) ?? 0) > 1
+      ) {
+        throw new Error('Not implemented yet');
+      }
+      const oasEndpoint = unmatchedOasEndpoints[i];
+      const docEndpoint = unmatchedDocEndpoints[j];
+      if (!oasEndpoint || !docEndpoint) {
+        throw new Error('Expected endpoints to be defined');
+      }
+      inconsistencies.map(inconsistency => {
+        failOutput.push({
+          ...inconsistency,
+          oasEndpoint,
+          docEndpoint,
+        });
+      });
+    }
 
     const successMsg = 'Success - No inconsistencies found!';
 

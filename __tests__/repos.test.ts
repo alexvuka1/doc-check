@@ -59,6 +59,25 @@ describe('action', () => {
           ],
           pathParts: [
             { type: 'literal', value: 'user' },
+            { type: 'literal', value: 'devices' },
+            { type: 'parameter', name: 'serial' },
+          ],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              basePath: [
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'user' },
             { type: 'literal', value: 'accessTokens' },
           ],
         },
@@ -77,52 +96,73 @@ describe('action', () => {
 
     await main.run();
 
-    // console.log(setFailedMock.mock.calls[0][0]);
-    // expectFail(setFailedMock).toEqual({
-    //   oasOnly: [
-    //     {
-    //       method: 'post',
-    //       servers: [{ basePath: [] }],
-    //       pathParts: [{ type: 'literal', value: 'refresh' }],
-    //     },
-    //     {
-    //       method: 'get',
-    //       servers: [{ basePath: [] }],
-    //       pathParts: [
-    //         { type: 'literal', value: 'entities' },
-    //         { type: 'literal', value: 'by-name' },
-    //         { type: 'parameter', name: 'kind' },
-    //         { type: 'parameter', name: 'namespace' },
-    //         { type: 'parameter', name: 'name' },
-    //         { type: 'literal', value: 'ancestry' },
-    //       ],
-    //     },
-    //     {
-    //       method: 'get',
-    //       servers: [{ basePath: [] }],
-    //       pathParts: [{ type: 'literal', value: 'entity-facets' }],
-    //     },
-    //     {
-    //       method: 'post',
-    //       servers: [{ basePath: [] }],
-    //       pathParts: [{ type: 'literal', value: 'analyze-location' }],
-    //     },
-    //     {
-    //       method: 'post',
-    //       servers: [{ basePath: [] }],
-    //       pathParts: [{ type: 'literal', value: 'validate-entity' }],
-    //     },
-    //   ],
-    //   docOnly: [
-    //     {
-    //       method: 'delete',
-    //       pathParts: [
-    //         { type: 'literal', value: 'locations' },
-    //         // TODO here the name of the parameter in the oas is id instead of uid
-    //         { type: 'parameter', name: 'uid' },
-    //       ],
-    //     },
-    //   ],
-    // });
+    expectFail(setFailedMock).toEqual([
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'post',
+          servers: [{ basePath: [] }],
+          pathParts: [{ type: 'literal', value: 'refresh' }],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [{ basePath: [] }],
+          pathParts: [
+            { type: 'literal', value: 'entities' },
+            { type: 'literal', value: 'by-name' },
+            { type: 'parameter', name: 'kind' },
+            { type: 'parameter', name: 'namespace' },
+            { type: 'parameter', name: 'name' },
+            { type: 'literal', value: 'ancestry' },
+          ],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [{ basePath: [] }],
+          pathParts: [{ type: 'literal', value: 'entity-facets' }],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'post',
+          servers: [{ basePath: [] }],
+          pathParts: [{ type: 'literal', value: 'analyze-location' }],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'post',
+          servers: [{ basePath: [] }],
+          pathParts: [{ type: 'literal', value: 'validate-entity' }],
+        },
+      },
+      {
+        type: 'parameter-name-mismatch',
+        parameterIndex: 0,
+        oasEndpoint: {
+          method: 'delete',
+          servers: [{ basePath: [] }],
+          pathParts: [
+            { type: 'literal', value: 'locations' },
+            { type: 'parameter', name: 'id' },
+          ],
+        },
+        docEndpoint: {
+          method: 'delete',
+          pathParts: [
+            { type: 'literal', value: 'locations' },
+            { type: 'parameter', name: 'uid' },
+          ],
+        },
+      },
+    ]);
   });
 });

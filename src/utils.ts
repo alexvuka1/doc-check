@@ -37,3 +37,6 @@ type ExcludeElement<
     ? [...$acc, ...R]
     : ExcludeElement<R, T, [...$acc, H]>
   : $acc;
+
+export const mapIncrement = <T>(map: Map<T, number>, key: T) =>
+  map.set(key, (map.get(key) ?? 0) + 1);

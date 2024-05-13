@@ -32,7 +32,34 @@ export type DocEndpoint = BaseEndpoint & {
   host?: string;
 };
 
-export type DocCheckErrors = {
-  oasOnly: OasEndpoint[];
-  docOnly: DocEndpoint[];
-};
+export type Inconsistency =
+  | {
+      type: 'parameter-name-mismatch';
+      parameterIndex: number;
+    }
+  | {
+      type: 'method-mismatch';
+    }
+  | {
+      type: 'host-mismatch';
+      oasHost: OasEndpoint['servers'][number]['host'];
+    }
+  | {
+      type: 'doc-scheme-not-supported-by-oas-server';
+    };
+
+export type OutputInconsistency =
+  | {
+      type: 'only-in-doc';
+      endpoint: DocEndpoint;
+    }
+  | {
+      type: 'only-in-oas';
+      endpoint: OasEndpoint;
+    }
+  | (Inconsistency & {
+      oasEndpoint: OasEndpoint;
+      docEndpoint: DocEndpoint;
+    });
+
+export type FailOutput = OutputInconsistency[];

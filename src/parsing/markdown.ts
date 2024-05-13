@@ -8,6 +8,7 @@ export const mdCreateEndpoint = (method: Method, path: string): DocEndpoint => {
   const protocolSeparator = '://';
   if (path.includes(protocolSeparator)) {
     const [protocol, rest] = path.split(protocolSeparator);
+    if (!rest) throw new Error(`Invalid path: ${path}`);
     if (includes(validSchemes, protocol)) scheme = protocol as Scheme;
     path = rest;
   }

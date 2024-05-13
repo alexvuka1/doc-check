@@ -32,12 +32,19 @@ describe('action', () => {
 
     await main.run();
 
-    expectFail(setFailedMock).toEqual({
-      notDocumented: [{ method: 'get', servers: [], pathParts: [] }],
-      outdated: [
-        { method: 'get', pathParts: [{ type: 'literal', value: 'hello' }] },
-      ],
-    });
+    expectFail(setFailedMock).toEqual([
+      {
+        type: 'only-in-oas',
+        endpoint: { method: 'get', servers: [], pathParts: [] },
+      },
+      {
+        type: 'only-in-doc',
+        endpoint: {
+          method: 'get',
+          pathParts: [{ type: 'literal', value: 'hello' }],
+        },
+      },
+    ]);
   });
 
   it('handles basic fail 2', async () => {
@@ -45,11 +52,14 @@ describe('action', () => {
 
     await main.run();
 
-    expectFail(setFailedMock).toEqual({
-      notDocumented: [],
-      outdated: [
-        { method: 'get', pathParts: [{ type: 'literal', value: 'hello' }] },
-      ],
-    });
+    expectFail(setFailedMock).toEqual([
+      {
+        type: 'only-in-doc',
+        endpoint: {
+          method: 'get',
+          pathParts: [{ type: 'literal', value: 'hello' }],
+        },
+      },
+    ]);
   });
 });

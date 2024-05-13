@@ -4,7 +4,7 @@ import type { Mock } from 'bun:test';
 import { expect } from 'bun:test';
 import { existsSync, mkdirSync } from 'fs';
 import { resolve } from 'path';
-import type { DocCheckErrors } from '../src/parsing';
+import { FailOutput } from '../src/parsing';
 
 type GetInputMock = Mock<typeof getInput>;
 type SetFailedMock = Mock<typeof setFailed>;
@@ -73,7 +73,7 @@ const getOrDownload = async (repoName: string, downloadUrl: string) => {
 };
 
 export const expectFail = (setFailedMock: SetFailedMock) => ({
-  toEqual: (expectedFail: DocCheckErrors) => {
+  toEqual: (expectedFail: FailOutput) => {
     const fail = setFailedMock.mock.calls[0][0];
     expect(fail).toBeString();
     expect(JSON.parse(fail as string)).toEqual(expectedFail);

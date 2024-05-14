@@ -46,3 +46,6 @@ export const oasParsePath = (path?: string) => {
       : { type: 'literal', value: s },
   );
 };
+
+export const isRefObject = (obj: any): obj is OpenAPIV3.ReferenceObject =>
+  !!obj.$ref;

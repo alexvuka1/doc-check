@@ -35,13 +35,19 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: { method: 'get', servers: [], pathParts: [] },
+        endpoint: {
+          method: 'get',
+          servers: [],
+          pathParts: [],
+          queryParameters: [],
+        },
       },
       {
         type: 'only-in-doc',
         endpoint: {
           method: 'get',
           pathParts: [{ type: 'literal', value: 'hello' }],
+          queryParameters: [],
         },
       },
     ]);
@@ -58,6 +64,7 @@ describe('action', () => {
         endpoint: {
           method: 'get',
           pathParts: [{ type: 'literal', value: 'hello' }],
+          queryParameters: [],
         },
       },
     ]);

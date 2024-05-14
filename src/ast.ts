@@ -13,6 +13,7 @@ const mdastLiterals = [
 ] as const satisfies Permutations<UnionToArray<Literals['type']>>;
 
 export const literalsToCheck = [
+  'code',
   'inlineCode',
   'text',
 ] as const satisfies (typeof mdastLiterals)[number][];

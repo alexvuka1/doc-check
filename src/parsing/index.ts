@@ -25,11 +25,13 @@ export type OasServerInfo = Partial<{
 
 export type OasEndpoint = BaseEndpoint & {
   servers: OasServerInfo[];
+  queryParameters: { name: string; required: boolean }[];
 };
 
 export type DocEndpoint = BaseEndpoint & {
   scheme?: Scheme;
   host?: string;
+  queryParameters: { name: string; value: string }[];
 };
 
 export type Inconsistency =

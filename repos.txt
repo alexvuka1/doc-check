@@ -1,5 +1,6 @@
 # Sourcegraph search
 context:global repo:has.path((openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:api\.md$ content:Endpoints)
+context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:api\.md$ content:Endpoints|API)
 
 # md is older than api spec
 https://github.com/moby/moby/blob/master/docs/api/v1.24.md https://github.com/moby/moby/blob/master/api/swagger.yaml

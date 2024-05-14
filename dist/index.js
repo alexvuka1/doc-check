@@ -92020,6 +92020,7 @@ const mdastLiterals = (/* unused pure expression or super */ null && ([
     'yaml',
 ]));
 const literalsToCheck = [
+    'code',
     'inlineCode',
     'text',
 ];
@@ -92402,6 +92403,7 @@ function includes(collection, value, fromIndex, guard) {
 
 const mdCreateEndpoint = (method, path) => {
     const pathParts = [];
+    const queryParameters = [];
     let scheme;
     let host;
     const protocolSeparator = '://';
@@ -92420,25 +92422,41 @@ const mdCreateEndpoint = (method, path) => {
     }
     if (path.startsWith('/'))
         path = path.substring(1);
-    pathParts.push(...path.split('/').map(s => {
-        if ((s.startsWith('{') && s.endsWith('}')) ||
-            (s.startsWith('<') && s.endsWith('>'))) {
-            return {
-                type: 'parameter',
-                name: s.substring(1, s.length - 1),
-            };
+    const [beforeParams, params] = path.split('?');
+    if (!beforeParams)
+        throw new Error(`Invalid path: ${path}`);
+    if (params) {
+        for (const param of params.split('&')) {
+            const [name, value] = param.split('=');
+            if (!name || !value)
+                throw new Error(`Invalid query parameter: ${param}`);
+            queryParameters.push({ name, value });
         }
-        if (s.startsWith(':')) {
-            return {
-                type: 'parameter',
-                name: s.substring(1),
-            };
+    }
+    path = beforeParams;
+    for (const s of path.split('/')) {
+        switch (true) {
+            case s.startsWith('{') && s.endsWith('}'):
+            case s.startsWith('<') && s.endsWith('>'):
+                pathParts.push({
+                    type: 'parameter',
+                    name: s.substring(1, s.length - 1),
+                });
+                break;
+            case s.startsWith(':'):
+                pathParts.push({
+                    type: 'parameter',
+                    name: s.substring(1, s.length - 1),
+                });
+            default:
+                pathParts.push({ type: 'literal', value: s });
+                break;
         }
-        return { type: 'literal', value: s };
-    }));
+    }
     return {
         method,
         pathParts,
+        queryParameters,
         scheme,
         host,
     };
@@ -92488,8 +92506,10 @@ const oasParsePath = (path) => {
         }
         : { type: 'literal', value: s });
 };
+const isRefObject = (obj) => !!obj.$ref;
 
 ;// CONCATENATED MODULE: ./src/regex.ts
+const escapeRegexSpecial = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const getMethodRegex = (matchMethods) => {
     const matchUnionStr = matchMethods
         .flatMap(m => [m, m.toUpperCase()])
@@ -92507,19 +92527,26 @@ const pathPartsToRegexStr = (pathParts) => pathParts
 })
     .join('/');
 const oasGetEndpointRegex = (endpoint) => {
-    const a = endpoint.servers
+    const serverRegex = endpoint.servers
         .flatMap(s => {
-        if (!s.basePath)
-            return [];
-        return [`/${pathPartsToRegexStr(s.basePath)}`];
+        const serverStart = s.schemes && s.host
+            ? `(${s.schemes.join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
+            : '';
+        const serverEnd = s.basePath ? pathPartsToRegexStr(s.basePath) : '';
+        const server = Boolean(serverStart) && Boolean(serverEnd)
+            ? `((${serverStart})?(/${serverEnd}))`
+            : Boolean(serverStart)
+                ? `((${serverStart})?)`
+                : `(/${serverEnd})`;
+        return server === '' ? [] : server;
     })
         .join('|');
-    const regex = new RegExp(`(?<=\\s|^)(${a})?/${pathPartsToRegexStr(endpoint.pathParts)}(?=\\s|$)`);
+    const regex = new RegExp(`(?<=\\s|^)(${serverRegex})?/${pathPartsToRegexStr(endpoint.pathParts)}(?=\\s|$)`);
     return regex;
 };
 // Extracts an API path from a string.
 const extractPath = (str) => {
-    const match = str.match(/\/\S*(?=\s|\?|$)/);
+    const match = str.match(/(?<=\s|^)((http[s]?|ws[s]?):)?\/\S*(?=\s|$)/);
     if (!match || match[0].includes(' '))
         return null;
     const path = match[0];
@@ -92579,6 +92606,19 @@ const run = async () => {
                             method,
                             servers: serversInfo,
                             pathParts: oasParsePath(path),
+                            queryParameters: (operation.parameters ?? []).flatMap(p => {
+                                if (isRefObject(p)) {
+                                    throw new Error('References not supported');
+                                }
+                                if (p.in !== 'query')
+                                    return [];
+                                return [
+                                    {
+                                        name: p.name,
+                                        required: p.required ?? false,
+                                    },
+                                ];
+                            }),
                         },
                     ],
                 ];
@@ -92590,6 +92630,10 @@ const run = async () => {
         const docSelectorToMatchedNodes = new Map();
         for (const literal of literalsToCheck) {
             visitParents(tree, literal, (node, ancestors) => {
+                if (node.type === 'code' &&
+                    ![null, void 0].some(l => l === node.lang)) {
+                    return;
+                }
                 for (const [endpointId, endpoint] of oasIdToEndpoint.entries()) {
                     const containsMethod = getMethodRegex([endpoint.method]).test(node.value);
                     if (!containsMethod)
@@ -92691,6 +92735,8 @@ const run = async () => {
         const matchedOasIndices = new Set();
         const matchedDocIndices = new Set();
         for (const [i, oasEndpoint] of unmatchedOasEndpoints.entries()) {
+            if (matchedOasIndices.has(i))
+                continue;
             for (const [j, docEndpoint] of unmatchedDocEndpoints.entries()) {
                 if (matchedOasIndices.has(i) ||
                     matchedDocIndices.has(j) ||
@@ -92702,6 +92748,18 @@ const run = async () => {
             }
         }
         unmatchedOasEndpoints = unmatchedOasEndpoints.filter((_, i) => !matchedOasIndices.has(i));
+        unmatchedDocEndpoints = unmatchedDocEndpoints.filter((_, i) => !matchedDocIndices.has(i));
+        matchedDocIndices.clear();
+        for (const [i, docEndpoint] of unmatchedDocEndpoints.entries()) {
+            if (matchedDocIndices.has(i))
+                continue;
+            for (const oasEndpoint of oasIdToEndpoint.values()) {
+                if (!areEqualEndpoints(oasEndpoint, docEndpoint)) {
+                    continue;
+                }
+                matchedDocIndices.add(i);
+            }
+        }
         unmatchedDocEndpoints = unmatchedDocEndpoints.filter((_, i) => !matchedDocIndices.has(i));
         const unmatchedEndpointsTable = [...Array(unmatchedOasEndpoints.length)].map(() => Array(unmatchedDocEndpoints.length).fill('different-endpoints'));
         for (const [i, oasEndpoint] of unmatchedOasEndpoints.entries()) {
@@ -92825,7 +92883,7 @@ const run = async () => {
         for (const [[i, j], inconsistencies,] of indicesToInconsistencies.entries()) {
             if ((oasIndexToNInconsistencyMatches.get(i) ?? 0) > 1 ||
                 (docIndexToNInconsistencyMatches.get(j) ?? 0) > 1) {
-                throw new Error('Not implemented yet');
+                throw new Error('Inconsistencies between multiple endpoints not implemented yet');
             }
             const oasEndpoint = unmatchedOasEndpoints[i];
             const docEndpoint = unmatchedDocEndpoints[j];

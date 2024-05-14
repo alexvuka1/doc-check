@@ -20,7 +20,12 @@ import {
   methods,
 } from './parsing';
 import { mdCreateEndpoint } from './parsing/markdown';
-import { getServersInfo, isV2, oasParsePath } from './parsing/openapi';
+import {
+  getServersInfo,
+  isRefObject,
+  isV2,
+  oasParsePath,
+} from './parsing/openapi';
 import { extractPath, getMethodRegex, oasGetEndpointRegex } from './regex';
 import { mapIncrement, objectEntries } from './utils';
 
@@ -57,6 +62,18 @@ export const run = async () => {
                     method,
                     servers: serversInfo,
                     pathParts: oasParsePath(path),
+                    queryParameters: (operation.parameters ?? []).flatMap(p => {
+                      if (isRefObject(p)) {
+                        throw new Error('References not supported');
+                      }
+                      if (p.in !== 'query') return [];
+                      return [
+                        {
+                          name: p.name,
+                          required: p.required ?? false,
+                        },
+                      ];
+                    }),
                   } satisfies OasEndpoint,
                 ],
               ] as const;
@@ -80,6 +97,12 @@ export const run = async () => {
 
     for (const literal of literalsToCheck) {
       visitParents(tree, literal, (node, ancestors) => {
+        if (
+          node.type === 'code' &&
+          ![null, void 0].some(l => l === node.lang)
+        ) {
+          return;
+        }
         for (const [endpointId, endpoint] of oasIdToEndpoint.entries()) {
           const containsMethod = getMethodRegex([endpoint.method]).test(
             node.value,
@@ -196,6 +219,7 @@ export const run = async () => {
     const matchedOasIndices = new Set<number>();
     const matchedDocIndices = new Set<number>();
     for (const [i, oasEndpoint] of unmatchedOasEndpoints.entries()) {
+      if (matchedOasIndices.has(i)) continue;
       for (const [j, docEndpoint] of unmatchedDocEndpoints.entries()) {
         if (
           matchedOasIndices.has(i) ||
@@ -211,6 +235,20 @@ export const run = async () => {
     unmatchedOasEndpoints = unmatchedOasEndpoints.filter(
       (_, i) => !matchedOasIndices.has(i),
     );
+    unmatchedDocEndpoints = unmatchedDocEndpoints.filter(
+      (_, i) => !matchedDocIndices.has(i),
+    );
+
+    matchedDocIndices.clear();
+    for (const [i, docEndpoint] of unmatchedDocEndpoints.entries()) {
+      if (matchedDocIndices.has(i)) continue;
+      for (const oasEndpoint of oasIdToEndpoint.values()) {
+        if (!areEqualEndpoints(oasEndpoint, docEndpoint)) {
+          continue;
+        }
+        matchedDocIndices.add(i);
+      }
+    }
     unmatchedDocEndpoints = unmatchedDocEndpoints.filter(
       (_, i) => !matchedDocIndices.has(i),
     );
@@ -236,7 +274,6 @@ export const run = async () => {
         ) {
           continue;
         }
-
         const inconsistencies: Inconsistency[] = [];
         if (oasEndpoint.method !== docEndpoint.method) {
           inconsistencies.push({ type: 'method-mismatch' });
@@ -381,7 +418,9 @@ export const run = async () => {
         (oasIndexToNInconsistencyMatches.get(i) ?? 0) > 1 ||
         (docIndexToNInconsistencyMatches.get(j) ?? 0) > 1
       ) {
-        throw new Error('Not implemented yet');
+        throw new Error(
+          'Inconsistencies between multiple endpoints not implemented yet',
+        );
       }
       const oasEndpoint = unmatchedOasEndpoints[i];
       const docEndpoint = unmatchedDocEndpoints[j];

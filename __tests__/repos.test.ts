@@ -62,6 +62,7 @@ describe('action', () => {
             { type: 'literal', value: 'devices' },
             { type: 'parameter', name: 'serial' },
           ],
+          queryParameters: [{ name: 'fields', required: false }],
         },
       },
       {
@@ -80,6 +81,7 @@ describe('action', () => {
             { type: 'literal', value: 'user' },
             { type: 'literal', value: 'accessTokens' },
           ],
+          queryParameters: [],
         },
       },
     ]);
@@ -103,6 +105,7 @@ describe('action', () => {
           method: 'post',
           servers: [{ basePath: [] }],
           pathParts: [{ type: 'literal', value: 'refresh' }],
+          queryParameters: [],
         },
       },
       {
@@ -118,6 +121,7 @@ describe('action', () => {
             { type: 'parameter', name: 'name' },
             { type: 'literal', value: 'ancestry' },
           ],
+          queryParameters: [],
         },
       },
       {
@@ -126,6 +130,10 @@ describe('action', () => {
           method: 'get',
           servers: [{ basePath: [] }],
           pathParts: [{ type: 'literal', value: 'entity-facets' }],
+          queryParameters: [
+            { name: 'facet', required: true },
+            { name: 'filter', required: false },
+          ],
         },
       },
       {
@@ -134,6 +142,7 @@ describe('action', () => {
           method: 'post',
           servers: [{ basePath: [] }],
           pathParts: [{ type: 'literal', value: 'analyze-location' }],
+          queryParameters: [],
         },
       },
       {
@@ -142,6 +151,7 @@ describe('action', () => {
           method: 'post',
           servers: [{ basePath: [] }],
           pathParts: [{ type: 'literal', value: 'validate-entity' }],
+          queryParameters: [],
         },
       },
       {
@@ -154,6 +164,7 @@ describe('action', () => {
             { type: 'literal', value: 'locations' },
             { type: 'parameter', name: 'id' },
           ],
+          queryParameters: [],
         },
         docEndpoint: {
           method: 'delete',
@@ -161,8 +172,23 @@ describe('action', () => {
             { type: 'literal', value: 'locations' },
             { type: 'parameter', name: 'uid' },
           ],
+          queryParameters: [],
         },
       },
     ]);
+  });
+
+  it('handles sunflower-land/sunflower-land', async () => {
+    await setupInputRepo(getInputMock, {
+      repoName: 'sunflower-land/sunflower-land',
+      urlOpenApi:
+        'https://github.com/sunflower-land/sunflower-land/blob/877234bda1c498505a9be75b83affb487285af5c/docs/openapi.json',
+      urlDoc:
+        'https://github.com/sunflower-land/sunflower-land/blob/877234bda1c498505a9be75b83affb487285af5c/docs/OFFCHAIN_API.md',
+    });
+
+    await main.run();
+
+    expect(setFailedMock).not.toHaveBeenCalled();
   });
 });

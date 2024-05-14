@@ -1,20 +1,21 @@
 # Sourcegraph search
 context:global repo:has.path((openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:api\.md$ content:Endpoints)
 context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:api\.md$ content:Endpoints|API)
+context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:\w+\.md$ content:RESTful)
+
+https://github.com/fleetdm/fleet/blob/main/server/mdm/nanodep/docs/operations-guide.md https://github.com/fleetdm/fleet/blob/main/server/mdm/nanodep/docs/openapi.yaml
+https://github.com/apache/ambari/blob/trunk/ambari-server/docs/api/v1/index.md
 
 # md is older than api spec
-https://github.com/moby/moby/blob/master/docs/api/v1.24.md https://github.com/moby/moby/blob/master/api/swagger.yaml
+https://github.com/moby/moby/blob/master/docs/api/v1.24.md https://github.com/moby/moby/blob/master/docs/api/v1.25.yaml
+
+# maybe
+https://github.com/solo-io/unik/blob/master/docs/api.md
+https://github.com/alibaba/GraphScope/blob/main/docs/flex/interactive/development/restful_api.md
+https://github.com/nginx/unit/blob/149555dbb6d68c15b4d8752e76e995ff6ba36fe6/tools/unitctl/unit-openapi/README.md
 
 # very big one
 https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/groups.md https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/openapi/openapi_v2.yaml 
-
-# just docs
-https://github.com/previnder/discuit-docs/blob/master/api.md
-
-# done
-https://github.com/openstf/stf/blob/master/lib/units/api/swagger/api_v1_generated.json https://github.com/openstf/stf/blob/master/doc/API.md
-https://github.com/gothinkster/realworld/blob/main/apps/documentation/docs/specs/backend-specs/endpoints.md https://github.com/gothinkster/realworld/blob/main/api/openapi.yml
-https://github.com/backstage/backstage/blob/master/docs/features/software-catalog/api.md https://github.com/backstage/backstage/blob/master/plugins/catalog-backend/src/schema/openapi.yaml
 
 # docs are deprecated (but format is unusual and could be useful)
 https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/API.md https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/swagger/swagger.json

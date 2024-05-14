@@ -59,9 +59,11 @@ export type OutputInconsistency =
       type: 'only-in-oas';
       endpoint: OasEndpoint;
     }
-  | (Inconsistency & {
+  | {
+      type: 'match-with-inconsistenties';
       oasEndpoint: OasEndpoint;
       docEndpoint: DocEndpoint;
-    });
+      inconsistencies: Inconsistency[];
+    };
 
 export type FailOutput = OutputInconsistency[];

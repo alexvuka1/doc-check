@@ -52,15 +52,16 @@ export const setupInputRepo = async (
   });
 };
 
-const getOrDownload = async (repoName: string, downloadUrl: string) => {
+export const getOrDownload = async (
+  repoName: string,
+  downloadUrl: string,
+  saveDirPath?: string,
+) => {
   const fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
 
-  const dirPath = resolve(
-    import.meta.dir,
-    'data',
-    'repos',
-    repoName.replace('/', '__'),
-  );
+  const dirPath =
+    saveDirPath ??
+    resolve(import.meta.dir, 'data', 'repos', repoName.replace('/', '__'));
   if (!existsSync(dirPath)) mkdirSync(dirPath);
 
   const filePath = resolve(dirPath, fileName);

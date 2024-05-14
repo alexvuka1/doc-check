@@ -47,5 +47,6 @@ export const oasParsePath = (path?: string) => {
   );
 };
 
-export const isRefObject = (obj: any): obj is OpenAPIV3.ReferenceObject =>
-  !!obj.$ref;
+export const isRefObject = (
+  obj: OpenAPI.Parameter,
+): obj is OpenAPIV3.ReferenceObject => Object.hasOwn(obj, '$ref');

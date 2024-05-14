@@ -92401,7 +92401,7 @@ function includes(collection, value, fromIndex, guard) {
 ;// CONCATENATED MODULE: ./src/parsing/markdown.ts
 
 
-const mdCreateEndpoint = (method, path) => {
+const docCreateEndpoint = (method, path) => {
     const pathParts = [];
     const queryParameters = [];
     let scheme;
@@ -92438,6 +92438,7 @@ const mdCreateEndpoint = (method, path) => {
         switch (true) {
             case s.startsWith('{') && s.endsWith('}'):
             case s.startsWith('<') && s.endsWith('>'):
+            case s.startsWith('[') && s.endsWith(']'):
                 pathParts.push({
                     type: 'parameter',
                     name: s.substring(1, s.length - 1),
@@ -92446,7 +92447,7 @@ const mdCreateEndpoint = (method, path) => {
             case s.startsWith(':'):
                 pathParts.push({
                     type: 'parameter',
-                    name: s.substring(1, s.length - 1),
+                    name: s.substring(1),
                 });
             default:
                 pathParts.push({ type: 'literal', value: s });
@@ -92460,6 +92461,49 @@ const mdCreateEndpoint = (method, path) => {
         scheme,
         host,
     };
+};
+const escapeRegexSpecial = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const getMethodRegex = (matchMethods) => {
+    const matchUnionStr = matchMethods
+        .flatMap(m => [m, m.toUpperCase()])
+        .join('|');
+    return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`);
+};
+const pathPartsToRegexStr = (pathParts) => pathParts
+    .map(p => {
+    switch (p.type) {
+        case 'literal':
+            return p.value;
+        case 'parameter':
+            return p.name.replace(/(.*)/, `(\\{$1\\}|<$1>|:$1|\\[$1\\])`);
+    }
+})
+    .join('/');
+const oasEndpointToDocRegex = (endpoint) => {
+    const serverRegex = endpoint.servers
+        .flatMap(s => {
+        const serverStart = s.schemes && s.host
+            ? `(${s.schemes.join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
+            : '';
+        const serverEnd = s.basePath ? pathPartsToRegexStr(s.basePath) : '';
+        const server = Boolean(serverStart) && Boolean(serverEnd)
+            ? `((${serverStart})?(/${serverEnd}))`
+            : Boolean(serverStart)
+                ? `((${serverStart})?)`
+                : `(/${serverEnd})`;
+        return server === '' ? [] : server;
+    })
+        .join('|');
+    const regex = new RegExp(`(?<=\\s|^)(${serverRegex})?/${pathPartsToRegexStr(endpoint.pathParts)}(?=\\s|$)`);
+    return regex;
+};
+// Extracts an API path from a string.
+const extractPath = (str) => {
+    const match = str.match(/(?<=\s|^)((http[s]?|ws[s]?):)?(\/([\w\-]*|:\w+|\{\w+\}|<(\w)+>|\[(\w|\s)+\]))+(?=\s|$)/);
+    if (!match)
+        return null;
+    const path = match[0];
+    return path;
 };
 
 ;// CONCATENATED MODULE: ./src/parsing/openapi.ts
@@ -92506,52 +92550,7 @@ const oasParsePath = (path) => {
         }
         : { type: 'literal', value: s });
 };
-const isRefObject = (obj) => !!obj.$ref;
-
-;// CONCATENATED MODULE: ./src/regex.ts
-const escapeRegexSpecial = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const getMethodRegex = (matchMethods) => {
-    const matchUnionStr = matchMethods
-        .flatMap(m => [m, m.toUpperCase()])
-        .join('|');
-    return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`);
-};
-const pathPartsToRegexStr = (pathParts) => pathParts
-    .map(p => {
-    switch (p.type) {
-        case 'literal':
-            return p.value;
-        case 'parameter':
-            return p.name.replace(/(.*)/, `(\\{$1\\}|<$1>|:$1)`);
-    }
-})
-    .join('/');
-const oasGetEndpointRegex = (endpoint) => {
-    const serverRegex = endpoint.servers
-        .flatMap(s => {
-        const serverStart = s.schemes && s.host
-            ? `(${s.schemes.join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
-            : '';
-        const serverEnd = s.basePath ? pathPartsToRegexStr(s.basePath) : '';
-        const server = Boolean(serverStart) && Boolean(serverEnd)
-            ? `((${serverStart})?(/${serverEnd}))`
-            : Boolean(serverStart)
-                ? `((${serverStart})?)`
-                : `(/${serverEnd})`;
-        return server === '' ? [] : server;
-    })
-        .join('|');
-    const regex = new RegExp(`(?<=\\s|^)(${serverRegex})?/${pathPartsToRegexStr(endpoint.pathParts)}(?=\\s|$)`);
-    return regex;
-};
-// Extracts an API path from a string.
-const extractPath = (str) => {
-    const match = str.match(/(?<=\s|^)((http[s]?|ws[s]?):)?\/\S*(?=\s|$)/);
-    if (!match || match[0].includes(' '))
-        return null;
-    const path = match[0];
-    return path;
-};
+const isRefObject = (obj) => Object.hasOwn(obj, '$ref');
 
 ;// CONCATENATED MODULE: ./src/utils.ts
 const objectKeys = (obj) => Object.keys(obj);
@@ -92575,13 +92574,13 @@ const mapIncrement = (map, key) => map.set(key, (map.get(key) ?? 0) + 1);
 
 
 
-
 const run = async () => {
     try {
         const oasPath = core.getInput('openapi-path', { required: true });
         const docPath = core.getInput('doc-path', { required: true });
         const token = core.getInput('token');
-        const oasDoc = await lib_default().validate(oasPath);
+        // TODO changed this from validate!
+        const oasDoc = await lib_default().dereference(oasPath);
         const oas = isV2(oasDoc)
             ? (await (0,swagger2openapi.convertFile)(oasPath, {})).openapi
             : oasDoc;
@@ -92638,7 +92637,7 @@ const run = async () => {
                     const containsMethod = getMethodRegex([endpoint.method]).test(node.value);
                     if (!containsMethod)
                         continue;
-                    const containsPath = oasGetEndpointRegex(endpoint).test(node.value);
+                    const containsPath = oasEndpointToDocRegex(endpoint).test(node.value);
                     if (!containsPath)
                         continue;
                     const docMatches = oasEndpointIdToDocMatches.get(endpointId);
@@ -92671,7 +92670,7 @@ const run = async () => {
                     const id = `${method} ${path}`;
                     if (docIdToUnmatchedEndpoint.has(id))
                         return;
-                    const endpoint = mdCreateEndpoint(method, path);
+                    const endpoint = docCreateEndpoint(method, path);
                     docIdToUnmatchedEndpoint.set(id, endpoint);
                 });
             }
@@ -92689,7 +92688,7 @@ const run = async () => {
                     const method = getMethodRegex(methods)
                         .exec(sibling.value)?.[0]
                         .toLowerCase();
-                    if (!method || !sibling.value.includes('/'))
+                    if (!method)
                         continue;
                     const path = extractPath(sibling.value);
                     if (!path)
@@ -92697,7 +92696,7 @@ const run = async () => {
                     const id = `${method} ${path}`;
                     if (docIdToUnmatchedEndpoint.has(id))
                         continue;
-                    const endpoint = mdCreateEndpoint(method, path);
+                    const endpoint = docCreateEndpoint(method, path);
                     docIdToUnmatchedEndpoint.set(id, endpoint);
                 }
             }
@@ -92762,15 +92761,21 @@ const run = async () => {
         }
         unmatchedDocEndpoints = unmatchedDocEndpoints.filter((_, i) => !matchedDocIndices.has(i));
         const unmatchedEndpointsTable = [...Array(unmatchedOasEndpoints.length)].map(() => Array(unmatchedDocEndpoints.length).fill('different-endpoints'));
+        const areDifferentPaths = (oasEndpoint, docEndpoint) => !oasEndpoint.servers.some(s => {
+            const oasPath = [...(s.basePath ?? []), ...oasEndpoint.pathParts];
+            return (oasPath.length === docEndpoint.pathParts.length &&
+                oasPath.every((oasP, i) => {
+                    const docP = docEndpoint.pathParts[i];
+                    return ((docP &&
+                        oasP.type === 'parameter' &&
+                        docP.type === 'parameter') ||
+                        lodash_es_isEqual(oasP, docP));
+                }));
+        });
         for (const [i, oasEndpoint] of unmatchedOasEndpoints.entries()) {
             for (const [j, docEndpoint] of unmatchedDocEndpoints.entries()) {
-                // TODO might have to make this more sophisticated
-                if ((oasEndpoint.servers.length === 0 &&
-                    oasEndpoint.pathParts.length !== docEndpoint.pathParts.length) ||
-                    oasEndpoint.servers.every(s => (s.basePath?.length ?? 0) + oasEndpoint.pathParts.length !==
-                        docEndpoint.pathParts.length)) {
+                if (areDifferentPaths(oasEndpoint, docEndpoint))
                     continue;
-                }
                 const inconsistencies = [];
                 if (oasEndpoint.method !== docEndpoint.method) {
                     inconsistencies.push({ type: 'method-mismatch' });
@@ -92890,12 +92895,11 @@ const run = async () => {
             if (!oasEndpoint || !docEndpoint) {
                 throw new Error('Expected endpoints to be defined');
             }
-            inconsistencies.map(inconsistency => {
-                failOutput.push({
-                    ...inconsistency,
-                    oasEndpoint,
-                    docEndpoint,
-                });
+            failOutput.push({
+                type: 'match-with-inconsistenties',
+                oasEndpoint,
+                docEndpoint,
+                inconsistencies,
             });
         }
         const successMsg = 'Success - No inconsistencies found!';
@@ -92930,7 +92934,6 @@ const run = async () => {
  * The entrypoint for the action.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-floating-promises
 run();
 
 })();

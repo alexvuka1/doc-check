@@ -19,14 +19,18 @@ import {
   OasEndpoint,
   methods,
 } from './parsing';
-import { mdCreateEndpoint } from './parsing/markdown';
+import {
+  extractPath,
+  getMethodRegex,
+  docCreateEndpoint,
+  oasEndpointToDocRegex,
+} from './parsing/markdown';
 import {
   getServersInfo,
   isRefObject,
   isV2,
   oasParsePath,
 } from './parsing/openapi';
-import { extractPath, getMethodRegex, oasGetEndpointRegex } from './regex';
 import { mapIncrement, objectEntries } from './utils';
 
 export const run = async () => {
@@ -35,7 +39,8 @@ export const run = async () => {
     const docPath = core.getInput('doc-path', { required: true });
     const token = core.getInput('token');
 
-    const oasDoc = await SwaggerParser.validate(oasPath);
+    // TODO changed this from validate!
+    const oasDoc = await SwaggerParser.dereference(oasPath);
     const oas = isV2(oasDoc)
       ? (await convertFile(oasPath, {})).openapi
       : oasDoc;
@@ -108,7 +113,7 @@ export const run = async () => {
             node.value,
           );
           if (!containsMethod) continue;
-          const containsPath = oasGetEndpointRegex(endpoint).test(node.value);
+          const containsPath = oasEndpointToDocRegex(endpoint).test(node.value);
           if (!containsPath) continue;
           const docMatches = oasEndpointIdToDocMatches.get(endpointId);
           if (!docMatches) {
@@ -141,7 +146,7 @@ export const run = async () => {
           if (!path) return;
           const id = `${method} ${path}`;
           if (docIdToUnmatchedEndpoint.has(id)) return;
-          const endpoint = mdCreateEndpoint(method, path);
+          const endpoint = docCreateEndpoint(method, path);
           docIdToUnmatchedEndpoint.set(id, endpoint);
         });
       }
@@ -160,12 +165,12 @@ export const run = async () => {
           const method = getMethodRegex(methods)
             .exec(sibling.value)?.[0]
             .toLowerCase() as Method | undefined;
-          if (!method || !sibling.value.includes('/')) continue;
+          if (!method) continue;
           const path = extractPath(sibling.value);
           if (!path) continue;
           const id = `${method} ${path}`;
           if (docIdToUnmatchedEndpoint.has(id)) continue;
-          const endpoint = mdCreateEndpoint(method, path);
+          const endpoint = docCreateEndpoint(method, path);
           docIdToUnmatchedEndpoint.set(id, endpoint);
         }
       }
@@ -260,20 +265,30 @@ export const run = async () => {
       Array(unmatchedDocEndpoints.length).fill('different-endpoints'),
     );
 
+    const areDifferentPaths = (
+      oasEndpoint: OasEndpoint,
+      docEndpoint: DocEndpoint,
+    ) =>
+      !oasEndpoint.servers.some(s => {
+        const oasPath = [...(s.basePath ?? []), ...oasEndpoint.pathParts];
+        return (
+          oasPath.length === docEndpoint.pathParts.length &&
+          oasPath.every((oasP, i) => {
+            const docP = docEndpoint.pathParts[i];
+            return (
+              (docP &&
+                oasP.type === 'parameter' &&
+                docP.type === 'parameter') ||
+              isEqual(oasP, docP)
+            );
+          })
+        );
+      });
+
     for (const [i, oasEndpoint] of unmatchedOasEndpoints.entries()) {
       for (const [j, docEndpoint] of unmatchedDocEndpoints.entries()) {
-        // TODO might have to make this more sophisticated
-        if (
-          (oasEndpoint.servers.length === 0 &&
-            oasEndpoint.pathParts.length !== docEndpoint.pathParts.length) ||
-          oasEndpoint.servers.every(
-            s =>
-              (s.basePath?.length ?? 0) + oasEndpoint.pathParts.length !==
-              docEndpoint.pathParts.length,
-          )
-        ) {
-          continue;
-        }
+        if (areDifferentPaths(oasEndpoint, docEndpoint)) continue;
+
         const inconsistencies: Inconsistency[] = [];
         if (oasEndpoint.method !== docEndpoint.method) {
           inconsistencies.push({ type: 'method-mismatch' });
@@ -427,12 +442,11 @@ export const run = async () => {
       if (!oasEndpoint || !docEndpoint) {
         throw new Error('Expected endpoints to be defined');
       }
-      inconsistencies.map(inconsistency => {
-        failOutput.push({
-          ...inconsistency,
-          oasEndpoint,
-          docEndpoint,
-        });
+      failOutput.push({
+        type: 'match-with-inconsistenties',
+        oasEndpoint,
+        docEndpoint,
+        inconsistencies,
       });
     }
 

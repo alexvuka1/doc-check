@@ -3,11 +3,7 @@ context:global repo:has.path((openapi|swagger)\.(json|yaml|yml)$) repo:has.file(
 context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:api\.md$ content:Endpoints|API)
 context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:\w+\.md$ content:RESTful)
 
-https://github.com/fleetdm/fleet/blob/main/server/mdm/nanodep/docs/operations-guide.md https://github.com/fleetdm/fleet/blob/main/server/mdm/nanodep/docs/openapi.yaml
 https://github.com/apache/ambari/blob/trunk/ambari-server/docs/api/v1/index.md
-
-# md is older than api spec
-https://github.com/moby/moby/blob/master/docs/api/v1.24.md https://github.com/moby/moby/blob/master/docs/api/v1.25.yaml
 
 # maybe
 https://github.com/solo-io/unik/blob/master/docs/api.md

@@ -1,13 +1,8 @@
-/**
- * Unit tests for the action's main functionality, src/main.ts
- */
-
 import * as core from '@actions/core';
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
 import * as main from '../src/main';
 import { expectFail, setupInput } from './utils';
 
-// Mock the GitHub Actions core library
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
 const debugMock = spyOn(core, 'debug');

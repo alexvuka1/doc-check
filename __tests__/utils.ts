@@ -3,7 +3,7 @@ import { write } from 'bun';
 import type { Mock } from 'bun:test';
 import { expect } from 'bun:test';
 import { existsSync, mkdirSync } from 'fs';
-import { resolve } from 'path';
+import { join, resolve } from 'path';
 import { FailOutput } from '../src/parsing';
 
 type GetInputMock = Mock<typeof getInput>;
@@ -61,7 +61,7 @@ export const getOrDownload = async (
 
   const dirPath =
     saveDirPath ??
-    resolve(import.meta.dir, 'data', 'repos', repoName.replace('/', '__'));
+    join(import.meta.dir, 'data', 'repos', repoName.replace('/', '__'));
   if (!existsSync(dirPath)) mkdirSync(dirPath);
 
   const filePath = resolve(dirPath, fileName);

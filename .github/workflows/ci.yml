@@ -89,6 +89,6 @@ jobs:
         uses: ./
         with:
           openapi-path:
-            ${{ github.workspace }}/__tests__/data/basic/success/openapi.json
-          doc-path: ${{ github.workspace }}/__tests__/data/basic/success/api.md
+            ${{ github.workspace }}/__tests__/data/custom/basic/openapi.json
+          doc-path: ${{ github.workspace }}/__tests__/data/custom/basic/api.md
           token: ${{ secrets.GITHUB_TOKEN }}

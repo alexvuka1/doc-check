@@ -9,4 +9,7 @@ export default tseslint.config(
     },
   },
   ...tseslint.configs.strict,
+  {
+    ignores: ['dist/*'],
+  },
 );

@@ -1,16 +1,19 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import SwaggerParser from '@apidevtools/swagger-parser';
+import assert from 'assert';
 import { differenceWith, isEqual } from 'lodash-es';
 import { Node, Root } from 'mdast';
 import { remark } from 'remark';
+import remarkGfm from 'remark-gfm';
 import remarkSectionize from 'remark-sectionize';
 import { convertFile } from 'swagger2openapi';
 import { read } from 'to-vfile';
 import { selectAll } from 'unist-util-select';
 import { visit } from 'unist-util-visit';
 import { visitParents } from 'unist-util-visit-parents';
-import { isLiteralNode, literalsToCheck } from './ast';
+import { codeLangsToCheck, isLiteralNode, literalsToCheck } from './ast';
+import { findBestMatches } from './matching';
 import {
   DocEndpoint,
   FailOutput,
@@ -20,18 +23,13 @@ import {
   methods,
 } from './parsing';
 import {
+  docCreateEndpoint,
   extractPath,
   getMethodRegex,
-  docCreateEndpoint,
   oasEndpointToDocRegex,
 } from './parsing/markdown';
-import {
-  getServersInfo,
-  isRefObject,
-  isV2,
-  oasParsePath,
-} from './parsing/openapi';
-import { mapIncrement, objectEntries } from './utils';
+import { isV2, oasParseEndpoints } from './parsing/openapi';
+import { makeKey, mapGetOrSetDefault } from './utils';
 
 export const run = async () => {
   try {
@@ -39,58 +37,20 @@ export const run = async () => {
     const docPath = core.getInput('doc-path', { required: true });
     const token = core.getInput('token');
 
-    // TODO changed this from validate!
+    // TODO changed this from validate, should maybe show warnings if oas not valid
     const oasDoc = await SwaggerParser.dereference(oasPath);
     const oas = isV2(oasDoc)
       ? (await convertFile(oasPath, {})).openapi
       : oasDoc;
 
-    const oasServers = getServersInfo(oas.servers);
+    const oasIdToEndpoint = oasParseEndpoints(oas);
 
-    const oasIdToEndpoint = new Map<string, OasEndpoint>(
-      oas.paths
-        ? objectEntries(oas.paths).flatMap(([path, pathItem]) =>
-            methods.flatMap(method => {
-              if (!pathItem) return [];
-              const operation = pathItem[method];
-              if (!operation) return [];
-              const serversInfo = operation.servers
-                ? getServersInfo(operation.servers)
-                : pathItem.servers
-                  ? getServersInfo(pathItem.servers)
-                  : oasServers;
-              return [
-                [
-                  // OpenAPI defines a unique operation as a combination of a path and an HTTP method.
-                  `${method} ${path}`,
-                  {
-                    method,
-                    servers: serversInfo,
-                    pathParts: oasParsePath(path),
-                    queryParameters: (operation.parameters ?? []).flatMap(p => {
-                      if (isRefObject(p)) {
-                        throw new Error('References not supported');
-                      }
-                      if (p.in !== 'query') return [];
-                      return [
-                        {
-                          name: p.name,
-                          required: p.required ?? false,
-                        },
-                      ];
-                    }),
-                  } satisfies OasEndpoint,
-                ],
-              ] as const;
-            }),
-          )
-        : [],
-    );
-
-    const docAST = remark().parse(await read(docPath));
+    const docAST = remark()
+      .use(remarkGfm)
+      .parse(await read(docPath));
     const tree = remark().use(remarkSectionize).runSync(docAST) as Root;
 
-    const oasEndpointIdToDocMatches = new Map<
+    const oasIdToDocMatches = new Map<
       string,
       {
         node: Node & { type: (typeof literalsToCheck)[number] };
@@ -104,7 +64,7 @@ export const run = async () => {
       visitParents(tree, literal, (node, ancestors) => {
         if (
           node.type === 'code' &&
-          ![null, void 0].some(l => l === node.lang)
+          !codeLangsToCheck.some(l => l === node.lang)
         ) {
           return;
         }
@@ -115,7 +75,7 @@ export const run = async () => {
           if (!containsMethod) continue;
           const containsPath = oasEndpointToDocRegex(endpoint).test(node.value);
           if (!containsPath) continue;
-          const docMatches = oasEndpointIdToDocMatches.get(endpointId);
+          const docMatches = oasIdToDocMatches.get(endpointId);
           if (!docMatches) {
             throw new Error(
               'Map should have been initialised to have entries for all oas paths',
@@ -123,11 +83,11 @@ export const run = async () => {
           }
           const parentSelector = ancestors.map(a => a.type).join(' > ');
           docMatches.push({ node, parentSelector });
-          let matchedNodes = docSelectorToMatchedNodes.get(parentSelector);
-          if (!matchedNodes) {
-            matchedNodes = new Set();
-            docSelectorToMatchedNodes.set(parentSelector, matchedNodes);
-          }
+          const matchedNodes = mapGetOrSetDefault(
+            docSelectorToMatchedNodes,
+            parentSelector,
+            new Set(),
+          );
           matchedNodes.add(node);
         }
       });
@@ -141,7 +101,7 @@ export const run = async () => {
           const method = getMethodRegex(methods)
             .exec(node.value)?.[0]
             .toLowerCase() as Method | undefined;
-          if (!method || !node.value.includes('/')) return;
+          if (!method) return;
           const path = extractPath(node.value);
           if (!path) return;
           const id = `${method} ${path}`;
@@ -178,7 +138,7 @@ export const run = async () => {
 
     let unmatchedOasEndpoints = differenceWith(
       [...oasIdToEndpoint.keys()],
-      [...oasEndpointIdToDocMatches.entries()]
+      [...oasIdToDocMatches.entries()]
         .filter(([, docMatches]) => docMatches.length > 0)
         .map(([id]) => id),
       isEqual,
@@ -269,7 +229,10 @@ export const run = async () => {
       oasEndpoint: OasEndpoint,
       docEndpoint: DocEndpoint,
     ) =>
-      !oasEndpoint.servers.some(s => {
+      ![
+        ...oasEndpoint.servers,
+        {} satisfies (typeof oasEndpoint.servers)[number],
+      ].some(s => {
         const oasPath = [...(s.basePath ?? []), ...oasEndpoint.pathParts];
         return (
           oasPath.length === docEndpoint.pathParts.length &&
@@ -404,12 +367,15 @@ export const run = async () => {
       handledDocIndices.add(index);
     }
 
-    const indicesToInconsistencies = new Map<
-      [number, number],
-      Inconsistency[]
+    const inconsistenciesMap = new Map<string, Inconsistency[]>();
+    const oasIndexToDocIndicesInconsistencyMatches = new Map<
+      number,
+      number[]
     >();
-    const oasIndexToNInconsistencyMatches = new Map<number, number>();
-    const docIndexToNInconsistencyMatches = new Map<number, number>();
+    const docIndexToOasIndicesInconsistencyMatches = new Map<
+      number,
+      number[]
+    >();
     for (const [i, row] of unmatchedEndpointsTable.entries()) {
       if (handledOasIndices.has(i)) continue;
       for (const [j, inconsistencies] of row.entries()) {
@@ -419,29 +385,31 @@ export const run = async () => {
         ) {
           continue;
         }
-        indicesToInconsistencies.set([i, j], inconsistencies);
-        mapIncrement(oasIndexToNInconsistencyMatches, i);
-        mapIncrement(docIndexToNInconsistencyMatches, j);
+        inconsistenciesMap.set(makeKey([i, j]), inconsistencies);
+        mapGetOrSetDefault(
+          oasIndexToDocIndicesInconsistencyMatches,
+          i,
+          [],
+        ).push(j);
+        mapGetOrSetDefault(
+          docIndexToOasIndicesInconsistencyMatches,
+          j,
+          [],
+        ).push(i);
       }
     }
 
-    for (const [
-      [i, j],
-      inconsistencies,
-    ] of indicesToInconsistencies.entries()) {
-      if (
-        (oasIndexToNInconsistencyMatches.get(i) ?? 0) > 1 ||
-        (docIndexToNInconsistencyMatches.get(j) ?? 0) > 1
-      ) {
-        throw new Error(
-          'Inconsistencies between multiple endpoints not implemented yet',
-        );
-      }
+    const bestMatches = findBestMatches(
+      oasIndexToDocIndicesInconsistencyMatches,
+      docIndexToOasIndicesInconsistencyMatches,
+      inconsistenciesMap,
+    );
+
+    for (const [i, j] of bestMatches) {
       const oasEndpoint = unmatchedOasEndpoints[i];
       const docEndpoint = unmatchedDocEndpoints[j];
-      if (!oasEndpoint || !docEndpoint) {
-        throw new Error('Expected endpoints to be defined');
-      }
+      const inconsistencies = inconsistenciesMap.get(makeKey([i, j]));
+      assert(oasEndpoint && docEndpoint && inconsistencies);
       failOutput.push({
         type: 'match-with-inconsistenties',
         oasEndpoint,

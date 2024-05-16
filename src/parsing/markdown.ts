@@ -59,7 +59,7 @@ export const docCreateEndpoint = (
           name: s.substring(1),
         });
       default:
-        pathParts.push({ type: 'literal', value: s });
+        if (s !== '') pathParts.push({ type: 'literal', value: s });
         break;
     }
   }

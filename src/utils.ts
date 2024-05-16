@@ -38,5 +38,16 @@ type ExcludeElement<
     : ExcludeElement<R, T, [...$acc, H]>
   : $acc;
 
-export const mapIncrement = <T>(map: Map<T, number>, key: T) =>
+export const mapIncrement = <K>(map: Map<K, number>, key: K) =>
   map.set(key, (map.get(key) ?? 0) + 1);
+
+export const mapGetOrSetDefault = <K, V>(map: Map<K, V>, key: K, def: V) => {
+  let value = map.get(key);
+  if (value === void 0) {
+    value = def;
+    map.set(key, value);
+  }
+  return value;
+};
+
+export const makeKey = ([i1, i2]: [number, number]): string => `${i1} ${i2}`;

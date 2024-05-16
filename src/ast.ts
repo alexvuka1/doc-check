@@ -1,4 +1,4 @@
-import { Literals, Node, Root } from 'mdast';
+import { Code, Literals, Node, Root } from 'mdast';
 import type { InclusiveDescendant, Matches } from 'unist-util-visit-parents';
 import { Permutations, UnionToArray } from './utils';
 
@@ -17,6 +17,11 @@ export const literalsToCheck = [
   'inlineCode',
   'text',
 ] as const satisfies (typeof mdastLiterals)[number][];
+
+export const codeLangsToCheck = [
+  void 0,
+  null,
+] as const satisfies Code['lang'][];
 
 type LiteralNode = Matches<
   InclusiveDescendant<Root>,

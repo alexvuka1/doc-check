@@ -65786,6 +65786,9 @@ var github = __nccwpck_require__(5438);
 // EXTERNAL MODULE: ./node_modules/@apidevtools/swagger-parser/lib/index.js
 var lib = __nccwpck_require__(5999);
 var lib_default = /*#__PURE__*/__nccwpck_require__.n(lib);
+// EXTERNAL MODULE: external "assert"
+var external_assert_ = __nccwpck_require__(9491);
+var external_assert_default = /*#__PURE__*/__nccwpck_require__.n(external_assert_);
 ;// CONCATENATED MODULE: ./node_modules/lodash-es/_freeGlobal.js
 /** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
@@ -69402,7 +69405,7 @@ function constructs(existing, list) {
  * @returns {HtmlExtension}
  *   A single combined HTML extension.
  */
-function combineHtmlExtensions(htmlExtensions) {
+function micromark_util_combine_extensions_combineHtmlExtensions(htmlExtensions) {
   /** @type {HtmlExtension} */
   const handlers = {}
   let index = -1
@@ -87886,6 +87889,4884 @@ function lib_isUint8Array(value) {
  */
 const remark = unified().use(remarkParse).use(remarkStringify).freeze()
 
+;// CONCATENATED MODULE: ./node_modules/ccount/index.js
+/**
+ * Count how often a character (or substring) is used in a string.
+ *
+ * @param {string} value
+ *   Value to search in.
+ * @param {string} character
+ *   Character (or substring) to look for.
+ * @return {number}
+ *   Number of times `character` occurred in `value`.
+ */
+function ccount(value, character) {
+  const source = String(value)
+
+  if (typeof character !== 'string') {
+    throw new TypeError('Expected character')
+  }
+
+  let count = 0
+  let index = source.indexOf(character)
+
+  while (index !== -1) {
+    count++
+    index = source.indexOf(character, index + character.length)
+  }
+
+  return count
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-find-and-replace/node_modules/escape-string-regexp/index.js
+function escapeStringRegexp(string) {
+	if (typeof string !== 'string') {
+		throw new TypeError('Expected a string');
+	}
+
+	// Escape characters with special meaning either inside or outside character sets.
+	// Use a simple backslash escape when it’s always valid, and a `\xnn` escape when the simpler form would be disallowed by Unicode patterns’ stricter grammar.
+	return string
+		.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
+		.replace(/-/g, '\\x2d');
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-find-and-replace/lib/index.js
+/**
+ * @typedef {import('mdast').Nodes} Nodes
+ * @typedef {import('mdast').Parents} Parents
+ * @typedef {import('mdast').PhrasingContent} PhrasingContent
+ * @typedef {import('mdast').Root} Root
+ * @typedef {import('mdast').Text} Text
+ * @typedef {import('unist-util-visit-parents').Test} Test
+ * @typedef {import('unist-util-visit-parents').VisitorResult} VisitorResult
+ */
+
+/**
+ * @typedef RegExpMatchObject
+ *   Info on the match.
+ * @property {number} index
+ *   The index of the search at which the result was found.
+ * @property {string} input
+ *   A copy of the search string in the text node.
+ * @property {[...Array<Parents>, Text]} stack
+ *   All ancestors of the text node, where the last node is the text itself.
+ *
+ * @typedef {RegExp | string} Find
+ *   Pattern to find.
+ *
+ *   Strings are escaped and then turned into global expressions.
+ *
+ * @typedef {Array<FindAndReplaceTuple>} FindAndReplaceList
+ *   Several find and replaces, in array form.
+ *
+ * @typedef {[Find, Replace?]} FindAndReplaceTuple
+ *   Find and replace in tuple form.
+ *
+ * @typedef {ReplaceFunction | string | null | undefined} Replace
+ *   Thing to replace with.
+ *
+ * @callback ReplaceFunction
+ *   Callback called when a search matches.
+ * @param {...any} parameters
+ *   The parameters are the result of corresponding search expression:
+ *
+ *   * `value` (`string`) — whole match
+ *   * `...capture` (`Array<string>`) — matches from regex capture groups
+ *   * `match` (`RegExpMatchObject`) — info on the match
+ * @returns {Array<PhrasingContent> | PhrasingContent | string | false | null | undefined}
+ *   Thing to replace with.
+ *
+ *   * when `null`, `undefined`, `''`, remove the match
+ *   * …or when `false`, do not replace at all
+ *   * …or when `string`, replace with a text node of that value
+ *   * …or when `Node` or `Array<Node>`, replace with those nodes
+ *
+ * @typedef {[RegExp, ReplaceFunction]} Pair
+ *   Normalized find and replace.
+ *
+ * @typedef {Array<Pair>} Pairs
+ *   All find and replaced.
+ *
+ * @typedef Options
+ *   Configuration.
+ * @property {Test | null | undefined} [ignore]
+ *   Test for which nodes to ignore (optional).
+ */
+
+
+
+
+
+/**
+ * Find patterns in a tree and replace them.
+ *
+ * The algorithm searches the tree in *preorder* for complete values in `Text`
+ * nodes.
+ * Partial matches are not supported.
+ *
+ * @param {Nodes} tree
+ *   Tree to change.
+ * @param {FindAndReplaceList | FindAndReplaceTuple} list
+ *   Patterns to find.
+ * @param {Options | null | undefined} [options]
+ *   Configuration (when `find` is not `Find`).
+ * @returns {undefined}
+ *   Nothing.
+ */
+function findAndReplace(tree, list, options) {
+  const settings = options || {}
+  const ignored = convert(settings.ignore || [])
+  const pairs = toPairs(list)
+  let pairIndex = -1
+
+  while (++pairIndex < pairs.length) {
+    visitParents(tree, 'text', visitor)
+  }
+
+  /** @type {import('unist-util-visit-parents').BuildVisitor<Root, 'text'>} */
+  function visitor(node, parents) {
+    let index = -1
+    /** @type {Parents | undefined} */
+    let grandparent
+
+    while (++index < parents.length) {
+      const parent = parents[index]
+      /** @type {Array<Nodes> | undefined} */
+      const siblings = grandparent ? grandparent.children : undefined
+
+      if (
+        ignored(
+          parent,
+          siblings ? siblings.indexOf(parent) : undefined,
+          grandparent
+        )
+      ) {
+        return
+      }
+
+      grandparent = parent
+    }
+
+    if (grandparent) {
+      return handler(node, parents)
+    }
+  }
+
+  /**
+   * Handle a text node which is not in an ignored parent.
+   *
+   * @param {Text} node
+   *   Text node.
+   * @param {Array<Parents>} parents
+   *   Parents.
+   * @returns {VisitorResult}
+   *   Result.
+   */
+  function handler(node, parents) {
+    const parent = parents[parents.length - 1]
+    const find = pairs[pairIndex][0]
+    const replace = pairs[pairIndex][1]
+    let start = 0
+    /** @type {Array<Nodes>} */
+    const siblings = parent.children
+    const index = siblings.indexOf(node)
+    let change = false
+    /** @type {Array<PhrasingContent>} */
+    let nodes = []
+
+    find.lastIndex = 0
+
+    let match = find.exec(node.value)
+
+    while (match) {
+      const position = match.index
+      /** @type {RegExpMatchObject} */
+      const matchObject = {
+        index: match.index,
+        input: match.input,
+        stack: [...parents, node]
+      }
+      let value = replace(...match, matchObject)
+
+      if (typeof value === 'string') {
+        value = value.length > 0 ? {type: 'text', value} : undefined
+      }
+
+      // It wasn’t a match after all.
+      if (value === false) {
+        // False acts as if there was no match.
+        // So we need to reset `lastIndex`, which currently being at the end of
+        // the current match, to the beginning.
+        find.lastIndex = position + 1
+      } else {
+        if (start !== position) {
+          nodes.push({
+            type: 'text',
+            value: node.value.slice(start, position)
+          })
+        }
+
+        if (Array.isArray(value)) {
+          nodes.push(...value)
+        } else if (value) {
+          nodes.push(value)
+        }
+
+        start = position + match[0].length
+        change = true
+      }
+
+      if (!find.global) {
+        break
+      }
+
+      match = find.exec(node.value)
+    }
+
+    if (change) {
+      if (start < node.value.length) {
+        nodes.push({type: 'text', value: node.value.slice(start)})
+      }
+
+      parent.children.splice(index, 1, ...nodes)
+    } else {
+      nodes = [node]
+    }
+
+    return index + nodes.length
+  }
+}
+
+/**
+ * Turn a tuple or a list of tuples into pairs.
+ *
+ * @param {FindAndReplaceList | FindAndReplaceTuple} tupleOrList
+ *   Schema.
+ * @returns {Pairs}
+ *   Clean pairs.
+ */
+function toPairs(tupleOrList) {
+  /** @type {Pairs} */
+  const result = []
+
+  if (!Array.isArray(tupleOrList)) {
+    throw new TypeError('Expected find and replace tuple or list of tuples')
+  }
+
+  /** @type {FindAndReplaceList} */
+  // @ts-expect-error: correct.
+  const list =
+    !tupleOrList[0] || Array.isArray(tupleOrList[0])
+      ? tupleOrList
+      : [tupleOrList]
+
+  let index = -1
+
+  while (++index < list.length) {
+    const tuple = list[index]
+    result.push([toExpression(tuple[0]), toFunction(tuple[1])])
+  }
+
+  return result
+}
+
+/**
+ * Turn a find into an expression.
+ *
+ * @param {Find} find
+ *   Find.
+ * @returns {RegExp}
+ *   Expression.
+ */
+function toExpression(find) {
+  return typeof find === 'string' ? new RegExp(escapeStringRegexp(find), 'g') : find
+}
+
+/**
+ * Turn a replace into a function.
+ *
+ * @param {Replace} replace
+ *   Replace.
+ * @returns {ReplaceFunction}
+ *   Function.
+ */
+function toFunction(replace) {
+  return typeof replace === 'function'
+    ? replace
+    : function () {
+        return replace
+      }
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-gfm-autolink-literal/lib/index.js
+/**
+ * @typedef {import('mdast').Link} Link
+ * @typedef {import('mdast').PhrasingContent} PhrasingContent
+ *
+ * @typedef {import('mdast-util-from-markdown').CompileContext} CompileContext
+ * @typedef {import('mdast-util-from-markdown').Extension} FromMarkdownExtension
+ * @typedef {import('mdast-util-from-markdown').Handle} FromMarkdownHandle
+ * @typedef {import('mdast-util-from-markdown').Transform} FromMarkdownTransform
+ *
+ * @typedef {import('mdast-util-to-markdown').ConstructName} ConstructName
+ * @typedef {import('mdast-util-to-markdown').Options} ToMarkdownExtension
+ *
+ * @typedef {import('mdast-util-find-and-replace').RegExpMatchObject} RegExpMatchObject
+ * @typedef {import('mdast-util-find-and-replace').ReplaceFunction} ReplaceFunction
+ */
+
+
+
+
+
+
+/** @type {ConstructName} */
+const inConstruct = 'phrasing'
+/** @type {Array<ConstructName>} */
+const notInConstruct = ['autolink', 'link', 'image', 'label']
+
+/**
+ * Create an extension for `mdast-util-from-markdown` to enable GFM autolink
+ * literals in markdown.
+ *
+ * @returns {FromMarkdownExtension}
+ *   Extension for `mdast-util-to-markdown` to enable GFM autolink literals.
+ */
+function gfmAutolinkLiteralFromMarkdown() {
+  return {
+    transforms: [transformGfmAutolinkLiterals],
+    enter: {
+      literalAutolink: enterLiteralAutolink,
+      literalAutolinkEmail: enterLiteralAutolinkValue,
+      literalAutolinkHttp: enterLiteralAutolinkValue,
+      literalAutolinkWww: enterLiteralAutolinkValue
+    },
+    exit: {
+      literalAutolink: exitLiteralAutolink,
+      literalAutolinkEmail: exitLiteralAutolinkEmail,
+      literalAutolinkHttp: exitLiteralAutolinkHttp,
+      literalAutolinkWww: exitLiteralAutolinkWww
+    }
+  }
+}
+
+/**
+ * Create an extension for `mdast-util-to-markdown` to enable GFM autolink
+ * literals in markdown.
+ *
+ * @returns {ToMarkdownExtension}
+ *   Extension for `mdast-util-to-markdown` to enable GFM autolink literals.
+ */
+function gfmAutolinkLiteralToMarkdown() {
+  return {
+    unsafe: [
+      {
+        character: '@',
+        before: '[+\\-.\\w]',
+        after: '[\\-.\\w]',
+        inConstruct,
+        notInConstruct
+      },
+      {
+        character: '.',
+        before: '[Ww]',
+        after: '[\\-.\\w]',
+        inConstruct,
+        notInConstruct
+      },
+      {
+        character: ':',
+        before: '[ps]',
+        after: '\\/',
+        inConstruct,
+        notInConstruct
+      }
+    ]
+  }
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterLiteralAutolink(token) {
+  this.enter({type: 'link', title: null, url: '', children: []}, token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterLiteralAutolinkValue(token) {
+  this.config.enter.autolinkProtocol.call(this, token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitLiteralAutolinkHttp(token) {
+  this.config.exit.autolinkProtocol.call(this, token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitLiteralAutolinkWww(token) {
+  this.config.exit.data.call(this, token)
+  const node = this.stack[this.stack.length - 1]
+  default_ok(node.type === 'link')
+  node.url = 'http://' + this.sliceSerialize(token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitLiteralAutolinkEmail(token) {
+  this.config.exit.autolinkEmail.call(this, token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitLiteralAutolink(token) {
+  this.exit(token)
+}
+
+/** @type {FromMarkdownTransform} */
+function transformGfmAutolinkLiterals(tree) {
+  findAndReplace(
+    tree,
+    [
+      [/(https?:\/\/|www(?=\.))([-.\w]+)([^ \t\r\n]*)/gi, findUrl],
+      [/([-.\w+]+)@([-\w]+(?:\.[-\w]+)+)/g, findEmail]
+    ],
+    {ignore: ['link', 'linkReference']}
+  )
+}
+
+/**
+ * @type {ReplaceFunction}
+ * @param {string} _
+ * @param {string} protocol
+ * @param {string} domain
+ * @param {string} path
+ * @param {RegExpMatchObject} match
+ * @returns {Array<PhrasingContent> | Link | false}
+ */
+// eslint-disable-next-line max-params
+function findUrl(_, protocol, domain, path, match) {
+  let prefix = ''
+
+  // Not an expected previous character.
+  if (!lib_previous(match)) {
+    return false
+  }
+
+  // Treat `www` as part of the domain.
+  if (/^w/i.test(protocol)) {
+    domain = protocol + domain
+    protocol = ''
+    prefix = 'http://'
+  }
+
+  if (!isCorrectDomain(domain)) {
+    return false
+  }
+
+  const parts = splitUrl(domain + path)
+
+  if (!parts[0]) return false
+
+  /** @type {Link} */
+  const result = {
+    type: 'link',
+    title: null,
+    url: prefix + protocol + parts[0],
+    children: [{type: 'text', value: protocol + parts[0]}]
+  }
+
+  if (parts[1]) {
+    return [result, {type: 'text', value: parts[1]}]
+  }
+
+  return result
+}
+
+/**
+ * @type {ReplaceFunction}
+ * @param {string} _
+ * @param {string} atext
+ * @param {string} label
+ * @param {RegExpMatchObject} match
+ * @returns {Link | false}
+ */
+function findEmail(_, atext, label, match) {
+  if (
+    // Not an expected previous character.
+    !lib_previous(match, true) ||
+    // Label ends in not allowed character.
+    /[-\d_]$/.test(label)
+  ) {
+    return false
+  }
+
+  return {
+    type: 'link',
+    title: null,
+    url: 'mailto:' + atext + '@' + label,
+    children: [{type: 'text', value: atext + '@' + label}]
+  }
+}
+
+/**
+ * @param {string} domain
+ * @returns {boolean}
+ */
+function isCorrectDomain(domain) {
+  const parts = domain.split('.')
+
+  if (
+    parts.length < 2 ||
+    (parts[parts.length - 1] &&
+      (/_/.test(parts[parts.length - 1]) ||
+        !/[a-zA-Z\d]/.test(parts[parts.length - 1]))) ||
+    (parts[parts.length - 2] &&
+      (/_/.test(parts[parts.length - 2]) ||
+        !/[a-zA-Z\d]/.test(parts[parts.length - 2])))
+  ) {
+    return false
+  }
+
+  return true
+}
+
+/**
+ * @param {string} url
+ * @returns {[string, string | undefined]}
+ */
+function splitUrl(url) {
+  const trailExec = /[!"&'),.:;<>?\]}]+$/.exec(url)
+
+  if (!trailExec) {
+    return [url, undefined]
+  }
+
+  url = url.slice(0, trailExec.index)
+
+  let trail = trailExec[0]
+  let closingParenIndex = trail.indexOf(')')
+  const openingParens = ccount(url, '(')
+  let closingParens = ccount(url, ')')
+
+  while (closingParenIndex !== -1 && openingParens > closingParens) {
+    url += trail.slice(0, closingParenIndex + 1)
+    trail = trail.slice(closingParenIndex + 1)
+    closingParenIndex = trail.indexOf(')')
+    closingParens++
+  }
+
+  return [url, trail]
+}
+
+/**
+ * @param {RegExpMatchObject} match
+ * @param {boolean | null | undefined} [email=false]
+ * @returns {boolean}
+ */
+function lib_previous(match, email) {
+  const code = match.input.charCodeAt(match.index - 1)
+
+  return (
+    (match.index === 0 ||
+      unicodeWhitespace(code) ||
+      unicodePunctuation(code)) &&
+    (!email || code !== 47)
+  )
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-gfm-footnote/lib/index.js
+/**
+ * @typedef {import('mdast').FootnoteDefinition} FootnoteDefinition
+ * @typedef {import('mdast').FootnoteReference} FootnoteReference
+ * @typedef {import('mdast-util-from-markdown').CompileContext} CompileContext
+ * @typedef {import('mdast-util-from-markdown').Extension} FromMarkdownExtension
+ * @typedef {import('mdast-util-from-markdown').Handle} FromMarkdownHandle
+ * @typedef {import('mdast-util-to-markdown').Handle} ToMarkdownHandle
+ * @typedef {import('mdast-util-to-markdown').Map} Map
+ * @typedef {import('mdast-util-to-markdown').Options} ToMarkdownExtension
+ */
+
+
+
+
+footnoteReference.peek = footnoteReferencePeek
+
+/**
+ * Create an extension for `mdast-util-from-markdown` to enable GFM footnotes
+ * in markdown.
+ *
+ * @returns {FromMarkdownExtension}
+ *   Extension for `mdast-util-from-markdown`.
+ */
+function gfmFootnoteFromMarkdown() {
+  return {
+    enter: {
+      gfmFootnoteDefinition: enterFootnoteDefinition,
+      gfmFootnoteDefinitionLabelString: enterFootnoteDefinitionLabelString,
+      gfmFootnoteCall: enterFootnoteCall,
+      gfmFootnoteCallString: enterFootnoteCallString
+    },
+    exit: {
+      gfmFootnoteDefinition: exitFootnoteDefinition,
+      gfmFootnoteDefinitionLabelString: exitFootnoteDefinitionLabelString,
+      gfmFootnoteCall: exitFootnoteCall,
+      gfmFootnoteCallString: exitFootnoteCallString
+    }
+  }
+}
+
+/**
+ * Create an extension for `mdast-util-to-markdown` to enable GFM footnotes
+ * in markdown.
+ *
+ * @returns {ToMarkdownExtension}
+ *   Extension for `mdast-util-to-markdown`.
+ */
+function gfmFootnoteToMarkdown() {
+  return {
+    // This is on by default already.
+    unsafe: [{character: '[', inConstruct: ['phrasing', 'label', 'reference']}],
+    handlers: {footnoteDefinition, footnoteReference}
+  }
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterFootnoteDefinition(token) {
+  this.enter(
+    {type: 'footnoteDefinition', identifier: '', label: '', children: []},
+    token
+  )
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterFootnoteDefinitionLabelString() {
+  this.buffer()
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitFootnoteDefinitionLabelString(token) {
+  const label = this.resume()
+  const node = this.stack[this.stack.length - 1]
+  default_ok(node.type === 'footnoteDefinition')
+  node.label = label
+  node.identifier = normalizeIdentifier(
+    this.sliceSerialize(token)
+  ).toLowerCase()
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitFootnoteDefinition(token) {
+  this.exit(token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterFootnoteCall(token) {
+  this.enter({type: 'footnoteReference', identifier: '', label: ''}, token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterFootnoteCallString() {
+  this.buffer()
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitFootnoteCallString(token) {
+  const label = this.resume()
+  const node = this.stack[this.stack.length - 1]
+  default_ok(node.type === 'footnoteReference')
+  node.label = label
+  node.identifier = normalizeIdentifier(
+    this.sliceSerialize(token)
+  ).toLowerCase()
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitFootnoteCall(token) {
+  this.exit(token)
+}
+
+/**
+ * @type {ToMarkdownHandle}
+ * @param {FootnoteReference} node
+ */
+function footnoteReference(node, _, state, info) {
+  const tracker = state.createTracker(info)
+  let value = tracker.move('[^')
+  const exit = state.enter('footnoteReference')
+  const subexit = state.enter('reference')
+  value += tracker.move(
+    state.safe(state.associationId(node), {
+      ...tracker.current(),
+      before: value,
+      after: ']'
+    })
+  )
+  subexit()
+  exit()
+  value += tracker.move(']')
+  return value
+}
+
+/** @type {ToMarkdownHandle} */
+function footnoteReferencePeek() {
+  return '['
+}
+
+/**
+ * @type {ToMarkdownHandle}
+ * @param {FootnoteDefinition} node
+ */
+function footnoteDefinition(node, _, state, info) {
+  const tracker = state.createTracker(info)
+  let value = tracker.move('[^')
+  const exit = state.enter('footnoteDefinition')
+  const subexit = state.enter('label')
+  value += tracker.move(
+    state.safe(state.associationId(node), {
+      ...tracker.current(),
+      before: value,
+      after: ']'
+    })
+  )
+  subexit()
+  value += tracker.move(
+    ']:' + (node.children && node.children.length > 0 ? ' ' : '')
+  )
+  tracker.shift(4)
+  value += tracker.move(
+    state.indentLines(state.containerFlow(node, tracker.current()), lib_map)
+  )
+  exit()
+
+  return value
+}
+
+/** @type {Map} */
+function lib_map(line, index, blank) {
+  if (index === 0) {
+    return line
+  }
+
+  return (blank ? '' : '    ') + line
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-gfm-strikethrough/lib/index.js
+/**
+ * @typedef {import('mdast').Delete} Delete
+ *
+ * @typedef {import('mdast-util-from-markdown').CompileContext} CompileContext
+ * @typedef {import('mdast-util-from-markdown').Extension} FromMarkdownExtension
+ * @typedef {import('mdast-util-from-markdown').Handle} FromMarkdownHandle
+ *
+ * @typedef {import('mdast-util-to-markdown').ConstructName} ConstructName
+ * @typedef {import('mdast-util-to-markdown').Handle} ToMarkdownHandle
+ * @typedef {import('mdast-util-to-markdown').Options} ToMarkdownExtension
+ */
+
+/**
+ * List of constructs that occur in phrasing (paragraphs, headings), but cannot
+ * contain strikethrough.
+ * So they sort of cancel each other out.
+ * Note: could use a better name.
+ *
+ * Note: keep in sync with: <https://github.com/syntax-tree/mdast-util-to-markdown/blob/8ce8dbf/lib/unsafe.js#L14>
+ *
+ * @type {Array<ConstructName>}
+ */
+const constructsWithoutStrikethrough = [
+  'autolink',
+  'destinationLiteral',
+  'destinationRaw',
+  'reference',
+  'titleQuote',
+  'titleApostrophe'
+]
+
+handleDelete.peek = peekDelete
+
+/**
+ * Create an extension for `mdast-util-from-markdown` to enable GFM
+ * strikethrough in markdown.
+ *
+ * @returns {FromMarkdownExtension}
+ *   Extension for `mdast-util-from-markdown` to enable GFM strikethrough.
+ */
+function gfmStrikethroughFromMarkdown() {
+  return {
+    canContainEols: ['delete'],
+    enter: {strikethrough: enterStrikethrough},
+    exit: {strikethrough: exitStrikethrough}
+  }
+}
+
+/**
+ * Create an extension for `mdast-util-to-markdown` to enable GFM
+ * strikethrough in markdown.
+ *
+ * @returns {ToMarkdownExtension}
+ *   Extension for `mdast-util-to-markdown` to enable GFM strikethrough.
+ */
+function gfmStrikethroughToMarkdown() {
+  return {
+    unsafe: [
+      {
+        character: '~',
+        inConstruct: 'phrasing',
+        notInConstruct: constructsWithoutStrikethrough
+      }
+    ],
+    handlers: {delete: handleDelete}
+  }
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterStrikethrough(token) {
+  this.enter({type: 'delete', children: []}, token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitStrikethrough(token) {
+  this.exit(token)
+}
+
+/**
+ * @type {ToMarkdownHandle}
+ * @param {Delete} node
+ */
+function handleDelete(node, _, state, info) {
+  const tracker = state.createTracker(info)
+  const exit = state.enter('strikethrough')
+  let value = tracker.move('~~')
+  value += state.containerPhrasing(node, {
+    ...tracker.current(),
+    before: value,
+    after: '~'
+  })
+  value += tracker.move('~~')
+  exit()
+  return value
+}
+
+/** @type {ToMarkdownHandle} */
+function peekDelete() {
+  return '~'
+}
+
+;// CONCATENATED MODULE: ./node_modules/markdown-table/index.js
+/**
+ * @typedef Options
+ *   Configuration (optional).
+ * @property {string|null|ReadonlyArray<string|null|undefined>} [align]
+ *   One style for all columns, or styles for their respective columns.
+ *   Each style is either `'l'` (left), `'r'` (right), or `'c'` (center).
+ *   Other values are treated as `''`, which doesn’t place the colon in the
+ *   alignment row but does align left.
+ *   *Only the lowercased first character is used, so `Right` is fine.*
+ * @property {boolean} [padding=true]
+ *   Whether to add a space of padding between delimiters and cells.
+ *
+ *   When `true`, there is padding:
+ *
+ *   ```markdown
+ *   | Alpha | B     |
+ *   | ----- | ----- |
+ *   | C     | Delta |
+ *   ```
+ *
+ *   When `false`, there is no padding:
+ *
+ *   ```markdown
+ *   |Alpha|B    |
+ *   |-----|-----|
+ *   |C    |Delta|
+ *   ```
+ * @property {boolean} [delimiterStart=true]
+ *   Whether to begin each row with the delimiter.
+ *
+ *   > 👉 **Note**: please don’t use this: it could create fragile structures
+ *   > that aren’t understandable to some markdown parsers.
+ *
+ *   When `true`, there are starting delimiters:
+ *
+ *   ```markdown
+ *   | Alpha | B     |
+ *   | ----- | ----- |
+ *   | C     | Delta |
+ *   ```
+ *
+ *   When `false`, there are no starting delimiters:
+ *
+ *   ```markdown
+ *   Alpha | B     |
+ *   ----- | ----- |
+ *   C     | Delta |
+ *   ```
+ * @property {boolean} [delimiterEnd=true]
+ *   Whether to end each row with the delimiter.
+ *
+ *   > 👉 **Note**: please don’t use this: it could create fragile structures
+ *   > that aren’t understandable to some markdown parsers.
+ *
+ *   When `true`, there are ending delimiters:
+ *
+ *   ```markdown
+ *   | Alpha | B     |
+ *   | ----- | ----- |
+ *   | C     | Delta |
+ *   ```
+ *
+ *   When `false`, there are no ending delimiters:
+ *
+ *   ```markdown
+ *   | Alpha | B
+ *   | ----- | -----
+ *   | C     | Delta
+ *   ```
+ * @property {boolean} [alignDelimiters=true]
+ *   Whether to align the delimiters.
+ *   By default, they are aligned:
+ *
+ *   ```markdown
+ *   | Alpha | B     |
+ *   | ----- | ----- |
+ *   | C     | Delta |
+ *   ```
+ *
+ *   Pass `false` to make them staggered:
+ *
+ *   ```markdown
+ *   | Alpha | B |
+ *   | - | - |
+ *   | C | Delta |
+ *   ```
+ * @property {(value: string) => number} [stringLength]
+ *   Function to detect the length of table cell content.
+ *   This is used when aligning the delimiters (`|`) between table cells.
+ *   Full-width characters and emoji mess up delimiter alignment when viewing
+ *   the markdown source.
+ *   To fix this, you can pass this function, which receives the cell content
+ *   and returns its “visible” size.
+ *   Note that what is and isn’t visible depends on where the text is displayed.
+ *
+ *   Without such a function, the following:
+ *
+ *   ```js
+ *   markdownTable([
+ *     ['Alpha', 'Bravo'],
+ *     ['中文', 'Charlie'],
+ *     ['👩‍❤️‍👩', 'Delta']
+ *   ])
+ *   ```
+ *
+ *   Yields:
+ *
+ *   ```markdown
+ *   | Alpha | Bravo |
+ *   | - | - |
+ *   | 中文 | Charlie |
+ *   | 👩‍❤️‍👩 | Delta |
+ *   ```
+ *
+ *   With [`string-width`](https://github.com/sindresorhus/string-width):
+ *
+ *   ```js
+ *   import stringWidth from 'string-width'
+ *
+ *   markdownTable(
+ *     [
+ *       ['Alpha', 'Bravo'],
+ *       ['中文', 'Charlie'],
+ *       ['👩‍❤️‍👩', 'Delta']
+ *     ],
+ *     {stringLength: stringWidth}
+ *   )
+ *   ```
+ *
+ *   Yields:
+ *
+ *   ```markdown
+ *   | Alpha | Bravo   |
+ *   | ----- | ------- |
+ *   | 中文  | Charlie |
+ *   | 👩‍❤️‍👩    | Delta   |
+ *   ```
+ */
+
+/**
+ * @typedef {Options} MarkdownTableOptions
+ * @todo
+ *   Remove next major.
+ */
+
+/**
+ * Generate a markdown ([GFM](https://docs.github.com/en/github/writing-on-github/working-with-advanced-formatting/organizing-information-with-tables)) table..
+ *
+ * @param {ReadonlyArray<ReadonlyArray<string|null|undefined>>} table
+ *   Table data (matrix of strings).
+ * @param {Options} [options]
+ *   Configuration (optional).
+ * @returns {string}
+ */
+function markdownTable(table, options = {}) {
+  const align = (options.align || []).concat()
+  const stringLength = options.stringLength || defaultStringLength
+  /** @type {Array<number>} Character codes as symbols for alignment per column. */
+  const alignments = []
+  /** @type {Array<Array<string>>} Cells per row. */
+  const cellMatrix = []
+  /** @type {Array<Array<number>>} Sizes of each cell per row. */
+  const sizeMatrix = []
+  /** @type {Array<number>} */
+  const longestCellByColumn = []
+  let mostCellsPerRow = 0
+  let rowIndex = -1
+
+  // This is a superfluous loop if we don’t align delimiters, but otherwise we’d
+  // do superfluous work when aligning, so optimize for aligning.
+  while (++rowIndex < table.length) {
+    /** @type {Array<string>} */
+    const row = []
+    /** @type {Array<number>} */
+    const sizes = []
+    let columnIndex = -1
+
+    if (table[rowIndex].length > mostCellsPerRow) {
+      mostCellsPerRow = table[rowIndex].length
+    }
+
+    while (++columnIndex < table[rowIndex].length) {
+      const cell = serialize(table[rowIndex][columnIndex])
+
+      if (options.alignDelimiters !== false) {
+        const size = stringLength(cell)
+        sizes[columnIndex] = size
+
+        if (
+          longestCellByColumn[columnIndex] === undefined ||
+          size > longestCellByColumn[columnIndex]
+        ) {
+          longestCellByColumn[columnIndex] = size
+        }
+      }
+
+      row.push(cell)
+    }
+
+    cellMatrix[rowIndex] = row
+    sizeMatrix[rowIndex] = sizes
+  }
+
+  // Figure out which alignments to use.
+  let columnIndex = -1
+
+  if (typeof align === 'object' && 'length' in align) {
+    while (++columnIndex < mostCellsPerRow) {
+      alignments[columnIndex] = toAlignment(align[columnIndex])
+    }
+  } else {
+    const code = toAlignment(align)
+
+    while (++columnIndex < mostCellsPerRow) {
+      alignments[columnIndex] = code
+    }
+  }
+
+  // Inject the alignment row.
+  columnIndex = -1
+  /** @type {Array<string>} */
+  const row = []
+  /** @type {Array<number>} */
+  const sizes = []
+
+  while (++columnIndex < mostCellsPerRow) {
+    const code = alignments[columnIndex]
+    let before = ''
+    let after = ''
+
+    if (code === 99 /* `c` */) {
+      before = ':'
+      after = ':'
+    } else if (code === 108 /* `l` */) {
+      before = ':'
+    } else if (code === 114 /* `r` */) {
+      after = ':'
+    }
+
+    // There *must* be at least one hyphen-minus in each alignment cell.
+    let size =
+      options.alignDelimiters === false
+        ? 1
+        : Math.max(
+            1,
+            longestCellByColumn[columnIndex] - before.length - after.length
+          )
+
+    const cell = before + '-'.repeat(size) + after
+
+    if (options.alignDelimiters !== false) {
+      size = before.length + size + after.length
+
+      if (size > longestCellByColumn[columnIndex]) {
+        longestCellByColumn[columnIndex] = size
+      }
+
+      sizes[columnIndex] = size
+    }
+
+    row[columnIndex] = cell
+  }
+
+  // Inject the alignment row.
+  cellMatrix.splice(1, 0, row)
+  sizeMatrix.splice(1, 0, sizes)
+
+  rowIndex = -1
+  /** @type {Array<string>} */
+  const lines = []
+
+  while (++rowIndex < cellMatrix.length) {
+    const row = cellMatrix[rowIndex]
+    const sizes = sizeMatrix[rowIndex]
+    columnIndex = -1
+    /** @type {Array<string>} */
+    const line = []
+
+    while (++columnIndex < mostCellsPerRow) {
+      const cell = row[columnIndex] || ''
+      let before = ''
+      let after = ''
+
+      if (options.alignDelimiters !== false) {
+        const size =
+          longestCellByColumn[columnIndex] - (sizes[columnIndex] || 0)
+        const code = alignments[columnIndex]
+
+        if (code === 114 /* `r` */) {
+          before = ' '.repeat(size)
+        } else if (code === 99 /* `c` */) {
+          if (size % 2) {
+            before = ' '.repeat(size / 2 + 0.5)
+            after = ' '.repeat(size / 2 - 0.5)
+          } else {
+            before = ' '.repeat(size / 2)
+            after = before
+          }
+        } else {
+          after = ' '.repeat(size)
+        }
+      }
+
+      if (options.delimiterStart !== false && !columnIndex) {
+        line.push('|')
+      }
+
+      if (
+        options.padding !== false &&
+        // Don’t add the opening space if we’re not aligning and the cell is
+        // empty: there will be a closing space.
+        !(options.alignDelimiters === false && cell === '') &&
+        (options.delimiterStart !== false || columnIndex)
+      ) {
+        line.push(' ')
+      }
+
+      if (options.alignDelimiters !== false) {
+        line.push(before)
+      }
+
+      line.push(cell)
+
+      if (options.alignDelimiters !== false) {
+        line.push(after)
+      }
+
+      if (options.padding !== false) {
+        line.push(' ')
+      }
+
+      if (
+        options.delimiterEnd !== false ||
+        columnIndex !== mostCellsPerRow - 1
+      ) {
+        line.push('|')
+      }
+    }
+
+    lines.push(
+      options.delimiterEnd === false
+        ? line.join('').replace(/ +$/, '')
+        : line.join('')
+    )
+  }
+
+  return lines.join('\n')
+}
+
+/**
+ * @param {string|null|undefined} [value]
+ * @returns {string}
+ */
+function serialize(value) {
+  return value === null || value === undefined ? '' : String(value)
+}
+
+/**
+ * @param {string} value
+ * @returns {number}
+ */
+function defaultStringLength(value) {
+  return value.length
+}
+
+/**
+ * @param {string|null|undefined} value
+ * @returns {number}
+ */
+function toAlignment(value) {
+  const code = typeof value === 'string' ? value.codePointAt(0) : 0
+
+  return code === 67 /* `C` */ || code === 99 /* `c` */
+    ? 99 /* `c` */
+    : code === 76 /* `L` */ || code === 108 /* `l` */
+    ? 108 /* `l` */
+    : code === 82 /* `R` */ || code === 114 /* `r` */
+    ? 114 /* `r` */
+    : 0
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-gfm-table/lib/index.js
+/**
+ * @typedef {import('mdast').InlineCode} InlineCode
+ * @typedef {import('mdast').Table} Table
+ * @typedef {import('mdast').TableCell} TableCell
+ * @typedef {import('mdast').TableRow} TableRow
+ *
+ * @typedef {import('markdown-table').Options} MarkdownTableOptions
+ *
+ * @typedef {import('mdast-util-from-markdown').CompileContext} CompileContext
+ * @typedef {import('mdast-util-from-markdown').Extension} FromMarkdownExtension
+ * @typedef {import('mdast-util-from-markdown').Handle} FromMarkdownHandle
+ *
+ * @typedef {import('mdast-util-to-markdown').Options} ToMarkdownExtension
+ * @typedef {import('mdast-util-to-markdown').Handle} ToMarkdownHandle
+ * @typedef {import('mdast-util-to-markdown').State} State
+ * @typedef {import('mdast-util-to-markdown').Info} Info
+ */
+
+/**
+ * @typedef Options
+ *   Configuration.
+ * @property {boolean | null | undefined} [tableCellPadding=true]
+ *   Whether to add a space of padding between delimiters and cells (default:
+ *   `true`).
+ * @property {boolean | null | undefined} [tablePipeAlign=true]
+ *   Whether to align the delimiters (default: `true`).
+ * @property {MarkdownTableOptions['stringLength'] | null | undefined} [stringLength]
+ *   Function to detect the length of table cell content, used when aligning
+ *   the delimiters between cells (optional).
+ */
+
+
+
+
+
+/**
+ * Create an extension for `mdast-util-from-markdown` to enable GFM tables in
+ * markdown.
+ *
+ * @returns {FromMarkdownExtension}
+ *   Extension for `mdast-util-from-markdown` to enable GFM tables.
+ */
+function gfmTableFromMarkdown() {
+  return {
+    enter: {
+      table: enterTable,
+      tableData: enterCell,
+      tableHeader: enterCell,
+      tableRow: enterRow
+    },
+    exit: {
+      codeText: exitCodeText,
+      table: exitTable,
+      tableData: lib_exit,
+      tableHeader: lib_exit,
+      tableRow: lib_exit
+    }
+  }
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterTable(token) {
+  const align = token._align
+  default_ok(align, 'expected `_align` on table')
+  this.enter(
+    {
+      type: 'table',
+      align: align.map(function (d) {
+        return d === 'none' ? null : d
+      }),
+      children: []
+    },
+    token
+  )
+  this.data.inTable = true
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitTable(token) {
+  this.exit(token)
+  this.data.inTable = undefined
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterRow(token) {
+  this.enter({type: 'tableRow', children: []}, token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function lib_exit(token) {
+  this.exit(token)
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function enterCell(token) {
+  this.enter({type: 'tableCell', children: []}, token)
+}
+
+// Overwrite the default code text data handler to unescape escaped pipes when
+// they are in tables.
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitCodeText(token) {
+  let value = this.resume()
+
+  if (this.data.inTable) {
+    value = value.replace(/\\([\\|])/g, replace)
+  }
+
+  const node = this.stack[this.stack.length - 1]
+  default_ok(node.type === 'inlineCode')
+  node.value = value
+  this.exit(token)
+}
+
+/**
+ * @param {string} $0
+ * @param {string} $1
+ * @returns {string}
+ */
+function replace($0, $1) {
+  // Pipes work, backslashes don’t (but can’t escape pipes).
+  return $1 === '|' ? $1 : $0
+}
+
+/**
+ * Create an extension for `mdast-util-to-markdown` to enable GFM tables in
+ * markdown.
+ *
+ * @param {Options | null | undefined} [options]
+ *   Configuration.
+ * @returns {ToMarkdownExtension}
+ *   Extension for `mdast-util-to-markdown` to enable GFM tables.
+ */
+function gfmTableToMarkdown(options) {
+  const settings = options || {}
+  const padding = settings.tableCellPadding
+  const alignDelimiters = settings.tablePipeAlign
+  const stringLength = settings.stringLength
+  const around = padding ? ' ' : '|'
+
+  return {
+    unsafe: [
+      {character: '\r', inConstruct: 'tableCell'},
+      {character: '\n', inConstruct: 'tableCell'},
+      // A pipe, when followed by a tab or space (padding), or a dash or colon
+      // (unpadded delimiter row), could result in a table.
+      {atBreak: true, character: '|', after: '[\t :-]'},
+      // A pipe in a cell must be encoded.
+      {character: '|', inConstruct: 'tableCell'},
+      // A colon must be followed by a dash, in which case it could start a
+      // delimiter row.
+      {atBreak: true, character: ':', after: '-'},
+      // A delimiter row can also start with a dash, when followed by more
+      // dashes, a colon, or a pipe.
+      // This is a stricter version than the built in check for lists, thematic
+      // breaks, and setex heading underlines though:
+      // <https://github.com/syntax-tree/mdast-util-to-markdown/blob/51a2038/lib/unsafe.js#L57>
+      {atBreak: true, character: '-', after: '[:|-]'}
+    ],
+    handlers: {
+      inlineCode: inlineCodeWithTable,
+      table: handleTable,
+      tableCell: handleTableCell,
+      tableRow: handleTableRow
+    }
+  }
+
+  /**
+   * @type {ToMarkdownHandle}
+   * @param {Table} node
+   */
+  function handleTable(node, _, state, info) {
+    return serializeData(handleTableAsData(node, state, info), node.align)
+  }
+
+  /**
+   * This function isn’t really used normally, because we handle rows at the
+   * table level.
+   * But, if someone passes in a table row, this ensures we make somewhat sense.
+   *
+   * @type {ToMarkdownHandle}
+   * @param {TableRow} node
+   */
+  function handleTableRow(node, _, state, info) {
+    const row = handleTableRowAsData(node, state, info)
+    const value = serializeData([row])
+    // `markdown-table` will always add an align row
+    return value.slice(0, value.indexOf('\n'))
+  }
+
+  /**
+   * @type {ToMarkdownHandle}
+   * @param {TableCell} node
+   */
+  function handleTableCell(node, _, state, info) {
+    const exit = state.enter('tableCell')
+    const subexit = state.enter('phrasing')
+    const value = state.containerPhrasing(node, {
+      ...info,
+      before: around,
+      after: around
+    })
+    subexit()
+    exit()
+    return value
+  }
+
+  /**
+   * @param {Array<Array<string>>} matrix
+   * @param {Array<string | null | undefined> | null | undefined} [align]
+   */
+  function serializeData(matrix, align) {
+    return markdownTable(matrix, {
+      align,
+      // @ts-expect-error: `markdown-table` types should support `null`.
+      alignDelimiters,
+      // @ts-expect-error: `markdown-table` types should support `null`.
+      padding,
+      // @ts-expect-error: `markdown-table` types should support `null`.
+      stringLength
+    })
+  }
+
+  /**
+   * @param {Table} node
+   * @param {State} state
+   * @param {Info} info
+   */
+  function handleTableAsData(node, state, info) {
+    const children = node.children
+    let index = -1
+    /** @type {Array<Array<string>>} */
+    const result = []
+    const subexit = state.enter('table')
+
+    while (++index < children.length) {
+      result[index] = handleTableRowAsData(children[index], state, info)
+    }
+
+    subexit()
+
+    return result
+  }
+
+  /**
+   * @param {TableRow} node
+   * @param {State} state
+   * @param {Info} info
+   */
+  function handleTableRowAsData(node, state, info) {
+    const children = node.children
+    let index = -1
+    /** @type {Array<string>} */
+    const result = []
+    const subexit = state.enter('tableRow')
+
+    while (++index < children.length) {
+      // Note: the positional info as used here is incorrect.
+      // Making it correct would be impossible due to aligning cells?
+      // And it would need copy/pasting `markdown-table` into this project.
+      result[index] = handleTableCell(children[index], node, state, info)
+    }
+
+    subexit()
+
+    return result
+  }
+
+  /**
+   * @type {ToMarkdownHandle}
+   * @param {InlineCode} node
+   */
+  function inlineCodeWithTable(node, parent, state) {
+    let value = handle.inlineCode(node, parent, state)
+
+    if (state.stack.includes('tableCell')) {
+      value = value.replace(/\|/g, '\\$&')
+    }
+
+    return value
+  }
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-gfm-task-list-item/lib/index.js
+/**
+ * @typedef {import('mdast').ListItem} ListItem
+ * @typedef {import('mdast').Paragraph} Paragraph
+ * @typedef {import('mdast-util-from-markdown').CompileContext} CompileContext
+ * @typedef {import('mdast-util-from-markdown').Extension} FromMarkdownExtension
+ * @typedef {import('mdast-util-from-markdown').Handle} FromMarkdownHandle
+ * @typedef {import('mdast-util-to-markdown').Options} ToMarkdownExtension
+ * @typedef {import('mdast-util-to-markdown').Handle} ToMarkdownHandle
+ */
+
+
+
+
+/**
+ * Create an extension for `mdast-util-from-markdown` to enable GFM task
+ * list items in markdown.
+ *
+ * @returns {FromMarkdownExtension}
+ *   Extension for `mdast-util-from-markdown` to enable GFM task list items.
+ */
+function gfmTaskListItemFromMarkdown() {
+  return {
+    exit: {
+      taskListCheckValueChecked: exitCheck,
+      taskListCheckValueUnchecked: exitCheck,
+      paragraph: exitParagraphWithTaskListItem
+    }
+  }
+}
+
+/**
+ * Create an extension for `mdast-util-to-markdown` to enable GFM task list
+ * items in markdown.
+ *
+ * @returns {ToMarkdownExtension}
+ *   Extension for `mdast-util-to-markdown` to enable GFM task list items.
+ */
+function gfmTaskListItemToMarkdown() {
+  return {
+    unsafe: [{atBreak: true, character: '-', after: '[:|-]'}],
+    handlers: {listItem: listItemWithTaskListItem}
+  }
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitCheck(token) {
+  // We’re always in a paragraph, in a list item.
+  const node = this.stack[this.stack.length - 2]
+  default_ok(node.type === 'listItem')
+  node.checked = token.type === 'taskListCheckValueChecked'
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function exitParagraphWithTaskListItem(token) {
+  const parent = this.stack[this.stack.length - 2]
+
+  if (
+    parent &&
+    parent.type === 'listItem' &&
+    typeof parent.checked === 'boolean'
+  ) {
+    const node = this.stack[this.stack.length - 1]
+    default_ok(node.type === 'paragraph')
+    const head = node.children[0]
+
+    if (head && head.type === 'text') {
+      const siblings = parent.children
+      let index = -1
+      /** @type {Paragraph | undefined} */
+      let firstParaghraph
+
+      while (++index < siblings.length) {
+        const sibling = siblings[index]
+        if (sibling.type === 'paragraph') {
+          firstParaghraph = sibling
+          break
+        }
+      }
+
+      if (firstParaghraph === node) {
+        // Must start with a space or a tab.
+        head.value = head.value.slice(1)
+
+        if (head.value.length === 0) {
+          node.children.shift()
+        } else if (
+          node.position &&
+          head.position &&
+          typeof head.position.start.offset === 'number'
+        ) {
+          head.position.start.column++
+          head.position.start.offset++
+          node.position.start = Object.assign({}, head.position.start)
+        }
+      }
+    }
+  }
+
+  this.exit(token)
+}
+
+/**
+ * @type {ToMarkdownHandle}
+ * @param {ListItem} node
+ */
+function listItemWithTaskListItem(node, parent, state, info) {
+  const head = node.children[0]
+  const checkable =
+    typeof node.checked === 'boolean' && head && head.type === 'paragraph'
+  const checkbox = '[' + (node.checked ? 'x' : ' ') + '] '
+  const tracker = state.createTracker(info)
+
+  if (checkable) {
+    tracker.move(checkbox)
+  }
+
+  let value = handle.listItem(node, parent, state, {
+    ...info,
+    ...tracker.current()
+  })
+
+  if (checkable) {
+    value = value.replace(/^(?:[*+-]|\d+\.)([\r\n]| {1,3})/, check)
+  }
+
+  return value
+
+  /**
+   * @param {string} $0
+   * @returns {string}
+   */
+  function check($0) {
+    return $0 + checkbox
+  }
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-gfm/lib/index.js
+/**
+ * @typedef {import('mdast-util-from-markdown').Extension} FromMarkdownExtension
+ * @typedef {import('mdast-util-to-markdown').Options} ToMarkdownExtension
+ */
+
+/**
+ * @typedef {import('mdast-util-gfm-table').Options} Options
+ *   Configuration.
+ */
+
+
+
+
+
+
+
+/**
+ * Create an extension for `mdast-util-from-markdown` to enable GFM (autolink
+ * literals, footnotes, strikethrough, tables, tasklists).
+ *
+ * @returns {Array<FromMarkdownExtension>}
+ *   Extension for `mdast-util-from-markdown` to enable GFM (autolink literals,
+ *   footnotes, strikethrough, tables, tasklists).
+ */
+function gfmFromMarkdown() {
+  return [
+    gfmAutolinkLiteralFromMarkdown(),
+    gfmFootnoteFromMarkdown(),
+    gfmStrikethroughFromMarkdown(),
+    gfmTableFromMarkdown(),
+    gfmTaskListItemFromMarkdown()
+  ]
+}
+
+/**
+ * Create an extension for `mdast-util-to-markdown` to enable GFM (autolink
+ * literals, footnotes, strikethrough, tables, tasklists).
+ *
+ * @param {Options | null | undefined} [options]
+ *   Configuration.
+ * @returns {ToMarkdownExtension}
+ *   Extension for `mdast-util-to-markdown` to enable GFM (autolink literals,
+ *   footnotes, strikethrough, tables, tasklists).
+ */
+function gfmToMarkdown(options) {
+  return {
+    extensions: [
+      gfmAutolinkLiteralToMarkdown(),
+      gfmFootnoteToMarkdown(),
+      gfmStrikethroughToMarkdown(),
+      gfmTableToMarkdown(options),
+      gfmTaskListItemToMarkdown()
+    ]
+  }
+}
+
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-gfm-autolink-literal/lib/syntax.js
+/**
+ * @typedef {import('micromark-util-types').Code} Code
+ * @typedef {import('micromark-util-types').ConstructRecord} ConstructRecord
+ * @typedef {import('micromark-util-types').Event} Event
+ * @typedef {import('micromark-util-types').Extension} Extension
+ * @typedef {import('micromark-util-types').Previous} Previous
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ */
+
+
+const wwwPrefix = {
+  tokenize: tokenizeWwwPrefix,
+  partial: true
+}
+const domain = {
+  tokenize: tokenizeDomain,
+  partial: true
+}
+const syntax_path = {
+  tokenize: tokenizePath,
+  partial: true
+}
+const trail = {
+  tokenize: tokenizeTrail,
+  partial: true
+}
+const emailDomainDotTrail = {
+  tokenize: tokenizeEmailDomainDotTrail,
+  partial: true
+}
+const wwwAutolink = {
+  tokenize: tokenizeWwwAutolink,
+  previous: previousWww
+}
+const protocolAutolink = {
+  tokenize: tokenizeProtocolAutolink,
+  previous: previousProtocol
+}
+const emailAutolink = {
+  tokenize: tokenizeEmailAutolink,
+  previous: previousEmail
+}
+
+/** @type {ConstructRecord} */
+const syntax_text = {}
+
+/**
+ * Create an extension for `micromark` to support GitHub autolink literal
+ * syntax.
+ *
+ * @returns {Extension}
+ *   Extension for `micromark` that can be passed in `extensions` to enable GFM
+ *   autolink literal syntax.
+ */
+function gfmAutolinkLiteral() {
+  return {
+    text: syntax_text
+  }
+}
+
+/** @type {Code} */
+let syntax_code = 48
+
+// Add alphanumerics.
+while (syntax_code < 123) {
+  syntax_text[syntax_code] = emailAutolink
+  syntax_code++
+  if (syntax_code === 58) syntax_code = 65
+  else if (syntax_code === 91) syntax_code = 97
+}
+syntax_text[43] = emailAutolink
+syntax_text[45] = emailAutolink
+syntax_text[46] = emailAutolink
+syntax_text[95] = emailAutolink
+syntax_text[72] = [emailAutolink, protocolAutolink]
+syntax_text[104] = [emailAutolink, protocolAutolink]
+syntax_text[87] = [emailAutolink, wwwAutolink]
+syntax_text[119] = [emailAutolink, wwwAutolink]
+
+// To do: perform email autolink literals on events, afterwards.
+// That’s where `markdown-rs` and `cmark-gfm` perform it.
+// It should look for `@`, then for atext backwards, and then for a label
+// forwards.
+// To do: `mailto:`, `xmpp:` protocol as prefix.
+
+/**
+ * Email autolink literal.
+ *
+ * ```markdown
+ * > | a contact@example.org b
+ *       ^^^^^^^^^^^^^^^^^^^
+ * ```
+ *
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeEmailAutolink(effects, ok, nok) {
+  const self = this
+  /** @type {boolean | undefined} */
+  let dot
+  /** @type {boolean} */
+  let data
+  return start
+
+  /**
+   * Start of email autolink literal.
+   *
+   * ```markdown
+   * > | a contact@example.org b
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function start(code) {
+    if (
+      !gfmAtext(code) ||
+      !previousEmail.call(self, self.previous) ||
+      previousUnbalanced(self.events)
+    ) {
+      return nok(code)
+    }
+    effects.enter('literalAutolink')
+    effects.enter('literalAutolinkEmail')
+    return atext(code)
+  }
+
+  /**
+   * In email atext.
+   *
+   * ```markdown
+   * > | a contact@example.org b
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function atext(code) {
+    if (gfmAtext(code)) {
+      effects.consume(code)
+      return atext
+    }
+    if (code === 64) {
+      effects.consume(code)
+      return emailDomain
+    }
+    return nok(code)
+  }
+
+  /**
+   * In email domain.
+   *
+   * The reference code is a bit overly complex as it handles the `@`, of which
+   * there may be just one.
+   * Source: <https://github.com/github/cmark-gfm/blob/ef1cfcb/extensions/autolink.c#L318>
+   *
+   * ```markdown
+   * > | a contact@example.org b
+   *               ^
+   * ```
+   *
+   * @type {State}
+   */
+  function emailDomain(code) {
+    // Dot followed by alphanumerical (not `-` or `_`).
+    if (code === 46) {
+      return effects.check(
+        emailDomainDotTrail,
+        emailDomainAfter,
+        emailDomainDot
+      )(code)
+    }
+
+    // Alphanumerical, `-`, and `_`.
+    if (code === 45 || code === 95 || asciiAlphanumeric(code)) {
+      data = true
+      effects.consume(code)
+      return emailDomain
+    }
+
+    // To do: `/` if xmpp.
+
+    // Note: normally we’d truncate trailing punctuation from the link.
+    // However, email autolink literals cannot contain any of those markers,
+    // except for `.`, but that can only occur if it isn’t trailing.
+    // So we can ignore truncating!
+    return emailDomainAfter(code)
+  }
+
+  /**
+   * In email domain, on dot that is not a trail.
+   *
+   * ```markdown
+   * > | a contact@example.org b
+   *                      ^
+   * ```
+   *
+   * @type {State}
+   */
+  function emailDomainDot(code) {
+    effects.consume(code)
+    dot = true
+    return emailDomain
+  }
+
+  /**
+   * After email domain.
+   *
+   * ```markdown
+   * > | a contact@example.org b
+   *                          ^
+   * ```
+   *
+   * @type {State}
+   */
+  function emailDomainAfter(code) {
+    // Domain must not be empty, must include a dot, and must end in alphabetical.
+    // Source: <https://github.com/github/cmark-gfm/blob/ef1cfcb/extensions/autolink.c#L332>.
+    if (data && dot && asciiAlpha(self.previous)) {
+      effects.exit('literalAutolinkEmail')
+      effects.exit('literalAutolink')
+      return ok(code)
+    }
+    return nok(code)
+  }
+}
+
+/**
+ * `www` autolink literal.
+ *
+ * ```markdown
+ * > | a www.example.org b
+ *       ^^^^^^^^^^^^^^^
+ * ```
+ *
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeWwwAutolink(effects, ok, nok) {
+  const self = this
+  return wwwStart
+
+  /**
+   * Start of www autolink literal.
+   *
+   * ```markdown
+   * > | www.example.com/a?b#c
+   *     ^
+   * ```
+   *
+   * @type {State}
+   */
+  function wwwStart(code) {
+    if (
+      (code !== 87 && code !== 119) ||
+      !previousWww.call(self, self.previous) ||
+      previousUnbalanced(self.events)
+    ) {
+      return nok(code)
+    }
+    effects.enter('literalAutolink')
+    effects.enter('literalAutolinkWww')
+    // Note: we *check*, so we can discard the `www.` we parsed.
+    // If it worked, we consider it as a part of the domain.
+    return effects.check(
+      wwwPrefix,
+      effects.attempt(domain, effects.attempt(syntax_path, wwwAfter), nok),
+      nok
+    )(code)
+  }
+
+  /**
+   * After a www autolink literal.
+   *
+   * ```markdown
+   * > | www.example.com/a?b#c
+   *                          ^
+   * ```
+   *
+   * @type {State}
+   */
+  function wwwAfter(code) {
+    effects.exit('literalAutolinkWww')
+    effects.exit('literalAutolink')
+    return ok(code)
+  }
+}
+
+/**
+ * Protocol autolink literal.
+ *
+ * ```markdown
+ * > | a https://example.org b
+ *       ^^^^^^^^^^^^^^^^^^^
+ * ```
+ *
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeProtocolAutolink(effects, ok, nok) {
+  const self = this
+  let buffer = ''
+  let seen = false
+  return protocolStart
+
+  /**
+   * Start of protocol autolink literal.
+   *
+   * ```markdown
+   * > | https://example.com/a?b#c
+   *     ^
+   * ```
+   *
+   * @type {State}
+   */
+  function protocolStart(code) {
+    if (
+      (code === 72 || code === 104) &&
+      previousProtocol.call(self, self.previous) &&
+      !previousUnbalanced(self.events)
+    ) {
+      effects.enter('literalAutolink')
+      effects.enter('literalAutolinkHttp')
+      buffer += String.fromCodePoint(code)
+      effects.consume(code)
+      return protocolPrefixInside
+    }
+    return nok(code)
+  }
+
+  /**
+   * In protocol.
+   *
+   * ```markdown
+   * > | https://example.com/a?b#c
+   *     ^^^^^
+   * ```
+   *
+   * @type {State}
+   */
+  function protocolPrefixInside(code) {
+    // `5` is size of `https`
+    if (asciiAlpha(code) && buffer.length < 5) {
+      // @ts-expect-error: definitely number.
+      buffer += String.fromCodePoint(code)
+      effects.consume(code)
+      return protocolPrefixInside
+    }
+    if (code === 58) {
+      const protocol = buffer.toLowerCase()
+      if (protocol === 'http' || protocol === 'https') {
+        effects.consume(code)
+        return protocolSlashesInside
+      }
+    }
+    return nok(code)
+  }
+
+  /**
+   * In slashes.
+   *
+   * ```markdown
+   * > | https://example.com/a?b#c
+   *           ^^
+   * ```
+   *
+   * @type {State}
+   */
+  function protocolSlashesInside(code) {
+    if (code === 47) {
+      effects.consume(code)
+      if (seen) {
+        return afterProtocol
+      }
+      seen = true
+      return protocolSlashesInside
+    }
+    return nok(code)
+  }
+
+  /**
+   * After protocol, before domain.
+   *
+   * ```markdown
+   * > | https://example.com/a?b#c
+   *             ^
+   * ```
+   *
+   * @type {State}
+   */
+  function afterProtocol(code) {
+    // To do: this is different from `markdown-rs`:
+    // https://github.com/wooorm/markdown-rs/blob/b3a921c761309ae00a51fe348d8a43adbc54b518/src/construct/gfm_autolink_literal.rs#L172-L182
+    return code === null ||
+      asciiControl(code) ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code) ||
+      unicodePunctuation(code)
+      ? nok(code)
+      : effects.attempt(domain, effects.attempt(syntax_path, protocolAfter), nok)(code)
+  }
+
+  /**
+   * After a protocol autolink literal.
+   *
+   * ```markdown
+   * > | https://example.com/a?b#c
+   *                              ^
+   * ```
+   *
+   * @type {State}
+   */
+  function protocolAfter(code) {
+    effects.exit('literalAutolinkHttp')
+    effects.exit('literalAutolink')
+    return ok(code)
+  }
+}
+
+/**
+ * `www` prefix.
+ *
+ * ```markdown
+ * > | a www.example.org b
+ *       ^^^^
+ * ```
+ *
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeWwwPrefix(effects, ok, nok) {
+  let size = 0
+  return wwwPrefixInside
+
+  /**
+   * In www prefix.
+   *
+   * ```markdown
+   * > | www.example.com
+   *     ^^^^
+   * ```
+   *
+   * @type {State}
+   */
+  function wwwPrefixInside(code) {
+    if ((code === 87 || code === 119) && size < 3) {
+      size++
+      effects.consume(code)
+      return wwwPrefixInside
+    }
+    if (code === 46 && size === 3) {
+      effects.consume(code)
+      return wwwPrefixAfter
+    }
+    return nok(code)
+  }
+
+  /**
+   * After www prefix.
+   *
+   * ```markdown
+   * > | www.example.com
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function wwwPrefixAfter(code) {
+    // If there is *anything*, we can link.
+    return code === null ? nok(code) : ok(code)
+  }
+}
+
+/**
+ * Domain.
+ *
+ * ```markdown
+ * > | a https://example.org b
+ *               ^^^^^^^^^^^
+ * ```
+ *
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeDomain(effects, ok, nok) {
+  /** @type {boolean | undefined} */
+  let underscoreInLastSegment
+  /** @type {boolean | undefined} */
+  let underscoreInLastLastSegment
+  /** @type {boolean | undefined} */
+  let seen
+  return domainInside
+
+  /**
+   * In domain.
+   *
+   * ```markdown
+   * > | https://example.com/a
+   *             ^^^^^^^^^^^
+   * ```
+   *
+   * @type {State}
+   */
+  function domainInside(code) {
+    // Check whether this marker, which is a trailing punctuation
+    // marker, optionally followed by more trailing markers, and then
+    // followed by an end.
+    if (code === 46 || code === 95) {
+      return effects.check(trail, domainAfter, domainAtPunctuation)(code)
+    }
+
+    // GH documents that only alphanumerics (other than `-`, `.`, and `_`) can
+    // occur, which sounds like ASCII only, but they also support `www.點看.com`,
+    // so that’s Unicode.
+    // Instead of some new production for Unicode alphanumerics, markdown
+    // already has that for Unicode punctuation and whitespace, so use those.
+    // Source: <https://github.com/github/cmark-gfm/blob/ef1cfcb/extensions/autolink.c#L12>.
+    if (
+      code === null ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code) ||
+      (code !== 45 && unicodePunctuation(code))
+    ) {
+      return domainAfter(code)
+    }
+    seen = true
+    effects.consume(code)
+    return domainInside
+  }
+
+  /**
+   * In domain, at potential trailing punctuation, that was not trailing.
+   *
+   * ```markdown
+   * > | https://example.com
+   *                    ^
+   * ```
+   *
+   * @type {State}
+   */
+  function domainAtPunctuation(code) {
+    // There is an underscore in the last segment of the domain
+    if (code === 95) {
+      underscoreInLastSegment = true
+    }
+    // Otherwise, it’s a `.`: save the last segment underscore in the
+    // penultimate segment slot.
+    else {
+      underscoreInLastLastSegment = underscoreInLastSegment
+      underscoreInLastSegment = undefined
+    }
+    effects.consume(code)
+    return domainInside
+  }
+
+  /**
+   * After domain.
+   *
+   * ```markdown
+   * > | https://example.com/a
+   *                        ^
+   * ```
+   *
+   * @type {State} */
+  function domainAfter(code) {
+    // Note: that’s GH says a dot is needed, but it’s not true:
+    // <https://github.com/github/cmark-gfm/issues/279>
+    if (underscoreInLastLastSegment || underscoreInLastSegment || !seen) {
+      return nok(code)
+    }
+    return ok(code)
+  }
+}
+
+/**
+ * Path.
+ *
+ * ```markdown
+ * > | a https://example.org/stuff b
+ *                          ^^^^^^
+ * ```
+ *
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizePath(effects, ok) {
+  let sizeOpen = 0
+  let sizeClose = 0
+  return pathInside
+
+  /**
+   * In path.
+   *
+   * ```markdown
+   * > | https://example.com/a
+   *                        ^^
+   * ```
+   *
+   * @type {State}
+   */
+  function pathInside(code) {
+    if (code === 40) {
+      sizeOpen++
+      effects.consume(code)
+      return pathInside
+    }
+
+    // To do: `markdown-rs` also needs this.
+    // If this is a paren, and there are less closings than openings,
+    // we don’t check for a trail.
+    if (code === 41 && sizeClose < sizeOpen) {
+      return pathAtPunctuation(code)
+    }
+
+    // Check whether this trailing punctuation marker is optionally
+    // followed by more trailing markers, and then followed
+    // by an end.
+    if (
+      code === 33 ||
+      code === 34 ||
+      code === 38 ||
+      code === 39 ||
+      code === 41 ||
+      code === 42 ||
+      code === 44 ||
+      code === 46 ||
+      code === 58 ||
+      code === 59 ||
+      code === 60 ||
+      code === 63 ||
+      code === 93 ||
+      code === 95 ||
+      code === 126
+    ) {
+      return effects.check(trail, ok, pathAtPunctuation)(code)
+    }
+    if (
+      code === null ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code)
+    ) {
+      return ok(code)
+    }
+    effects.consume(code)
+    return pathInside
+  }
+
+  /**
+   * In path, at potential trailing punctuation, that was not trailing.
+   *
+   * ```markdown
+   * > | https://example.com/a"b
+   *                          ^
+   * ```
+   *
+   * @type {State}
+   */
+  function pathAtPunctuation(code) {
+    // Count closing parens.
+    if (code === 41) {
+      sizeClose++
+    }
+    effects.consume(code)
+    return pathInside
+  }
+}
+
+/**
+ * Trail.
+ *
+ * This calls `ok` if this *is* the trail, followed by an end, which means
+ * the entire trail is not part of the link.
+ * It calls `nok` if this *is* part of the link.
+ *
+ * ```markdown
+ * > | https://example.com").
+ *                        ^^^
+ * ```
+ *
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeTrail(effects, ok, nok) {
+  return trail
+
+  /**
+   * In trail of domain or path.
+   *
+   * ```markdown
+   * > | https://example.com").
+   *                        ^
+   * ```
+   *
+   * @type {State}
+   */
+  function trail(code) {
+    // Regular trailing punctuation.
+    if (
+      code === 33 ||
+      code === 34 ||
+      code === 39 ||
+      code === 41 ||
+      code === 42 ||
+      code === 44 ||
+      code === 46 ||
+      code === 58 ||
+      code === 59 ||
+      code === 63 ||
+      code === 95 ||
+      code === 126
+    ) {
+      effects.consume(code)
+      return trail
+    }
+
+    // `&` followed by one or more alphabeticals and then a `;`, is
+    // as a whole considered as trailing punctuation.
+    // In all other cases, it is considered as continuation of the URL.
+    if (code === 38) {
+      effects.consume(code)
+      return trailCharRefStart
+    }
+
+    // Needed because we allow literals after `[`, as we fix:
+    // <https://github.com/github/cmark-gfm/issues/278>.
+    // Check that it is not followed by `(` or `[`.
+    if (code === 93) {
+      effects.consume(code)
+      return trailBracketAfter
+    }
+    if (
+      // `<` is an end.
+      code === 60 ||
+      // So is whitespace.
+      code === null ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code)
+    ) {
+      return ok(code)
+    }
+    return nok(code)
+  }
+
+  /**
+   * In trail, after `]`.
+   *
+   * > 👉 **Note**: this deviates from `cmark-gfm` to fix a bug.
+   * > See end of <https://github.com/github/cmark-gfm/issues/278> for more.
+   *
+   * ```markdown
+   * > | https://example.com](
+   *                         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function trailBracketAfter(code) {
+    // Whitespace or something that could start a resource or reference is the end.
+    // Switch back to trail otherwise.
+    if (
+      code === null ||
+      code === 40 ||
+      code === 91 ||
+      markdownLineEndingOrSpace(code) ||
+      unicodeWhitespace(code)
+    ) {
+      return ok(code)
+    }
+    return trail(code)
+  }
+
+  /**
+   * In character-reference like trail, after `&`.
+   *
+   * ```markdown
+   * > | https://example.com&amp;).
+   *                         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function trailCharRefStart(code) {
+    // When non-alpha, it’s not a trail.
+    return asciiAlpha(code) ? trailCharRefInside(code) : nok(code)
+  }
+
+  /**
+   * In character-reference like trail.
+   *
+   * ```markdown
+   * > | https://example.com&amp;).
+   *                         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function trailCharRefInside(code) {
+    // Switch back to trail if this is well-formed.
+    if (code === 59) {
+      effects.consume(code)
+      return trail
+    }
+    if (asciiAlpha(code)) {
+      effects.consume(code)
+      return trailCharRefInside
+    }
+
+    // It’s not a trail.
+    return nok(code)
+  }
+}
+
+/**
+ * Dot in email domain trail.
+ *
+ * This calls `ok` if this *is* the trail, followed by an end, which means
+ * the trail is not part of the link.
+ * It calls `nok` if this *is* part of the link.
+ *
+ * ```markdown
+ * > | contact@example.org.
+ *                        ^
+ * ```
+ *
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeEmailDomainDotTrail(effects, ok, nok) {
+  return start
+
+  /**
+   * Dot.
+   *
+   * ```markdown
+   * > | contact@example.org.
+   *                    ^   ^
+   * ```
+   *
+   * @type {State}
+   */
+  function start(code) {
+    // Must be dot.
+    effects.consume(code)
+    return after
+  }
+
+  /**
+   * After dot.
+   *
+   * ```markdown
+   * > | contact@example.org.
+   *                     ^   ^
+   * ```
+   *
+   * @type {State}
+   */
+  function after(code) {
+    // Not a trail if alphanumeric.
+    return asciiAlphanumeric(code) ? nok(code) : ok(code)
+  }
+}
+
+/**
+ * See:
+ * <https://github.com/github/cmark-gfm/blob/ef1cfcb/extensions/autolink.c#L156>.
+ *
+ * @type {Previous}
+ */
+function previousWww(code) {
+  return (
+    code === null ||
+    code === 40 ||
+    code === 42 ||
+    code === 95 ||
+    code === 91 ||
+    code === 93 ||
+    code === 126 ||
+    markdownLineEndingOrSpace(code)
+  )
+}
+
+/**
+ * See:
+ * <https://github.com/github/cmark-gfm/blob/ef1cfcb/extensions/autolink.c#L214>.
+ *
+ * @type {Previous}
+ */
+function previousProtocol(code) {
+  return !asciiAlpha(code)
+}
+
+/**
+ * @this {TokenizeContext}
+ * @type {Previous}
+ */
+function previousEmail(code) {
+  // Do not allow a slash “inside” atext.
+  // The reference code is a bit weird, but that’s what it results in.
+  // Source: <https://github.com/github/cmark-gfm/blob/ef1cfcb/extensions/autolink.c#L307>.
+  // Other than slash, every preceding character is allowed.
+  return !(code === 47 || gfmAtext(code))
+}
+
+/**
+ * @param {Code} code
+ * @returns {boolean}
+ */
+function gfmAtext(code) {
+  return (
+    code === 43 ||
+    code === 45 ||
+    code === 46 ||
+    code === 95 ||
+    asciiAlphanumeric(code)
+  )
+}
+
+/**
+ * @param {Array<Event>} events
+ * @returns {boolean}
+ */
+function previousUnbalanced(events) {
+  let index = events.length
+  let result = false
+  while (index--) {
+    const token = events[index][1]
+    if (
+      (token.type === 'labelLink' || token.type === 'labelImage') &&
+      !token._balanced
+    ) {
+      result = true
+      break
+    }
+
+    // If we’ve seen this token, and it was marked as not having any unbalanced
+    // bracket before it, we can exit.
+    if (token._gfmAutolinkLiteralWalkedInto) {
+      result = false
+      break
+    }
+  }
+  if (events.length > 0 && !result) {
+    // Mark the last token as “walked into” w/o finding
+    // anything.
+    events[events.length - 1][1]._gfmAutolinkLiteralWalkedInto = true
+  }
+  return result
+}
+
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-gfm-footnote/lib/syntax.js
+/**
+ * @typedef {import('micromark-util-types').Event} Event
+ * @typedef {import('micromark-util-types').Exiter} Exiter
+ * @typedef {import('micromark-util-types').Extension} Extension
+ * @typedef {import('micromark-util-types').Resolver} Resolver
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').Token} Token
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ */
+
+
+
+
+
+const indent = {
+  tokenize: syntax_tokenizeIndent,
+  partial: true
+}
+
+// To do: micromark should support a `_hiddenGfmFootnoteSupport`, which only
+// affects label start (image).
+// That will let us drop `tokenizePotentialGfmFootnote*`.
+// It currently has a `_hiddenFootnoteSupport`, which affects that and more.
+// That can be removed when `micromark-extension-footnote` is archived.
+
+/**
+ * Create an extension for `micromark` to enable GFM footnote syntax.
+ *
+ * @returns {Extension}
+ *   Extension for `micromark` that can be passed in `extensions` to
+ *   enable GFM footnote syntax.
+ */
+function gfmFootnote() {
+  /** @type {Extension} */
+  return {
+    document: {
+      [91]: {
+        tokenize: tokenizeDefinitionStart,
+        continuation: {
+          tokenize: tokenizeDefinitionContinuation
+        },
+        exit: gfmFootnoteDefinitionEnd
+      }
+    },
+    text: {
+      [91]: {
+        tokenize: tokenizeGfmFootnoteCall
+      },
+      [93]: {
+        add: 'after',
+        tokenize: tokenizePotentialGfmFootnoteCall,
+        resolveTo: resolveToPotentialGfmFootnoteCall
+      }
+    }
+  }
+}
+
+// To do: remove after micromark update.
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizePotentialGfmFootnoteCall(effects, ok, nok) {
+  const self = this
+  let index = self.events.length
+  const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = [])
+  /** @type {Token} */
+  let labelStart
+
+  // Find an opening.
+  while (index--) {
+    const token = self.events[index][1]
+    if (token.type === 'labelImage') {
+      labelStart = token
+      break
+    }
+
+    // Exit if we’ve walked far enough.
+    if (
+      token.type === 'gfmFootnoteCall' ||
+      token.type === 'labelLink' ||
+      token.type === 'label' ||
+      token.type === 'image' ||
+      token.type === 'link'
+    ) {
+      break
+    }
+  }
+  return start
+
+  /**
+   * @type {State}
+   */
+  function start(code) {
+    if (!labelStart || !labelStart._balanced) {
+      return nok(code)
+    }
+    const id = normalizeIdentifier(
+      self.sliceSerialize({
+        start: labelStart.end,
+        end: self.now()
+      })
+    )
+    if (id.codePointAt(0) !== 94 || !defined.includes(id.slice(1))) {
+      return nok(code)
+    }
+    effects.enter('gfmFootnoteCallLabelMarker')
+    effects.consume(code)
+    effects.exit('gfmFootnoteCallLabelMarker')
+    return ok(code)
+  }
+}
+
+// To do: remove after micromark update.
+/** @type {Resolver} */
+function resolveToPotentialGfmFootnoteCall(events, context) {
+  let index = events.length
+  /** @type {Token | undefined} */
+  let labelStart
+
+  // Find an opening.
+  while (index--) {
+    if (
+      events[index][1].type === 'labelImage' &&
+      events[index][0] === 'enter'
+    ) {
+      labelStart = events[index][1]
+      break
+    }
+  }
+  // Change the `labelImageMarker` to a `data`.
+  events[index + 1][1].type = 'data'
+  events[index + 3][1].type = 'gfmFootnoteCallLabelMarker'
+
+  // The whole (without `!`):
+  /** @type {Token} */
+  const call = {
+    type: 'gfmFootnoteCall',
+    start: Object.assign({}, events[index + 3][1].start),
+    end: Object.assign({}, events[events.length - 1][1].end)
+  }
+  // The `^` marker
+  /** @type {Token} */
+  const marker = {
+    type: 'gfmFootnoteCallMarker',
+    start: Object.assign({}, events[index + 3][1].end),
+    end: Object.assign({}, events[index + 3][1].end)
+  }
+  // Increment the end 1 character.
+  marker.end.column++
+  marker.end.offset++
+  marker.end._bufferIndex++
+  /** @type {Token} */
+  const string = {
+    type: 'gfmFootnoteCallString',
+    start: Object.assign({}, marker.end),
+    end: Object.assign({}, events[events.length - 1][1].start)
+  }
+  /** @type {Token} */
+  const chunk = {
+    type: 'chunkString',
+    contentType: 'string',
+    start: Object.assign({}, string.start),
+    end: Object.assign({}, string.end)
+  }
+
+  /** @type {Array<Event>} */
+  const replacement = [
+    // Take the `labelImageMarker` (now `data`, the `!`)
+    events[index + 1],
+    events[index + 2],
+    ['enter', call, context],
+    // The `[`
+    events[index + 3],
+    events[index + 4],
+    // The `^`.
+    ['enter', marker, context],
+    ['exit', marker, context],
+    // Everything in between.
+    ['enter', string, context],
+    ['enter', chunk, context],
+    ['exit', chunk, context],
+    ['exit', string, context],
+    // The ending (`]`, properly parsed and labelled).
+    events[events.length - 2],
+    events[events.length - 1],
+    ['exit', call, context]
+  ]
+  events.splice(index, events.length - index + 1, ...replacement)
+  return events
+}
+
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeGfmFootnoteCall(effects, ok, nok) {
+  const self = this
+  const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = [])
+  let size = 0
+  /** @type {boolean} */
+  let data
+
+  // Note: the implementation of `markdown-rs` is different, because it houses
+  // core *and* extensions in one project.
+  // Therefore, it can include footnote logic inside `label-end`.
+  // We can’t do that, but luckily, we can parse footnotes in a simpler way than
+  // needed for labels.
+  return start
+
+  /**
+   * Start of footnote label.
+   *
+   * ```markdown
+   * > | a [^b] c
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function start(code) {
+    effects.enter('gfmFootnoteCall')
+    effects.enter('gfmFootnoteCallLabelMarker')
+    effects.consume(code)
+    effects.exit('gfmFootnoteCallLabelMarker')
+    return callStart
+  }
+
+  /**
+   * After `[`, at `^`.
+   *
+   * ```markdown
+   * > | a [^b] c
+   *        ^
+   * ```
+   *
+   * @type {State}
+   */
+  function callStart(code) {
+    if (code !== 94) return nok(code)
+    effects.enter('gfmFootnoteCallMarker')
+    effects.consume(code)
+    effects.exit('gfmFootnoteCallMarker')
+    effects.enter('gfmFootnoteCallString')
+    effects.enter('chunkString').contentType = 'string'
+    return callData
+  }
+
+  /**
+   * In label.
+   *
+   * ```markdown
+   * > | a [^b] c
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function callData(code) {
+    if (
+      // Too long.
+      size > 999 ||
+      // Closing brace with nothing.
+      (code === 93 && !data) ||
+      // Space or tab is not supported by GFM for some reason.
+      // `\n` and `[` not being supported makes sense.
+      code === null ||
+      code === 91 ||
+      markdownLineEndingOrSpace(code)
+    ) {
+      return nok(code)
+    }
+    if (code === 93) {
+      effects.exit('chunkString')
+      const token = effects.exit('gfmFootnoteCallString')
+      if (!defined.includes(normalizeIdentifier(self.sliceSerialize(token)))) {
+        return nok(code)
+      }
+      effects.enter('gfmFootnoteCallLabelMarker')
+      effects.consume(code)
+      effects.exit('gfmFootnoteCallLabelMarker')
+      effects.exit('gfmFootnoteCall')
+      return ok
+    }
+    if (!markdownLineEndingOrSpace(code)) {
+      data = true
+    }
+    size++
+    effects.consume(code)
+    return code === 92 ? callEscape : callData
+  }
+
+  /**
+   * On character after escape.
+   *
+   * ```markdown
+   * > | a [^b\c] d
+   *           ^
+   * ```
+   *
+   * @type {State}
+   */
+  function callEscape(code) {
+    if (code === 91 || code === 92 || code === 93) {
+      effects.consume(code)
+      size++
+      return callData
+    }
+    return callData(code)
+  }
+}
+
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeDefinitionStart(effects, ok, nok) {
+  const self = this
+  const defined = self.parser.gfmFootnotes || (self.parser.gfmFootnotes = [])
+  /** @type {string} */
+  let identifier
+  let size = 0
+  /** @type {boolean | undefined} */
+  let data
+  return start
+
+  /**
+   * Start of GFM footnote definition.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *     ^
+   * ```
+   *
+   * @type {State}
+   */
+  function start(code) {
+    effects.enter('gfmFootnoteDefinition')._container = true
+    effects.enter('gfmFootnoteDefinitionLabel')
+    effects.enter('gfmFootnoteDefinitionLabelMarker')
+    effects.consume(code)
+    effects.exit('gfmFootnoteDefinitionLabelMarker')
+    return labelAtMarker
+  }
+
+  /**
+   * In label, at caret.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *      ^
+   * ```
+   *
+   * @type {State}
+   */
+  function labelAtMarker(code) {
+    if (code === 94) {
+      effects.enter('gfmFootnoteDefinitionMarker')
+      effects.consume(code)
+      effects.exit('gfmFootnoteDefinitionMarker')
+      effects.enter('gfmFootnoteDefinitionLabelString')
+      effects.enter('chunkString').contentType = 'string'
+      return labelInside
+    }
+    return nok(code)
+  }
+
+  /**
+   * In label.
+   *
+   * > 👉 **Note**: `cmark-gfm` prevents whitespace from occurring in footnote
+   * > definition labels.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function labelInside(code) {
+    if (
+      // Too long.
+      size > 999 ||
+      // Closing brace with nothing.
+      (code === 93 && !data) ||
+      // Space or tab is not supported by GFM for some reason.
+      // `\n` and `[` not being supported makes sense.
+      code === null ||
+      code === 91 ||
+      markdownLineEndingOrSpace(code)
+    ) {
+      return nok(code)
+    }
+    if (code === 93) {
+      effects.exit('chunkString')
+      const token = effects.exit('gfmFootnoteDefinitionLabelString')
+      identifier = normalizeIdentifier(self.sliceSerialize(token))
+      effects.enter('gfmFootnoteDefinitionLabelMarker')
+      effects.consume(code)
+      effects.exit('gfmFootnoteDefinitionLabelMarker')
+      effects.exit('gfmFootnoteDefinitionLabel')
+      return labelAfter
+    }
+    if (!markdownLineEndingOrSpace(code)) {
+      data = true
+    }
+    size++
+    effects.consume(code)
+    return code === 92 ? labelEscape : labelInside
+  }
+
+  /**
+   * After `\`, at a special character.
+   *
+   * > 👉 **Note**: `cmark-gfm` currently does not support escaped brackets:
+   * > <https://github.com/github/cmark-gfm/issues/240>
+   *
+   * ```markdown
+   * > | [^a\*b]: c
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function labelEscape(code) {
+    if (code === 91 || code === 92 || code === 93) {
+      effects.consume(code)
+      size++
+      return labelInside
+    }
+    return labelInside(code)
+  }
+
+  /**
+   * After definition label.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function labelAfter(code) {
+    if (code === 58) {
+      effects.enter('definitionMarker')
+      effects.consume(code)
+      effects.exit('definitionMarker')
+      if (!defined.includes(identifier)) {
+        defined.push(identifier)
+      }
+
+      // Any whitespace after the marker is eaten, forming indented code
+      // is not possible.
+      // No space is also fine, just like a block quote marker.
+      return factorySpace(
+        effects,
+        whitespaceAfter,
+        'gfmFootnoteDefinitionWhitespace'
+      )
+    }
+    return nok(code)
+  }
+
+  /**
+   * After definition prefix.
+   *
+   * ```markdown
+   * > | [^a]: b
+   *           ^
+   * ```
+   *
+   * @type {State}
+   */
+  function whitespaceAfter(code) {
+    // `markdown-rs` has a wrapping token for the prefix that is closed here.
+    return ok(code)
+  }
+}
+
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeDefinitionContinuation(effects, ok, nok) {
+  /// Start of footnote definition continuation.
+  ///
+  /// ```markdown
+  ///   | [^a]: b
+  /// > |     c
+  ///     ^
+  /// ```
+  //
+  // Either a blank line, which is okay, or an indented thing.
+  return effects.check(blankLine, ok, effects.attempt(indent, ok, nok))
+}
+
+/** @type {Exiter} */
+function gfmFootnoteDefinitionEnd(effects) {
+  effects.exit('gfmFootnoteDefinition')
+}
+
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function syntax_tokenizeIndent(effects, ok, nok) {
+  const self = this
+  return factorySpace(
+    effects,
+    afterPrefix,
+    'gfmFootnoteDefinitionIndent',
+    4 + 1
+  )
+
+  /**
+   * @type {State}
+   */
+  function afterPrefix(code) {
+    const tail = self.events[self.events.length - 1]
+    return tail &&
+      tail[1].type === 'gfmFootnoteDefinitionIndent' &&
+      tail[2].sliceSerialize(tail[1], true).length === 4
+      ? ok(code)
+      : nok(code)
+  }
+}
+
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-gfm-strikethrough/lib/syntax.js
+/**
+ * @typedef {import('micromark-util-types').Event} Event
+ * @typedef {import('micromark-util-types').Extension} Extension
+ * @typedef {import('micromark-util-types').Resolver} Resolver
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').Token} Token
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ *
+ * @typedef Options
+ *   Configuration (optional).
+ * @property {boolean | null | undefined} [singleTilde=true]
+ *   Whether to support strikethrough with a single tilde (default: `true`).
+ *
+ *   Single tildes work on github.com, but are technically prohibited by the
+ *   GFM spec.
+ */
+
+
+
+
+/**
+ * Create an extension for `micromark` to enable GFM strikethrough syntax.
+ *
+ * @param {Options | null | undefined} [options={}]
+ *   Configuration.
+ * @returns {Extension}
+ *   Extension for `micromark` that can be passed in `extensions`, to
+ *   enable GFM strikethrough syntax.
+ */
+function gfmStrikethrough(options) {
+  const options_ = options || {}
+  let single = options_.singleTilde
+  const tokenizer = {
+    tokenize: tokenizeStrikethrough,
+    resolveAll: resolveAllStrikethrough
+  }
+  if (single === null || single === undefined) {
+    single = true
+  }
+  return {
+    text: {
+      [126]: tokenizer
+    },
+    insideSpan: {
+      null: [tokenizer]
+    },
+    attentionMarkers: {
+      null: [126]
+    }
+  }
+
+  /**
+   * Take events and resolve strikethrough.
+   *
+   * @type {Resolver}
+   */
+  function resolveAllStrikethrough(events, context) {
+    let index = -1
+
+    // Walk through all events.
+    while (++index < events.length) {
+      // Find a token that can close.
+      if (
+        events[index][0] === 'enter' &&
+        events[index][1].type === 'strikethroughSequenceTemporary' &&
+        events[index][1]._close
+      ) {
+        let open = index
+
+        // Now walk back to find an opener.
+        while (open--) {
+          // Find a token that can open the closer.
+          if (
+            events[open][0] === 'exit' &&
+            events[open][1].type === 'strikethroughSequenceTemporary' &&
+            events[open][1]._open &&
+            // If the sizes are the same:
+            events[index][1].end.offset - events[index][1].start.offset ===
+              events[open][1].end.offset - events[open][1].start.offset
+          ) {
+            events[index][1].type = 'strikethroughSequence'
+            events[open][1].type = 'strikethroughSequence'
+
+            /** @type {Token} */
+            const strikethrough = {
+              type: 'strikethrough',
+              start: Object.assign({}, events[open][1].start),
+              end: Object.assign({}, events[index][1].end)
+            }
+
+            /** @type {Token} */
+            const text = {
+              type: 'strikethroughText',
+              start: Object.assign({}, events[open][1].end),
+              end: Object.assign({}, events[index][1].start)
+            }
+
+            // Opening.
+            /** @type {Array<Event>} */
+            const nextEvents = [
+              ['enter', strikethrough, context],
+              ['enter', events[open][1], context],
+              ['exit', events[open][1], context],
+              ['enter', text, context]
+            ]
+            const insideSpan = context.parser.constructs.insideSpan.null
+            if (insideSpan) {
+              // Between.
+              micromark_util_chunked_splice(
+                nextEvents,
+                nextEvents.length,
+                0,
+                resolveAll(insideSpan, events.slice(open + 1, index), context)
+              )
+            }
+
+            // Closing.
+            micromark_util_chunked_splice(nextEvents, nextEvents.length, 0, [
+              ['exit', text, context],
+              ['enter', events[index][1], context],
+              ['exit', events[index][1], context],
+              ['exit', strikethrough, context]
+            ])
+            micromark_util_chunked_splice(events, open - 1, index - open + 3, nextEvents)
+            index = open + nextEvents.length - 2
+            break
+          }
+        }
+      }
+    }
+    index = -1
+    while (++index < events.length) {
+      if (events[index][1].type === 'strikethroughSequenceTemporary') {
+        events[index][1].type = 'data'
+      }
+    }
+    return events
+  }
+
+  /**
+   * @this {TokenizeContext}
+   * @type {Tokenizer}
+   */
+  function tokenizeStrikethrough(effects, ok, nok) {
+    const previous = this.previous
+    const events = this.events
+    let size = 0
+    return start
+
+    /** @type {State} */
+    function start(code) {
+      if (
+        previous === 126 &&
+        events[events.length - 1][1].type !== 'characterEscape'
+      ) {
+        return nok(code)
+      }
+      effects.enter('strikethroughSequenceTemporary')
+      return more(code)
+    }
+
+    /** @type {State} */
+    function more(code) {
+      const before = classifyCharacter(previous)
+      if (code === 126) {
+        // If this is the third marker, exit.
+        if (size > 1) return nok(code)
+        effects.consume(code)
+        size++
+        return more
+      }
+      if (size < 2 && !single) return nok(code)
+      const token = effects.exit('strikethroughSequenceTemporary')
+      const after = classifyCharacter(code)
+      token._open = !after || (after === 2 && Boolean(before))
+      token._close = !before || (before === 2 && Boolean(after))
+      return ok(code)
+    }
+  }
+}
+
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-gfm-table/lib/edit-map.js
+/**
+ * @typedef {import('micromark-util-types').Event} Event
+ */
+
+// Port of `edit_map.rs` from `markdown-rs`.
+// This should move to `markdown-js` later.
+
+// Deal with several changes in events, batching them together.
+//
+// Preferably, changes should be kept to a minimum.
+// Sometimes, it’s needed to change the list of events, because parsing can be
+// messy, and it helps to expose a cleaner interface of events to the compiler
+// and other users.
+// It can also help to merge many adjacent similar events.
+// And, in other cases, it’s needed to parse subcontent: pass some events
+// through another tokenizer and inject the result.
+
+/**
+ * @typedef {[number, number, Array<Event>]} Change
+ * @typedef {[number, number, number]} Jump
+ */
+
+/**
+ * Tracks a bunch of edits.
+ */
+class EditMap {
+  /**
+   * Create a new edit map.
+   */
+  constructor() {
+    /**
+     * Record of changes.
+     *
+     * @type {Array<Change>}
+     */
+    this.map = []
+  }
+
+  /**
+   * Create an edit: a remove and/or add at a certain place.
+   *
+   * @param {number} index
+   * @param {number} remove
+   * @param {Array<Event>} add
+   * @returns {undefined}
+   */
+  add(index, remove, add) {
+    addImpl(this, index, remove, add)
+  }
+
+  // To do: add this when moving to `micromark`.
+  // /**
+  //  * Create an edit: but insert `add` before existing additions.
+  //  *
+  //  * @param {number} index
+  //  * @param {number} remove
+  //  * @param {Array<Event>} add
+  //  * @returns {undefined}
+  //  */
+  // addBefore(index, remove, add) {
+  //   addImpl(this, index, remove, add, true)
+  // }
+
+  /**
+   * Done, change the events.
+   *
+   * @param {Array<Event>} events
+   * @returns {undefined}
+   */
+  consume(events) {
+    this.map.sort(function (a, b) {
+      return a[0] - b[0]
+    })
+
+    /* c8 ignore next 3 -- `resolve` is never called without tables, so without edits. */
+    if (this.map.length === 0) {
+      return
+    }
+
+    // To do: if links are added in events, like they are in `markdown-rs`,
+    // this is needed.
+    // // Calculate jumps: where items in the current list move to.
+    // /** @type {Array<Jump>} */
+    // const jumps = []
+    // let index = 0
+    // let addAcc = 0
+    // let removeAcc = 0
+    // while (index < this.map.length) {
+    //   const [at, remove, add] = this.map[index]
+    //   removeAcc += remove
+    //   addAcc += add.length
+    //   jumps.push([at, removeAcc, addAcc])
+    //   index += 1
+    // }
+    //
+    // . shiftLinks(events, jumps)
+
+    let index = this.map.length
+    /** @type {Array<Array<Event>>} */
+    const vecs = []
+    while (index > 0) {
+      index -= 1
+      vecs.push(
+        events.slice(this.map[index][0] + this.map[index][1]),
+        this.map[index][2]
+      )
+
+      // Truncate rest.
+      events.length = this.map[index][0]
+    }
+    vecs.push([...events])
+    events.length = 0
+    let slice = vecs.pop()
+    while (slice) {
+      events.push(...slice)
+      slice = vecs.pop()
+    }
+
+    // Truncate everything.
+    this.map.length = 0
+  }
+}
+
+/**
+ * Create an edit.
+ *
+ * @param {EditMap} editMap
+ * @param {number} at
+ * @param {number} remove
+ * @param {Array<Event>} add
+ * @returns {undefined}
+ */
+function addImpl(editMap, at, remove, add) {
+  let index = 0
+
+  /* c8 ignore next 3 -- `resolve` is never called without tables, so without edits. */
+  if (remove === 0 && add.length === 0) {
+    return
+  }
+  while (index < editMap.map.length) {
+    if (editMap.map[index][0] === at) {
+      editMap.map[index][1] += remove
+
+      // To do: before not used by tables, use when moving to micromark.
+      // if (before) {
+      //   add.push(...editMap.map[index][2])
+      //   editMap.map[index][2] = add
+      // } else {
+      editMap.map[index][2].push(...add)
+      // }
+
+      return
+    }
+    index += 1
+  }
+  editMap.map.push([at, remove, add])
+}
+
+// /**
+//  * Shift `previous` and `next` links according to `jumps`.
+//  *
+//  * This fixes links in case there are events removed or added between them.
+//  *
+//  * @param {Array<Event>} events
+//  * @param {Array<Jump>} jumps
+//  */
+// function shiftLinks(events, jumps) {
+//   let jumpIndex = 0
+//   let index = 0
+//   let add = 0
+//   let rm = 0
+
+//   while (index < events.length) {
+//     const rmCurr = rm
+
+//     while (jumpIndex < jumps.length && jumps[jumpIndex][0] <= index) {
+//       add = jumps[jumpIndex][2]
+//       rm = jumps[jumpIndex][1]
+//       jumpIndex += 1
+//     }
+
+//     // Ignore items that will be removed.
+//     if (rm > rmCurr) {
+//       index += rm - rmCurr
+//     } else {
+//       // ?
+//       // if let Some(link) = &events[index].link {
+//       //     if let Some(next) = link.next {
+//       //         events[next].link.as_mut().unwrap().previous = Some(index + add - rm);
+//       //         while jumpIndex < jumps.len() && jumps[jumpIndex].0 <= next {
+//       //             add = jumps[jumpIndex].2;
+//       //             rm = jumps[jumpIndex].1;
+//       //             jumpIndex += 1;
+//       //         }
+//       //         events[index].link.as_mut().unwrap().next = Some(next + add - rm);
+//       //         index = next;
+//       //         continue;
+//       //     }
+//       // }
+//       index += 1
+//     }
+//   }
+// }
+
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-gfm-table/lib/infer.js
+/**
+ * @typedef {import('micromark-util-types').Event} Event
+ */
+
+/**
+ * @typedef {'center' | 'left' | 'none' | 'right'} Align
+ */
+
+/**
+ * Figure out the alignment of a GFM table.
+ *
+ * @param {Readonly<Array<Event>>} events
+ *   List of events.
+ * @param {number} index
+ *   Table enter event.
+ * @returns {Array<Align>}
+ *   List of aligns.
+ */
+function gfmTableAlign(events, index) {
+  let inDelimiterRow = false
+  /** @type {Array<Align>} */
+  const align = []
+  while (index < events.length) {
+    const event = events[index]
+    if (inDelimiterRow) {
+      if (event[0] === 'enter') {
+        // Start of alignment value: set a new column.
+        // To do: `markdown-rs` uses `tableDelimiterCellValue`.
+        if (event[1].type === 'tableContent') {
+          align.push(
+            events[index + 1][1].type === 'tableDelimiterMarker'
+              ? 'left'
+              : 'none'
+          )
+        }
+      }
+      // Exits:
+      // End of alignment value: change the column.
+      // To do: `markdown-rs` uses `tableDelimiterCellValue`.
+      else if (event[1].type === 'tableContent') {
+        if (events[index - 1][1].type === 'tableDelimiterMarker') {
+          const alignIndex = align.length - 1
+          align[alignIndex] = align[alignIndex] === 'left' ? 'center' : 'right'
+        }
+      }
+      // Done!
+      else if (event[1].type === 'tableDelimiterRow') {
+        break
+      }
+    } else if (event[0] === 'enter' && event[1].type === 'tableDelimiterRow') {
+      inDelimiterRow = true
+    }
+    index += 1
+  }
+  return align
+}
+
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-gfm-table/lib/syntax.js
+/**
+ * @typedef {import('micromark-util-types').Event} Event
+ * @typedef {import('micromark-util-types').Extension} Extension
+ * @typedef {import('micromark-util-types').Point} Point
+ * @typedef {import('micromark-util-types').Resolver} Resolver
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').Token} Token
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ */
+
+/**
+ * @typedef {[number, number, number, number]} Range
+ *   Cell info.
+ *
+ * @typedef {0 | 1 | 2 | 3} RowKind
+ *   Where we are: `1` for head row, `2` for delimiter row, `3` for body row.
+ */
+
+
+
+
+
+
+/**
+ * Create an HTML extension for `micromark` to support GitHub tables syntax.
+ *
+ * @returns {Extension}
+ *   Extension for `micromark` that can be passed in `extensions` to enable GFM
+ *   table syntax.
+ */
+function gfmTable() {
+  return {
+    flow: {
+      null: {
+        tokenize: tokenizeTable,
+        resolveAll: resolveTable
+      }
+    }
+  }
+}
+
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeTable(effects, ok, nok) {
+  const self = this
+  let size = 0
+  let sizeB = 0
+  /** @type {boolean | undefined} */
+  let seen
+  return start
+
+  /**
+   * Start of a GFM table.
+   *
+   * If there is a valid table row or table head before, then we try to parse
+   * another row.
+   * Otherwise, we try to parse a head.
+   *
+   * ```markdown
+   * > | | a |
+   *     ^
+   *   | | - |
+   * > | | b |
+   *     ^
+   * ```
+   * @type {State}
+   */
+  function start(code) {
+    let index = self.events.length - 1
+    while (index > -1) {
+      const type = self.events[index][1].type
+      if (
+        type === 'lineEnding' ||
+        // Note: markdown-rs uses `whitespace` instead of `linePrefix`
+        type === 'linePrefix'
+      )
+        index--
+      else break
+    }
+    const tail = index > -1 ? self.events[index][1].type : null
+    const next =
+      tail === 'tableHead' || tail === 'tableRow' ? bodyRowStart : headRowBefore
+
+    // Don’t allow lazy body rows.
+    if (next === bodyRowStart && self.parser.lazy[self.now().line]) {
+      return nok(code)
+    }
+    return next(code)
+  }
+
+  /**
+   * Before table head row.
+   *
+   * ```markdown
+   * > | | a |
+   *     ^
+   *   | | - |
+   *   | | b |
+   * ```
+   *
+   * @type {State}
+   */
+  function headRowBefore(code) {
+    effects.enter('tableHead')
+    effects.enter('tableRow')
+    return headRowStart(code)
+  }
+
+  /**
+   * Before table head row, after whitespace.
+   *
+   * ```markdown
+   * > | | a |
+   *     ^
+   *   | | - |
+   *   | | b |
+   * ```
+   *
+   * @type {State}
+   */
+  function headRowStart(code) {
+    if (code === 124) {
+      return headRowBreak(code)
+    }
+
+    // To do: micromark-js should let us parse our own whitespace in extensions,
+    // like `markdown-rs`:
+    //
+    // ```js
+    // // 4+ spaces.
+    // if (markdownSpace(code)) {
+    //   return nok(code)
+    // }
+    // ```
+
+    seen = true
+    // Count the first character, that isn’t a pipe, double.
+    sizeB += 1
+    return headRowBreak(code)
+  }
+
+  /**
+   * At break in table head row.
+   *
+   * ```markdown
+   * > | | a |
+   *     ^
+   *       ^
+   *         ^
+   *   | | - |
+   *   | | b |
+   * ```
+   *
+   * @type {State}
+   */
+  function headRowBreak(code) {
+    if (code === null) {
+      // Note: in `markdown-rs`, we need to reset, in `micromark-js` we don‘t.
+      return nok(code)
+    }
+    if (markdownLineEnding(code)) {
+      // If anything other than one pipe (ignoring whitespace) was used, it’s fine.
+      if (sizeB > 1) {
+        sizeB = 0
+        // To do: check if this works.
+        // Feel free to interrupt:
+        self.interrupt = true
+        effects.exit('tableRow')
+        effects.enter('lineEnding')
+        effects.consume(code)
+        effects.exit('lineEnding')
+        return headDelimiterStart
+      }
+
+      // Note: in `markdown-rs`, we need to reset, in `micromark-js` we don‘t.
+      return nok(code)
+    }
+    if (markdownSpace(code)) {
+      // To do: check if this is fine.
+      // effects.attempt(State::Next(StateName::GfmTableHeadRowBreak), State::Nok)
+      // State::Retry(space_or_tab(tokenizer))
+      return factorySpace(effects, headRowBreak, 'whitespace')(code)
+    }
+    sizeB += 1
+    if (seen) {
+      seen = false
+      // Header cell count.
+      size += 1
+    }
+    if (code === 124) {
+      effects.enter('tableCellDivider')
+      effects.consume(code)
+      effects.exit('tableCellDivider')
+      // Whether a delimiter was seen.
+      seen = true
+      return headRowBreak
+    }
+
+    // Anything else is cell data.
+    effects.enter('data')
+    return headRowData(code)
+  }
+
+  /**
+   * In table head row data.
+   *
+   * ```markdown
+   * > | | a |
+   *       ^
+   *   | | - |
+   *   | | b |
+   * ```
+   *
+   * @type {State}
+   */
+  function headRowData(code) {
+    if (code === null || code === 124 || markdownLineEndingOrSpace(code)) {
+      effects.exit('data')
+      return headRowBreak(code)
+    }
+    effects.consume(code)
+    return code === 92 ? headRowEscape : headRowData
+  }
+
+  /**
+   * In table head row escape.
+   *
+   * ```markdown
+   * > | | a\-b |
+   *         ^
+   *   | | ---- |
+   *   | | c    |
+   * ```
+   *
+   * @type {State}
+   */
+  function headRowEscape(code) {
+    if (code === 92 || code === 124) {
+      effects.consume(code)
+      return headRowData
+    }
+    return headRowData(code)
+  }
+
+  /**
+   * Before delimiter row.
+   *
+   * ```markdown
+   *   | | a |
+   * > | | - |
+   *     ^
+   *   | | b |
+   * ```
+   *
+   * @type {State}
+   */
+  function headDelimiterStart(code) {
+    // Reset `interrupt`.
+    self.interrupt = false
+
+    // Note: in `markdown-rs`, we need to handle piercing here too.
+    if (self.parser.lazy[self.now().line]) {
+      return nok(code)
+    }
+    effects.enter('tableDelimiterRow')
+    // Track if we’ve seen a `:` or `|`.
+    seen = false
+    if (markdownSpace(code)) {
+      return factorySpace(
+        effects,
+        headDelimiterBefore,
+        'linePrefix',
+        self.parser.constructs.disable.null.includes('codeIndented')
+          ? undefined
+          : 4
+      )(code)
+    }
+    return headDelimiterBefore(code)
+  }
+
+  /**
+   * Before delimiter row, after optional whitespace.
+   *
+   * Reused when a `|` is found later, to parse another cell.
+   *
+   * ```markdown
+   *   | | a |
+   * > | | - |
+   *     ^
+   *   | | b |
+   * ```
+   *
+   * @type {State}
+   */
+  function headDelimiterBefore(code) {
+    if (code === 45 || code === 58) {
+      return headDelimiterValueBefore(code)
+    }
+    if (code === 124) {
+      seen = true
+      // If we start with a pipe, we open a cell marker.
+      effects.enter('tableCellDivider')
+      effects.consume(code)
+      effects.exit('tableCellDivider')
+      return headDelimiterCellBefore
+    }
+
+    // More whitespace / empty row not allowed at start.
+    return headDelimiterNok(code)
+  }
+
+  /**
+   * After `|`, before delimiter cell.
+   *
+   * ```markdown
+   *   | | a |
+   * > | | - |
+   *      ^
+   * ```
+   *
+   * @type {State}
+   */
+  function headDelimiterCellBefore(code) {
+    if (markdownSpace(code)) {
+      return factorySpace(effects, headDelimiterValueBefore, 'whitespace')(code)
+    }
+    return headDelimiterValueBefore(code)
+  }
+
+  /**
+   * Before delimiter cell value.
+   *
+   * ```markdown
+   *   | | a |
+   * > | | - |
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function headDelimiterValueBefore(code) {
+    // Align: left.
+    if (code === 58) {
+      sizeB += 1
+      seen = true
+      effects.enter('tableDelimiterMarker')
+      effects.consume(code)
+      effects.exit('tableDelimiterMarker')
+      return headDelimiterLeftAlignmentAfter
+    }
+
+    // Align: none.
+    if (code === 45) {
+      sizeB += 1
+      // To do: seems weird that this *isn’t* left aligned, but that state is used?
+      return headDelimiterLeftAlignmentAfter(code)
+    }
+    if (code === null || markdownLineEnding(code)) {
+      return headDelimiterCellAfter(code)
+    }
+    return headDelimiterNok(code)
+  }
+
+  /**
+   * After delimiter cell left alignment marker.
+   *
+   * ```markdown
+   *   | | a  |
+   * > | | :- |
+   *        ^
+   * ```
+   *
+   * @type {State}
+   */
+  function headDelimiterLeftAlignmentAfter(code) {
+    if (code === 45) {
+      effects.enter('tableDelimiterFiller')
+      return headDelimiterFiller(code)
+    }
+
+    // Anything else is not ok after the left-align colon.
+    return headDelimiterNok(code)
+  }
+
+  /**
+   * In delimiter cell filler.
+   *
+   * ```markdown
+   *   | | a |
+   * > | | - |
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function headDelimiterFiller(code) {
+    if (code === 45) {
+      effects.consume(code)
+      return headDelimiterFiller
+    }
+
+    // Align is `center` if it was `left`, `right` otherwise.
+    if (code === 58) {
+      seen = true
+      effects.exit('tableDelimiterFiller')
+      effects.enter('tableDelimiterMarker')
+      effects.consume(code)
+      effects.exit('tableDelimiterMarker')
+      return headDelimiterRightAlignmentAfter
+    }
+    effects.exit('tableDelimiterFiller')
+    return headDelimiterRightAlignmentAfter(code)
+  }
+
+  /**
+   * After delimiter cell right alignment marker.
+   *
+   * ```markdown
+   *   | |  a |
+   * > | | -: |
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function headDelimiterRightAlignmentAfter(code) {
+    if (markdownSpace(code)) {
+      return factorySpace(effects, headDelimiterCellAfter, 'whitespace')(code)
+    }
+    return headDelimiterCellAfter(code)
+  }
+
+  /**
+   * After delimiter cell.
+   *
+   * ```markdown
+   *   | |  a |
+   * > | | -: |
+   *          ^
+   * ```
+   *
+   * @type {State}
+   */
+  function headDelimiterCellAfter(code) {
+    if (code === 124) {
+      return headDelimiterBefore(code)
+    }
+    if (code === null || markdownLineEnding(code)) {
+      // Exit when:
+      // * there was no `:` or `|` at all (it’s a thematic break or setext
+      //   underline instead)
+      // * the header cell count is not the delimiter cell count
+      if (!seen || size !== sizeB) {
+        return headDelimiterNok(code)
+      }
+
+      // Note: in markdown-rs`, a reset is needed here.
+      effects.exit('tableDelimiterRow')
+      effects.exit('tableHead')
+      // To do: in `markdown-rs`, resolvers need to be registered manually.
+      // effects.register_resolver(ResolveName::GfmTable)
+      return ok(code)
+    }
+    return headDelimiterNok(code)
+  }
+
+  /**
+   * In delimiter row, at a disallowed byte.
+   *
+   * ```markdown
+   *   | | a |
+   * > | | x |
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function headDelimiterNok(code) {
+    // Note: in `markdown-rs`, we need to reset, in `micromark-js` we don‘t.
+    return nok(code)
+  }
+
+  /**
+   * Before table body row.
+   *
+   * ```markdown
+   *   | | a |
+   *   | | - |
+   * > | | b |
+   *     ^
+   * ```
+   *
+   * @type {State}
+   */
+  function bodyRowStart(code) {
+    // Note: in `markdown-rs` we need to manually take care of a prefix,
+    // but in `micromark-js` that is done for us, so if we’re here, we’re
+    // never at whitespace.
+    effects.enter('tableRow')
+    return bodyRowBreak(code)
+  }
+
+  /**
+   * At break in table body row.
+   *
+   * ```markdown
+   *   | | a |
+   *   | | - |
+   * > | | b |
+   *     ^
+   *       ^
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function bodyRowBreak(code) {
+    if (code === 124) {
+      effects.enter('tableCellDivider')
+      effects.consume(code)
+      effects.exit('tableCellDivider')
+      return bodyRowBreak
+    }
+    if (code === null || markdownLineEnding(code)) {
+      effects.exit('tableRow')
+      return ok(code)
+    }
+    if (markdownSpace(code)) {
+      return factorySpace(effects, bodyRowBreak, 'whitespace')(code)
+    }
+
+    // Anything else is cell content.
+    effects.enter('data')
+    return bodyRowData(code)
+  }
+
+  /**
+   * In table body row data.
+   *
+   * ```markdown
+   *   | | a |
+   *   | | - |
+   * > | | b |
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function bodyRowData(code) {
+    if (code === null || code === 124 || markdownLineEndingOrSpace(code)) {
+      effects.exit('data')
+      return bodyRowBreak(code)
+    }
+    effects.consume(code)
+    return code === 92 ? bodyRowEscape : bodyRowData
+  }
+
+  /**
+   * In table body row escape.
+   *
+   * ```markdown
+   *   | | a    |
+   *   | | ---- |
+   * > | | b\-c |
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function bodyRowEscape(code) {
+    if (code === 92 || code === 124) {
+      effects.consume(code)
+      return bodyRowData
+    }
+    return bodyRowData(code)
+  }
+}
+
+/** @type {Resolver} */
+
+function resolveTable(events, context) {
+  let index = -1
+  let inFirstCellAwaitingPipe = true
+  /** @type {RowKind} */
+  let rowKind = 0
+  /** @type {Range} */
+  let lastCell = [0, 0, 0, 0]
+  /** @type {Range} */
+  let cell = [0, 0, 0, 0]
+  let afterHeadAwaitingFirstBodyRow = false
+  let lastTableEnd = 0
+  /** @type {Token | undefined} */
+  let currentTable
+  /** @type {Token | undefined} */
+  let currentBody
+  /** @type {Token | undefined} */
+  let currentCell
+  const map = new EditMap()
+  while (++index < events.length) {
+    const event = events[index]
+    const token = event[1]
+    if (event[0] === 'enter') {
+      // Start of head.
+      if (token.type === 'tableHead') {
+        afterHeadAwaitingFirstBodyRow = false
+
+        // Inject previous (body end and) table end.
+        if (lastTableEnd !== 0) {
+          flushTableEnd(map, context, lastTableEnd, currentTable, currentBody)
+          currentBody = undefined
+          lastTableEnd = 0
+        }
+
+        // Inject table start.
+        currentTable = {
+          type: 'table',
+          start: Object.assign({}, token.start),
+          // Note: correct end is set later.
+          end: Object.assign({}, token.end)
+        }
+        map.add(index, 0, [['enter', currentTable, context]])
+      } else if (
+        token.type === 'tableRow' ||
+        token.type === 'tableDelimiterRow'
+      ) {
+        inFirstCellAwaitingPipe = true
+        currentCell = undefined
+        lastCell = [0, 0, 0, 0]
+        cell = [0, index + 1, 0, 0]
+
+        // Inject table body start.
+        if (afterHeadAwaitingFirstBodyRow) {
+          afterHeadAwaitingFirstBodyRow = false
+          currentBody = {
+            type: 'tableBody',
+            start: Object.assign({}, token.start),
+            // Note: correct end is set later.
+            end: Object.assign({}, token.end)
+          }
+          map.add(index, 0, [['enter', currentBody, context]])
+        }
+        rowKind = token.type === 'tableDelimiterRow' ? 2 : currentBody ? 3 : 1
+      }
+      // Cell data.
+      else if (
+        rowKind &&
+        (token.type === 'data' ||
+          token.type === 'tableDelimiterMarker' ||
+          token.type === 'tableDelimiterFiller')
+      ) {
+        inFirstCellAwaitingPipe = false
+
+        // First value in cell.
+        if (cell[2] === 0) {
+          if (lastCell[1] !== 0) {
+            cell[0] = cell[1]
+            currentCell = flushCell(
+              map,
+              context,
+              lastCell,
+              rowKind,
+              undefined,
+              currentCell
+            )
+            lastCell = [0, 0, 0, 0]
+          }
+          cell[2] = index
+        }
+      } else if (token.type === 'tableCellDivider') {
+        if (inFirstCellAwaitingPipe) {
+          inFirstCellAwaitingPipe = false
+        } else {
+          if (lastCell[1] !== 0) {
+            cell[0] = cell[1]
+            currentCell = flushCell(
+              map,
+              context,
+              lastCell,
+              rowKind,
+              undefined,
+              currentCell
+            )
+          }
+          lastCell = cell
+          cell = [lastCell[1], index, 0, 0]
+        }
+      }
+    }
+    // Exit events.
+    else if (token.type === 'tableHead') {
+      afterHeadAwaitingFirstBodyRow = true
+      lastTableEnd = index
+    } else if (
+      token.type === 'tableRow' ||
+      token.type === 'tableDelimiterRow'
+    ) {
+      lastTableEnd = index
+      if (lastCell[1] !== 0) {
+        cell[0] = cell[1]
+        currentCell = flushCell(
+          map,
+          context,
+          lastCell,
+          rowKind,
+          index,
+          currentCell
+        )
+      } else if (cell[1] !== 0) {
+        currentCell = flushCell(map, context, cell, rowKind, index, currentCell)
+      }
+      rowKind = 0
+    } else if (
+      rowKind &&
+      (token.type === 'data' ||
+        token.type === 'tableDelimiterMarker' ||
+        token.type === 'tableDelimiterFiller')
+    ) {
+      cell[3] = index
+    }
+  }
+  if (lastTableEnd !== 0) {
+    flushTableEnd(map, context, lastTableEnd, currentTable, currentBody)
+  }
+  map.consume(context.events)
+
+  // To do: move this into `html`, when events are exposed there.
+  // That’s what `markdown-rs` does.
+  // That needs updates to `mdast-util-gfm-table`.
+  index = -1
+  while (++index < context.events.length) {
+    const event = context.events[index]
+    if (event[0] === 'enter' && event[1].type === 'table') {
+      event[1]._align = gfmTableAlign(context.events, index)
+    }
+  }
+  return events
+}
+
+/**
+ * Generate a cell.
+ *
+ * @param {EditMap} map
+ * @param {Readonly<TokenizeContext>} context
+ * @param {Readonly<Range>} range
+ * @param {RowKind} rowKind
+ * @param {number | undefined} rowEnd
+ * @param {Token | undefined} previousCell
+ * @returns {Token | undefined}
+ */
+// eslint-disable-next-line max-params
+function flushCell(map, context, range, rowKind, rowEnd, previousCell) {
+  // `markdown-rs` uses:
+  // rowKind === 2 ? 'tableDelimiterCell' : 'tableCell'
+  const groupName =
+    rowKind === 1
+      ? 'tableHeader'
+      : rowKind === 2
+      ? 'tableDelimiter'
+      : 'tableData'
+  // `markdown-rs` uses:
+  // rowKind === 2 ? 'tableDelimiterCellValue' : 'tableCellText'
+  const valueName = 'tableContent'
+
+  // Insert an exit for the previous cell, if there is one.
+  //
+  // ```markdown
+  // > | | aa | bb | cc |
+  //          ^-- exit
+  //           ^^^^-- this cell
+  // ```
+  if (range[0] !== 0) {
+    previousCell.end = Object.assign({}, getPoint(context.events, range[0]))
+    map.add(range[0], 0, [['exit', previousCell, context]])
+  }
+
+  // Insert enter of this cell.
+  //
+  // ```markdown
+  // > | | aa | bb | cc |
+  //           ^-- enter
+  //           ^^^^-- this cell
+  // ```
+  const now = getPoint(context.events, range[1])
+  previousCell = {
+    type: groupName,
+    start: Object.assign({}, now),
+    // Note: correct end is set later.
+    end: Object.assign({}, now)
+  }
+  map.add(range[1], 0, [['enter', previousCell, context]])
+
+  // Insert text start at first data start and end at last data end, and
+  // remove events between.
+  //
+  // ```markdown
+  // > | | aa | bb | cc |
+  //            ^-- enter
+  //             ^-- exit
+  //           ^^^^-- this cell
+  // ```
+  if (range[2] !== 0) {
+    const relatedStart = getPoint(context.events, range[2])
+    const relatedEnd = getPoint(context.events, range[3])
+    /** @type {Token} */
+    const valueToken = {
+      type: valueName,
+      start: Object.assign({}, relatedStart),
+      end: Object.assign({}, relatedEnd)
+    }
+    map.add(range[2], 0, [['enter', valueToken, context]])
+    if (rowKind !== 2) {
+      // Fix positional info on remaining events
+      const start = context.events[range[2]]
+      const end = context.events[range[3]]
+      start[1].end = Object.assign({}, end[1].end)
+      start[1].type = 'chunkText'
+      start[1].contentType = 'text'
+
+      // Remove if needed.
+      if (range[3] > range[2] + 1) {
+        const a = range[2] + 1
+        const b = range[3] - range[2] - 1
+        map.add(a, b, [])
+      }
+    }
+    map.add(range[3] + 1, 0, [['exit', valueToken, context]])
+  }
+
+  // Insert an exit for the last cell, if at the row end.
+  //
+  // ```markdown
+  // > | | aa | bb | cc |
+  //                    ^-- exit
+  //               ^^^^^^-- this cell (the last one contains two “between” parts)
+  // ```
+  if (rowEnd !== undefined) {
+    previousCell.end = Object.assign({}, getPoint(context.events, rowEnd))
+    map.add(rowEnd, 0, [['exit', previousCell, context]])
+    previousCell = undefined
+  }
+  return previousCell
+}
+
+/**
+ * Generate table end (and table body end).
+ *
+ * @param {Readonly<EditMap>} map
+ * @param {Readonly<TokenizeContext>} context
+ * @param {number} index
+ * @param {Token} table
+ * @param {Token | undefined} tableBody
+ */
+// eslint-disable-next-line max-params
+function flushTableEnd(map, context, index, table, tableBody) {
+  /** @type {Array<Event>} */
+  const exits = []
+  const related = getPoint(context.events, index)
+  if (tableBody) {
+    tableBody.end = Object.assign({}, related)
+    exits.push(['exit', tableBody, context])
+  }
+  table.end = Object.assign({}, related)
+  exits.push(['exit', table, context])
+  map.add(index + 1, 0, exits)
+}
+
+/**
+ * @param {Readonly<Array<Event>>} events
+ * @param {number} index
+ * @returns {Readonly<Point>}
+ */
+function getPoint(events, index) {
+  const event = events[index]
+  const side = event[0] === 'enter' ? 'start' : 'end'
+  return event[1][side]
+}
+
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-gfm-task-list-item/lib/syntax.js
+/**
+ * @typedef {import('micromark-util-types').Extension} Extension
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ */
+
+
+
+const tasklistCheck = {
+  tokenize: tokenizeTasklistCheck
+}
+
+/**
+ * Create an HTML extension for `micromark` to support GFM task list items
+ * syntax.
+ *
+ * @returns {Extension}
+ *   Extension for `micromark` that can be passed in `htmlExtensions` to
+ *   support GFM task list items when serializing to HTML.
+ */
+function gfmTaskListItem() {
+  return {
+    text: {
+      [91]: tasklistCheck
+    }
+  }
+}
+
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function tokenizeTasklistCheck(effects, ok, nok) {
+  const self = this
+  return open
+
+  /**
+   * At start of task list item check.
+   *
+   * ```markdown
+   * > | * [x] y.
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
+  function open(code) {
+    if (
+      // Exit if there’s stuff before.
+      self.previous !== null ||
+      // Exit if not in the first content that is the first child of a list
+      // item.
+      !self._gfmTasklistFirstContentOfListItem
+    ) {
+      return nok(code)
+    }
+    effects.enter('taskListCheck')
+    effects.enter('taskListCheckMarker')
+    effects.consume(code)
+    effects.exit('taskListCheckMarker')
+    return inside
+  }
+
+  /**
+   * In task list item check.
+   *
+   * ```markdown
+   * > | * [x] y.
+   *        ^
+   * ```
+   *
+   * @type {State}
+   */
+  function inside(code) {
+    // Currently we match how GH works in files.
+    // To match how GH works in comments, use `markdownSpace` (`[\t ]`) instead
+    // of `markdownLineEndingOrSpace` (`[\t\n\r ]`).
+    if (markdownLineEndingOrSpace(code)) {
+      effects.enter('taskListCheckValueUnchecked')
+      effects.consume(code)
+      effects.exit('taskListCheckValueUnchecked')
+      return close
+    }
+    if (code === 88 || code === 120) {
+      effects.enter('taskListCheckValueChecked')
+      effects.consume(code)
+      effects.exit('taskListCheckValueChecked')
+      return close
+    }
+    return nok(code)
+  }
+
+  /**
+   * At close of task list item check.
+   *
+   * ```markdown
+   * > | * [x] y.
+   *         ^
+   * ```
+   *
+   * @type {State}
+   */
+  function close(code) {
+    if (code === 93) {
+      effects.enter('taskListCheckMarker')
+      effects.consume(code)
+      effects.exit('taskListCheckMarker')
+      effects.exit('taskListCheck')
+      return after
+    }
+    return nok(code)
+  }
+
+  /**
+   * @type {State}
+   */
+  function after(code) {
+    // EOL in paragraph means there must be something else after it.
+    if (markdownLineEnding(code)) {
+      return ok(code)
+    }
+
+    // Space or tab?
+    // Check what comes after.
+    if (markdownSpace(code)) {
+      return effects.check(
+        {
+          tokenize: spaceThenNonSpace
+        },
+        ok,
+        nok
+      )(code)
+    }
+
+    // EOF, or non-whitespace, both wrong.
+    return nok(code)
+  }
+}
+
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
+function spaceThenNonSpace(effects, ok, nok) {
+  return factorySpace(effects, after, 'whitespace')
+
+  /**
+   * After whitespace, after task list item check.
+   *
+   * ```markdown
+   * > | * [x] y.
+   *           ^
+   * ```
+   *
+   * @type {State}
+   */
+  function after(code) {
+    // EOF means there was nothing, so bad.
+    // EOL means there’s content after it, so good.
+    // Impossible to have more spaces.
+    // Anything else is good.
+    return code === null ? nok(code) : ok(code)
+  }
+}
+
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-gfm/index.js
+/**
+ * @typedef {import('micromark-extension-gfm-footnote').HtmlOptions} HtmlOptions
+ * @typedef {import('micromark-extension-gfm-strikethrough').Options} Options
+ * @typedef {import('micromark-util-types').Extension} Extension
+ * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
+ */
+
+
+
+
+
+
+
+
+
+/**
+ * Create an extension for `micromark` to enable GFM syntax.
+ *
+ * @param {Options | null | undefined} [options]
+ *   Configuration (optional).
+ *
+ *   Passed to `micromark-extens-gfm-strikethrough`.
+ * @returns {Extension}
+ *   Extension for `micromark` that can be passed in `extensions` to enable GFM
+ *   syntax.
+ */
+function gfm(options) {
+  return combineExtensions([
+    gfmAutolinkLiteral(),
+    gfmFootnote(),
+    gfmStrikethrough(options),
+    gfmTable(),
+    gfmTaskListItem()
+  ])
+}
+
+/**
+ * Create an extension for `micromark` to support GFM when serializing to HTML.
+ *
+ * @param {HtmlOptions | null | undefined} [options]
+ *   Configuration (optional).
+ *
+ *   Passed to `micromark-extens-gfm-footnote`.
+ * @returns {HtmlExtension}
+ *   Extension for `micromark` that can be passed in `htmlExtensions` to
+ *   support GFM when serializing to HTML.
+ */
+function gfmHtml(options) {
+  return combineHtmlExtensions([
+    gfmAutolinkLiteralHtml(),
+    gfmFootnoteHtml(options),
+    gfmStrikethroughHtml(),
+    gfmTableHtml(),
+    gfmTagfilterHtml(),
+    gfmTaskListItemHtml()
+  ])
+}
+
+;// CONCATENATED MODULE: ./node_modules/remark-gfm/lib/index.js
+/// <reference types="remark-parse" />
+/// <reference types="remark-stringify" />
+
+/**
+ * @typedef {import('mdast').Root} Root
+ * @typedef {import('mdast-util-gfm').Options} MdastOptions
+ * @typedef {import('micromark-extension-gfm').Options} MicromarkOptions
+ * @typedef {import('unified').Processor<Root>} Processor
+ */
+
+/**
+ * @typedef {MicromarkOptions & MdastOptions} Options
+ *   Configuration.
+ */
+
+
+
+
+/** @type {Options} */
+const lib_emptyOptions = {}
+
+/**
+ * Add support GFM (autolink literals, footnotes, strikethrough, tables,
+ * tasklists).
+ *
+ * @param {Options | null | undefined} [options]
+ *   Configuration (optional).
+ * @returns {undefined}
+ *   Nothing.
+ */
+function remarkGfm(options) {
+  // @ts-expect-error: TS is wrong about `this`.
+  // eslint-disable-next-line unicorn/no-this-assignment
+  const self = /** @type {Processor} */ (this)
+  const settings = options || lib_emptyOptions
+  const data = self.data()
+
+  const micromarkExtensions =
+    data.micromarkExtensions || (data.micromarkExtensions = [])
+  const fromMarkdownExtensions =
+    data.fromMarkdownExtensions || (data.fromMarkdownExtensions = [])
+  const toMarkdownExtensions =
+    data.toMarkdownExtensions || (data.toMarkdownExtensions = [])
+
+  micromarkExtensions.push(gfm(settings))
+  fromMarkdownExtensions.push(gfmFromMarkdown())
+  toMarkdownExtensions.push(gfmToMarkdown(settings))
+}
+
 ;// CONCATENATED MODULE: ./node_modules/remark-sectionize/node_modules/unist-util-find-after/node_modules/unist-util-is/lib/index.js
 /**
  * @typedef {import('unist').Node} Node
@@ -92024,7 +96905,234 @@ const literalsToCheck = [
     'inlineCode',
     'text',
 ];
+const codeLangsToCheck = [
+    void 0,
+    null,
+];
 const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
+
+;// CONCATENATED MODULE: ./src/utils.ts
+const objectKeys = (obj) => Object.keys(obj);
+const objectEntries = (obj) => Object.entries(obj);
+const mapIncrement = (map, key) => map.set(key, (map.get(key) ?? 0) + 1);
+const mapGetOrSetDefault = (map, key, def) => {
+    let value = map.get(key);
+    if (value === void 0) {
+        value = def;
+        map.set(key, value);
+    }
+    return value;
+};
+const makeKey = ([i1, i2]) => `${i1} ${i2}`;
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseProperty.js
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ */
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+/* harmony default export */ const _baseProperty = (baseProperty);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/unzip.js
+
+
+
+
+
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var unzip_nativeMax = Math.max;
+
+/**
+ * This method is like `_.zip` except that it accepts an array of grouped
+ * elements and creates an array regrouping the elements to their pre-zip
+ * configuration.
+ *
+ * @static
+ * @memberOf _
+ * @since 1.2.0
+ * @category Array
+ * @param {Array} array The array of grouped elements to process.
+ * @returns {Array} Returns the new array of regrouped elements.
+ * @example
+ *
+ * var zipped = _.zip(['a', 'b'], [1, 2], [true, false]);
+ * // => [['a', 1, true], ['b', 2, false]]
+ *
+ * _.unzip(zipped);
+ * // => [['a', 'b'], [1, 2], [true, false]]
+ */
+function unzip(array) {
+  if (!(array && array.length)) {
+    return [];
+  }
+  var length = 0;
+  array = _arrayFilter(array, function(group) {
+    if (lodash_es_isArrayLikeObject(group)) {
+      length = unzip_nativeMax(group.length, length);
+      return true;
+    }
+  });
+  return _baseTimes(length, function(index) {
+    return _arrayMap(array, _baseProperty(index));
+  });
+}
+
+/* harmony default export */ const lodash_es_unzip = (unzip);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/zip.js
+
+
+
+/**
+ * Creates an array of grouped elements, the first of which contains the
+ * first elements of the given arrays, the second of which contains the
+ * second elements of the given arrays, and so on.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Array
+ * @param {...Array} [arrays] The arrays to process.
+ * @returns {Array} Returns the new array of grouped elements.
+ * @example
+ *
+ * _.zip(['a', 'b'], [1, 2], [true, false]);
+ * // => [['a', 1, true], ['b', 2, false]]
+ */
+var zip = _baseRest(lodash_es_unzip);
+
+/* harmony default export */ const lodash_es_zip = (zip);
+
+;// CONCATENATED MODULE: ./src/matching.ts
+
+
+
+const addEdges = (graph, key, values, negate) => {
+    const neighbors = mapGetOrSetDefault(graph, key, []);
+    for (const val of values) {
+        neighbors.push(negate ? -(val + 1) : val);
+    }
+};
+const bfs = (graph, startNode, visited) => {
+    const queue = [];
+    const component = new Set();
+    for (let current = startNode; current !== void 0; current = queue.shift()) {
+        if (visited.has(current))
+            continue;
+        visited.add(current);
+        component.add(current);
+        const neighbors = graph.get(current) || [];
+        for (const neighbor of neighbors) {
+            if (!visited.has(neighbor)) {
+                queue.push(neighbor);
+            }
+        }
+    }
+    return component;
+};
+const getGroups = (oasIndexToDocIndices, docIndexToOasIndices) => {
+    const graph = new Map();
+    for (const [k, v] of oasIndexToDocIndices.entries()) {
+        addEdges(graph, k, v, true);
+    }
+    for (const [k, v] of docIndexToOasIndices.entries()) {
+        addEdges(graph, -(k + 1), v, false);
+    }
+    const visited = new Set();
+    const components = [];
+    for (const node of graph.keys()) {
+        if (!visited.has(node)) {
+            const component = bfs(graph, node, visited);
+            components.push(component);
+        }
+    }
+    // Format output as required
+    const result = [];
+    for (const component of components) {
+        const oasGroup = [];
+        const docGroup = [];
+        for (const node of component) {
+            if (node >= 0)
+                oasGroup.push(node);
+            else
+                docGroup.push(-node - 1);
+        }
+        result.push([oasGroup, docGroup]);
+    }
+    return result;
+};
+const evaluateConfiguration = (config, isOasIndexFirst, inconsistencyMap) => {
+    let totalInconsistencies = 0;
+    for (const [i1, i2] of config) {
+        if (i1 === void 0 || i2 === void 0)
+            continue;
+        const key = makeKey(isOasIndexFirst ? [i1, i2] : [i2, i1]);
+        const inconsistencies = inconsistencyMap.get(key) || [];
+        totalInconsistencies += inconsistencies.length;
+    }
+    return totalInconsistencies;
+};
+const permute = (arr) => {
+    if (arr.length <= 1)
+        return [arr];
+    const result = [];
+    for (const [i, elem] of arr.entries()) {
+        const restPerms = permute([...arr.slice(0, i), ...arr.slice(i + 1)]);
+        for (const perm of restPerms) {
+            result.push([elem, ...perm]);
+        }
+    }
+    return result;
+};
+const getBestMatches = (oasGroup, docGroup, inconsistencyMap) => {
+    const areMoreInOas = oasGroup.length > docGroup.length;
+    const perms = permute(areMoreInOas ? oasGroup : docGroup);
+    let minTotalInconsistencies = Infinity;
+    let bestConfiguration = [];
+    for (const perm of perms) {
+        const currentConfig = lodash_es_zip(perm, areMoreInOas ? docGroup : oasGroup);
+        const totalInconsistencies = evaluateConfiguration(currentConfig, areMoreInOas, inconsistencyMap);
+        if (totalInconsistencies >= minTotalInconsistencies)
+            continue;
+        minTotalInconsistencies = totalInconsistencies;
+        bestConfiguration = areMoreInOas
+            ? currentConfig
+            : currentConfig.map(([i2, i1]) => [i1, i2]);
+    }
+    return bestConfiguration;
+};
+const matchEndpoints = (groups, inconsistencyMap) => {
+    const matches = [];
+    for (const [oasGroup, docGroup] of groups) {
+        if (oasGroup.length === 1 && docGroup.length === 1) {
+            external_assert_default()(oasGroup[0] !== void 0);
+            external_assert_default()(docGroup[0] !== void 0);
+            matches.push([oasGroup[0], docGroup[0]]);
+        }
+        else {
+            const bestMatches = getBestMatches(oasGroup, docGroup, inconsistencyMap);
+            for (const [i1, i2] of bestMatches) {
+                if (i1 === void 0 || i2 === void 0)
+                    continue;
+                matches.push([i1, i2]);
+            }
+        }
+    }
+    return matches;
+};
+const findBestMatches = (oasIndexToDocIndices, docIndexToOasIndices, inconsistenciesMap) => {
+    const groups = getGroups(oasIndexToDocIndices, docIndexToOasIndices);
+    return matchEndpoints(groups, inconsistenciesMap);
+};
 
 // EXTERNAL MODULE: ./node_modules/openapi-types/dist/index.js
 var dist = __nccwpck_require__(5194);
@@ -92450,7 +97558,8 @@ const docCreateEndpoint = (method, path) => {
                     name: s.substring(1),
                 });
             default:
-                pathParts.push({ type: 'literal', value: s });
+                if (s !== '')
+                    pathParts.push({ type: 'literal', value: s });
                 break;
         }
     }
@@ -92509,8 +97618,9 @@ const extractPath = (str) => {
 ;// CONCATENATED MODULE: ./src/parsing/openapi.ts
 
 
+
 const isV2 = (openapiDoc) => !!openapiDoc.swagger;
-const getServersInfo = (servers) => {
+const oasParseServers = (servers) => {
     if (!servers)
         return [];
     return servers.map(s => {
@@ -92535,29 +97645,80 @@ const getServersInfo = (servers) => {
         }
     });
 };
+const isRefObject = (obj) => Object.hasOwn(obj, '$ref');
+const oasParseQueryParams = (parameters) => {
+    const queryParameters = [];
+    for (const p of parameters) {
+        if (isRefObject(p)) {
+            throw new Error('Parameters should have been dereferenced');
+        }
+        if (p.in !== 'query')
+            continue;
+        queryParameters.push({
+            name: p.name,
+            required: p.required ?? false,
+        });
+    }
+    return queryParameters;
+};
 const oasParsePath = (path) => {
+    const pathParts = [];
     if (!path)
-        return [];
+        return pathParts;
     if (!path.startsWith('/'))
         throw new Error('Path must start with /');
     path = path.substring(1);
     if (path === '')
-        return [];
-    return path.split('/').map(s => s.startsWith('{') && s.endsWith('}')
-        ? {
-            type: 'parameter',
-            name: s.substring(1, s.length - 1),
+        return pathParts;
+    for (const part of path.split('/')) {
+        switch (true) {
+            case part.startsWith('{') && part.endsWith('}'):
+                pathParts.push({
+                    type: 'parameter',
+                    name: part.substring(1, part.length - 1),
+                });
+                break;
+            default:
+                pathParts.push({ type: 'literal', value: part });
+                break;
         }
-        : { type: 'literal', value: s });
+    }
+    return pathParts;
 };
-const isRefObject = (obj) => Object.hasOwn(obj, '$ref');
-
-;// CONCATENATED MODULE: ./src/utils.ts
-const objectKeys = (obj) => Object.keys(obj);
-const objectEntries = (obj) => Object.entries(obj);
-const mapIncrement = (map, key) => map.set(key, (map.get(key) ?? 0) + 1);
+const oasParseEndpoints = (oas) => {
+    const oasIdToEndpoint = new Map();
+    if (!oas.paths)
+        return oasIdToEndpoint;
+    const oasServers = oasParseServers(oas.servers);
+    for (const [path, pathItem] of objectEntries(oas.paths)) {
+        if (!pathItem)
+            continue;
+        for (const method of methods) {
+            const operation = pathItem[method];
+            if (!operation)
+                continue;
+            const pathParts = oasParsePath(path);
+            const servers = operation.servers
+                ? oasParseServers(operation.servers)
+                : pathItem.servers
+                    ? oasParseServers(pathItem.servers)
+                    : oasServers;
+            const queryParameters = oasParseQueryParams(operation.parameters ?? []);
+            oasIdToEndpoint.set(`${method} ${path}`, {
+                method,
+                servers,
+                pathParts,
+                queryParameters,
+            });
+        }
+    }
+    return oasIdToEndpoint;
+};
 
 ;// CONCATENATED MODULE: ./src/main.ts
+
+
+
 
 
 
@@ -92579,58 +97740,22 @@ const run = async () => {
         const oasPath = core.getInput('openapi-path', { required: true });
         const docPath = core.getInput('doc-path', { required: true });
         const token = core.getInput('token');
-        // TODO changed this from validate!
+        // TODO changed this from validate, should maybe show warnings if oas not valid
         const oasDoc = await lib_default().dereference(oasPath);
         const oas = isV2(oasDoc)
             ? (await (0,swagger2openapi.convertFile)(oasPath, {})).openapi
             : oasDoc;
-        const oasServers = getServersInfo(oas.servers);
-        const oasIdToEndpoint = new Map(oas.paths
-            ? objectEntries(oas.paths).flatMap(([path, pathItem]) => methods.flatMap(method => {
-                if (!pathItem)
-                    return [];
-                const operation = pathItem[method];
-                if (!operation)
-                    return [];
-                const serversInfo = operation.servers
-                    ? getServersInfo(operation.servers)
-                    : pathItem.servers
-                        ? getServersInfo(pathItem.servers)
-                        : oasServers;
-                return [
-                    [
-                        // OpenAPI defines a unique operation as a combination of a path and an HTTP method.
-                        `${method} ${path}`,
-                        {
-                            method,
-                            servers: serversInfo,
-                            pathParts: oasParsePath(path),
-                            queryParameters: (operation.parameters ?? []).flatMap(p => {
-                                if (isRefObject(p)) {
-                                    throw new Error('References not supported');
-                                }
-                                if (p.in !== 'query')
-                                    return [];
-                                return [
-                                    {
-                                        name: p.name,
-                                        required: p.required ?? false,
-                                    },
-                                ];
-                            }),
-                        },
-                    ],
-                ];
-            }))
-            : []);
-        const docAST = remark().parse(await read(docPath));
+        const oasIdToEndpoint = oasParseEndpoints(oas);
+        const docAST = remark()
+            .use(remarkGfm)
+            .parse(await read(docPath));
         const tree = remark().use(remark_sectionize).runSync(docAST);
-        const oasEndpointIdToDocMatches = new Map([...oasIdToEndpoint.keys()].map(k => [k, []]));
+        const oasIdToDocMatches = new Map([...oasIdToEndpoint.keys()].map(k => [k, []]));
         const docSelectorToMatchedNodes = new Map();
         for (const literal of literalsToCheck) {
             visitParents(tree, literal, (node, ancestors) => {
                 if (node.type === 'code' &&
-                    ![null, void 0].some(l => l === node.lang)) {
+                    !codeLangsToCheck.some(l => l === node.lang)) {
                     return;
                 }
                 for (const [endpointId, endpoint] of oasIdToEndpoint.entries()) {
@@ -92640,17 +97765,13 @@ const run = async () => {
                     const containsPath = oasEndpointToDocRegex(endpoint).test(node.value);
                     if (!containsPath)
                         continue;
-                    const docMatches = oasEndpointIdToDocMatches.get(endpointId);
+                    const docMatches = oasIdToDocMatches.get(endpointId);
                     if (!docMatches) {
                         throw new Error('Map should have been initialised to have entries for all oas paths');
                     }
                     const parentSelector = ancestors.map(a => a.type).join(' > ');
                     docMatches.push({ node, parentSelector });
-                    let matchedNodes = docSelectorToMatchedNodes.get(parentSelector);
-                    if (!matchedNodes) {
-                        matchedNodes = new Set();
-                        docSelectorToMatchedNodes.set(parentSelector, matchedNodes);
-                    }
+                    const matchedNodes = mapGetOrSetDefault(docSelectorToMatchedNodes, parentSelector, new Set());
                     matchedNodes.add(node);
                 }
             });
@@ -92662,7 +97783,7 @@ const run = async () => {
                     const method = getMethodRegex(methods)
                         .exec(node.value)?.[0]
                         .toLowerCase();
-                    if (!method || !node.value.includes('/'))
+                    if (!method)
                         return;
                     const path = extractPath(node.value);
                     if (!path)
@@ -92701,7 +97822,7 @@ const run = async () => {
                 }
             }
         }
-        let unmatchedOasEndpoints = lodash_es_differenceWith([...oasIdToEndpoint.keys()], [...oasEndpointIdToDocMatches.entries()]
+        let unmatchedOasEndpoints = lodash_es_differenceWith([...oasIdToEndpoint.keys()], [...oasIdToDocMatches.entries()]
             .filter(([, docMatches]) => docMatches.length > 0)
             .map(([id]) => id), lodash_es_isEqual).map(id => {
             const oasEndpoint = oasIdToEndpoint.get(id);
@@ -92761,7 +97882,10 @@ const run = async () => {
         }
         unmatchedDocEndpoints = unmatchedDocEndpoints.filter((_, i) => !matchedDocIndices.has(i));
         const unmatchedEndpointsTable = [...Array(unmatchedOasEndpoints.length)].map(() => Array(unmatchedDocEndpoints.length).fill('different-endpoints'));
-        const areDifferentPaths = (oasEndpoint, docEndpoint) => !oasEndpoint.servers.some(s => {
+        const areDifferentPaths = (oasEndpoint, docEndpoint) => ![
+            ...oasEndpoint.servers,
+            {},
+        ].some(s => {
             const oasPath = [...(s.basePath ?? []), ...oasEndpoint.pathParts];
             return (oasPath.length === docEndpoint.pathParts.length &&
                 oasPath.every((oasP, i) => {
@@ -92869,9 +97993,9 @@ const run = async () => {
             });
             handledDocIndices.add(index);
         }
-        const indicesToInconsistencies = new Map();
-        const oasIndexToNInconsistencyMatches = new Map();
-        const docIndexToNInconsistencyMatches = new Map();
+        const inconsistenciesMap = new Map();
+        const oasIndexToDocIndicesInconsistencyMatches = new Map();
+        const docIndexToOasIndicesInconsistencyMatches = new Map();
         for (const [i, row] of unmatchedEndpointsTable.entries()) {
             if (handledOasIndices.has(i))
                 continue;
@@ -92880,21 +98004,17 @@ const run = async () => {
                     inconsistencies === 'different-endpoints') {
                     continue;
                 }
-                indicesToInconsistencies.set([i, j], inconsistencies);
-                mapIncrement(oasIndexToNInconsistencyMatches, i);
-                mapIncrement(docIndexToNInconsistencyMatches, j);
+                inconsistenciesMap.set(makeKey([i, j]), inconsistencies);
+                mapGetOrSetDefault(oasIndexToDocIndicesInconsistencyMatches, i, []).push(j);
+                mapGetOrSetDefault(docIndexToOasIndicesInconsistencyMatches, j, []).push(i);
             }
         }
-        for (const [[i, j], inconsistencies,] of indicesToInconsistencies.entries()) {
-            if ((oasIndexToNInconsistencyMatches.get(i) ?? 0) > 1 ||
-                (docIndexToNInconsistencyMatches.get(j) ?? 0) > 1) {
-                throw new Error('Inconsistencies between multiple endpoints not implemented yet');
-            }
+        const bestMatches = findBestMatches(oasIndexToDocIndicesInconsistencyMatches, docIndexToOasIndicesInconsistencyMatches, inconsistenciesMap);
+        for (const [i, j] of bestMatches) {
             const oasEndpoint = unmatchedOasEndpoints[i];
             const docEndpoint = unmatchedDocEndpoints[j];
-            if (!oasEndpoint || !docEndpoint) {
-                throw new Error('Expected endpoints to be defined');
-            }
+            const inconsistencies = inconsistenciesMap.get(makeKey([i, j]));
+            external_assert_default()(oasEndpoint && docEndpoint && inconsistencies);
             failOutput.push({
                 type: 'match-with-inconsistenties',
                 oasEndpoint,

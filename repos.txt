@@ -6,8 +6,6 @@ context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.fi
 https://github.com/apache/ambari/blob/trunk/ambari-server/docs/api/v1/index.md
 
 # maybe
-https://github.com/solo-io/unik/blob/master/docs/api.md
-https://github.com/alibaba/GraphScope/blob/main/docs/flex/interactive/development/restful_api.md
 https://github.com/nginx/unit/blob/149555dbb6d68c15b4d8752e76e995ff6ba36fe6/tools/unitctl/unit-openapi/README.md
 
 # very big one

@@ -44,6 +44,7 @@
     "mdast": "^3.0.0",
     "mdast-util-from-markdown": "^2.0.0",
     "remark": "^15.0.1",
+    "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
     "remark-sectionize": "^2.0.0",
     "swagger2openapi": "^7.0.8",

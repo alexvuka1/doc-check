@@ -96911,6 +96911,90 @@ const codeLangsToCheck = [
 ];
 const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
 
+;// CONCATENATED MODULE: ./src/formatOutput.ts
+
+const oasPathPartsToPath = (pathParts) => `/${pathParts
+    .map(p => {
+    switch (p.type) {
+        case 'literal':
+            return p.value;
+        case 'parameter':
+            return `{${p.name}}`;
+    }
+})
+    .join('/')}`;
+const formatOutput = (failOutput, options) => {
+    const oasOnly = failOutput
+        .flatMap(fail => {
+        if (fail.type !== 'only-in-oas')
+            return [];
+        return [
+            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.endpoint.pathParts)}\`](${options.oasPath})`,
+        ];
+    })
+        .join('\n\t');
+    const oasOnlySection = oasOnly.length > 0
+        ? `- [ ] Found in Open API specification, but missing in Documentation:\n\t${oasOnly}`
+        : '';
+    const docOnly = failOutput
+        .flatMap(fail => {
+        if (fail.type !== 'only-in-doc')
+            return [];
+        return [
+            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}#L${fail.endpoint.line})`,
+        ];
+    })
+        .join('\n\t');
+    const docOnlySection = docOnly.length > 0
+        ? `- [ ] Found in Documentation, but missing in Open API specification:\n\t${docOnly}`
+        : '';
+    const matchesWithInconsistencies = failOutput
+        .flatMap(fail => {
+        if (fail.type !== 'match-with-inconsistenties')
+            return [];
+        const inconsistencies = fail.inconsistencies
+            .map(i => {
+            switch (i.type) {
+                case 'method-mismatch':
+                    return `- [ ] Method mismatch [\`${fail.oasEndpoint.method.toUpperCase()}\`](${options.oasPath}) (Open API specification) - [\`${fail.docEndpoint.method.toUpperCase()}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)`;
+                case 'path-path-parameter-name-mismatch':
+                    const oasServerBasePath = (i.oasServerIndex
+                        ? fail.oasEndpoint.servers[i.oasServerIndex]?.basePath
+                        : null) ?? [];
+                    const oasFullPath = [
+                        ...oasServerBasePath,
+                        ...fail.oasEndpoint.pathParts,
+                    ];
+                    const oasMismatchedParam = oasFullPath.flatMap(p => p.type === 'parameter' ? [p.name] : [])[i.parameterIndex];
+                    const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
+                    external_assert_default()(oasMismatchedParam);
+                    external_assert_default()(docMismatchedParam);
+                    return `- [ ] Path parameter mismatch [\`${oasMismatchedParam}\`](${options.oasPath}) (Open API specification) - [\`${docMismatchedParam}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)`;
+                case 'host-mismatch':
+                    return '';
+                case 'doc-scheme-not-supported-by-oas-server':
+                    return '';
+            }
+        })
+            .join('\n\t');
+        return `- [ ] Inconsistencies between [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) (Open API specification) [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)\n\t${inconsistencies}`;
+    })
+        .join('\n');
+    return `
+I have identified the following possible instances of documentation inconsistencies:
+
+${oasOnlySection}
+${docOnlySection}
+${matchesWithInconsistencies}
+
+**About**
+
+This is part of a research project that aims to detect API documentation inconsistencies in GitHub repositories automatically. I am evaluating the validity of the approach by identifying such inconsistencies in real-world repositories. 
+
+Hopefully, this is a step towards easier maintenance of API documentation. If you find this helpful, please consider updating the documentation to keep it in sync with the source code. I am also happy to assist with it, if appropriate. If this has not been useful, consider updating this issue with an explanation, so I can improve my approach. Thank you!
+    `;
+};
+
 ;// CONCATENATED MODULE: ./src/utils.ts
 const objectKeys = (obj) => Object.keys(obj);
 const objectEntries = (obj) => Object.entries(obj);
@@ -97532,8 +97616,6 @@ const docCreateEndpoint = (method, originalPath, line) => {
     if (path.startsWith('/'))
         path = path.substring(1);
     const [beforeParams, params] = path.split('?');
-    if (!beforeParams)
-        throw new Error(`Invalid path: ${path}`);
     if (params) {
         for (const param of params.split('&')) {
             const [name, value] = param.split('=');
@@ -97543,7 +97625,7 @@ const docCreateEndpoint = (method, originalPath, line) => {
         }
     }
     path = beforeParams;
-    for (const s of path.split('/')) {
+    for (const s of path?.split('/') ?? []) {
         switch (true) {
             case s.startsWith('{') && s.endsWith('}'):
             case s.startsWith('<') && s.endsWith('>'):
@@ -97718,94 +97800,7 @@ const oasParseEndpoints = (oas) => {
     return oasIdToEndpoint;
 };
 
-;// CONCATENATED MODULE: ./src/formatOutput.ts
-
-const oasPathPartsToPath = (pathParts) => `/${pathParts
-    .map(p => {
-    switch (p.type) {
-        case 'literal':
-            return p.value;
-        case 'parameter':
-            return `{${p.name}}`;
-    }
-})
-    .join('/')}`;
-const formatOutput = (failOutput, options) => {
-    const oasOnly = failOutput
-        .flatMap(fail => {
-        if (fail.type !== 'only-in-oas')
-            return [];
-        return [
-            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.endpoint.pathParts)}\`](${options.oasPath})`,
-        ];
-    })
-        .join('\n\t');
-    const oasOnlySection = oasOnly.length > 0
-        ? `- [ ] Found in Open API specification, but missing in Documentation:\n\t${oasOnly}`
-        : '';
-    const docOnly = failOutput
-        .flatMap(fail => {
-        if (fail.type !== 'only-in-doc')
-            return [];
-        return [
-            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}#L${fail.endpoint.line})`,
-        ];
-    })
-        .join('\n\t');
-    const docOnlySection = docOnly.length > 0
-        ? `- [ ] Found in Documentation, but missing in Open API specification:\n\t${docOnly}`
-        : '';
-    const matchesWithInconsistencies = failOutput
-        .flatMap(fail => {
-        if (fail.type !== 'match-with-inconsistenties')
-            return [];
-        const inconsistencies = fail.inconsistencies
-            .map(i => {
-            switch (i.type) {
-                case 'method-mismatch':
-                    return `- [ ] Method mismatch [\`${fail.oasEndpoint.method.toUpperCase()}\`](${options.oasPath}) (Open API specification) - [\`${fail.docEndpoint.method.toUpperCase()}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)`;
-                case 'path-path-parameter-name-mismatch':
-                    const oasServerBasePath = (i.oasServerIndex
-                        ? fail.oasEndpoint.servers[i.oasServerIndex]?.basePath
-                        : null) ?? [];
-                    const oasFullPath = [
-                        ...oasServerBasePath,
-                        ...fail.oasEndpoint.pathParts,
-                    ];
-                    const oasMismatchedParam = oasFullPath.flatMap(p => p.type === 'parameter' ? [p.name] : [])[i.parameterIndex];
-                    const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
-                    external_assert_default()(oasMismatchedParam);
-                    external_assert_default()(docMismatchedParam);
-                    return `- [ ] Path parameter mismatch [\`${oasMismatchedParam}\`](${options.oasPath}) (Open API specification) - [\`${docMismatchedParam}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)`;
-                case 'host-mismatch':
-                    return '';
-                case 'doc-scheme-not-supported-by-oas-server':
-                    return '';
-            }
-        })
-            .join('\n\t');
-        return `- [ ] Inconsistencies between [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) (Open API specification) [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)\n\t${inconsistencies}`;
-    })
-        .join('\n');
-    return `
-I have identified the following possible instances of documentation inconsistencies:
-
-${oasOnlySection}
-${docOnlySection}
-${matchesWithInconsistencies}
-
-**About**
-
-This is part of a research project that aims to detect API documentation inconsistencies in GitHub repositories automatically. I am evaluating the validity of the approach by identifying such inconsistencies in real-world repositories. 
-
-Hopefully, this is a step towards easier maintenance of API documentation. If you find this helpful, please consider updating the documentation to keep it in sync with the source code. I am also happy to assist with it, if appropriate. If this has not been useful, consider updating this issue with an explanation, so I can improve my approach. Thank you!
-    `;
-};
-
-// EXTERNAL MODULE: external "fs"
-var external_fs_ = __nccwpck_require__(7147);
 ;// CONCATENATED MODULE: ./src/main.ts
-
 
 
 
@@ -98136,7 +98131,7 @@ const run = async () => {
                 });
             }
         }
-        (0,external_fs_.writeFileSync)('output.md', formatOutput(failOutput, { oasPath, docPath }));
+        // writeFileSync('output.md', formatOutput(failOutput, { oasPath, docPath }));
         if (failOutput.length > 0) {
             throw new Error(JSON.stringify(failOutput));
         }

@@ -13,6 +13,7 @@ import { selectAll } from 'unist-util-select';
 import { visit } from 'unist-util-visit';
 import { visitParents } from 'unist-util-visit-parents';
 import { codeLangsToCheck, isLiteralNode, literalsToCheck } from './ast';
+import { formatOutput } from './formatOutput';
 import { findBestMatches } from './matching';
 import {
   DocEndpoint,
@@ -30,8 +31,6 @@ import {
 } from './parsing/markdown';
 import { isV2, oasParseEndpoints } from './parsing/openapi';
 import { makeKey, mapGetOrSetDefault } from './utils';
-import { formatOutput } from './formatOutput';
-import { writeFileSync } from 'fs';
 
 export const run = async () => {
   try {
@@ -450,7 +449,7 @@ export const run = async () => {
         });
       }
     }
-    writeFileSync('output.md', formatOutput(failOutput, { oasPath, docPath }));
+    // writeFileSync('output.md', formatOutput(failOutput, { oasPath, docPath }));
 
     if (failOutput.length > 0) {
       throw new Error(JSON.stringify(failOutput));

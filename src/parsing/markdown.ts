@@ -17,7 +17,7 @@ export const docCreateEndpoint = (
   const queryParameters: DocEndpoint['queryParameters'] = [];
   let scheme: DocEndpoint['scheme'];
   let host: DocEndpoint['host'];
-  let path = originalPath;
+  let path: string | undefined = originalPath;
 
   const protocolSeparator = '://';
   if (path.includes(protocolSeparator)) {
@@ -34,7 +34,6 @@ export const docCreateEndpoint = (
   if (path.startsWith('/')) path = path.substring(1);
 
   const [beforeParams, params] = path.split('?');
-  if (!beforeParams) throw new Error(`Invalid path: ${path}`);
 
   if (params) {
     for (const param of params.split('&')) {
@@ -45,7 +44,7 @@ export const docCreateEndpoint = (
   }
 
   path = beforeParams;
-  for (const s of path.split('/')) {
+  for (const s of path?.split('/') ?? []) {
     switch (true) {
       case s.startsWith('{') && s.endsWith('}'):
       case s.startsWith('<') && s.endsWith('>'):

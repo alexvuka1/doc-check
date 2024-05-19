@@ -30,6 +30,8 @@ import {
 } from './parsing/markdown';
 import { isV2, oasParseEndpoints } from './parsing/openapi';
 import { makeKey, mapGetOrSetDefault } from './utils';
+import { formatOutput } from './formatOutput';
+import { writeFileSync } from 'fs';
 
 export const run = async () => {
   try {
@@ -106,7 +108,9 @@ export const run = async () => {
           if (!path) return;
           const id = `${method} ${path}`;
           if (docIdToUnmatchedEndpoint.has(id)) return;
-          const endpoint = docCreateEndpoint(method, path);
+          const { position } = node;
+          assert(position);
+          const endpoint = docCreateEndpoint(method, path, position.start.line);
           docIdToUnmatchedEndpoint.set(id, endpoint);
         });
       }
@@ -130,7 +134,9 @@ export const run = async () => {
           if (!path) continue;
           const id = `${method} ${path}`;
           if (docIdToUnmatchedEndpoint.has(id)) continue;
-          const endpoint = docCreateEndpoint(method, path);
+          const { position } = sibling;
+          assert(position);
+          const endpoint = docCreateEndpoint(method, path, position.start.line);
           docIdToUnmatchedEndpoint.set(id, endpoint);
         }
       }
@@ -294,6 +300,11 @@ export const run = async () => {
                 ...oasEndpoint.pathParts,
               ]
             : oasEndpoint.pathParts;
+
+        const oasServerIndex = oasEndpoint.servers.findIndex(s =>
+          isEqual(s, partialMatchServer),
+        );
+
         if (oasFullPathParts.length === docEndpoint.pathParts.length) {
           let parameterIndex = -1;
           for (const [k, oasPart] of oasFullPathParts.entries()) {
@@ -309,8 +320,9 @@ export const run = async () => {
               oasPart.name !== docPart.name
             ) {
               inconsistencies.push({
-                type: 'parameter-name-mismatch',
+                type: 'path-path-parameter-name-mismatch',
                 parameterIndex,
+                oasServerIndex: oasServerIndex === -1 ? null : oasServerIndex,
               });
             }
           }
@@ -431,10 +443,14 @@ export const run = async () => {
           issue_number,
           owner: context.repo.owner,
           repo: context.repo.repo,
-          body: failOutput.length > 0 ? failOutput.join('\n') : successMsg,
+          body:
+            failOutput.length > 0
+              ? formatOutput(failOutput, { oasPath, docPath })
+              : successMsg,
         });
       }
     }
+    writeFileSync('output.md', formatOutput(failOutput, { oasPath, docPath }));
 
     if (failOutput.length > 0) {
       throw new Error(JSON.stringify(failOutput));

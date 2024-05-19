@@ -10,12 +10,14 @@ import {
 
 export const docCreateEndpoint = (
   method: Method,
-  path: string,
+  originalPath: string,
+  line: number,
 ): DocEndpoint => {
   const pathParts: DocEndpoint['pathParts'] = [];
   const queryParameters: DocEndpoint['queryParameters'] = [];
   let scheme: DocEndpoint['scheme'];
   let host: DocEndpoint['host'];
+  let path = originalPath;
 
   const protocolSeparator = '://';
   if (path.includes(protocolSeparator)) {
@@ -65,11 +67,13 @@ export const docCreateEndpoint = (
   }
 
   return {
+    originalPath,
     method,
     pathParts,
     queryParameters,
     scheme,
     host,
+    line,
   };
 };
 

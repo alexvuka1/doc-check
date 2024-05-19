@@ -343,6 +343,7 @@ describe('action', () => {
       {
         type: 'only-in-doc',
         endpoint: {
+          originalPath: '/v1/node/status',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -350,6 +351,7 @@ describe('action', () => {
             { type: 'literal', value: 'status' },
           ],
           queryParameters: [],
+          line: 28,
         },
       },
       {
@@ -384,6 +386,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v1/graph/{graph}',
           method: 'delete',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -391,9 +394,14 @@ describe('action', () => {
             { type: 'parameter', name: 'graph' },
           ],
           queryParameters: [],
+          line: 17,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -429,6 +437,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v1/graph/{graph}/schema',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -437,9 +446,14 @@ describe('action', () => {
             { type: 'literal', value: 'schema' },
           ],
           queryParameters: [],
+          line: 15,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -475,6 +489,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v1/graph/{graph}/dataloading',
           method: 'post',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -483,9 +498,14 @@ describe('action', () => {
             { type: 'literal', value: 'dataloading' },
           ],
           queryParameters: [],
+          line: 18,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -521,6 +541,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v1/graph/{graph}/procedure',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -529,9 +550,14 @@ describe('action', () => {
             { type: 'literal', value: 'procedure' },
           ],
           queryParameters: [],
+          line: 20,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -567,6 +593,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v1/graph/{graph}/procedure',
           method: 'post',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -575,9 +602,14 @@ describe('action', () => {
             { type: 'literal', value: 'procedure' },
           ],
           queryParameters: [],
+          line: 19,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -614,6 +646,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v1/graph/{graph}/procedure/{proc_name}',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -623,10 +656,19 @@ describe('action', () => {
             { type: 'parameter', name: 'proc_name' },
           ],
           queryParameters: [],
+          line: 21,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
-          { type: 'parameter-name-mismatch', parameterIndex: 1 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 1,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -663,6 +705,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v1/graph/{graph}/procedure/{proc_name}',
           method: 'put',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -672,10 +715,19 @@ describe('action', () => {
             { type: 'parameter', name: 'proc_name' },
           ],
           queryParameters: [],
+          line: 23,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
-          { type: 'parameter-name-mismatch', parameterIndex: 1 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 1,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -712,6 +764,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v1/graph/{graph}/procedure/{proc_name}',
           method: 'delete',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -721,10 +774,19 @@ describe('action', () => {
             { type: 'parameter', name: 'proc_name' },
           ],
           queryParameters: [],
+          line: 22,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
-          { type: 'parameter-name-mismatch', parameterIndex: 1 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 1,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -759,6 +821,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v1/service/stop',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v1' },
@@ -766,6 +829,7 @@ describe('action', () => {
             { type: 'literal', value: 'stop' },
           ],
           queryParameters: [],
+          line: 26,
         },
         inconsistencies: [{ type: 'method-mismatch' }],
       },

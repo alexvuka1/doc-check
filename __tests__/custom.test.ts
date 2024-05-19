@@ -40,9 +40,11 @@ describe('action', () => {
       {
         type: 'only-in-doc',
         endpoint: {
+          originalPath: '/hello',
           method: 'get',
           pathParts: [{ type: 'literal', value: 'hello' }],
           queryParameters: [],
+          line: 5,
         },
       },
     ]);
@@ -57,9 +59,11 @@ describe('action', () => {
       {
         type: 'only-in-doc',
         endpoint: {
+          originalPath: '/hello',
           method: 'get',
           pathParts: [{ type: 'literal', value: 'hello' }],
           queryParameters: [],
+          line: 7,
         },
       },
     ]);

@@ -29,15 +29,18 @@ export type OasEndpoint = BaseEndpoint & {
 };
 
 export type DocEndpoint = BaseEndpoint & {
+  originalPath: string;
   scheme?: Scheme;
   host?: string;
   queryParameters: { name: string; value: string }[];
+  line: number;
 };
 
 export type Inconsistency =
   | {
-      type: 'parameter-name-mismatch';
+      type: 'path-path-parameter-name-mismatch';
       parameterIndex: number;
+      oasServerIndex: number | null;
     }
   | {
       type: 'method-mismatch';

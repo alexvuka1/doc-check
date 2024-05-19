@@ -180,6 +180,7 @@ describe('action', () => {
       {
         type: 'only-in-doc',
         endpoint: {
+          originalPath: '/v2/headers/[Count]',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v2' },
@@ -187,11 +188,14 @@ describe('action', () => {
             { type: 'parameter', name: 'Count' },
           ],
           queryParameters: [],
+          line: 84,
         },
       },
       {
         type: 'only-in-doc',
         endpoint: {
+          originalPath:
+            '/v2/data_var/[Stacks Address]/[Contract Name]/[Var Name]',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v2' },
@@ -201,6 +205,7 @@ describe('action', () => {
             { type: 'parameter', name: 'Var Name' },
           ],
           queryParameters: [],
+          line: 156,
         },
       },
       {
@@ -220,6 +225,8 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath:
+            '/v2/contracts/interface/[Stacks Address]/[Contract Name]',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v2' },
@@ -229,10 +236,19 @@ describe('action', () => {
             { type: 'parameter', name: 'Contract Name' },
           ],
           queryParameters: [],
+          line: 217,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
-          { type: 'parameter-name-mismatch', parameterIndex: 1 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 1,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -255,6 +271,8 @@ describe('action', () => {
           ],
         },
         docEndpoint: {
+          originalPath:
+            '/v2/map_entry/[Stacks Address]/[Contract Name]/[Map Name]',
           method: 'post',
           pathParts: [
             { type: 'literal', value: 'v2' },
@@ -264,11 +282,24 @@ describe('action', () => {
             { type: 'parameter', name: 'Map Name' },
           ],
           queryParameters: [],
+          line: 189,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
-          { type: 'parameter-name-mismatch', parameterIndex: 1 },
-          { type: 'parameter-name-mismatch', parameterIndex: 2 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 1,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 2,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -288,6 +319,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v2/contracts/source/[Stacks Address]/[Contract Name]',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v2' },
@@ -297,10 +329,19 @@ describe('action', () => {
             { type: 'parameter', name: 'Contract Name' },
           ],
           queryParameters: [],
+          line: 368,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
-          { type: 'parameter-name-mismatch', parameterIndex: 1 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 1,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -321,6 +362,8 @@ describe('action', () => {
           queryParameters: [{ name: 'tip', required: false }],
         },
         docEndpoint: {
+          originalPath:
+            '/v2/contracts/call-read/[Stacks Address]/[Contract Name]/[Function Name]',
           method: 'post',
           pathParts: [
             { type: 'literal', value: 'v2' },
@@ -331,11 +374,24 @@ describe('action', () => {
             { type: 'parameter', name: 'Function Name' },
           ],
           queryParameters: [],
+          line: 385,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
-          { type: 'parameter-name-mismatch', parameterIndex: 1 },
-          { type: 'parameter-name-mismatch', parameterIndex: 2 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 1,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 2,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -356,6 +412,7 @@ describe('action', () => {
           ],
         },
         docEndpoint: {
+          originalPath: '/v2/accounts/[Principal]',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v2' },
@@ -363,9 +420,14 @@ describe('action', () => {
             { type: 'parameter', name: 'Principal' },
           ],
           queryParameters: [],
+          line: 129,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -387,6 +449,8 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath:
+            '/v2/traits/[Stacks Address]/[Contract Name]/[Trait Stacks Address]/[Trait Contract Name]/[Trait Name]',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v2' },
@@ -398,13 +462,34 @@ describe('action', () => {
             { type: 'parameter', name: 'Trait Name' },
           ],
           queryParameters: [],
+          line: 424,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
-          { type: 'parameter-name-mismatch', parameterIndex: 1 },
-          { type: 'parameter-name-mismatch', parameterIndex: 2 },
-          { type: 'parameter-name-mismatch', parameterIndex: 3 },
-          { type: 'parameter-name-mismatch', parameterIndex: 4 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 1,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 2,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 3,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 4,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -424,6 +509,8 @@ describe('action', () => {
           queryParameters: [{ name: 'tip', required: false }],
         },
         docEndpoint: {
+          originalPath:
+            '/v2/constant_val/[Stacks Address]/[Contract Name]/[Constant Name]',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v2' },
@@ -433,12 +520,25 @@ describe('action', () => {
             { type: 'parameter', name: 'Constant Name' },
           ],
           queryParameters: [],
+          line: 175,
         },
         inconsistencies: [
           { type: 'method-mismatch' },
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
-          { type: 'parameter-name-mismatch', parameterIndex: 1 },
-          { type: 'parameter-name-mismatch', parameterIndex: 2 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 1,
+            oasServerIndex: null,
+          },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 2,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -456,6 +556,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v3/blocks/[Block ID]',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v3' },
@@ -463,9 +564,14 @@ describe('action', () => {
             { type: 'parameter', name: 'Block ID' },
           ],
           queryParameters: [],
+          line: 499,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
         ],
       },
       {
@@ -483,6 +589,7 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/v3/tenures/[Block ID]',
           method: 'get',
           pathParts: [
             { type: 'literal', value: 'v3' },
@@ -490,9 +597,14 @@ describe('action', () => {
             { type: 'parameter', name: 'Block ID' },
           ],
           queryParameters: [],
+          line: 506,
         },
         inconsistencies: [
-          { type: 'parameter-name-mismatch', parameterIndex: 0 },
+          {
+            type: 'path-path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
         ],
       },
     ]);

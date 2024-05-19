@@ -93,17 +93,20 @@ describe('action', () => {
           queryParameters: [],
         },
         docEndpoint: {
+          originalPath: '/locations/<uid>',
           method: 'delete',
           pathParts: [
             { type: 'literal', value: 'locations' },
             { type: 'parameter', name: 'uid' },
           ],
           queryParameters: [],
+          line: 545,
         },
         inconsistencies: [
           {
-            type: 'parameter-name-mismatch',
+            type: 'path-path-parameter-name-mismatch',
             parameterIndex: 0,
+            oasServerIndex: null,
           },
         ],
       },

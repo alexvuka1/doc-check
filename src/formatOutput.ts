@@ -57,8 +57,10 @@ export const formatOutput = (
   const matchesWithInconsistencies = failOutput
     .flatMap(fail => {
       if (fail.type !== 'match-with-inconsistenties') return [];
-      const inconsistencies = fail.inconsistencies
-        .map(i => {
+      const inconsistencies = [
+        `- | Inconsistency type | Open API specification <br /> [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.docEndpoint.line}) |`,
+        '| --- | --- | --- |',
+        ...fail.inconsistencies.map(i => {
           switch (i.type) {
             case 'method-mismatch':
               return `| Method mismatch | \`${fail.oasEndpoint.method.toUpperCase()}\` | \`${fail.docEndpoint.method.toUpperCase()}\` |`;
@@ -87,13 +89,9 @@ export const formatOutput = (
                 'Doc scheme not supported by oas server not implemented',
               );
           }
-        })
-        .join('\n\t\t');
-      return [
-        `- | Inconsistency type | Open API specification <br /> [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.docEndpoint.line}) |`,
-        '| --- | --- | --- |',
-        inconsistencies,
+        }),
       ].join('\n\t\t');
+      return inconsistencies;
     })
     .join('\n\t');
 

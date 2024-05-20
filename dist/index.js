@@ -96957,36 +96957,34 @@ const formatOutput = (failOutput, options) => {
         .flatMap(fail => {
         if (fail.type !== 'match-with-inconsistenties')
             return [];
-        const inconsistencies = fail.inconsistencies
-            .map(i => {
-            switch (i.type) {
-                case 'method-mismatch':
-                    return `| Method mismatch | \`${fail.oasEndpoint.method.toUpperCase()}\` | \`${fail.docEndpoint.method.toUpperCase()}\` |`;
-                case 'path-path-parameter-name-mismatch':
-                    const oasServerBasePath = (i.oasServerIndex
-                        ? fail.oasEndpoint.servers[i.oasServerIndex]?.basePath
-                        : null) ?? [];
-                    const oasFullPath = [
-                        ...oasServerBasePath,
-                        ...fail.oasEndpoint.pathParts,
-                    ];
-                    const oasMismatchedParam = oasFullPath.flatMap(p => p.type === 'parameter' ? [p.name] : [])[i.parameterIndex];
-                    const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
-                    external_assert_default()(oasMismatchedParam);
-                    external_assert_default()(docMismatchedParam);
-                    return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
-                case 'host-mismatch':
-                    throw new Error('Host mismatch not implemented');
-                case 'doc-scheme-not-supported-by-oas-server':
-                    throw new Error('Doc scheme not supported by oas server not implemented');
-            }
-        })
-            .join('\n\t\t');
-        return [
+        const inconsistencies = [
             `- | Inconsistency type | Open API specification <br /> [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.docEndpoint.line}) |`,
             '| --- | --- | --- |',
-            inconsistencies,
+            ...fail.inconsistencies.map(i => {
+                switch (i.type) {
+                    case 'method-mismatch':
+                        return `| Method mismatch | \`${fail.oasEndpoint.method.toUpperCase()}\` | \`${fail.docEndpoint.method.toUpperCase()}\` |`;
+                    case 'path-path-parameter-name-mismatch':
+                        const oasServerBasePath = (i.oasServerIndex
+                            ? fail.oasEndpoint.servers[i.oasServerIndex]?.basePath
+                            : null) ?? [];
+                        const oasFullPath = [
+                            ...oasServerBasePath,
+                            ...fail.oasEndpoint.pathParts,
+                        ];
+                        const oasMismatchedParam = oasFullPath.flatMap(p => p.type === 'parameter' ? [p.name] : [])[i.parameterIndex];
+                        const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
+                        external_assert_default()(oasMismatchedParam);
+                        external_assert_default()(docMismatchedParam);
+                        return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
+                    case 'host-mismatch':
+                        throw new Error('Host mismatch not implemented');
+                    case 'doc-scheme-not-supported-by-oas-server':
+                        throw new Error('Doc scheme not supported by oas server not implemented');
+                }
+            }),
         ].join('\n\t\t');
+        return inconsistencies;
     })
         .join('\n\t');
     const matchesWithInconsistenciesSection = matchesWithInconsistencies.length > 0

@@ -17,10 +17,9 @@ describe('action', () => {
   it('handles sunflower-land/sunflower-land', async () => {
     await setupInputRepo(getInputMock, {
       repoName: 'sunflower-land/sunflower-land',
-      urlOpenApi:
-        'https://github.com/sunflower-land/sunflower-land/blob/877234bda1c498505a9be75b83affb487285af5c/docs/openapi.json',
-      urlDoc:
-        'https://github.com/sunflower-land/sunflower-land/blob/877234bda1c498505a9be75b83affb487285af5c/docs/OFFCHAIN_API.md',
+      sha: '877234bda1c498505a9be75b83affb487285af5c',
+      pathOas: 'docs/openapi.json',
+      pathDoc: 'docs/OFFCHAIN_API.md',
     });
 
     await main.run();

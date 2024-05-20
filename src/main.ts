@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import assert from 'assert';
+import { writeFile } from 'fs/promises';
 import { differenceWith, isEqual } from 'lodash-es';
 import { Node, Root } from 'mdast';
 import { remark } from 'remark';
@@ -429,7 +430,20 @@ export const run = async () => {
       });
     }
 
-    const successMsg = 'Success - No inconsistencies found!';
+    const isTestEnv = process.env.NODE_ENV === 'test';
+    const githubBase = () =>
+      `https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/blob/${github.context.sha}`;
+    const output = isTestEnv
+      ? process.env.OAS_PATH && process.env.DOC_PATH
+        ? formatOutput(failOutput, {
+            oasPath: process.env.OAS_PATH,
+            docPath: process.env.DOC_PATH,
+          })
+        : ''
+      : formatOutput(failOutput, {
+          oasPath: `${githubBase()}/${oasPath}`,
+          docPath: `${githubBase()}/${docPath}`,
+        });
 
     if (token !== '') {
       const octokit = github.getOctokit(token);
@@ -442,19 +456,16 @@ export const run = async () => {
           issue_number,
           owner: context.repo.owner,
           repo: context.repo.repo,
-          body:
-            failOutput.length > 0
-              ? formatOutput(failOutput, { oasPath, docPath })
-              : successMsg,
+          body: output,
         });
       }
     }
-    // writeFileSync('output.md', formatOutput(failOutput, { oasPath, docPath }));
+
+    if (isTestEnv) await writeFile('__tests__/output.md', output);
 
     if (failOutput.length > 0) {
       throw new Error(JSON.stringify(failOutput));
     }
-    core.debug(successMsg);
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message);

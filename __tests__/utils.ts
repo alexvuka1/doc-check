@@ -27,29 +27,35 @@ export const setupInput = (
 
 type RepoInfo = {
   repoName: string;
-  urlDoc: string;
-  urlOpenApi: string;
+  sha: string;
+  pathDoc: string;
+  pathOas: string;
 };
 
 export const setupInputRepo = async (
   getInputMock: GetInputMock,
   repoInfo: RepoInfo,
 ) => {
-  const { repoName, urlDoc, urlOpenApi } = repoInfo;
-  const [pathOpenApi, docPath] = await Promise.all([
-    getOrDownload(repoName, urlOpenApi),
-    getOrDownload(repoName, urlDoc),
+  const { repoName, pathDoc, pathOas, sha } = repoInfo;
+  const githubBase = `https://github.com/${repoName}/blob/${sha}`;
+  const pathOasGithub = `${githubBase}/${pathOas}`;
+  const pathDocGithub = `${githubBase}/${pathDoc}`;
+  const [pathOasLocal, pathDocLocal] = await Promise.all([
+    getOrDownload(repoName, pathOasGithub),
+    getOrDownload(repoName, pathDocGithub),
   ]);
   getInputMock.mockImplementation((name: string): string => {
     switch (name) {
       case 'openapi-path':
-        return pathOpenApi;
+        return pathOasLocal;
       case 'doc-path':
-        return docPath;
+        return pathDocLocal;
       default:
         return '';
     }
   });
+  process.env.OAS_PATH = pathOasGithub;
+  process.env.DOC_PATH = pathDocGithub;
 };
 
 export const getOrDownload = async (

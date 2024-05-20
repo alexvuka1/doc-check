@@ -17,10 +17,9 @@ describe('action', () => {
   it('handles gothinkster/realworld', async () => {
     await setupInputRepo(getInputMock, {
       repoName: 'gothinkster/realworld',
-      urlOpenApi:
-        'https://github.com/gothinkster/realworld/blob/11c81f64f04fff8cfcd60ddf4eb0064c01fa1730/api/openapi.yml',
-      urlDoc:
-        'https://github.com/gothinkster/realworld/blob/11c81f64f04fff8cfcd60ddf4eb0064c01fa1730/apps/documentation/docs/specs/backend-specs/endpoints.md',
+      sha: '11c81f64f04fff8cfcd60ddf4eb0064c01fa1730',
+      pathOas: 'api/openapi.yml',
+      pathDoc: 'apps/documentation/docs/specs/backend-specs/endpoints.md',
     });
 
     await main.run();

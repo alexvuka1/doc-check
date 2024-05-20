@@ -18,12 +18,12 @@ describe('action', () => {
 
   it('handles stacks-network/stacks-core', async () => {
     const repoName = 'stacks-network/stacks-core';
+    const sha = 'b7f7295775ba8571ed322846367451fc6bf44126';
     await setupInputRepo(getInputMock, {
       repoName,
-      urlOpenApi:
-        'https://github.com/stacks-network/stacks-core/blob/b7f7295775ba8571ed322846367451fc6bf44126/docs/rpc/openapi.yaml',
-      urlDoc:
-        'https://github.com/stacks-network/stacks-core/blob/b7f7295775ba8571ed322846367451fc6bf44126/docs/rpc-endpoints.md',
+      sha,
+      pathOas: 'docs/rpc/openapi.yaml',
+      pathDoc: 'docs/rpc-endpoints.md',
     });
 
     const apiDirs = ['contract', 'core-node', 'trait', 'transaction'];
@@ -103,13 +103,13 @@ describe('action', () => {
       ...a.map(([dir, filePath]) =>
         getOrDownload(
           repoName,
-          `https://github.com/stacks-network/stacks-core/blob/b7f7295775ba8571ed322846367451fc6bf44126/docs/rpc/api/${filePath}`,
+          `https://github.com/${repoName}/blob/${sha}/docs/rpc/api/${filePath}`,
           dir,
         ),
       ),
       getOrDownload(
         repoName,
-        `https://github.com/stacks-network/stacks-core/blob/b7f7295775ba8571ed322846367451fc6bf44126/docs/rpc/entities/contracts/read-only-function-args.schema.json`,
+        `https://github.com/${repoName}/blob/${sha}/docs/rpc/entities/contracts/read-only-function-args.schema.json`,
         entitiesContractsDir,
       ),
     ]);

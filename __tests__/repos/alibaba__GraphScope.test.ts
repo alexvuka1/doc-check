@@ -17,10 +17,9 @@ describe('action', () => {
   it('handles alibaba/GraphScope', async () => {
     await setupInputRepo(getInputMock, {
       repoName: 'alibaba/GraphScope',
-      urlOpenApi:
-        'https://github.com/alibaba/GraphScope/blob/f15605b083ac92c6a8bf33ed6bb44616eae30a03/flex/openapi/openapi_interactive.yaml',
-      urlDoc:
-        'https://github.com/alibaba/GraphScope/blob/f15605b083ac92c6a8bf33ed6bb44616eae30a03/docs/flex/interactive/development/restful_api.md',
+      sha: 'bf4bd712041a04ce3adba56939a5bccaad13e137',
+      pathOas: 'flex/openapi/openapi_interactive.yaml',
+      pathDoc: 'docs/flex/interactive/development/restful_api.md',
     });
 
     await main.run();

@@ -17,10 +17,9 @@ describe('action', () => {
   it('handles fleetdm/fleet', async () => {
     await setupInputRepo(getInputMock, {
       repoName: 'fleetdm/fleet',
-      urlOpenApi:
-        'https://github.com/fleetdm/fleet/blob/2dd7b6e5644fc8fea045b0ea37f51225b801f105/server/mdm/nanodep/docs/openapi.yaml',
-      urlDoc:
-        'https://github.com/fleetdm/fleet/blob/2dd7b6e5644fc8fea045b0ea37f51225b801f105/server/mdm/nanodep/docs/operations-guide.md',
+      sha: '2dd7b6e5644fc8fea045b0ea37f51225b801f105',
+      pathOas: 'server/mdm/nanodep/docs/openapi.yaml',
+      pathDoc: 'server/mdm/nanodep/docs/operations-guide.md',
     });
 
     await main.run();

@@ -103,4 +103,5 @@ __tests__/runner/*
 *.code-workspace
 
 __tests__/data/repos/**
+__tests__/**.md
 !__tests__/data/repos/.gitkeep

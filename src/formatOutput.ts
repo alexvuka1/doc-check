@@ -13,10 +13,19 @@ const oasPathPartsToPath = (pathParts: OasEndpoint['pathParts']) =>
     })
     .join('/')}`;
 
+export type FormatOutputOptions = {
+  oasPath: string;
+  docPath: string;
+};
+
 export const formatOutput = (
   failOutput: FailOutput,
-  options: { oasPath: string; docPath: string },
+  options: FormatOutputOptions,
 ) => {
+  if (failOutput.length === 0) {
+    return '### ✅No inconsistencies found between Open API specifiaction and Documentation!';
+  }
+
   const oasOnly = failOutput
     .flatMap(fail => {
       if (fail.type !== 'only-in-oas') return [];
@@ -28,21 +37,21 @@ export const formatOutput = (
 
   const oasOnlySection =
     oasOnly.length > 0
-      ? `- [ ] Found in Open API specification, but missing in Documentation:\n\t${oasOnly}`
+      ? `- ### 🟩Found in Open API specification, 🟥Not found in Documentation\n\t${oasOnly}`
       : '';
 
   const docOnly = failOutput
     .flatMap(fail => {
       if (fail.type !== 'only-in-doc') return [];
       return [
-        `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}#L${fail.endpoint.line})`,
+        `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.endpoint.line})`,
       ];
     })
     .join('\n\t');
 
   const docOnlySection =
     docOnly.length > 0
-      ? `- [ ] Found in Documentation, but missing in Open API specification:\n\t${docOnly}`
+      ? `- ### 🟥Not found in Open API specification, 🟩Found in Documentation\n\t${docOnly}`
       : '';
 
   const matchesWithInconsistencies = failOutput
@@ -52,7 +61,7 @@ export const formatOutput = (
         .map(i => {
           switch (i.type) {
             case 'method-mismatch':
-              return `- [ ] Method mismatch [\`${fail.oasEndpoint.method.toUpperCase()}\`](${options.oasPath}) (Open API specification) - [\`${fail.docEndpoint.method.toUpperCase()}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)`;
+              return `| Method mismatch | \`${fail.oasEndpoint.method.toUpperCase()}\` | \`${fail.docEndpoint.method.toUpperCase()}\` |`;
             case 'path-path-parameter-name-mismatch':
               const oasServerBasePath =
                 (i.oasServerIndex
@@ -70,24 +79,35 @@ export const formatOutput = (
               )[i.parameterIndex];
               assert(oasMismatchedParam);
               assert(docMismatchedParam);
-              return `- [ ] Path parameter mismatch [\`${oasMismatchedParam}\`](${options.oasPath}) (Open API specification) - [\`${docMismatchedParam}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)`;
+              return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
             case 'host-mismatch':
-              return '';
+              throw new Error('Host mismatch not implemented');
             case 'doc-scheme-not-supported-by-oas-server':
-              return '';
+              throw new Error(
+                'Doc scheme not supported by oas server not implemented',
+              );
           }
         })
-        .join('\n\t');
-      return `- [ ] Inconsistencies between [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) (Open API specification) [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)\n\t${inconsistencies}`;
+        .join('\n\t\t');
+      return [
+        `- | Inconsistency type | Open API specification <br /> [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.docEndpoint.line}) |`,
+        '| --- | --- | --- |',
+        inconsistencies,
+      ].join('\n\t\t');
     })
-    .join('\n');
+    .join('\n\t');
+
+  const matchesWithInconsistenciesSection =
+    matchesWithInconsistencies.length > 0
+      ? `- ### 🟩Found in Open API specification, 🟩Found in Documentation, 🟥Have Inconsistencies\n\t${matchesWithInconsistencies}`
+      : '';
 
   return `
-I have identified the following possible instances of documentation inconsistencies:
+I have identified the following possible instances of inconsistencies between [Open API specification](${options.oasPath}) and [Documentation](${options.docPath}):
 
 ${oasOnlySection}
 ${docOnlySection}
-${matchesWithInconsistencies}
+${matchesWithInconsistenciesSection}
 
 **About**
 

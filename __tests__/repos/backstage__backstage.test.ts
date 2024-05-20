@@ -17,10 +17,9 @@ describe('action', () => {
   it('handles backstage/backstage', async () => {
     await setupInputRepo(getInputMock, {
       repoName: 'backstage/backstage',
-      urlOpenApi:
-        'https://github.com/backstage/backstage/blob/2f6e3e6b47d7c710ef8f137625699080cda8cb79/plugins/catalog-backend/src/schema/openapi.yaml',
-      urlDoc:
-        'https://github.com/backstage/backstage/blob/2f6e3e6b47d7c710ef8f137625699080cda8cb79/docs/features/software-catalog/api.md',
+      sha: '2c3f493ee32d67d3a300d13e73e352f91145a3ee',
+      pathOas: 'plugins/catalog-backend/src/schema/openapi.yaml',
+      pathDoc: 'docs/features/software-catalog/api.md',
     });
 
     await main.run();

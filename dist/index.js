@@ -65789,6 +65789,8 @@ var lib_default = /*#__PURE__*/__nccwpck_require__.n(lib);
 // EXTERNAL MODULE: external "assert"
 var external_assert_ = __nccwpck_require__(9491);
 var external_assert_default = /*#__PURE__*/__nccwpck_require__.n(external_assert_);
+;// CONCATENATED MODULE: external "fs/promises"
+const promises_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("fs/promises");
 ;// CONCATENATED MODULE: ./node_modules/lodash-es/_freeGlobal.js
 /** Detect free variable `global` from Node.js. */
 var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
@@ -96924,6 +96926,9 @@ const oasPathPartsToPath = (pathParts) => `/${pathParts
 })
     .join('/')}`;
 const formatOutput = (failOutput, options) => {
+    if (failOutput.length === 0) {
+        return '### ✅No inconsistencies found between Open API specifiaction and Documentation!';
+    }
     const oasOnly = failOutput
         .flatMap(fail => {
         if (fail.type !== 'only-in-oas')
@@ -96934,19 +96939,19 @@ const formatOutput = (failOutput, options) => {
     })
         .join('\n\t');
     const oasOnlySection = oasOnly.length > 0
-        ? `- [ ] Found in Open API specification, but missing in Documentation:\n\t${oasOnly}`
+        ? `- ### 🟩Found in Open API specification, 🟥Not found in Documentation\n\t${oasOnly}`
         : '';
     const docOnly = failOutput
         .flatMap(fail => {
         if (fail.type !== 'only-in-doc')
             return [];
         return [
-            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}#L${fail.endpoint.line})`,
+            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.endpoint.line})`,
         ];
     })
         .join('\n\t');
     const docOnlySection = docOnly.length > 0
-        ? `- [ ] Found in Documentation, but missing in Open API specification:\n\t${docOnly}`
+        ? `- ### 🟥Not found in Open API specification, 🟩Found in Documentation\n\t${docOnly}`
         : '';
     const matchesWithInconsistencies = failOutput
         .flatMap(fail => {
@@ -96956,7 +96961,7 @@ const formatOutput = (failOutput, options) => {
             .map(i => {
             switch (i.type) {
                 case 'method-mismatch':
-                    return `- [ ] Method mismatch [\`${fail.oasEndpoint.method.toUpperCase()}\`](${options.oasPath}) (Open API specification) - [\`${fail.docEndpoint.method.toUpperCase()}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)`;
+                    return `| Method mismatch | \`${fail.oasEndpoint.method.toUpperCase()}\` | \`${fail.docEndpoint.method.toUpperCase()}\` |`;
                 case 'path-path-parameter-name-mismatch':
                     const oasServerBasePath = (i.oasServerIndex
                         ? fail.oasEndpoint.servers[i.oasServerIndex]?.basePath
@@ -96969,23 +96974,30 @@ const formatOutput = (failOutput, options) => {
                     const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
                     external_assert_default()(oasMismatchedParam);
                     external_assert_default()(docMismatchedParam);
-                    return `- [ ] Path parameter mismatch [\`${oasMismatchedParam}\`](${options.oasPath}) (Open API specification) - [\`${docMismatchedParam}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)`;
+                    return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
                 case 'host-mismatch':
-                    return '';
+                    throw new Error('Host mismatch not implemented');
                 case 'doc-scheme-not-supported-by-oas-server':
-                    return '';
+                    throw new Error('Doc scheme not supported by oas server not implemented');
             }
         })
-            .join('\n\t');
-        return `- [ ] Inconsistencies between [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) (Open API specification) [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}#L${fail.docEndpoint.line}) (Documentation)\n\t${inconsistencies}`;
+            .join('\n\t\t');
+        return [
+            `- | Inconsistency type | Open API specification <br /> [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.docEndpoint.line}) |`,
+            '| --- | --- | --- |',
+            inconsistencies,
+        ].join('\n\t\t');
     })
-        .join('\n');
+        .join('\n\t');
+    const matchesWithInconsistenciesSection = matchesWithInconsistencies.length > 0
+        ? `- ### 🟩Found in Open API specification, 🟩Found in Documentation, 🟥Have Inconsistencies\n\t${matchesWithInconsistencies}`
+        : '';
     return `
-I have identified the following possible instances of documentation inconsistencies:
+I have identified the following possible instances of inconsistencies between [Open API specification](${options.oasPath}) and [Documentation](${options.docPath}):
 
 ${oasOnlySection}
 ${docOnlySection}
-${matchesWithInconsistencies}
+${matchesWithInconsistenciesSection}
 
 **About**
 
@@ -97821,6 +97833,7 @@ const oasParseEndpoints = (oas) => {
 
 
 
+
 const run = async () => {
     try {
         const oasPath = core.getInput('openapi-path', { required: true });
@@ -98114,7 +98127,19 @@ const run = async () => {
                 inconsistencies,
             });
         }
-        const successMsg = 'Success - No inconsistencies found!';
+        const isTestEnv = process.env.NODE_ENV === 'test';
+        const githubBase = () => `https://github.com/${github.context.repo.owner}/${github.context.repo.repo}/blob/${github.context.sha}`;
+        const output = isTestEnv
+            ? process.env.OAS_PATH && process.env.DOC_PATH
+                ? formatOutput(failOutput, {
+                    oasPath: process.env.OAS_PATH,
+                    docPath: process.env.DOC_PATH,
+                })
+                : ''
+            : formatOutput(failOutput, {
+                oasPath: `${githubBase()}/${oasPath}`,
+                docPath: `${githubBase()}/${docPath}`,
+            });
         if (token !== '') {
             const octokit = github.getOctokit(token);
             const { context } = github;
@@ -98125,17 +98150,15 @@ const run = async () => {
                     issue_number,
                     owner: context.repo.owner,
                     repo: context.repo.repo,
-                    body: failOutput.length > 0
-                        ? formatOutput(failOutput, { oasPath, docPath })
-                        : successMsg,
+                    body: output,
                 });
             }
         }
-        // writeFileSync('output.md', formatOutput(failOutput, { oasPath, docPath }));
+        if (isTestEnv)
+            await (0,promises_namespaceObject.writeFile)('__tests__/output.md', output);
         if (failOutput.length > 0) {
             throw new Error(JSON.stringify(failOutput));
         }
-        core.debug(successMsg);
     }
     catch (error) {
         // Fail the workflow run if an error occurs

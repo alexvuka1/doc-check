@@ -17,10 +17,9 @@ describe('action', () => {
   it('handles openstf/stf', async () => {
     await setupInputRepo(getInputMock, {
       repoName: 'openstf/stf',
-      urlOpenApi:
-        'https://github.com/openstf/stf/blob/2b9649009722794dee9efd32b71bccbcbfe9d794/lib/units/api/swagger/api_v1_generated.json',
-      urlDoc:
-        'https://github.com/openstf/stf/blob/2b9649009722794dee9efd32b71bccbcbfe9d794/doc/API.md',
+      sha: '2b9649009722794dee9efd32b71bccbcbfe9d794',
+      pathOas: 'lib/units/api/swagger/api_v1_generated.json',
+      pathDoc: 'doc/API.md',
     });
 
     await main.run();

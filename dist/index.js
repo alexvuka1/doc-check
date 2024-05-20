@@ -33138,7 +33138,7 @@ const mockErrors = __nccwpck_require__(888)
 const ProxyAgent = __nccwpck_require__(7858)
 const RetryHandler = __nccwpck_require__(2286)
 const { getGlobalDispatcher, setGlobalDispatcher } = __nccwpck_require__(1892)
-const DecoratorHandler = __nccwpck_require__(6930)
+const DecoratorHandler = __nccwpck_require__(3503)
 const RedirectHandler = __nccwpck_require__(2860)
 const createRedirectInterceptor = __nccwpck_require__(8861)
 
@@ -50277,7 +50277,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 6930:
+/***/ 3503:
 /***/ ((module) => {
 
 

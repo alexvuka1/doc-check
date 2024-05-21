@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
-import * as main from '../src/main';
+import * as main from '../main';
 import { expectFail, setupInput } from './utils';
 
 const getInputMock = spyOn(core, 'getInput');

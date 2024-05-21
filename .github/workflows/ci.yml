@@ -88,6 +88,6 @@ jobs:
         id: test-action
         uses: ./
         with:
-          openapi-path: __tests__/data/custom/basic/openapi.json
-          doc-path: __tests__/data/custom/basic/api.md
+          openapi-path: src/tests/data/custom/basic/openapi.json
+          doc-path: src/tests/data/custom/basic/api.md
           token: ${{ secrets.GITHUB_TOKEN }}

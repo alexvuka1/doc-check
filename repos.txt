@@ -3,6 +3,7 @@ context:global repo:has.path((openapi|swagger)\.(json|yaml|yml)$) repo:has.file(
 context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:api\.md$ content:Endpoints|API)
 context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:\w+\.md$ content:RESTful)
 
+https://github.com/alextselegidis/easyappointments/blob/master/docs/rest-api.md https://github.com/alextselegidis/easyappointments/blob/master/swagger.yml
 https://github.com/apache/ambari/blob/trunk/ambari-server/docs/api/v1/index.md
 
 # maybe

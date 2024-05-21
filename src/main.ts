@@ -1,15 +1,9 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import SwaggerParser from '@apidevtools/swagger-parser';
 import assert from 'assert';
 import { writeFile } from 'fs/promises';
 import { differenceWith, isEqual } from 'lodash-es';
-import { Node, Root } from 'mdast';
-import { remark } from 'remark';
-import remarkGfm from 'remark-gfm';
-import remarkSectionize from 'remark-sectionize';
-import { convertFile } from 'swagger2openapi';
-import { read } from 'to-vfile';
+import { Node, RootContentMap } from 'mdast';
 import { selectAll } from 'unist-util-select';
 import { visit } from 'unist-util-visit';
 import { visitParents } from 'unist-util-visit-parents';
@@ -26,12 +20,14 @@ import {
 } from './parsing';
 import {
   docCreateEndpoint,
+  docParse,
   extractPath,
   getMethodRegex,
   oasEndpointToDocRegex,
 } from './parsing/markdown';
-import { isV2, oasParseEndpoints } from './parsing/openapi';
+import { oasParse, oasParseEndpoints } from './parsing/openapi';
 import { makeKey, mapGetOrSetDefault } from './utils';
+import { join } from 'path';
 
 export const run = async () => {
   try {
@@ -39,18 +35,11 @@ export const run = async () => {
     const docPath = core.getInput('doc-path', { required: true });
     const token = core.getInput('token');
 
-    // TODO changed this from validate, should maybe show warnings if oas not valid
-    const oasDoc = await SwaggerParser.dereference(oasPath);
-    const oas = isV2(oasDoc)
-      ? (await convertFile(oasPath, {})).openapi
-      : oasDoc;
+    const oas = await oasParse(oasPath);
 
     const oasIdToEndpoint = oasParseEndpoints(oas);
 
-    const docAST = remark()
-      .use(remarkGfm)
-      .parse(await read(docPath));
-    const tree = remark().use(remarkSectionize).runSync(docAST) as Root;
+    const tree = await docParse(docPath);
 
     const oasIdToDocMatches = new Map<
       string,
@@ -239,7 +228,17 @@ export const run = async () => {
         ...oasEndpoint.servers,
         {} satisfies (typeof oasEndpoint.servers)[number],
       ].some(s => {
-        const oasPath = [...(s.basePath ?? []), ...oasEndpoint.pathParts];
+        const basePath = s.basePath ?? [];
+        if (oasEndpoint.pathParts.length > docEndpoint.pathParts.length) {
+          return false;
+        }
+        const lengthDiff =
+          basePath.length +
+          oasEndpoint.pathParts.length -
+          docEndpoint.pathParts.length;
+        if (lengthDiff < 0) return false;
+        const partialBasePath = basePath.slice(lengthDiff);
+        const oasPath = [...partialBasePath, ...oasEndpoint.pathParts];
         return (
           oasPath.length === docEndpoint.pathParts.length &&
           oasPath.every((oasP, i) => {
@@ -263,76 +262,100 @@ export const run = async () => {
           inconsistencies.push({ type: 'method-mismatch' });
         }
 
-        const partialMatchServers = oasEndpoint.servers.filter(
-          s =>
-            (docEndpoint.scheme && s.schemes?.includes(docEndpoint.scheme)) ||
-            (docEndpoint.host && s.host === docEndpoint.host) ||
-            (s.basePath &&
-              s.basePath.some(sPart =>
-                docEndpoint.pathParts.some(dPart => isEqual(sPart, dPart)),
-              )),
-        );
-        if (partialMatchServers.length > 1) {
-          throw new Error(
-            'Multiple partially matching servers currently not supported',
-          );
-        }
-        const [partialMatchServer] = partialMatchServers;
-        if (partialMatchServer) {
-          const { host, schemes } = partialMatchServer;
-          if (docEndpoint.host && host !== docEndpoint.host) {
-            inconsistencies.push({ type: 'host-mismatch', oasHost: host });
-          }
-          if (
-            docEndpoint.scheme &&
-            schemes &&
-            schemes.includes(docEndpoint.scheme)
-          ) {
-            inconsistencies.push({
-              type: 'doc-scheme-not-supported-by-oas-server',
-            });
-          }
-        }
-        const oasFullPathParts =
-          oasEndpoint.pathParts.length < docEndpoint.pathParts.length
-            ? [
-                ...(partialMatchServer?.basePath ?? []),
-                ...oasEndpoint.pathParts,
-              ]
-            : oasEndpoint.pathParts;
-
-        const oasServerIndex = oasEndpoint.servers.findIndex(s =>
-          isEqual(s, partialMatchServer),
-        );
-
-        if (oasFullPathParts.length === docEndpoint.pathParts.length) {
-          let parameterIndex = -1;
-          for (const [k, oasPart] of oasFullPathParts.entries()) {
-            if (oasPart.type === 'parameter') parameterIndex++;
-            const docPart = docEndpoint.pathParts[k];
-            if (!docPart) {
-              throw new Error('Expected doc path part to be defined');
-            }
-            if (isEqual(oasPart, docPart)) continue;
+        const serversInconsistencies = [...oasEndpoint.servers, void 0].map(
+          (s, i, arr) => {
             if (
-              oasPart.type === 'parameter' &&
-              docPart.type === 'parameter' &&
-              oasPart.name !== docPart.name
+              s &&
+              !(
+                (docEndpoint.scheme &&
+                  s.schemes?.includes(docEndpoint.scheme)) ||
+                (docEndpoint.host && s.host === docEndpoint.host) ||
+                (s.basePath &&
+                  s.basePath.some(sPart =>
+                    docEndpoint.pathParts.some(dPart => isEqual(sPart, dPart)),
+                  ))
+              )
             ) {
-              inconsistencies.push({
-                type: 'path-path-parameter-name-mismatch',
-                parameterIndex,
-                oasServerIndex: oasServerIndex === -1 ? null : oasServerIndex,
-              });
+              return [s, null] as const;
             }
-          }
-        }
+            const serverInconsistencies: Inconsistency[] = [];
+            if (s) {
+              const { host, schemes } = s;
+              if (docEndpoint.host && host !== docEndpoint.host) {
+                serverInconsistencies.push({
+                  type: 'host-mismatch',
+                  oasHost: host,
+                });
+              }
+              if (
+                docEndpoint.scheme &&
+                schemes &&
+                schemes.includes(docEndpoint.scheme)
+              ) {
+                serverInconsistencies.push({
+                  type: 'doc-scheme-not-supported-by-oas-server',
+                });
+              }
+            }
+
+            const basePath = s?.basePath ?? [];
+            const lengthDiff =
+              basePath.length +
+              oasEndpoint.pathParts.length -
+              docEndpoint.pathParts.length;
+
+            if (lengthDiff >= 0) {
+              const partialBasePath = basePath.slice(lengthDiff);
+              const oasFullPathParts = [
+                ...partialBasePath,
+                ...oasEndpoint.pathParts,
+              ];
+              let parameterIndex = -1;
+              for (const [k, oasPart] of oasFullPathParts.entries()) {
+                if (oasPart.type === 'parameter') parameterIndex++;
+                const docPart = docEndpoint.pathParts[k];
+                if (!docPart) {
+                  throw new Error('Expected doc path part to be defined');
+                }
+                if (isEqual(oasPart, docPart)) continue;
+                if (
+                  oasPart.type === 'parameter' &&
+                  docPart.type === 'parameter' &&
+                  oasPart.name !== docPart.name
+                ) {
+                  serverInconsistencies.push({
+                    type: 'path-path-parameter-name-mismatch',
+                    parameterIndex,
+                    oasServerIndex: i === arr.length - 1 ? null : i,
+                  });
+                }
+              }
+            }
+            return [s, serverInconsistencies] as const;
+          },
+        );
+
+        const serverInconsistencies = serversInconsistencies.reduce(
+          (si1, si2) => {
+            const [s1, i1] = si1;
+            const [, i2] = si2;
+            if (i1 === null || i1.length === 0) return si2;
+            if (i2 === null || i2.length === 0) return si1;
+            if (i1.length === i2.length) {
+              return s1 === void 0 ? si1 : si2;
+            }
+            return i1.length > i2.length ? si2 : si1;
+          },
+        )?.[1];
 
         const oasEndpointInconsistencies = unmatchedEndpointsTable[i];
         if (!oasEndpointInconsistencies) {
           throw new Error('Expected inconsistencies to be defined');
         }
-        oasEndpointInconsistencies[j] = inconsistencies;
+        oasEndpointInconsistencies[j] = [
+          ...inconsistencies,
+          ...(serverInconsistencies ?? []),
+        ];
       }
     }
 
@@ -461,7 +484,9 @@ export const run = async () => {
       }
     }
 
-    if (isTestEnv) await writeFile('__tests__/output.md', output);
+    if (isTestEnv) {
+      await writeFile(join(import.meta.dir, 'tests', 'output.md'), output);
+    }
 
     if (failOutput.length > 0) {
       throw new Error(JSON.stringify(failOutput));

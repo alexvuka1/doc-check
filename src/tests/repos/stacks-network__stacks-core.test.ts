@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
 import { mkdirSync } from 'fs';
 import { join } from 'path';
-import * as main from '../../src/main';
+import * as main from '../../main';
 import { expectFail, getOrDownload, setupInputRepo } from '../utils';
 
 const getInputMock = spyOn(core, 'getInput');
@@ -54,7 +54,7 @@ describe('action', () => {
     );
     mkdirSync(entitiesContractsDir, { recursive: true });
 
-    const a = [
+    const dirToFile = [
       [contractDir, 'contract/post-call-read-only-fn-fail.example.json'],
       [contractDir, 'contract/post-call-read-only-fn-success.example.json'],
       [contractDir, 'contract/post-call-read-only-fn.schema.json'],
@@ -100,15 +100,13 @@ describe('action', () => {
     ];
 
     await Promise.all([
-      ...a.map(([dir, filePath]) =>
+      ...dirToFile.map(([dir, filePath]) =>
         getOrDownload(
-          repoName,
           `https://github.com/${repoName}/blob/${sha}/docs/rpc/api/${filePath}`,
           dir,
         ),
       ),
       getOrDownload(
-        repoName,
         `https://github.com/${repoName}/blob/${sha}/docs/rpc/entities/contracts/read-only-function-args.schema.json`,
         entitiesContractsDir,
       ),

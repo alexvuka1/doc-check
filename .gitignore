@@ -95,13 +95,13 @@ typings/
 Thumbs.db
 
 # Ignore built ts files
-__tests__/runner/*
+src/tests/runner/*
+src/tests/**.md
+src/tests/data/repos/**
+src/tests/data/mutation/**
+!src/tests/data/**/.gitkeep
 
 # IDE files
 .idea
 .vscode
 *.code-workspace
-
-__tests__/data/repos/**
-__tests__/**.md
-!__tests__/data/repos/.gitkeep

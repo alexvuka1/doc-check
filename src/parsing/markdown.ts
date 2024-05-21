@@ -1,4 +1,9 @@
-import { includes } from 'lodash-es';
+import { includes, reduce } from 'lodash-es';
+import { Root } from 'mdast';
+import { remark } from 'remark';
+import remarkGfm from 'remark-gfm';
+import remarkSectionize from 'remark-sectionize';
+import { read } from 'to-vfile';
 import {
   DocEndpoint,
   Method,
@@ -7,6 +12,8 @@ import {
   Scheme,
   validSchemes,
 } from '.';
+import remarkStringify from 'remark-stringify';
+import remarkFrontmatter from 'remark-frontmatter';
 
 export const docCreateEndpoint = (
   method: Method,
@@ -59,6 +66,7 @@ export const docCreateEndpoint = (
           type: 'parameter',
           name: s.substring(1),
         });
+        break;
       default:
         if (s !== '') pathParts.push({ type: 'literal', value: s });
         break;
@@ -105,13 +113,24 @@ export const oasEndpointToDocRegex = (endpoint: OasEndpoint) => {
         s.schemes && s.host
           ? `(${s.schemes.join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
           : '';
-      const serverEnd = s.basePath ? pathPartsToRegexStr(s.basePath) : '';
+      const serverEnd = s.basePath
+        ? reduce(
+            s.basePath,
+            (acc, p, i, ps) => {
+              const regexStr = escapeRegexSpecial(pathPartsToRegexStr([p]));
+              return acc === ''
+                ? `(/${regexStr})?`
+                : `(${acc}/${regexStr})${i === ps.length - 1 ? '' : '?'}`;
+            },
+            '',
+          )
+        : '';
       const server =
         Boolean(serverStart) && Boolean(serverEnd)
-          ? `((${serverStart})?(/${serverEnd}))`
+          ? `((${serverStart})?${serverEnd})`
           : Boolean(serverStart)
             ? `((${serverStart})?)`
-            : `(/${serverEnd})`;
+            : serverEnd;
       return server === '' ? [] : server;
     })
     .join('|');
@@ -130,3 +149,21 @@ export const extractPath = (str: string) => {
   const path = match[0];
   return path;
 };
+
+export const docParse = async (docPath: string) => {
+  const docFile = await read(docPath);
+  const docAST = remark().use(remarkFrontmatter).use(remarkGfm).parse(docFile);
+  const tree = remark().use(remarkSectionize).runSync(docAST) as Root;
+  return tree;
+};
+
+export const docStringify = (tree: Root) =>
+  remark()
+    .use(remarkGfm)
+    .use(remarkFrontmatter)
+    .use(remarkStringify, {
+      handlers: {
+        section: (node, _, state, info) => state.containerFlow(node, info),
+      },
+    })
+    .stringify(tree);

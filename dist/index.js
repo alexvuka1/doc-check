@@ -27338,6 +27338,138 @@ function replaceGetterValues (replacer) {
 
 /***/ }),
 
+/***/ 7852:
+/***/ ((module) => {
+
+//
+// format - printf-like string formatting for JavaScript
+// github.com/samsonjs/format
+// @_sjs
+//
+// Copyright 2010 - 2013 Sami Samhuri <sami@samhuri.net>
+//
+// MIT License
+// http://sjs.mit-license.org
+//
+
+;(function() {
+
+  //// Export the API
+  var namespace;
+
+  // CommonJS / Node module
+  if (true) {
+    namespace = module.exports = format;
+  }
+
+  // Browsers and other environments
+  else {}
+
+  namespace.format = format;
+  namespace.vsprintf = vsprintf;
+
+  if (typeof console !== 'undefined' && typeof console.log === 'function') {
+    namespace.printf = printf;
+  }
+
+  function printf(/* ... */) {
+    console.log(format.apply(null, arguments));
+  }
+
+  function vsprintf(fmt, replacements) {
+    return format.apply(null, [fmt].concat(replacements));
+  }
+
+  function format(fmt) {
+    var argIndex = 1 // skip initial format argument
+      , args = [].slice.call(arguments)
+      , i = 0
+      , n = fmt.length
+      , result = ''
+      , c
+      , escaped = false
+      , arg
+      , tmp
+      , leadingZero = false
+      , precision
+      , nextArg = function() { return args[argIndex++]; }
+      , slurpNumber = function() {
+          var digits = '';
+          while (/\d/.test(fmt[i])) {
+            digits += fmt[i++];
+            c = fmt[i];
+          }
+          return digits.length > 0 ? parseInt(digits) : null;
+        }
+      ;
+    for (; i < n; ++i) {
+      c = fmt[i];
+      if (escaped) {
+        escaped = false;
+        if (c == '.') {
+          leadingZero = false;
+          c = fmt[++i];
+        }
+        else if (c == '0' && fmt[i + 1] == '.') {
+          leadingZero = true;
+          i += 2;
+          c = fmt[i];
+        }
+        else {
+          leadingZero = true;
+        }
+        precision = slurpNumber();
+        switch (c) {
+        case 'b': // number in binary
+          result += parseInt(nextArg(), 10).toString(2);
+          break;
+        case 'c': // character
+          arg = nextArg();
+          if (typeof arg === 'string' || arg instanceof String)
+            result += arg;
+          else
+            result += String.fromCharCode(parseInt(arg, 10));
+          break;
+        case 'd': // number in decimal
+          result += parseInt(nextArg(), 10);
+          break;
+        case 'f': // floating point number
+          tmp = String(parseFloat(nextArg()).toFixed(precision || 6));
+          result += leadingZero ? tmp : tmp.replace(/^0/, '');
+          break;
+        case 'j': // JSON
+          result += JSON.stringify(nextArg());
+          break;
+        case 'o': // number in octal
+          result += '0' + parseInt(nextArg(), 10).toString(8);
+          break;
+        case 's': // string
+          result += nextArg();
+          break;
+        case 'x': // lowercase hexadecimal
+          result += '0x' + parseInt(nextArg(), 10).toString(16);
+          break;
+        case 'X': // uppercase hexadecimal
+          result += '0x' + parseInt(nextArg(), 10).toString(16).toUpperCase();
+          break;
+        default:
+          result += c;
+          break;
+        }
+      } else if (c === '%') {
+        escaped = true;
+      } else {
+        result += c;
+      }
+    }
+    return result;
+  }
+
+}());
+
+
+/***/ }),
+
 /***/ 7308:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
@@ -33138,7 +33270,7 @@ const mockErrors = __nccwpck_require__(888)
 const ProxyAgent = __nccwpck_require__(7858)
 const RetryHandler = __nccwpck_require__(2286)
 const { getGlobalDispatcher, setGlobalDispatcher } = __nccwpck_require__(1892)
-const DecoratorHandler = __nccwpck_require__(3503)
+const DecoratorHandler = __nccwpck_require__(6930)
 const RedirectHandler = __nccwpck_require__(2860)
 const createRedirectInterceptor = __nccwpck_require__(8861)
 
@@ -50277,7 +50409,7 @@ module.exports = {
 
 /***/ }),
 
-/***/ 3503:
+/***/ 6930:
 /***/ ((module) => {
 
 
@@ -65783,9 +65915,6 @@ __nccwpck_require__.d(constructs_namespaceObject, {
 var core = __nccwpck_require__(2186);
 // EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
 var github = __nccwpck_require__(5438);
-// EXTERNAL MODULE: ./node_modules/@apidevtools/swagger-parser/lib/index.js
-var lib = __nccwpck_require__(5999);
-var lib_default = /*#__PURE__*/__nccwpck_require__.n(lib);
 // EXTERNAL MODULE: external "assert"
 var external_assert_ = __nccwpck_require__(9491);
 var external_assert_default = /*#__PURE__*/__nccwpck_require__.n(external_assert_);
@@ -68873,6 +69002,5420 @@ function isEqual(value, other) {
 
 /* harmony default export */ const lodash_es_isEqual = (isEqual);
 
+;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/indexes.js
+var emptyMulticharIndex = {};
+var emptyRegularIndex = {};
+function extendIndex(item, index) {
+    var currentIndex = index;
+    for (var pos = 0; pos < item.length; pos++) {
+        var isLast = pos === item.length - 1;
+        var char = item.charAt(pos);
+        var charIndex = currentIndex[char] || (currentIndex[char] = { chars: {} });
+        if (isLast) {
+            charIndex.self = item;
+        }
+        currentIndex = charIndex.chars;
+    }
+}
+function createMulticharIndex(items) {
+    if (items.length === 0) {
+        return emptyMulticharIndex;
+    }
+    var index = {};
+    for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
+        var item = items_1[_i];
+        extendIndex(item, index);
+    }
+    return index;
+}
+function createRegularIndex(items) {
+    if (items.length === 0) {
+        return emptyRegularIndex;
+    }
+    var result = {};
+    for (var _i = 0, items_2 = items; _i < items_2.length; _i++) {
+        var item = items_2[_i];
+        result[item] = true;
+    }
+    return result;
+}
+
+;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/pseudo-signatures.js
+var emptyPseudoSignatures = {};
+var defaultPseudoSignature = {
+    type: 'String',
+    optional: true
+};
+function calculatePseudoSignature(types) {
+    var result = {
+        type: 'NoArgument',
+        optional: false
+    };
+    function setResultType(type) {
+        if (result.type && result.type !== type && result.type !== 'NoArgument') {
+            throw new Error("Conflicting pseudo-class argument type: \"".concat(result.type, "\" vs \"").concat(type, "\"."));
+        }
+        result.type = type;
+    }
+    for (var _i = 0, types_1 = types; _i < types_1.length; _i++) {
+        var type = types_1[_i];
+        if (type === 'NoArgument') {
+            result.optional = true;
+        }
+        if (type === 'Formula') {
+            setResultType('Formula');
+        }
+        if (type === 'FormulaOfSelector') {
+            setResultType('Formula');
+            result.ofSelector = true;
+        }
+        if (type === 'String') {
+            setResultType('String');
+        }
+        if (type === 'Selector') {
+            setResultType('Selector');
+        }
+    }
+    return result;
+}
+function inverseCategories(obj) {
+    var result = {};
+    for (var _i = 0, _a = Object.keys(obj); _i < _a.length; _i++) {
+        var category = _a[_i];
+        var items = obj[category];
+        if (items) {
+            for (var _b = 0, _c = items; _b < _c.length; _b++) {
+                var item = _c[_b];
+                (result[item] || (result[item] = [])).push(category);
+            }
+        }
+    }
+    return result;
+}
+function calculatePseudoSignatures(definitions) {
+    var pseudoClassesToArgumentTypes = inverseCategories(definitions);
+    var result = {};
+    for (var _i = 0, _a = Object.keys(pseudoClassesToArgumentTypes); _i < _a.length; _i++) {
+        var pseudoClass = _a[_i];
+        var argumentTypes = pseudoClassesToArgumentTypes[pseudoClass];
+        if (argumentTypes) {
+            result[pseudoClass] = calculatePseudoSignature(argumentTypes);
+        }
+    }
+    return result;
+}
+
+;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/syntax-definitions.js
+var __assign = (undefined && undefined.__assign) || function () {
+    __assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return __assign.apply(this, arguments);
+};
+var emptyXmlOptions = {};
+var defaultXmlOptions = { wildcard: true };
+function getXmlOptions(param) {
+    if (param) {
+        if (typeof param === 'boolean') {
+            return defaultXmlOptions;
+        }
+        else {
+            return param;
+        }
+    }
+    else {
+        return emptyXmlOptions;
+    }
+}
+function withMigration(migration, merge) {
+    return function (base, extension) { return merge(migration(base), migration(extension)); };
+}
+function withNoNegative(merge) {
+    return function (base, extension) {
+        var result = merge(base, extension);
+        if (!result) {
+            throw new Error("Syntax definition cannot be null or undefined.");
+        }
+        return result;
+    };
+}
+function withPositive(positive, merge) {
+    return function (base, extension) {
+        if (extension === true) {
+            return positive;
+        }
+        return merge(base === true ? positive : base, extension);
+    };
+}
+function mergeSection(values) {
+    return function (base, extension) {
+        if (!extension || !base) {
+            return extension;
+        }
+        if (typeof extension !== 'object' || extension === null) {
+            throw new Error("Unexpected syntax definition extension type: ".concat(extension, "."));
+        }
+        var result = __assign({}, base);
+        for (var _i = 0, _a = Object.entries(extension); _i < _a.length; _i++) {
+            var _b = _a[_i], key = _b[0], value = _b[1];
+            var mergeSchema = values[key];
+            result[key] = mergeSchema(base[key], value);
+        }
+        return result;
+    };
+}
+function replaceValueIfSpecified(base, extension) {
+    if (extension !== undefined) {
+        return extension;
+    }
+    return base;
+}
+function concatArray(base, extension) {
+    if (!extension) {
+        return base;
+    }
+    if (!base) {
+        return extension;
+    }
+    return base.concat(extension);
+}
+function mergeDefinitions(base, extension) {
+    if (!extension) {
+        return base;
+    }
+    if (!base) {
+        return extension;
+    }
+    var result = __assign({}, base);
+    for (var _i = 0, _a = Object.entries(extension); _i < _a.length; _i++) {
+        var _b = _a[_i], key = _b[0], value = _b[1];
+        if (!value) {
+            delete result[key];
+            continue;
+        }
+        var baseValue = base[key];
+        if (!baseValue) {
+            result[key] = value;
+            continue;
+        }
+        result[key] = baseValue.concat(value);
+    }
+    return result;
+}
+var extendSyntaxDefinition = withNoNegative(mergeSection({
+    baseSyntax: replaceValueIfSpecified,
+    tag: withPositive(defaultXmlOptions, mergeSection({
+        wildcard: replaceValueIfSpecified
+    })),
+    ids: replaceValueIfSpecified,
+    classNames: replaceValueIfSpecified,
+    namespace: withPositive(defaultXmlOptions, mergeSection({
+        wildcard: replaceValueIfSpecified
+    })),
+    combinators: concatArray,
+    attributes: mergeSection({
+        operators: concatArray,
+        caseSensitivityModifiers: concatArray,
+        unknownCaseSensitivityModifiers: replaceValueIfSpecified
+    }),
+    pseudoClasses: mergeSection({
+        unknown: replaceValueIfSpecified,
+        definitions: mergeDefinitions
+    }),
+    pseudoElements: mergeSection({
+        unknown: replaceValueIfSpecified,
+        notation: replaceValueIfSpecified,
+        definitions: withMigration(function (definitions) { return (Array.isArray(definitions) ? { NoArgument: definitions } : definitions); }, mergeDefinitions)
+    })
+}));
+var css1SyntaxDefinition = {
+    tag: {},
+    ids: true,
+    classNames: true,
+    combinators: [],
+    pseudoElements: {
+        unknown: 'reject',
+        notation: 'singleColon',
+        definitions: ['first-letter', 'first-line']
+    },
+    pseudoClasses: {
+        unknown: 'reject',
+        definitions: {
+            NoArgument: ['link', 'visited', 'active']
+        }
+    }
+};
+var css2SyntaxDefinition = extendSyntaxDefinition(css1SyntaxDefinition, {
+    tag: { wildcard: true },
+    combinators: ['>', '+'],
+    attributes: {
+        unknownCaseSensitivityModifiers: 'reject',
+        operators: ['=', '~=', '|=']
+    },
+    pseudoElements: {
+        definitions: ['before', 'after']
+    },
+    pseudoClasses: {
+        unknown: 'reject',
+        definitions: {
+            NoArgument: ['hover', 'focus', 'first-child'],
+            String: ['lang']
+        }
+    }
+});
+var selectors3SyntaxDefinition = extendSyntaxDefinition(css2SyntaxDefinition, {
+    namespace: {
+        wildcard: true
+    },
+    combinators: ['~'],
+    attributes: {
+        operators: ['^=', '$=', '*=']
+    },
+    pseudoElements: {
+        notation: 'both'
+    },
+    pseudoClasses: {
+        definitions: {
+            NoArgument: [
+                'root',
+                'last-child',
+                'first-of-type',
+                'last-of-type',
+                'only-child',
+                'only-of-type',
+                'empty',
+                'target',
+                'enabled',
+                'disabled',
+                'checked',
+                'indeterminate'
+            ],
+            Formula: ['nth-child', 'nth-last-child', 'nth-of-type', 'nth-last-of-type'],
+            Selector: ['not']
+        }
+    }
+});
+var selectors4SyntaxDefinition = extendSyntaxDefinition(selectors3SyntaxDefinition, {
+    combinators: ['||'],
+    attributes: {
+        caseSensitivityModifiers: ['i', 'I', 's', 'S']
+    },
+    pseudoClasses: {
+        definitions: {
+            NoArgument: [
+                'any-link',
+                'local-link',
+                'target-within',
+                'scope',
+                'current',
+                'past',
+                'future',
+                'focus-within',
+                'focus-visible',
+                'read-write',
+                'read-only',
+                'placeholder-shown',
+                'default',
+                'valid',
+                'invalid',
+                'in-range',
+                'out-of-range',
+                'required',
+                'optional',
+                'blank',
+                'user-invalid'
+            ],
+            Formula: ['nth-col', 'nth-last-col'],
+            String: ['dir'],
+            FormulaOfSelector: ['nth-child', 'nth-last-child'],
+            Selector: ['current', 'is', 'where', 'has']
+        }
+    }
+});
+var progressiveSyntaxDefinition = extendSyntaxDefinition(selectors4SyntaxDefinition, {
+    pseudoElements: {
+        unknown: 'accept'
+    },
+    pseudoClasses: {
+        unknown: 'accept'
+    },
+    attributes: {
+        unknownCaseSensitivityModifiers: 'accept'
+    }
+});
+var cssSyntaxDefinitions = {
+    css1: css1SyntaxDefinition,
+    css2: css2SyntaxDefinition,
+    css3: selectors3SyntaxDefinition,
+    'selectors-3': selectors3SyntaxDefinition,
+    'selectors-4': selectors4SyntaxDefinition,
+    latest: selectors4SyntaxDefinition,
+    progressive: progressiveSyntaxDefinition
+};
+
+;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/utils.js
+function isIdentStart(c) {
+    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c === '-' || c === '_' || c === '\\' || c >= '\u00a0';
+}
+function isIdent(c) {
+    return ((c >= 'a' && c <= 'z') ||
+        (c >= 'A' && c <= 'Z') ||
+        (c >= '0' && c <= '9') ||
+        c === '-' ||
+        c === '_' ||
+        c >= '\u00a0');
+}
+function isHex(c) {
+    return (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || (c >= '0' && c <= '9');
+}
+var identEscapeChars = {
+    '!': true,
+    '"': true,
+    '#': true,
+    $: true,
+    '%': true,
+    '&': true,
+    "'": true,
+    '(': true,
+    ')': true,
+    '*': true,
+    '+': true,
+    ',': true,
+    '.': true,
+    '/': true,
+    ';': true,
+    '<': true,
+    '=': true,
+    '>': true,
+    '?': true,
+    '@': true,
+    '[': true,
+    '\\': true,
+    ']': true,
+    '^': true,
+    '`': true,
+    '{': true,
+    '|': true,
+    '}': true,
+    '~': true
+};
+var stringRenderEscapeChars = {
+    '\n': true,
+    '\r': true,
+    '\t': true,
+    '\f': true,
+    '\v': true
+};
+var whitespaceChars = {
+    ' ': true,
+    '\t': true,
+    '\n': true,
+    '\r': true,
+    '\f': true
+};
+var quoteChars = {
+    '"': true,
+    "'": true
+};
+var digitsChars = {
+    0: true,
+    1: true,
+    2: true,
+    3: true,
+    4: true,
+    5: true,
+    6: true,
+    7: true,
+    8: true,
+    9: true
+};
+var maxHexLength = 6;
+function utils_escapeIdentifier(s) {
+    var len = s.length;
+    var result = '';
+    var i = 0;
+    while (i < len) {
+        var chr = s.charAt(i);
+        if (identEscapeChars[chr] || (chr === '-' && i === 1 && s.charAt(0) === '-')) {
+            result += '\\' + chr;
+        }
+        else {
+            if (chr === '-' ||
+                chr === '_' ||
+                (chr >= 'A' && chr <= 'Z') ||
+                (chr >= 'a' && chr <= 'z') ||
+                (chr >= '0' && chr <= '9' && i !== 0 && !(i === 1 && s.charAt(0) === '-'))) {
+                result += chr;
+            }
+            else {
+                var charCode = chr.charCodeAt(0);
+                if ((charCode & 0xf800) === 0xd800) {
+                    var extraCharCode = s.charCodeAt(i++);
+                    if ((charCode & 0xfc00) !== 0xd800 || (extraCharCode & 0xfc00) !== 0xdc00) {
+                        throw Error('UCS-2(decode): illegal sequence');
+                    }
+                    charCode = ((charCode & 0x3ff) << 10) + (extraCharCode & 0x3ff) + 0x10000;
+                }
+                result += '\\' + charCode.toString(16) + ' ';
+            }
+        }
+        i++;
+    }
+    return result.trim();
+}
+function utils_escapeString(s) {
+    var len = s.length;
+    var result = '';
+    var i = 0;
+    while (i < len) {
+        var chr = s.charAt(i);
+        if (chr === '"') {
+            chr = '\\"';
+        }
+        else if (chr === '\\') {
+            chr = '\\\\';
+        }
+        else if (stringRenderEscapeChars[chr]) {
+            chr = '\\' + chr.charCodeAt(0).toString(16) + (i === len - 1 ? '' : ' ');
+        }
+        result += chr;
+        i++;
+    }
+    return "\"".concat(result, "\"");
+}
+
+;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/parser.js
+
+
+
+
+var errorPrefix = "css-selector-parser parse error: ";
+/**
+ * Creates a parse function to be used later to parse CSS selectors.
+ */
+function createParser(options) {
+    if (options === void 0) { options = {}; }
+    var _a = options.syntax, syntax = _a === void 0 ? 'latest' : _a, substitutes = options.substitutes, _b = options.strict, strict = _b === void 0 ? true : _b;
+    var syntaxDefinition = typeof syntax === 'object' ? syntax : cssSyntaxDefinitions[syntax];
+    if (syntaxDefinition.baseSyntax) {
+        syntaxDefinition = extendSyntaxDefinition(cssSyntaxDefinitions[syntaxDefinition.baseSyntax], syntaxDefinition);
+    }
+    var _c = syntaxDefinition.tag
+        ? [true, Boolean(getXmlOptions(syntaxDefinition.tag).wildcard)]
+        : [false, false], tagNameEnabled = _c[0], tagNameWildcardEnabled = _c[1];
+    var idEnabled = Boolean(syntaxDefinition.ids);
+    var classNamesEnabled = Boolean(syntaxDefinition.classNames);
+    var namespaceEnabled = Boolean(syntaxDefinition.namespace);
+    var namespaceWildcardEnabled = syntaxDefinition.namespace &&
+        (syntaxDefinition.namespace === true || syntaxDefinition.namespace.wildcard === true);
+    if (namespaceEnabled && !tagNameEnabled) {
+        throw new Error("".concat(errorPrefix, "Namespaces cannot be enabled while tags are disabled."));
+    }
+    var substitutesEnabled = Boolean(substitutes);
+    var combinatorsIndex = syntaxDefinition.combinators
+        ? createMulticharIndex(syntaxDefinition.combinators)
+        : emptyMulticharIndex;
+    var _d = syntaxDefinition.attributes
+        ? [
+            true,
+            syntaxDefinition.attributes.operators
+                ? createMulticharIndex(syntaxDefinition.attributes.operators)
+                : emptyMulticharIndex,
+            syntaxDefinition.attributes.caseSensitivityModifiers
+                ? createRegularIndex(syntaxDefinition.attributes.caseSensitivityModifiers)
+                : emptyRegularIndex,
+            syntaxDefinition.attributes.unknownCaseSensitivityModifiers === 'accept'
+        ]
+        : [false, emptyMulticharIndex, emptyRegularIndex, false], attributesEnabled = _d[0], attributesOperatorsIndex = _d[1], attributesCaseSensitivityModifiers = _d[2], attributesAcceptUnknownCaseSensitivityModifiers = _d[3];
+    var attributesCaseSensitivityModifiersEnabled = attributesAcceptUnknownCaseSensitivityModifiers || Object.keys(attributesCaseSensitivityModifiers).length > 0;
+    var _e = syntaxDefinition.pseudoClasses
+        ? [
+            true,
+            syntaxDefinition.pseudoClasses.definitions
+                ? calculatePseudoSignatures(syntaxDefinition.pseudoClasses.definitions)
+                : emptyPseudoSignatures,
+            syntaxDefinition.pseudoClasses.unknown === 'accept'
+        ]
+        : [false, emptyPseudoSignatures, false], pseudoClassesEnabled = _e[0], pseudoClassesDefinitions = _e[1], pseudoClassesAcceptUnknown = _e[2];
+    var _f = syntaxDefinition.pseudoElements
+        ? [
+            true,
+            syntaxDefinition.pseudoElements.notation === 'singleColon' ||
+                syntaxDefinition.pseudoElements.notation === 'both',
+            !syntaxDefinition.pseudoElements.notation ||
+                syntaxDefinition.pseudoElements.notation === 'doubleColon' ||
+                syntaxDefinition.pseudoElements.notation === 'both',
+            syntaxDefinition.pseudoElements.definitions
+                ? calculatePseudoSignatures(Array.isArray(syntaxDefinition.pseudoElements.definitions)
+                    ? { NoArgument: syntaxDefinition.pseudoElements.definitions }
+                    : syntaxDefinition.pseudoElements.definitions)
+                : emptyPseudoSignatures,
+            syntaxDefinition.pseudoElements.unknown === 'accept'
+        ]
+        : [false, false, false, emptyPseudoSignatures, false], pseudoElementsEnabled = _f[0], pseudoElementsSingleColonNotationEnabled = _f[1], pseudoElementsDoubleColonNotationEnabled = _f[2], pseudoElementsDefinitions = _f[3], pseudoElementsAcceptUnknown = _f[4];
+    var str = '';
+    var l = str.length;
+    var pos = 0;
+    var chr = '';
+    var is = function (comparison) { return chr === comparison; };
+    var isTagStart = function () { return is('*') || isIdentStart(chr); };
+    var rewind = function (newPos) {
+        pos = newPos;
+        chr = str.charAt(pos);
+    };
+    var next = function () {
+        pos++;
+        chr = str.charAt(pos);
+    };
+    var readAndNext = function () {
+        var current = chr;
+        pos++;
+        chr = str.charAt(pos);
+        return current;
+    };
+    /** @throws ParserError */
+    function fail(errorMessage) {
+        var position = Math.min(l - 1, pos);
+        var error = new Error("".concat(errorPrefix).concat(errorMessage, " Pos: ").concat(position, "."));
+        error.position = position;
+        error.name = 'ParserError';
+        throw error;
+    }
+    function assert(condition, errorMessage) {
+        if (!condition) {
+            return fail(errorMessage);
+        }
+    }
+    var assertNonEof = function () {
+        assert(pos < l, 'Unexpected end of input.');
+    };
+    var isEof = function () { return pos >= l; };
+    var pass = function (character) {
+        assert(pos < l, "Expected \"".concat(character, "\" but end of input reached."));
+        assert(chr === character, "Expected \"".concat(character, "\" but \"").concat(chr, "\" found."));
+        pos++;
+        chr = str.charAt(pos);
+    };
+    function matchMulticharIndex(index) {
+        var match = matchMulticharIndexPos(index, pos);
+        if (match) {
+            pos += match.length;
+            chr = str.charAt(pos);
+            return match;
+        }
+    }
+    function matchMulticharIndexPos(index, subPos) {
+        var char = str.charAt(subPos);
+        var charIndex = index[char];
+        if (charIndex) {
+            var subMatch = matchMulticharIndexPos(charIndex.chars, subPos + 1);
+            if (subMatch) {
+                return subMatch;
+            }
+            if (charIndex.self) {
+                return charIndex.self;
+            }
+        }
+    }
+    /**
+     * @see https://www.w3.org/TR/css-syntax/#hex-digit-diagram
+     */
+    function parseHex() {
+        var hex = readAndNext();
+        var count = 1;
+        while (isHex(chr) && count < maxHexLength) {
+            hex += readAndNext();
+            count++;
+        }
+        skipSingleWhitespace();
+        return String.fromCharCode(parseInt(hex, 16));
+    }
+    /**
+     * @see https://www.w3.org/TR/css-syntax/#string-token-diagram
+     */
+    function parseString(quote) {
+        var result = '';
+        pass(quote);
+        while (pos < l) {
+            if (is(quote)) {
+                next();
+                return result;
+            }
+            else if (is('\\')) {
+                next();
+                if (is(quote)) {
+                    result += quote;
+                    next();
+                }
+                else if (chr === '\n' || chr === '\f') {
+                    next();
+                }
+                else if (chr === '\r') {
+                    next();
+                    if (is('\n')) {
+                        next();
+                    }
+                }
+                else if (isHex(chr)) {
+                    result += parseHex();
+                }
+                else {
+                    result += chr;
+                    next();
+                }
+            }
+            else {
+                result += chr;
+                next();
+            }
+        }
+        return result;
+    }
+    /**
+     * @see https://www.w3.org/TR/css-syntax/#ident-token-diagram
+     */
+    function parseIdentifier() {
+        if (!isIdentStart(chr)) {
+            return null;
+        }
+        var result = '';
+        while (is('-')) {
+            result += chr;
+            next();
+        }
+        if (result === '-' && !isIdent(chr) && !is('\\')) {
+            fail('Identifiers cannot consist of a single hyphen.');
+        }
+        if (strict && result.length >= 2) {
+            // Checking this only for strict mode since browsers work fine with these identifiers.
+            fail('Identifiers cannot start with two hyphens with strict mode on.');
+        }
+        if (digitsChars[chr]) {
+            fail('Identifiers cannot start with hyphens followed by digits.');
+        }
+        while (pos < l) {
+            if (isIdent(chr)) {
+                result += readAndNext();
+            }
+            else if (is('\\')) {
+                next();
+                assertNonEof();
+                if (isHex(chr)) {
+                    result += parseHex();
+                }
+                else {
+                    result += readAndNext();
+                }
+            }
+            else {
+                break;
+            }
+        }
+        return result;
+    }
+    function parsePseudoClassString() {
+        var result = '';
+        while (pos < l) {
+            if (is(')')) {
+                break;
+            }
+            else if (is('\\')) {
+                next();
+                if (isEof() && !strict) {
+                    return (result + '\\').trim();
+                }
+                assertNonEof();
+                if (isHex(chr)) {
+                    result += parseHex();
+                }
+                else {
+                    result += readAndNext();
+                }
+            }
+            else {
+                result += readAndNext();
+            }
+        }
+        return result.trim();
+    }
+    function skipSingleWhitespace() {
+        if (chr === ' ' || chr === '\t' || chr === '\f' || chr === '\n') {
+            next();
+            return;
+        }
+        if (chr === '\r') {
+            next();
+        }
+        if (chr === '\n') {
+            next();
+        }
+    }
+    function skipWhitespace() {
+        while (whitespaceChars[chr]) {
+            next();
+        }
+    }
+    function parseSelector(relative) {
+        if (relative === void 0) { relative = false; }
+        skipWhitespace();
+        var rules = [parseRule(relative)];
+        while (is(',')) {
+            next();
+            skipWhitespace();
+            rules.push(parseRule(relative));
+        }
+        return {
+            type: 'Selector',
+            rules: rules
+        };
+    }
+    function parseAttribute() {
+        pass('[');
+        skipWhitespace();
+        var attr;
+        if (is('|')) {
+            assert(namespaceEnabled, 'Namespaces are not enabled.');
+            next();
+            var name_1 = parseIdentifier();
+            assert(name_1, 'Expected attribute name.');
+            attr = {
+                type: 'Attribute',
+                name: name_1,
+                namespace: { type: 'NoNamespace' }
+            };
+        }
+        else if (is('*')) {
+            assert(namespaceEnabled, 'Namespaces are not enabled.');
+            assert(namespaceWildcardEnabled, 'Wildcard namespace is not enabled.');
+            next();
+            pass('|');
+            var name_2 = parseIdentifier();
+            assert(name_2, 'Expected attribute name.');
+            attr = {
+                type: 'Attribute',
+                name: name_2,
+                namespace: { type: 'WildcardNamespace' }
+            };
+        }
+        else {
+            var identifier = parseIdentifier();
+            assert(identifier, 'Expected attribute name.');
+            attr = {
+                type: 'Attribute',
+                name: identifier
+            };
+            if (is('|')) {
+                var savedPos = pos;
+                next();
+                if (isIdentStart(chr)) {
+                    assert(namespaceEnabled, 'Namespaces are not enabled.');
+                    var name_3 = parseIdentifier();
+                    assert(name_3, 'Expected attribute name.');
+                    attr = {
+                        type: 'Attribute',
+                        name: name_3,
+                        namespace: { type: 'NamespaceName', name: identifier }
+                    };
+                }
+                else {
+                    rewind(savedPos);
+                }
+            }
+        }
+        assert(attr.name, 'Expected attribute name.');
+        skipWhitespace();
+        if (isEof() && !strict) {
+            return attr;
+        }
+        if (is(']')) {
+            next();
+        }
+        else {
+            attr.operator = matchMulticharIndex(attributesOperatorsIndex);
+            assert(attr.operator, 'Expected a valid attribute selector operator.');
+            skipWhitespace();
+            assertNonEof();
+            if (quoteChars[chr]) {
+                attr.value = {
+                    type: 'String',
+                    value: parseString(chr)
+                };
+            }
+            else if (substitutesEnabled && is('$')) {
+                next();
+                var name_4 = parseIdentifier();
+                assert(name_4, 'Expected substitute name.');
+                attr.value = {
+                    type: 'Substitution',
+                    name: name_4
+                };
+            }
+            else {
+                var value = parseIdentifier();
+                assert(value, 'Expected attribute value.');
+                attr.value = {
+                    type: 'String',
+                    value: value
+                };
+            }
+            skipWhitespace();
+            if (isEof() && !strict) {
+                return attr;
+            }
+            if (!is(']')) {
+                var caseSensitivityModifier = parseIdentifier();
+                assert(caseSensitivityModifier, 'Expected end of attribute selector.');
+                attr.caseSensitivityModifier = caseSensitivityModifier;
+                assert(attributesCaseSensitivityModifiersEnabled, 'Attribute case sensitivity modifiers are not enabled.');
+                assert(attributesAcceptUnknownCaseSensitivityModifiers ||
+                    attributesCaseSensitivityModifiers[attr.caseSensitivityModifier], 'Unknown attribute case sensitivity modifier.');
+                skipWhitespace();
+                if (isEof() && !strict) {
+                    return attr;
+                }
+            }
+            pass(']');
+        }
+        return attr;
+    }
+    function parseNumber() {
+        var result = '';
+        while (digitsChars[chr]) {
+            result += readAndNext();
+        }
+        assert(result !== '', 'Formula parse error.');
+        return parseInt(result);
+    }
+    var isNumberStart = function () { return is('-') || is('+') || digitsChars[chr]; };
+    function parseFormula() {
+        if (is('e') || is('o')) {
+            var ident = parseIdentifier();
+            if (ident === 'even') {
+                skipWhitespace();
+                return [2, 0];
+            }
+            if (ident === 'odd') {
+                skipWhitespace();
+                return [2, 1];
+            }
+        }
+        var firstNumber = null;
+        var firstNumberMultiplier = 1;
+        if (is('-')) {
+            next();
+            firstNumberMultiplier = -1;
+        }
+        if (isNumberStart()) {
+            if (is('+')) {
+                next();
+            }
+            firstNumber = parseNumber();
+            if (!is('\\') && !is('n')) {
+                return [0, firstNumber * firstNumberMultiplier];
+            }
+        }
+        if (firstNumber === null) {
+            firstNumber = 1;
+        }
+        firstNumber *= firstNumberMultiplier;
+        var identifier;
+        if (is('\\')) {
+            next();
+            if (isHex(chr)) {
+                identifier = parseHex();
+            }
+            else {
+                identifier = readAndNext();
+            }
+        }
+        else {
+            identifier = readAndNext();
+        }
+        assert(identifier === 'n', 'Formula parse error: expected "n".');
+        skipWhitespace();
+        if (is('+') || is('-')) {
+            var sign = is('+') ? 1 : -1;
+            next();
+            skipWhitespace();
+            return [firstNumber, sign * parseNumber()];
+        }
+        else {
+            return [firstNumber, 0];
+        }
+    }
+    function parsePseudoArgument(pseudoName, type, signature) {
+        var argument;
+        if (is('(')) {
+            next();
+            skipWhitespace();
+            if (substitutesEnabled && is('$')) {
+                next();
+                var name_5 = parseIdentifier();
+                assert(name_5, 'Expected substitute name.');
+                argument = {
+                    type: 'Substitution',
+                    name: name_5
+                };
+            }
+            else if (signature.type === 'String') {
+                argument = {
+                    type: 'String',
+                    value: parsePseudoClassString()
+                };
+                assert(argument.value, "Expected ".concat(type, " argument value."));
+            }
+            else if (signature.type === 'Selector') {
+                argument = parseSelector(true);
+            }
+            else if (signature.type === 'Formula') {
+                var _a = parseFormula(), a = _a[0], b = _a[1];
+                argument = {
+                    type: 'Formula',
+                    a: a,
+                    b: b
+                };
+                if (signature.ofSelector) {
+                    skipWhitespace();
+                    if (is('o') || is('\\')) {
+                        var ident = parseIdentifier();
+                        assert(ident === 'of', 'Formula of selector parse error.');
+                        skipWhitespace();
+                        argument = {
+                            type: 'FormulaOfSelector',
+                            a: a,
+                            b: b,
+                            selector: parseRule()
+                        };
+                    }
+                }
+            }
+            else {
+                return fail("Invalid ".concat(type, " signature."));
+            }
+            skipWhitespace();
+            if (isEof() && !strict) {
+                return argument;
+            }
+            pass(')');
+        }
+        else {
+            assert(signature.optional, "Argument is required for ".concat(type, " \"").concat(pseudoName, "\"."));
+        }
+        return argument;
+    }
+    function parseTagName() {
+        if (is('*')) {
+            assert(tagNameWildcardEnabled, 'Wildcard tag name is not enabled.');
+            next();
+            return { type: 'WildcardTag' };
+        }
+        else if (isIdentStart(chr)) {
+            assert(tagNameEnabled, 'Tag names are not enabled.');
+            var name_6 = parseIdentifier();
+            assert(name_6, 'Expected tag name.');
+            return {
+                type: 'TagName',
+                name: name_6
+            };
+        }
+        else {
+            return fail('Expected tag name.');
+        }
+    }
+    function parseTagNameWithNamespace() {
+        if (is('*')) {
+            var savedPos = pos;
+            next();
+            if (!is('|')) {
+                rewind(savedPos);
+                return parseTagName();
+            }
+            next();
+            if (!isTagStart()) {
+                rewind(savedPos);
+                return parseTagName();
+            }
+            assert(namespaceEnabled, 'Namespaces are not enabled.');
+            assert(namespaceWildcardEnabled, 'Wildcard namespace is not enabled.');
+            var tagName = parseTagName();
+            tagName.namespace = { type: 'WildcardNamespace' };
+            return tagName;
+        }
+        else if (is('|')) {
+            assert(namespaceEnabled, 'Namespaces are not enabled.');
+            next();
+            var tagName = parseTagName();
+            tagName.namespace = { type: 'NoNamespace' };
+            return tagName;
+        }
+        else if (isIdentStart(chr)) {
+            var identifier = parseIdentifier();
+            assert(identifier, 'Expected tag name.');
+            if (!is('|')) {
+                assert(tagNameEnabled, 'Tag names are not enabled.');
+                return {
+                    type: 'TagName',
+                    name: identifier
+                };
+            }
+            var savedPos = pos;
+            next();
+            if (!isTagStart()) {
+                rewind(savedPos);
+                return {
+                    type: 'TagName',
+                    name: identifier
+                };
+            }
+            assert(namespaceEnabled, 'Namespaces are not enabled.');
+            var tagName = parseTagName();
+            tagName.namespace = { type: 'NamespaceName', name: identifier };
+            return tagName;
+        }
+        else {
+            return fail('Expected tag name.');
+        }
+    }
+    function parseRule(relative) {
+        var _a, _b;
+        if (relative === void 0) { relative = false; }
+        var rule = { type: 'Rule', items: [] };
+        if (relative) {
+            var combinator = matchMulticharIndex(combinatorsIndex);
+            if (combinator) {
+                rule.combinator = combinator;
+                skipWhitespace();
+            }
+        }
+        while (pos < l) {
+            if (isTagStart()) {
+                assert(rule.items.length === 0, 'Unexpected tag/namespace start.');
+                rule.items.push(parseTagNameWithNamespace());
+            }
+            else if (is('|')) {
+                var savedPos = pos;
+                next();
+                if (isTagStart()) {
+                    assert(rule.items.length === 0, 'Unexpected tag/namespace start.');
+                    rewind(savedPos);
+                    rule.items.push(parseTagNameWithNamespace());
+                }
+                else {
+                    rewind(savedPos);
+                    break;
+                }
+            }
+            else if (is('.')) {
+                assert(classNamesEnabled, 'Class names are not enabled.');
+                next();
+                var className = parseIdentifier();
+                assert(className, 'Expected class name.');
+                rule.items.push({ type: 'ClassName', name: className });
+            }
+            else if (is('#')) {
+                assert(idEnabled, 'IDs are not enabled.');
+                next();
+                var idName = parseIdentifier();
+                assert(idName, 'Expected ID name.');
+                rule.items.push({ type: 'Id', name: idName });
+            }
+            else if (is('[')) {
+                assert(attributesEnabled, 'Attributes are not enabled.');
+                rule.items.push(parseAttribute());
+            }
+            else if (is(':')) {
+                var isDoubleColon = false;
+                var isPseudoElement = false;
+                next();
+                if (is(':')) {
+                    assert(pseudoElementsEnabled, 'Pseudo elements are not enabled.');
+                    assert(pseudoElementsDoubleColonNotationEnabled, 'Pseudo elements double colon notation is not enabled.');
+                    isDoubleColon = true;
+                    next();
+                }
+                var pseudoName = parseIdentifier();
+                assert(isDoubleColon || pseudoName, 'Expected pseudo-class name.');
+                assert(!isDoubleColon || pseudoName, 'Expected pseudo-element name.');
+                assert(pseudoName, 'Expected pseudo-class name.');
+                assert(!isDoubleColon ||
+                    pseudoElementsAcceptUnknown ||
+                    Object.prototype.hasOwnProperty.call(pseudoElementsDefinitions, pseudoName), "Unknown pseudo-element \"".concat(pseudoName, "\"."));
+                isPseudoElement =
+                    pseudoElementsEnabled &&
+                        (isDoubleColon ||
+                            (!isDoubleColon &&
+                                pseudoElementsSingleColonNotationEnabled &&
+                                Object.prototype.hasOwnProperty.call(pseudoElementsDefinitions, pseudoName)));
+                if (isPseudoElement) {
+                    var signature = (_a = pseudoElementsDefinitions[pseudoName]) !== null && _a !== void 0 ? _a : (pseudoElementsAcceptUnknown && defaultPseudoSignature);
+                    var pseudoElement = {
+                        type: 'PseudoElement',
+                        name: pseudoName
+                    };
+                    var argument = parsePseudoArgument(pseudoName, 'pseudo-element', signature);
+                    if (argument) {
+                        assert(argument.type !== 'Formula' && argument.type !== 'FormulaOfSelector', 'Pseudo-elements cannot have formula argument.');
+                        pseudoElement.argument = argument;
+                    }
+                    rule.items.push(pseudoElement);
+                }
+                else {
+                    assert(pseudoClassesEnabled, 'Pseudo-classes are not enabled.');
+                    var signature = (_b = pseudoClassesDefinitions[pseudoName]) !== null && _b !== void 0 ? _b : (pseudoClassesAcceptUnknown && defaultPseudoSignature);
+                    assert(signature, "Unknown pseudo-class: \"".concat(pseudoName, "\"."));
+                    var argument = parsePseudoArgument(pseudoName, 'pseudo-class', signature);
+                    var pseudoClass = {
+                        type: 'PseudoClass',
+                        name: pseudoName
+                    };
+                    if (argument) {
+                        pseudoClass.argument = argument;
+                    }
+                    rule.items.push(pseudoClass);
+                }
+            }
+            else {
+                break;
+            }
+        }
+        if (rule.items.length === 0) {
+            if (isEof()) {
+                return fail('Expected rule but end of input reached.');
+            }
+            else {
+                return fail("Expected rule but \"".concat(chr, "\" found."));
+            }
+        }
+        skipWhitespace();
+        if (!isEof() && !is(',') && !is(')')) {
+            var combinator = matchMulticharIndex(combinatorsIndex);
+            skipWhitespace();
+            rule.nestedRule = parseRule();
+            rule.nestedRule.combinator = combinator;
+        }
+        return rule;
+    }
+    return function (input) {
+        // noinspection SuspiciousTypeOfGuard
+        if (typeof input !== 'string') {
+            throw new Error("".concat(errorPrefix, "Expected string input."));
+        }
+        str = input;
+        l = str.length;
+        pos = 0;
+        chr = str.charAt(0);
+        return parseSelector();
+    };
+}
+
+;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/render.js
+
+var render_errorPrefix = "css-selector-parser render error: ";
+function renderNamespace(namespace) {
+    if (namespace.type === 'WildcardNamespace') {
+        return '*|';
+    }
+    else if (namespace.type === 'NamespaceName') {
+        return "".concat(escapeIdentifier(namespace.name), "|");
+    }
+    else if (namespace.type === 'NoNamespace') {
+        return '|';
+    }
+    throw new Error("".concat(render_errorPrefix, "Unknown namespace type: ").concat(namespace.type, "."));
+}
+function renderSubstitution(sub) {
+    return "$".concat(escapeIdentifier(sub.name));
+}
+function renderFormula(a, b) {
+    if (a) {
+        var result = "".concat(a === 1 ? '' : a === -1 ? '-' : a, "n");
+        if (b) {
+            result += "".concat(b > 0 ? '+' : '').concat(b);
+        }
+        return result;
+    }
+    else {
+        return String(b);
+    }
+}
+/**
+ * Renders CSS Selector AST back to a string.
+ *
+ * @example
+ *
+ * import {ast, render} from 'css-selector-parser';
+ *
+ * const selector = ast.selector({
+ *     rules: [
+ *         ast.rule({
+ *             items: [
+ *                 ast.tagName({name: 'a'}),
+ *                 ast.id({name: 'user-23'}),
+ *                 ast.className({name: 'user'}),
+ *                 ast.pseudoClass({name: 'visited'}),
+ *                 ast.pseudoElement({name: 'before'})
+ *             ]
+ *         })
+ *     ]
+ * });
+ *
+ * console.log(render(selector)); // a#user-23.user:visited::before
+ */
+function render(entity) {
+    if (entity.type === 'Selector') {
+        return entity.rules.map(render).join(', ');
+    }
+    if (entity.type === 'Rule') {
+        var result = '';
+        var items = entity.items, combinator = entity.combinator, nestedRule = entity.nestedRule;
+        if (combinator) {
+            result += "".concat(combinator, " ");
+        }
+        for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
+            var item = items_1[_i];
+            result += render(item);
+        }
+        if (nestedRule) {
+            result += " ".concat(render(nestedRule));
+        }
+        return result;
+    }
+    else if (entity.type === 'TagName' || entity.type === 'WildcardTag') {
+        var result = '';
+        var namespace = entity.namespace;
+        if (namespace) {
+            result += renderNamespace(namespace);
+        }
+        if (entity.type === 'TagName') {
+            result += escapeIdentifier(entity.name);
+        }
+        else if (entity.type === 'WildcardTag') {
+            result += '*';
+        }
+        return result;
+    }
+    else if (entity.type === 'Id') {
+        return "#".concat(escapeIdentifier(entity.name));
+    }
+    else if (entity.type === 'ClassName') {
+        return ".".concat(escapeIdentifier(entity.name));
+    }
+    else if (entity.type === 'Attribute') {
+        var name_1 = entity.name, namespace = entity.namespace, operator = entity.operator, value = entity.value, caseSensitivityModifier = entity.caseSensitivityModifier;
+        var result = '[';
+        if (namespace) {
+            result += renderNamespace(namespace);
+        }
+        result += escapeIdentifier(name_1);
+        if (operator && value) {
+            result += operator;
+            if (value.type === 'String') {
+                result += escapeString(value.value);
+            }
+            else if (value.type === 'Substitution') {
+                result += renderSubstitution(value);
+            }
+            else {
+                throw new Error("Unknown attribute value type: ".concat(value.type, "."));
+            }
+            if (caseSensitivityModifier) {
+                result += " ".concat(escapeIdentifier(caseSensitivityModifier));
+            }
+        }
+        result += ']';
+        return result;
+    }
+    else if (entity.type === 'PseudoClass') {
+        var name_2 = entity.name, argument = entity.argument;
+        var result = ":".concat(escapeIdentifier(name_2));
+        if (argument) {
+            result += "(".concat(argument.type === 'String' ? escapeIdentifier(argument.value) : render(argument), ")");
+        }
+        return result;
+    }
+    else if (entity.type === 'PseudoElement') {
+        var name_3 = entity.name, argument = entity.argument;
+        var result = "::".concat(escapeIdentifier(name_3));
+        if (argument) {
+            result += "(".concat(argument.type === 'String' ? escapeIdentifier(argument.value) : render(argument), ")");
+        }
+        return result;
+    }
+    else if (entity.type === 'String') {
+        throw new Error("".concat(render_errorPrefix, "String cannot be rendered outside of context."));
+    }
+    else if (entity.type === 'Formula') {
+        return renderFormula(entity.a, entity.b);
+    }
+    else if (entity.type === 'FormulaOfSelector') {
+        return renderFormula(entity.a, entity.b) + ' of ' + render(entity.selector);
+    }
+    else if (entity.type === 'Substitution') {
+        return "$".concat(escapeIdentifier(entity.name));
+    }
+    throw new Error("Unknown type specified to render method: ".concat(entity.type, "."));
+}
+
+;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/ast.js
+var ast_assign = (undefined && undefined.__assign) || function () {
+    ast_assign = Object.assign || function(t) {
+        for (var s, i = 1, n = arguments.length; i < n; i++) {
+            s = arguments[i];
+            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+                t[p] = s[p];
+        }
+        return t;
+    };
+    return ast_assign.apply(this, arguments);
+};
+function astMethods(type) {
+    return function (generatorName, checkerName) {
+        var _a;
+        return (_a = {},
+            _a[generatorName] = function (props) { return (ast_assign({ type: type }, props)); },
+            _a[checkerName] = function (entity) {
+                return typeof entity === 'object' && entity !== null && entity.type === type;
+            },
+            _a);
+    };
+}
+/**
+ * AST structure generators and matchers.
+ * For instance, `ast.selector({rules: [...]})` creates AstSelector and `ast.isSelector(...)` checks if
+ * AstSelector was specified.
+ *
+ * @example
+ *
+ * // Represents CSS selector: ns|div#user-34.user.user-active[role="button"]:lang(en)::before > *
+ * const selector = ast.selector({
+ *     rules: [
+ *         ast.rule({
+ *             items: [
+ *                 ast.tagName({name: 'div', namespace: ast.namespaceName({name: 'ns'})}),
+ *                 ast.id({name: 'user-34'}),
+ *                 ast.className({name: 'user'}),
+ *                 ast.className({name: 'user-active'}),
+ *                 ast.attribute({
+ *                     name: 'role',
+ *                     operator: '=',
+ *                     value: ast.string({value: 'button'})
+ *                 }),
+ *                 ast.pseudoClass({
+ *                     name: 'lang',
+ *                     argument: ast.string({value: 'en'})
+ *                 }),
+ *                 ast.pseudoElement({name: 'before'})
+ *             ],
+ *             nestedRule: ast.rule({combinator: '>', items: [ast.wildcardTag()]})
+ *         })
+ *     ]
+ * });
+ * console.log(ast.isSelector(selector)); // prints true
+ * console.log(ast.isRule(selector)); // prints false
+ */
+var ast = ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign({}, astMethods('Selector')('selector', 'isSelector')), astMethods('Rule')('rule', 'isRule')), astMethods('TagName')('tagName', 'isTagName')), astMethods('Id')('id', 'isId')), astMethods('ClassName')('className', 'isClassName')), astMethods('WildcardTag')('wildcardTag', 'isWildcardTag')), astMethods('NamespaceName')('namespaceName', 'isNamespaceName')), astMethods('WildcardNamespace')('wildcardNamespace', 'isWildcardNamespace')), astMethods('NoNamespace')('noNamespace', 'isNoNamespace')), astMethods('Attribute')('attribute', 'isAttribute')), astMethods('PseudoClass')('pseudoClass', 'isPseudoClass')), astMethods('PseudoElement')('pseudoElement', 'isPseudoElement')), astMethods('String')('string', 'isString')), astMethods('Formula')('formula', 'isFormula')), astMethods('FormulaOfSelector')('formulaOfSelector', 'isFormulaOfSelector')), astMethods('Substitution')('substitution', 'isSubstitution'));
+
+;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/index.js
+
+
+
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/parse.js
+/**
+ * @typedef {import('css-selector-parser').AstSelector} AstSelector
+ */
+
+
+
+const cssSelectorParse = createParser({syntax: 'selectors-4'})
+
+/**
+ * @param {string} selector
+ * @returns {AstSelector}
+ */
+function parse_parse(selector) {
+  if (typeof selector !== 'string') {
+    throw new TypeError('Expected `string` as selector, not `' + selector + '`')
+  }
+
+  return cssSelectorParse(selector)
+}
+
+;// CONCATENATED MODULE: ./node_modules/devlop/lib/default.js
+function deprecate(fn) {
+  return fn
+}
+
+function equal() {}
+
+function ok() {}
+
+function unreachable() {}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/util.js
+/**
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ */
+
+
+
+/**
+ * TypeScript helper to check if something is indexable (any object is
+ * indexable in JavaScript).
+ *
+ * @param {unknown} value
+ *   Thing to check.
+ * @returns {asserts value is Record<string, unknown>}
+ *   Nothing.
+ * @throws {Error}
+ *   When `value` is not an object.
+ */
+function indexable(value) {
+  // Always called when something is an object, this is just for TS.
+  /* c8 ignore next 3 */
+  if (!value || typeof value !== 'object') {
+    unreachable('Expected object')
+  }
+}
+
+/**
+ * @param {Node} node
+ * @returns {node is Parent}
+ */
+function util_parent(node) {
+  indexable(node)
+  return Array.isArray(node.children)
+}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/attribute.js
+/**
+ * @typedef {import('css-selector-parser').AstAttribute} AstAttribute
+ * @typedef {import('css-selector-parser').AstRule} AstRule
+ * @typedef {import('./types.js').Node} Node
+ */
+
+
+
+
+/**
+ * @param {AstAttribute} query
+ *   Query.
+ * @param {Node} node
+ *   Node.
+ * @returns {boolean}
+ *   Whether `node` matches `query`.
+ */
+
+function attribute(query, node) {
+  indexable(node)
+  const value = node[query.name]
+
+  // Exists.
+  if (!query.value) {
+    return value !== null && value !== undefined
+  }
+
+  ok(query.value.type === 'String', 'expected plain string')
+  let key = query.value.value
+  let normal = value === null || value === undefined ? undefined : String(value)
+
+  // Case-sensitivity.
+  if (query.caseSensitivityModifier === 'i') {
+    key = key.toLowerCase()
+
+    if (normal) {
+      normal = normal.toLowerCase()
+    }
+  }
+
+  if (value !== undefined) {
+    switch (query.operator) {
+      // Exact.
+      case '=': {
+        return typeof normal === 'string' && key === normal
+      }
+
+      // Ends.
+      case '$=': {
+        return typeof value === 'string' && value.slice(-key.length) === key
+      }
+
+      // Contains.
+      case '*=': {
+        return typeof value === 'string' && value.includes(key)
+      }
+
+      // Begins.
+      case '^=': {
+        return typeof value === 'string' && key === value.slice(0, key.length)
+      }
+
+      // Space-separated list.
+      case '~=': {
+        // type-coverage:ignore-next-line -- some bug with TS.
+        return (Array.isArray(value) && value.includes(key)) || normal === key
+      }
+      // Other values are not yet supported by CSS.
+      // No default
+    }
+  }
+
+  return false
+}
+
+;// CONCATENATED MODULE: ./node_modules/nth-check/lib/esm/parse.js
+// Following http://www.w3.org/TR/css3-selectors/#nth-child-pseudo
+// Whitespace as per https://www.w3.org/TR/selectors-3/#lex is " \t\r\n\f"
+const whitespace = new Set([9, 10, 12, 13, 32]);
+const ZERO = "0".charCodeAt(0);
+const NINE = "9".charCodeAt(0);
+/**
+ * Parses an expression.
+ *
+ * @throws An `Error` if parsing fails.
+ * @returns An array containing the integer step size and the integer offset of the nth rule.
+ * @example nthCheck.parse("2n+3"); // returns [2, 3]
+ */
+function esm_parse_parse(formula) {
+    formula = formula.trim().toLowerCase();
+    if (formula === "even") {
+        return [2, 0];
+    }
+    else if (formula === "odd") {
+        return [2, 1];
+    }
+    // Parse [ ['-'|'+']? INTEGER? {N} [ S* ['-'|'+'] S* INTEGER ]?
+    let idx = 0;
+    let a = 0;
+    let sign = readSign();
+    let number = readNumber();
+    if (idx < formula.length && formula.charAt(idx) === "n") {
+        idx++;
+        a = sign * (number !== null && number !== void 0 ? number : 1);
+        skipWhitespace();
+        if (idx < formula.length) {
+            sign = readSign();
+            skipWhitespace();
+            number = readNumber();
+        }
+        else {
+            sign = number = 0;
+        }
+    }
+    // Throw if there is anything else
+    if (number === null || idx < formula.length) {
+        throw new Error(`n-th rule couldn't be parsed ('${formula}')`);
+    }
+    return [a, sign * number];
+    function readSign() {
+        if (formula.charAt(idx) === "-") {
+            idx++;
+            return -1;
+        }
+        if (formula.charAt(idx) === "+") {
+            idx++;
+        }
+        return 1;
+    }
+    function readNumber() {
+        const start = idx;
+        let value = 0;
+        while (idx < formula.length &&
+            formula.charCodeAt(idx) >= ZERO &&
+            formula.charCodeAt(idx) <= NINE) {
+            value = value * 10 + (formula.charCodeAt(idx) - ZERO);
+            idx++;
+        }
+        // Return `null` if we didn't read anything.
+        return idx === start ? null : value;
+    }
+    function skipWhitespace() {
+        while (idx < formula.length &&
+            whitespace.has(formula.charCodeAt(idx))) {
+            idx++;
+        }
+    }
+}
+//# sourceMappingURL=parse.js.map
+// EXTERNAL MODULE: ./node_modules/boolbase/index.js
+var boolbase = __nccwpck_require__(4159);
+;// CONCATENATED MODULE: ./node_modules/nth-check/lib/esm/compile.js
+
+/**
+ * Returns a function that checks if an elements index matches the given rule
+ * highly optimized to return the fastest solution.
+ *
+ * @param parsed A tuple [a, b], as returned by `parse`.
+ * @returns A highly optimized function that returns whether an index matches the nth-check.
+ * @example
+ *
+ * ```js
+ * const check = nthCheck.compile([2, 3]);
+ *
+ * check(0); // `false`
+ * check(1); // `false`
+ * check(2); // `true`
+ * check(3); // `false`
+ * check(4); // `true`
+ * check(5); // `false`
+ * check(6); // `true`
+ * ```
+ */
+function compile(parsed) {
+    const a = parsed[0];
+    // Subtract 1 from `b`, to convert from one- to zero-indexed.
+    const b = parsed[1] - 1;
+    /*
+     * When `b <= 0`, `a * n` won't be lead to any matches for `a < 0`.
+     * Besides, the specification states that no elements are
+     * matched when `a` and `b` are 0.
+     *
+     * `b < 0` here as we subtracted 1 from `b` above.
+     */
+    if (b < 0 && a <= 0)
+        return boolbase.falseFunc;
+    // When `a` is in the range -1..1, it matches any element (so only `b` is checked).
+    if (a === -1)
+        return (index) => index <= b;
+    if (a === 0)
+        return (index) => index === b;
+    // When `b <= 0` and `a === 1`, they match any element.
+    if (a === 1)
+        return b < 0 ? boolbase.trueFunc : (index) => index >= b;
+    /*
+     * Otherwise, modulo can be used to check if there is a match.
+     *
+     * Modulo doesn't care about the sign, so let's use `a`s absolute value.
+     */
+    const absA = Math.abs(a);
+    // Get `b mod a`, + a if this is negative.
+    const bMod = ((b % absA) + absA) % absA;
+    return a > 1
+        ? (index) => index >= b && index % absA === bMod
+        : (index) => index <= b && index % absA === bMod;
+}
+/**
+ * Returns a function that produces a monotonously increasing sequence of indices.
+ *
+ * If the sequence has an end, the returned function will return `null` after
+ * the last index in the sequence.
+ *
+ * @param parsed A tuple [a, b], as returned by `parse`.
+ * @returns A function that produces a sequence of indices.
+ * @example <caption>Always increasing (2n+3)</caption>
+ *
+ * ```js
+ * const gen = nthCheck.generate([2, 3])
+ *
+ * gen() // `1`
+ * gen() // `3`
+ * gen() // `5`
+ * gen() // `8`
+ * gen() // `11`
+ * ```
+ *
+ * @example <caption>With end value (-2n+10)</caption>
+ *
+ * ```js
+ *
+ * const gen = nthCheck.generate([-2, 5]);
+ *
+ * gen() // 0
+ * gen() // 2
+ * gen() // 4
+ * gen() // null
+ * ```
+ */
+function compile_generate(parsed) {
+    const a = parsed[0];
+    // Subtract 1 from `b`, to convert from one- to zero-indexed.
+    let b = parsed[1] - 1;
+    let n = 0;
+    // Make sure to always return an increasing sequence
+    if (a < 0) {
+        const aPos = -a;
+        // Get `b mod a`
+        const minValue = ((b % aPos) + aPos) % aPos;
+        return () => {
+            const val = minValue + aPos * n++;
+            return val > b ? null : val;
+        };
+    }
+    if (a === 0)
+        return b < 0
+            ? // There are no result — always return `null`
+                () => null
+            : // Return `b` exactly once
+                () => (n++ === 0 ? b : null);
+    if (b < 0) {
+        b += a * Math.ceil(-b / a);
+    }
+    return () => a * n++ + b;
+}
+//# sourceMappingURL=compile.js.map
+;// CONCATENATED MODULE: ./node_modules/nth-check/lib/esm/index.js
+
+
+
+/**
+ * Parses and compiles a formula to a highly optimized function.
+ * Combination of {@link parse} and {@link compile}.
+ *
+ * If the formula doesn't match any elements,
+ * it returns [`boolbase`](https://github.com/fb55/boolbase)'s `falseFunc`.
+ * Otherwise, a function accepting an _index_ is returned, which returns
+ * whether or not the passed _index_ matches the formula.
+ *
+ * Note: The nth-rule starts counting at `1`, the returned function at `0`.
+ *
+ * @param formula The formula to compile.
+ * @example
+ * const check = nthCheck("2n+3");
+ *
+ * check(0); // `false`
+ * check(1); // `false`
+ * check(2); // `true`
+ * check(3); // `false`
+ * check(4); // `true`
+ * check(5); // `false`
+ * check(6); // `true`
+ */
+function nthCheck(formula) {
+    return compile(esm_parse_parse(formula));
+}
+/**
+ * Parses and compiles a formula to a generator that produces a sequence of indices.
+ * Combination of {@link parse} and {@link generate}.
+ *
+ * @param formula The formula to compile.
+ * @returns A function that produces a sequence of indices.
+ * @example <caption>Always increasing</caption>
+ *
+ * ```js
+ * const gen = nthCheck.sequence('2n+3')
+ *
+ * gen() // `1`
+ * gen() // `3`
+ * gen() // `5`
+ * gen() // `8`
+ * gen() // `11`
+ * ```
+ *
+ * @example <caption>With end value</caption>
+ *
+ * ```js
+ *
+ * const gen = nthCheck.sequence('-2n+5');
+ *
+ * gen() // 0
+ * gen() // 2
+ * gen() // 4
+ * gen() // null
+ * ```
+ */
+function sequence(formula) {
+    return generate(parse(formula));
+}
+//# sourceMappingURL=index.js.map
+;// CONCATENATED MODULE: ./node_modules/zwitch/index.js
+/**
+ * @callback Handler
+ *   Handle a value, with a certain ID field set to a certain value.
+ *   The ID field is passed to `zwitch`, and it’s value is this function’s
+ *   place on the `handlers` record.
+ * @param {...any} parameters
+ *   Arbitrary parameters passed to the zwitch.
+ *   The first will be an object with a certain ID field set to a certain value.
+ * @returns {any}
+ *   Anything!
+ */
+
+/**
+ * @callback UnknownHandler
+ *   Handle values that do have a certain ID field, but it’s set to a value
+ *   that is not listed in the `handlers` record.
+ * @param {unknown} value
+ *   An object with a certain ID field set to an unknown value.
+ * @param {...any} rest
+ *   Arbitrary parameters passed to the zwitch.
+ * @returns {any}
+ *   Anything!
+ */
+
+/**
+ * @callback InvalidHandler
+ *   Handle values that do not have a certain ID field.
+ * @param {unknown} value
+ *   Any unknown value.
+ * @param {...any} rest
+ *   Arbitrary parameters passed to the zwitch.
+ * @returns {void|null|undefined|never}
+ *   This should crash or return nothing.
+ */
+
+/**
+ * @template {InvalidHandler} [Invalid=InvalidHandler]
+ * @template {UnknownHandler} [Unknown=UnknownHandler]
+ * @template {Record<string, Handler>} [Handlers=Record<string, Handler>]
+ * @typedef Options
+ *   Configuration (required).
+ * @property {Invalid} [invalid]
+ *   Handler to use for invalid values.
+ * @property {Unknown} [unknown]
+ *   Handler to use for unknown values.
+ * @property {Handlers} [handlers]
+ *   Handlers to use.
+ */
+
+const own = {}.hasOwnProperty
+
+/**
+ * Handle values based on a field.
+ *
+ * @template {InvalidHandler} [Invalid=InvalidHandler]
+ * @template {UnknownHandler} [Unknown=UnknownHandler]
+ * @template {Record<string, Handler>} [Handlers=Record<string, Handler>]
+ * @param {string} key
+ *   Field to switch on.
+ * @param {Options<Invalid, Unknown, Handlers>} [options]
+ *   Configuration (required).
+ * @returns {{unknown: Unknown, invalid: Invalid, handlers: Handlers, (...parameters: Parameters<Handlers[keyof Handlers]>): ReturnType<Handlers[keyof Handlers]>, (...parameters: Parameters<Unknown>): ReturnType<Unknown>}}
+ */
+function zwitch(key, options) {
+  const settings = options || {}
+
+  /**
+   * Handle one value.
+   *
+   * Based on the bound `key`, a respective handler will be called.
+   * If `value` is not an object, or doesn’t have a `key` property, the special
+   * “invalid” handler will be called.
+   * If `value` has an unknown `key`, the special “unknown” handler will be
+   * called.
+   *
+   * All arguments, and the context object, are passed through to the handler,
+   * and it’s result is returned.
+   *
+   * @this {unknown}
+   *   Any context object.
+   * @param {unknown} [value]
+   *   Any value.
+   * @param {...unknown} parameters
+   *   Arbitrary parameters passed to the zwitch.
+   * @property {Handler} invalid
+   *   Handle for values that do not have a certain ID field.
+   * @property {Handler} unknown
+   *   Handle values that do have a certain ID field, but it’s set to a value
+   *   that is not listed in the `handlers` record.
+   * @property {Handlers} handlers
+   *   Record of handlers.
+   * @returns {unknown}
+   *   Anything.
+   */
+  function one(value, ...parameters) {
+    /** @type {Handler|undefined} */
+    let fn = one.invalid
+    const handlers = one.handlers
+
+    if (value && own.call(value, key)) {
+      // @ts-expect-error Indexable.
+      const id = String(value[key])
+      // @ts-expect-error Indexable.
+      fn = own.call(handlers, id) ? handlers[id] : one.unknown
+    }
+
+    if (fn) {
+      return fn.call(this, value, ...parameters)
+    }
+  }
+
+  one.handlers = settings.handlers || {}
+  one.invalid = settings.invalid
+  one.unknown = settings.unknown
+
+  // @ts-expect-error: matches!
+  return one
+}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/pseudo.js
+/**
+ * @typedef {import('css-selector-parser').AstPseudoClass} AstPseudoClass
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ * @typedef {import('./types.js').SelectState} SelectState
+ */
+
+
+
+
+
+
+
+/** @type {import('nth-check').default} */
+// @ts-expect-error: `nth-check` types are wrong.
+const pseudo_nthCheck = nthCheck["default"] || nthCheck
+
+/** @type {(rule: AstPseudoClass, node: Node, index: number | undefined, parent: Parent | undefined, state: SelectState) => boolean} */
+const pseudo = zwitch('name', {
+  // @ts-expect-error: always known.
+  unknown: unknownPseudo,
+  invalid: invalidPseudo,
+  handlers: {
+    is,
+    blank: empty,
+    empty,
+    'first-child': firstChild,
+    'first-of-type': firstOfType,
+    has,
+    'last-child': lastChild,
+    'last-of-type': lastOfType,
+    not,
+    'nth-child': nthChild,
+    'nth-last-child': nthLastChild,
+    'nth-of-type': nthOfType,
+    'nth-last-of-type': nthLastOfType,
+    'only-child': onlyChild,
+    'only-of-type': onlyOfType,
+    root: pseudo_root,
+    scope
+  }
+})
+
+/**
+ * Check whether a node matches an `:empty` pseudo.
+ *
+ * @param {AstPseudoClass} _1
+ * @param {Node} node
+ * @returns {boolean}
+ */
+function empty(_1, node) {
+  return util_parent(node) ? node.children.length === 0 : !('value' in node)
+}
+
+/**
+ * Check whether a node matches a `:first-child` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function firstChild(query, _1, _2, _3, state) {
+  assertDeep(state, query)
+  return state.nodeIndex === 0 // Specifically `0`, not falsey.
+}
+
+/**
+ * Check whether a node matches a `:first-of-type` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function firstOfType(query, _1, _2, _3, state) {
+  assertDeep(state, query)
+  return state.typeIndex === 0
+}
+
+/**
+ * @param {AstPseudoClass} query
+ * @param {Node} node
+ * @param {number | undefined} _1
+ * @param {Parent | undefined} _2
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function has(query, node, _1, _2, state) {
+  const argument = query.argument
+
+  /* c8 ignore next 3 -- never happens with our config */
+  if (!argument || argument.type !== 'Selector') {
+    unreachable('`:has` has selectors')
+  }
+
+  const fragment = {type: 'root', children: util_parent(node) ? node.children : []}
+  /** @type {SelectState} */
+  const childState = {
+    ...state,
+    // Not found yet.
+    found: false,
+    // Do walk deep.
+    shallow: false,
+    // One result is enough.
+    one: true,
+    scopeNodes: [node],
+    results: [],
+    rootQuery: argument
+  }
+
+  walk_walk(childState, fragment)
+
+  return childState.results.length > 0
+}
+
+/**
+ * Check whether a node matches a `:last-child` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function lastChild(query, _1, _2, _3, state) {
+  assertDeep(state, query)
+  return (
+    typeof state.nodeCount === 'number' &&
+    state.nodeIndex === state.nodeCount - 1
+  )
+}
+
+/**
+ * Check whether a node matches a `:last-of-type` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function lastOfType(query, _1, _2, _3, state) {
+  assertDeep(state, query)
+  return (
+    typeof state.typeCount === 'number' &&
+    state.typeIndex === state.typeCount - 1
+  )
+}
+
+/**
+ * Check whether a node `:is` further selectors.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} node
+ * @param {number | undefined} _1
+ * @param {Parent | undefined} _2
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function is(query, node, _1, _2, state) {
+  const argument = query.argument
+
+  /* c8 ignore next 3 -- never happens with our config */
+  if (!argument || argument.type !== 'Selector') {
+    unreachable('`:is` has selectors')
+  }
+
+  /** @type {SelectState} */
+  const childState = {
+    ...state,
+    // Not found yet.
+    found: false,
+    // Do walk deep.
+    shallow: false,
+    // One result is enough.
+    one: true,
+    scopeNodes: [node],
+    results: [],
+    rootQuery: argument
+  }
+
+  walk_walk(childState, node)
+
+  return childState.results[0] === node
+}
+
+/**
+ * Check whether a node does `:not` match further selectors.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} node
+ * @param {number | undefined} index
+ * @param {Parent | undefined} parent
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function not(query, node, index, parent, state) {
+  return !is(query, node, index, parent, state)
+}
+
+/**
+ * Check whether a node matches an `:nth-child` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function nthChild(query, _1, _2, _3, state) {
+  const fn = getCachedNthCheck(query)
+  assertDeep(state, query)
+  return typeof state.nodeIndex === 'number' && fn(state.nodeIndex)
+}
+
+/**
+ * Check whether a node matches an `:nth-last-child` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function nthLastChild(query, _1, _2, _3, state) {
+  const fn = getCachedNthCheck(query)
+  assertDeep(state, query)
+  return (
+    typeof state.nodeCount === 'number' &&
+    typeof state.nodeIndex === 'number' &&
+    fn(state.nodeCount - state.nodeIndex - 1)
+  )
+}
+
+/**
+ * Check whether a node matches a `:nth-last-of-type` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function nthLastOfType(query, _1, _2, _3, state) {
+  const fn = getCachedNthCheck(query)
+  assertDeep(state, query)
+  return (
+    typeof state.typeIndex === 'number' &&
+    typeof state.typeCount === 'number' &&
+    fn(state.typeCount - 1 - state.typeIndex)
+  )
+}
+
+/**
+ * Check whether a node matches an `:nth-of-type` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function nthOfType(query, _1, _2, _3, state) {
+  const fn = getCachedNthCheck(query)
+  assertDeep(state, query)
+  return typeof state.typeIndex === 'number' && fn(state.typeIndex)
+}
+
+/**
+ * Check whether a node matches an `:only-child` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function onlyChild(query, _1, _2, _3, state) {
+  assertDeep(state, query)
+  return state.nodeCount === 1
+}
+
+/**
+ * Check whether a node matches an `:only-of-type` pseudo.
+ *
+ * @param {AstPseudoClass} query
+ * @param {Node} _1
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function onlyOfType(query, _1, _2, _3, state) {
+  assertDeep(state, query)
+  return state.typeCount === 1
+}
+
+/**
+ * Check whether a node matches a `:root` pseudo.
+ *
+ * @param {AstPseudoClass} _1
+ * @param {Node} node
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} parent
+ * @returns {boolean}
+ */
+function pseudo_root(_1, node, _2, parent) {
+  return node && !parent
+}
+
+/**
+ * Check whether a node matches a `:scope` pseudo.
+ *
+ * @param {AstPseudoClass} _1
+ * @param {Node} node
+ * @param {number | undefined} _2
+ * @param {Parent | undefined} _3
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function scope(_1, node, _2, _3, state) {
+  return node && state.scopeNodes.includes(node)
+}
+
+// Shouldn’t be called, parser gives correct data.
+/* c8 ignore next 3 */
+function invalidPseudo() {
+  throw new Error('Invalid pseudo-selector')
+}
+
+/**
+ * @param {AstPseudoClass} query
+ * @returns {never}
+ */
+function unknownPseudo(query) {
+  throw new Error('Unknown pseudo-selector `' + query.name + '`')
+}
+
+/**
+ * @param {SelectState} state
+ * @param {AstPseudoClass} query
+ */
+function assertDeep(state, query) {
+  if (state.shallow) {
+    throw new Error('Cannot use `:' + query.name + '` without parent')
+  }
+}
+
+/**
+ * @param {AstPseudoClass} query
+ * @returns {(value: number) => boolean}
+ */
+function getCachedNthCheck(query) {
+  /** @type {(value: number) => boolean} */
+  // @ts-expect-error: cache.
+  let fn = query._cachedFn
+
+  if (!fn) {
+    const value = query.argument
+    ok(value, 'expected `argument`')
+
+    if (value.type !== 'Formula') {
+      throw new Error(
+        'Expected `nth` formula, such as `even` or `2n+1` (`of` is not yet supported)'
+      )
+    }
+
+    fn = pseudo_nthCheck(value.a + 'n+' + value.b)
+    // @ts-expect-error: cache.
+    query._cachedFn = fn
+  }
+
+  return fn
+}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/test.js
+/**
+ * @typedef {import('css-selector-parser').AstRule} AstRule
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ * @typedef {import('./types.js').SelectState} SelectState
+ */
+
+
+
+
+/**
+ * @param {AstRule} query
+ * @param {Node} node
+ * @param {number | undefined} index
+ * @param {Parent | undefined} parent
+ * @param {SelectState} state
+ * @returns {boolean}
+ */
+function test(query, node, index, parent, state) {
+  for (const item of query.items) {
+    // eslint-disable-next-line unicorn/prefer-switch
+    if (item.type === 'Attribute') {
+      if (!attribute(item, node)) return false
+    } else if (item.type === 'Id') {
+      throw new Error('Invalid selector: id')
+    } else if (item.type === 'ClassName') {
+      throw new Error('Invalid selector: class')
+    } else if (item.type === 'PseudoClass') {
+      if (!pseudo(item, node, index, parent, state)) return false
+    } else if (item.type === 'PseudoElement') {
+      throw new Error('Invalid selector: `::' + item.name + '`')
+    } else if (item.type === 'TagName') {
+      if (item.name !== node.type) return false
+    } else {
+      // Otherwise `item.type` is `WildcardTag`, which matches.
+    }
+  }
+
+  return true
+}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/walk.js
+/**
+ * @typedef {import('css-selector-parser').AstRule} AstRule
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ * @typedef {import('./types.js').SelectState} SelectState
+ *
+ * @typedef Nest
+ *   Rule sets by nesting.
+ * @property {Array<AstRule> | undefined} descendant
+ *   `a b`
+ * @property {Array<AstRule> | undefined} directChild
+ *   `a > b`
+ * @property {Array<AstRule> | undefined} adjacentSibling
+ *   `a + b`
+ * @property {Array<AstRule> | undefined} generalSibling
+ *   `a ~ b`
+ *
+ * @typedef Counts
+ *   Info on nodes in a parent.
+ * @property {number} count
+ *   Number of nodes.
+ * @property {Map<string, number>} types
+ *   Number of nodes by type.
+ */
+
+
+
+
+/** @type {Array<never>} */
+const walk_empty = []
+
+/**
+ * Walk a tree.
+ *
+ * @param {SelectState} state
+ * @param {Node | undefined} tree
+ */
+function walk_walk(state, tree) {
+  if (tree) {
+    one(state, [], tree, undefined, undefined, tree)
+  }
+}
+
+/**
+ * Check a node.
+ *
+ * @param {SelectState} state
+ * @param {Array<AstRule>} currentRules
+ * @param {Node} node
+ * @param {number | undefined} index
+ * @param {Parent | undefined} parentNode
+ * @param {Node} tree
+ * @returns {Nest}
+ */
+function one(state, currentRules, node, index, parentNode, tree) {
+  /** @type {Nest} */
+  let nestResult = {
+    directChild: undefined,
+    descendant: undefined,
+    adjacentSibling: undefined,
+    generalSibling: undefined
+  }
+
+  let rootRules = state.rootQuery.rules
+
+  // Remove direct child rules if this is the root.
+  // This only happens for a `:has()` rule, which can be like
+  // `a:has(> b)`.
+  if (parentNode && parentNode !== tree) {
+    rootRules = state.rootQuery.rules.filter(
+      (d) =>
+        d.combinator === undefined ||
+        (d.combinator === '>' && parentNode === tree)
+    )
+  }
+
+  nestResult = applySelectors(
+    state,
+    // Try the root rules for this node too.
+    combine(currentRules, rootRules),
+    node,
+    index,
+    parentNode
+  )
+
+  // If this is a parent, and we want to delve into them, and we haven’t found
+  // our single result yet.
+  if (util_parent(node) && !state.shallow && !(state.one && state.found)) {
+    walk_all(state, nestResult, node, tree)
+  }
+
+  return nestResult
+}
+
+/**
+ * Check a node.
+ *
+ * @param {SelectState} state
+ * @param {Nest} nest
+ * @param {Parent} node
+ * @param {Node} tree
+ * @returns {undefined}
+ */
+function walk_all(state, nest, node, tree) {
+  const fromParent = combine(nest.descendant, nest.directChild)
+  /** @type {Array<AstRule> | undefined} */
+  let fromSibling
+  let index = -1
+  /**
+   * Total counts.
+   * @type {Counts}
+   */
+  const total = {count: 0, types: new Map()}
+  /**
+   * Counts of previous siblings.
+   * @type {Counts}
+   */
+  const before = {count: 0, types: new Map()}
+
+  while (++index < node.children.length) {
+    count(total, node.children[index])
+  }
+
+  index = -1
+
+  while (++index < node.children.length) {
+    const child = node.children[index]
+    // Uppercase to prevent prototype polution, injecting `constructor` or so.
+    const name = child.type.toUpperCase()
+    // Before counting further nodes:
+    state.nodeIndex = before.count
+    state.typeIndex = before.types.get(name) || 0
+    // After counting all nodes.
+    state.nodeCount = total.count
+    state.typeCount = total.types.get(name)
+
+    // Only apply if this is a parent.
+    const forSibling = combine(fromParent, fromSibling)
+    const nest = one(state, forSibling, node.children[index], index, node, tree)
+    fromSibling = combine(nest.generalSibling, nest.adjacentSibling)
+
+    // We found one thing, and one is enough.
+    if (state.one && state.found) {
+      break
+    }
+
+    count(before, node.children[index])
+  }
+}
+
+/**
+ * Apply selectors to a node.
+ *
+ * @param {SelectState} state
+ *   Current state.
+ * @param {Array<AstRule>} rules
+ *   Rules to apply.
+ * @param {Node} node
+ *   Node to apply rules to.
+ * @param {number | undefined} index
+ *   Index of node in parent.
+ * @param {Parent | undefined} parent
+ *   Parent of node.
+ * @returns {Nest}
+ *   Further rules.
+ */
+function applySelectors(state, rules, node, index, parent) {
+  /** @type {Nest} */
+  const nestResult = {
+    directChild: undefined,
+    descendant: undefined,
+    adjacentSibling: undefined,
+    generalSibling: undefined
+  }
+  let selectorIndex = -1
+
+  while (++selectorIndex < rules.length) {
+    const rule = rules[selectorIndex]
+
+    // We found one thing, and one is enough.
+    if (state.one && state.found) {
+      break
+    }
+
+    // When shallow, we don’t allow nested rules.
+    // Idea: we could allow a stack of parents?
+    // Might get quite complex though.
+    if (state.shallow && rule.nestedRule) {
+      throw new Error('Expected selector without nesting')
+    }
+
+    // If this rule matches:
+    if (test(rule, node, index, parent, state)) {
+      const nest = rule.nestedRule
+
+      // Are there more?
+      if (nest) {
+        /** @type {keyof Nest} */
+        const label =
+          nest.combinator === '+'
+            ? 'adjacentSibling'
+            : nest.combinator === '~'
+            ? 'generalSibling'
+            : nest.combinator === '>'
+            ? 'directChild'
+            : 'descendant'
+        add(nestResult, label, nest)
+      } else {
+        // We have a match!
+        state.found = true
+
+        if (!state.results.includes(node)) {
+          state.results.push(node)
+        }
+      }
+    }
+
+    // Descendant.
+    if (rule.combinator === undefined) {
+      add(nestResult, 'descendant', rule)
+    }
+    // Adjacent.
+    else if (rule.combinator === '~') {
+      add(nestResult, 'generalSibling', rule)
+    }
+    // Drop direct child (`>`), adjacent sibling (`+`).
+  }
+
+  return nestResult
+}
+
+/**
+ * Combine two lists, if needed.
+ *
+ * This is optimized to create as few lists as possible.
+ *
+ * @param {Array<AstRule> | undefined} left
+ * @param {Array<AstRule> | undefined} right
+ * @returns {Array<AstRule>}
+ */
+function combine(left, right) {
+  return left && right && left.length > 0 && right.length > 0
+    ? [...left, ...right]
+    : left && left.length > 0
+    ? left
+    : right && right.length > 0
+    ? right
+    : walk_empty
+}
+
+/**
+ * Add a rule to a nesting map.
+ *
+ * @param {Nest} nest
+ * @param {keyof Nest} field
+ * @param {AstRule} rule
+ */
+function add(nest, field, rule) {
+  const list = nest[field]
+  if (list) {
+    list.push(rule)
+  } else {
+    nest[field] = [rule]
+  }
+}
+
+/**
+ * Count a node.
+ *
+ * @param {Counts} counts
+ *   Counts.
+ * @param {Node} node
+ *   Node.
+ * @returns {undefined}
+ *   Nothing.
+ */
+function count(counts, node) {
+  // Uppercase to prevent prototype polution, injecting `constructor` or so.
+  // Normalize because HTML is insensitive.
+  const name = node.type.toUpperCase()
+  const count = (counts.types.get(name) || 0) + 1
+  counts.count++
+  counts.types.set(name, count)
+}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-select/index.js
+/**
+ * @typedef {import('unist').Position} Position
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('./lib/types.js').SelectState} SelectState
+ */
+
+/**
+ * @typedef {Record<string, unknown> & {type: string, position?: Position | undefined}} NodeLike
+ */
+
+
+
+
+
+/**
+ * Check that the given `node` matches `selector`.
+ *
+ * This only checks the node itself, not the surrounding tree.
+ * Thus, nesting in selectors is not supported (`paragraph strong`,
+ * `paragraph > strong`), neither are selectors like `:first-child`, etc.
+ * This only checks that the given node matches the selector.
+ *
+ * @param {string} selector
+ *   CSS selector, such as (`heading`, `link, linkReference`).
+ * @param {Node | NodeLike | null | undefined} [node]
+ *   Node that might match `selector`.
+ * @returns {boolean}
+ *   Whether `node` matches `selector`.
+ */
+function matches(selector, node) {
+  const state = createState(selector, node)
+  state.one = true
+  state.shallow = true
+  walk(state, node || undefined)
+  return state.results.length > 0
+}
+
+/**
+ * Select the first node that matches `selector` in the given `tree`.
+ *
+ * Searches the tree in *preorder*.
+ *
+ * @param {string} selector
+ *   CSS selector, such as (`heading`, `link, linkReference`).
+ * @param {Node | NodeLike | null | undefined} [tree]
+ *   Tree to search.
+ * @returns {Node | undefined}
+ *   First node in `tree` that matches `selector` or `null` if nothing is
+ *   found.
+ *
+ *   This could be `tree` itself.
+ */
+function unist_util_select_select(selector, tree) {
+  const state = createState(selector, tree)
+  state.one = true
+  walk(state, tree || undefined)
+  return state.results[0]
+}
+
+/**
+ * Select all nodes that match `selector` in the given `tree`.
+ *
+ * Searches the tree in *preorder*.
+ *
+ * @param {string} selector
+ *   CSS selector, such as (`heading`, `link, linkReference`).
+ * @param {Node | NodeLike | null | undefined} [tree]
+ *   Tree to search.
+ * @returns {Array<Node>}
+ *   Nodes in `tree` that match `selector`.
+ *
+ *   This could include `tree` itself.
+ */
+function selectAll(selector, tree) {
+  const state = createState(selector, tree)
+  walk_walk(state, tree || undefined)
+  return state.results
+}
+
+/**
+ * @param {string} selector
+ *   Selector to parse.
+ * @param {Node | null | undefined} tree
+ *   Tree to search.
+ * @returns {SelectState}
+ *   State.
+ */
+function createState(selector, tree) {
+  return {
+    // State of the query.
+    rootQuery: parse_parse(selector),
+    results: [],
+    scopeNodes: tree
+      ? util_parent(tree) &&
+        // Root in nlcst.
+        (tree.type === 'RootNode' || tree.type === 'root')
+        ? tree.children
+        : [tree]
+      : [],
+    one: false,
+    shallow: false,
+    found: false,
+    // State in the tree.
+    typeIndex: undefined,
+    nodeIndex: undefined,
+    typeCount: undefined,
+    nodeCount: undefined
+  }
+}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-is/lib/index.js
+/**
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ */
+
+/**
+ * @template Fn
+ * @template Fallback
+ * @typedef {Fn extends (value: any) => value is infer Thing ? Thing : Fallback} Predicate
+ */
+
+/**
+ * @callback Check
+ *   Check that an arbitrary value is a node.
+ * @param {unknown} this
+ *   The given context.
+ * @param {unknown} [node]
+ *   Anything (typically a node).
+ * @param {number | null | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} [parent]
+ *   The node’s parent.
+ * @returns {boolean}
+ *   Whether this is a node and passes a test.
+ *
+ * @typedef {Record<string, unknown> | Node} Props
+ *   Object to check for equivalence.
+ *
+ *   Note: `Node` is included as it is common but is not indexable.
+ *
+ * @typedef {Array<Props | TestFunction | string> | Props | TestFunction | string | null | undefined} Test
+ *   Check for an arbitrary node.
+ *
+ * @callback TestFunction
+ *   Check if a node passes a test.
+ * @param {unknown} this
+ *   The given context.
+ * @param {Node} node
+ *   A node.
+ * @param {number | undefined} [index]
+ *   The node’s position in its parent.
+ * @param {Parent | undefined} [parent]
+ *   The node’s parent.
+ * @returns {boolean | undefined | void}
+ *   Whether this node passes the test.
+ *
+ *   Note: `void` is included until TS sees no return as `undefined`.
+ */
+
+/**
+ * Check if `node` is a `Node` and whether it passes the given test.
+ *
+ * @param {unknown} node
+ *   Thing to check, typically `Node`.
+ * @param {Test} test
+ *   A check for a specific node.
+ * @param {number | null | undefined} index
+ *   The node’s position in its parent.
+ * @param {Parent | null | undefined} parent
+ *   The node’s parent.
+ * @param {unknown} context
+ *   Context object (`this`) to pass to `test` functions.
+ * @returns {boolean}
+ *   Whether `node` is a node and passes a test.
+ */
+const lib_is =
+  // Note: overloads in JSDoc can’t yet use different `@template`s.
+  /**
+   * @type {(
+   *   (<Condition extends string>(node: unknown, test: Condition, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & {type: Condition}) &
+   *   (<Condition extends Props>(node: unknown, test: Condition, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & Condition) &
+   *   (<Condition extends TestFunction>(node: unknown, test: Condition, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & Predicate<Condition, Node>) &
+   *   ((node?: null | undefined) => false) &
+   *   ((node: unknown, test?: null | undefined, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node) &
+   *   ((node: unknown, test?: Test, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => boolean)
+   * )}
+   */
+  (
+    /**
+     * @param {unknown} [node]
+     * @param {Test} [test]
+     * @param {number | null | undefined} [index]
+     * @param {Parent | null | undefined} [parent]
+     * @param {unknown} [context]
+     * @returns {boolean}
+     */
+    // eslint-disable-next-line max-params
+    function (node, test, index, parent, context) {
+      const check = convert(test)
+
+      if (
+        index !== undefined &&
+        index !== null &&
+        (typeof index !== 'number' ||
+          index < 0 ||
+          index === Number.POSITIVE_INFINITY)
+      ) {
+        throw new Error('Expected positive finite index')
+      }
+
+      if (
+        parent !== undefined &&
+        parent !== null &&
+        (!lib_is(parent) || !parent.children)
+      ) {
+        throw new Error('Expected parent node')
+      }
+
+      if (
+        (parent === undefined || parent === null) !==
+        (index === undefined || index === null)
+      ) {
+        throw new Error('Expected both parent and index')
+      }
+
+      return looksLikeANode(node)
+        ? check.call(context, node, index, parent)
+        : false
+    }
+  )
+
+/**
+ * Generate an assertion from a test.
+ *
+ * Useful if you’re going to test many nodes, for example when creating a
+ * utility where something else passes a compatible test.
+ *
+ * The created function is a bit faster because it expects valid input only:
+ * a `node`, `index`, and `parent`.
+ *
+ * @param {Test} test
+ *   *   when nullish, checks if `node` is a `Node`.
+ *   *   when `string`, works like passing `(node) => node.type === test`.
+ *   *   when `function` checks if function passed the node is true.
+ *   *   when `object`, checks that all keys in test are in node, and that they have (strictly) equal values.
+ *   *   when `array`, checks if any one of the subtests pass.
+ * @returns {Check}
+ *   An assertion.
+ */
+const convert =
+  // Note: overloads in JSDoc can’t yet use different `@template`s.
+  /**
+   * @type {(
+   *   (<Condition extends string>(test: Condition) => (node: unknown, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & {type: Condition}) &
+   *   (<Condition extends Props>(test: Condition) => (node: unknown, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & Condition) &
+   *   (<Condition extends TestFunction>(test: Condition) => (node: unknown, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & Predicate<Condition, Node>) &
+   *   ((test?: null | undefined) => (node?: unknown, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node) &
+   *   ((test?: Test) => Check)
+   * )}
+   */
+  (
+    /**
+     * @param {Test} [test]
+     * @returns {Check}
+     */
+    function (test) {
+      if (test === null || test === undefined) {
+        return lib_ok
+      }
+
+      if (typeof test === 'function') {
+        return castFactory(test)
+      }
+
+      if (typeof test === 'object') {
+        return Array.isArray(test) ? anyFactory(test) : propsFactory(test)
+      }
+
+      if (typeof test === 'string') {
+        return typeFactory(test)
+      }
+
+      throw new Error('Expected function, string, or object as test')
+    }
+  )
+
+/**
+ * @param {Array<Props | TestFunction | string>} tests
+ * @returns {Check}
+ */
+function anyFactory(tests) {
+  /** @type {Array<Check>} */
+  const checks = []
+  let index = -1
+
+  while (++index < tests.length) {
+    checks[index] = convert(tests[index])
+  }
+
+  return castFactory(any)
+
+  /**
+   * @this {unknown}
+   * @type {TestFunction}
+   */
+  function any(...parameters) {
+    let index = -1
+
+    while (++index < checks.length) {
+      if (checks[index].apply(this, parameters)) return true
+    }
+
+    return false
+  }
+}
+
+/**
+ * Turn an object into a test for a node with a certain fields.
+ *
+ * @param {Props} check
+ * @returns {Check}
+ */
+function propsFactory(check) {
+  const checkAsRecord = /** @type {Record<string, unknown>} */ (check)
+
+  return castFactory(all)
+
+  /**
+   * @param {Node} node
+   * @returns {boolean}
+   */
+  function all(node) {
+    const nodeAsRecord = /** @type {Record<string, unknown>} */ (
+      /** @type {unknown} */ (node)
+    )
+
+    /** @type {string} */
+    let key
+
+    for (key in check) {
+      if (nodeAsRecord[key] !== checkAsRecord[key]) return false
+    }
+
+    return true
+  }
+}
+
+/**
+ * Turn a string into a test for a node with a certain type.
+ *
+ * @param {string} check
+ * @returns {Check}
+ */
+function typeFactory(check) {
+  return castFactory(type)
+
+  /**
+   * @param {Node} node
+   */
+  function type(node) {
+    return node && node.type === check
+  }
+}
+
+/**
+ * Turn a custom test into a test for a node that passes that test.
+ *
+ * @param {TestFunction} testFunction
+ * @returns {Check}
+ */
+function castFactory(testFunction) {
+  return check
+
+  /**
+   * @this {unknown}
+   * @type {Check}
+   */
+  function check(value, index, parent) {
+    return Boolean(
+      looksLikeANode(value) &&
+        testFunction.call(
+          this,
+          value,
+          typeof index === 'number' ? index : undefined,
+          parent || undefined
+        )
+    )
+  }
+}
+
+function lib_ok() {
+  return true
+}
+
+/**
+ * @param {unknown} value
+ * @returns {value is Node}
+ */
+function looksLikeANode(value) {
+  return value !== null && typeof value === 'object' && 'type' in value
+}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-visit-parents/lib/color.node.js
+/**
+ * @param {string} d
+ * @returns {string}
+ */
+function color(d) {
+  return '\u001B[33m' + d + '\u001B[39m'
+}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-visit-parents/lib/index.js
+/**
+ * @typedef {import('unist').Node} UnistNode
+ * @typedef {import('unist').Parent} UnistParent
+ */
+
+/**
+ * @typedef {Exclude<import('unist-util-is').Test, undefined> | undefined} Test
+ *   Test from `unist-util-is`.
+ *
+ *   Note: we have remove and add `undefined`, because otherwise when generating
+ *   automatic `.d.ts` files, TS tries to flatten paths from a local perspective,
+ *   which doesn’t work when publishing on npm.
+ */
+
+/**
+ * @typedef {(
+ *   Fn extends (value: any) => value is infer Thing
+ *   ? Thing
+ *   : Fallback
+ * )} Predicate
+ *   Get the value of a type guard `Fn`.
+ * @template Fn
+ *   Value; typically function that is a type guard (such as `(x): x is Y`).
+ * @template Fallback
+ *   Value to yield if `Fn` is not a type guard.
+ */
+
+/**
+ * @typedef {(
+ *   Check extends null | undefined // No test.
+ *   ? Value
+ *   : Value extends {type: Check} // String (type) test.
+ *   ? Value
+ *   : Value extends Check // Partial test.
+ *   ? Value
+ *   : Check extends Function // Function test.
+ *   ? Predicate<Check, Value> extends Value
+ *     ? Predicate<Check, Value>
+ *     : never
+ *   : never // Some other test?
+ * )} MatchesOne
+ *   Check whether a node matches a primitive check in the type system.
+ * @template Value
+ *   Value; typically unist `Node`.
+ * @template Check
+ *   Value; typically `unist-util-is`-compatible test, but not arrays.
+ */
+
+/**
+ * @typedef {(
+ *   Check extends Array<any>
+ *   ? MatchesOne<Value, Check[keyof Check]>
+ *   : MatchesOne<Value, Check>
+ * )} Matches
+ *   Check whether a node matches a check in the type system.
+ * @template Value
+ *   Value; typically unist `Node`.
+ * @template Check
+ *   Value; typically `unist-util-is`-compatible test.
+ */
+
+/**
+ * @typedef {0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10} Uint
+ *   Number; capped reasonably.
+ */
+
+/**
+ * @typedef {I extends 0 ? 1 : I extends 1 ? 2 : I extends 2 ? 3 : I extends 3 ? 4 : I extends 4 ? 5 : I extends 5 ? 6 : I extends 6 ? 7 : I extends 7 ? 8 : I extends 8 ? 9 : 10} Increment
+ *   Increment a number in the type system.
+ * @template {Uint} [I=0]
+ *   Index.
+ */
+
+/**
+ * @typedef {(
+ *   Node extends UnistParent
+ *   ? Node extends {children: Array<infer Children>}
+ *     ? Child extends Children ? Node : never
+ *     : never
+ *   : never
+ * )} InternalParent
+ *   Collect nodes that can be parents of `Child`.
+ * @template {UnistNode} Node
+ *   All node types in a tree.
+ * @template {UnistNode} Child
+ *   Node to search for.
+ */
+
+/**
+ * @typedef {InternalParent<InclusiveDescendant<Tree>, Child>} Parent
+ *   Collect nodes in `Tree` that can be parents of `Child`.
+ * @template {UnistNode} Tree
+ *   All node types in a tree.
+ * @template {UnistNode} Child
+ *   Node to search for.
+ */
+
+/**
+ * @typedef {(
+ *   Depth extends Max
+ *   ? never
+ *   :
+ *     | InternalParent<Node, Child>
+ *     | InternalAncestor<Node, InternalParent<Node, Child>, Max, Increment<Depth>>
+ * )} InternalAncestor
+ *   Collect nodes in `Tree` that can be ancestors of `Child`.
+ * @template {UnistNode} Node
+ *   All node types in a tree.
+ * @template {UnistNode} Child
+ *   Node to search for.
+ * @template {Uint} [Max=10]
+ *   Max; searches up to this depth.
+ * @template {Uint} [Depth=0]
+ *   Current depth.
+ */
+
+/**
+ * @typedef {InternalAncestor<InclusiveDescendant<Tree>, Child>} Ancestor
+ *   Collect nodes in `Tree` that can be ancestors of `Child`.
+ * @template {UnistNode} Tree
+ *   All node types in a tree.
+ * @template {UnistNode} Child
+ *   Node to search for.
+ */
+
+/**
+ * @typedef {(
+ *   Tree extends UnistParent
+ *     ? Depth extends Max
+ *       ? Tree
+ *       : Tree | InclusiveDescendant<Tree['children'][number], Max, Increment<Depth>>
+ *     : Tree
+ * )} InclusiveDescendant
+ *   Collect all (inclusive) descendants of `Tree`.
+ *
+ *   > 👉 **Note**: for performance reasons, this seems to be the fastest way to
+ *   > recurse without actually running into an infinite loop, which the
+ *   > previous version did.
+ *   >
+ *   > Practically, a max of `2` is typically enough assuming a `Root` is
+ *   > passed, but it doesn’t improve performance.
+ *   > It gets higher with `List > ListItem > Table > TableRow > TableCell`.
+ *   > Using up to `10` doesn’t hurt or help either.
+ * @template {UnistNode} Tree
+ *   Tree type.
+ * @template {Uint} [Max=10]
+ *   Max; searches up to this depth.
+ * @template {Uint} [Depth=0]
+ *   Current depth.
+ */
+
+/**
+ * @typedef {'skip' | boolean} Action
+ *   Union of the action types.
+ *
+ * @typedef {number} Index
+ *   Move to the sibling at `index` next (after node itself is completely
+ *   traversed).
+ *
+ *   Useful if mutating the tree, such as removing the node the visitor is
+ *   currently on, or any of its previous siblings.
+ *   Results less than 0 or greater than or equal to `children.length` stop
+ *   traversing the parent.
+ *
+ * @typedef {[(Action | null | undefined | void)?, (Index | null | undefined)?]} ActionTuple
+ *   List with one or two values, the first an action, the second an index.
+ *
+ * @typedef {Action | ActionTuple | Index | null | undefined | void} VisitorResult
+ *   Any value that can be returned from a visitor.
+ */
+
+/**
+ * @callback Visitor
+ *   Handle a node (matching `test`, if given).
+ *
+ *   Visitors are free to transform `node`.
+ *   They can also transform the parent of node (the last of `ancestors`).
+ *
+ *   Replacing `node` itself, if `SKIP` is not returned, still causes its
+ *   descendants to be walked (which is a bug).
+ *
+ *   When adding or removing previous siblings of `node` (or next siblings, in
+ *   case of reverse), the `Visitor` should return a new `Index` to specify the
+ *   sibling to traverse after `node` is traversed.
+ *   Adding or removing next siblings of `node` (or previous siblings, in case
+ *   of reverse) is handled as expected without needing to return a new `Index`.
+ *
+ *   Removing the children property of an ancestor still results in them being
+ *   traversed.
+ * @param {Visited} node
+ *   Found node.
+ * @param {Array<VisitedParents>} ancestors
+ *   Ancestors of `node`.
+ * @returns {VisitorResult}
+ *   What to do next.
+ *
+ *   An `Index` is treated as a tuple of `[CONTINUE, Index]`.
+ *   An `Action` is treated as a tuple of `[Action]`.
+ *
+ *   Passing a tuple back only makes sense if the `Action` is `SKIP`.
+ *   When the `Action` is `EXIT`, that action can be returned.
+ *   When the `Action` is `CONTINUE`, `Index` can be returned.
+ * @template {UnistNode} [Visited=UnistNode]
+ *   Visited node type.
+ * @template {UnistParent} [VisitedParents=UnistParent]
+ *   Ancestor type.
+ */
+
+/**
+ * @typedef {Visitor<Matches<InclusiveDescendant<Tree>, Check>, Ancestor<Tree, Matches<InclusiveDescendant<Tree>, Check>>>} BuildVisitor
+ *   Build a typed `Visitor` function from a tree and a test.
+ *
+ *   It will infer which values are passed as `node` and which as `parents`.
+ * @template {UnistNode} [Tree=UnistNode]
+ *   Tree type.
+ * @template {Test} [Check=Test]
+ *   Test type.
+ */
+
+
+
+
+/** @type {Readonly<ActionTuple>} */
+const lib_empty = []
+
+/**
+ * Continue traversing as normal.
+ */
+const CONTINUE = true
+
+/**
+ * Stop traversing immediately.
+ */
+const EXIT = false
+
+/**
+ * Do not traverse this node’s children.
+ */
+const SKIP = 'skip'
+
+/**
+ * Visit nodes, with ancestral information.
+ *
+ * This algorithm performs *depth-first* *tree traversal* in *preorder*
+ * (**NLR**) or if `reverse` is given, in *reverse preorder* (**NRL**).
+ *
+ * You can choose for which nodes `visitor` is called by passing a `test`.
+ * For complex tests, you should test yourself in `visitor`, as it will be
+ * faster and will have improved type information.
+ *
+ * Walking the tree is an intensive task.
+ * Make use of the return values of the visitor when possible.
+ * Instead of walking a tree multiple times, walk it once, use `unist-util-is`
+ * to check if a node matches, and then perform different operations.
+ *
+ * You can change the tree.
+ * See `Visitor` for more info.
+ *
+ * @overload
+ * @param {Tree} tree
+ * @param {Check} check
+ * @param {BuildVisitor<Tree, Check>} visitor
+ * @param {boolean | null | undefined} [reverse]
+ * @returns {undefined}
+ *
+ * @overload
+ * @param {Tree} tree
+ * @param {BuildVisitor<Tree>} visitor
+ * @param {boolean | null | undefined} [reverse]
+ * @returns {undefined}
+ *
+ * @param {UnistNode} tree
+ *   Tree to traverse.
+ * @param {Visitor | Test} test
+ *   `unist-util-is`-compatible test
+ * @param {Visitor | boolean | null | undefined} [visitor]
+ *   Handle each node.
+ * @param {boolean | null | undefined} [reverse]
+ *   Traverse in reverse preorder (NRL) instead of the default preorder (NLR).
+ * @returns {undefined}
+ *   Nothing.
+ *
+ * @template {UnistNode} Tree
+ *   Node type.
+ * @template {Test} Check
+ *   `unist-util-is`-compatible test.
+ */
+function visitParents(tree, test, visitor, reverse) {
+  /** @type {Test} */
+  let check
+
+  if (typeof test === 'function' && typeof visitor !== 'function') {
+    reverse = visitor
+    // @ts-expect-error no visitor given, so `visitor` is test.
+    visitor = test
+  } else {
+    // @ts-expect-error visitor given, so `test` isn’t a visitor.
+    check = test
+  }
+
+  const is = convert(check)
+  const step = reverse ? -1 : 1
+
+  factory(tree, undefined, [])()
+
+  /**
+   * @param {UnistNode} node
+   * @param {number | undefined} index
+   * @param {Array<UnistParent>} parents
+   */
+  function factory(node, index, parents) {
+    const value = /** @type {Record<string, unknown>} */ (
+      node && typeof node === 'object' ? node : {}
+    )
+
+    if (typeof value.type === 'string') {
+      const name =
+        // `hast`
+        typeof value.tagName === 'string'
+          ? value.tagName
+          : // `xast`
+          typeof value.name === 'string'
+          ? value.name
+          : undefined
+
+      Object.defineProperty(visit, 'name', {
+        value:
+          'node (' + color(node.type + (name ? '<' + name + '>' : '')) + ')'
+      })
+    }
+
+    return visit
+
+    function visit() {
+      /** @type {Readonly<ActionTuple>} */
+      let result = lib_empty
+      /** @type {Readonly<ActionTuple>} */
+      let subresult
+      /** @type {number} */
+      let offset
+      /** @type {Array<UnistParent>} */
+      let grandparents
+
+      if (!test || is(node, index, parents[parents.length - 1] || undefined)) {
+        // @ts-expect-error: `visitor` is now a visitor.
+        result = toResult(visitor(node, parents))
+
+        if (result[0] === EXIT) {
+          return result
+        }
+      }
+
+      if ('children' in node && node.children) {
+        const nodeAsParent = /** @type {UnistParent} */ (node)
+
+        if (nodeAsParent.children && result[0] !== SKIP) {
+          offset = (reverse ? nodeAsParent.children.length : -1) + step
+          grandparents = parents.concat(nodeAsParent)
+
+          while (offset > -1 && offset < nodeAsParent.children.length) {
+            const child = nodeAsParent.children[offset]
+
+            subresult = factory(child, offset, grandparents)()
+
+            if (subresult[0] === EXIT) {
+              return subresult
+            }
+
+            offset =
+              typeof subresult[1] === 'number' ? subresult[1] : offset + step
+          }
+        }
+      }
+
+      return result
+    }
+  }
+}
+
+/**
+ * Turn a return value into a clean result.
+ *
+ * @param {VisitorResult} value
+ *   Valid return values from visitors.
+ * @returns {Readonly<ActionTuple>}
+ *   Clean result.
+ */
+function toResult(value) {
+  if (Array.isArray(value)) {
+    return value
+  }
+
+  if (typeof value === 'number') {
+    return [CONTINUE, value]
+  }
+
+  return value === null || value === undefined ? lib_empty : [value]
+}
+
+;// CONCATENATED MODULE: ./node_modules/unist-util-visit/lib/index.js
+/**
+ * @typedef {import('unist').Node} UnistNode
+ * @typedef {import('unist').Parent} UnistParent
+ * @typedef {import('unist-util-visit-parents').VisitorResult} VisitorResult
+ */
+
+/**
+ * @typedef {Exclude<import('unist-util-is').Test, undefined> | undefined} Test
+ *   Test from `unist-util-is`.
+ *
+ *   Note: we have remove and add `undefined`, because otherwise when generating
+ *   automatic `.d.ts` files, TS tries to flatten paths from a local perspective,
+ *   which doesn’t work when publishing on npm.
+ */
+
+// To do: use types from `unist-util-visit-parents` when it’s released.
+
+/**
+ * @typedef {(
+ *   Fn extends (value: any) => value is infer Thing
+ *   ? Thing
+ *   : Fallback
+ * )} Predicate
+ *   Get the value of a type guard `Fn`.
+ * @template Fn
+ *   Value; typically function that is a type guard (such as `(x): x is Y`).
+ * @template Fallback
+ *   Value to yield if `Fn` is not a type guard.
+ */
+
+/**
+ * @typedef {(
+ *   Check extends null | undefined // No test.
+ *   ? Value
+ *   : Value extends {type: Check} // String (type) test.
+ *   ? Value
+ *   : Value extends Check // Partial test.
+ *   ? Value
+ *   : Check extends Function // Function test.
+ *   ? Predicate<Check, Value> extends Value
+ *     ? Predicate<Check, Value>
+ *     : never
+ *   : never // Some other test?
+ * )} MatchesOne
+ *   Check whether a node matches a primitive check in the type system.
+ * @template Value
+ *   Value; typically unist `Node`.
+ * @template Check
+ *   Value; typically `unist-util-is`-compatible test, but not arrays.
+ */
+
+/**
+ * @typedef {(
+ *   Check extends Array<any>
+ *   ? MatchesOne<Value, Check[keyof Check]>
+ *   : MatchesOne<Value, Check>
+ * )} Matches
+ *   Check whether a node matches a check in the type system.
+ * @template Value
+ *   Value; typically unist `Node`.
+ * @template Check
+ *   Value; typically `unist-util-is`-compatible test.
+ */
+
+/**
+ * @typedef {0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10} Uint
+ *   Number; capped reasonably.
+ */
+
+/**
+ * @typedef {I extends 0 ? 1 : I extends 1 ? 2 : I extends 2 ? 3 : I extends 3 ? 4 : I extends 4 ? 5 : I extends 5 ? 6 : I extends 6 ? 7 : I extends 7 ? 8 : I extends 8 ? 9 : 10} Increment
+ *   Increment a number in the type system.
+ * @template {Uint} [I=0]
+ *   Index.
+ */
+
+/**
+ * @typedef {(
+ *   Node extends UnistParent
+ *   ? Node extends {children: Array<infer Children>}
+ *     ? Child extends Children ? Node : never
+ *     : never
+ *   : never
+ * )} InternalParent
+ *   Collect nodes that can be parents of `Child`.
+ * @template {UnistNode} Node
+ *   All node types in a tree.
+ * @template {UnistNode} Child
+ *   Node to search for.
+ */
+
+/**
+ * @typedef {InternalParent<InclusiveDescendant<Tree>, Child>} Parent
+ *   Collect nodes in `Tree` that can be parents of `Child`.
+ * @template {UnistNode} Tree
+ *   All node types in a tree.
+ * @template {UnistNode} Child
+ *   Node to search for.
+ */
+
+/**
+ * @typedef {(
+ *   Depth extends Max
+ *   ? never
+ *   :
+ *     | InternalParent<Node, Child>
+ *     | InternalAncestor<Node, InternalParent<Node, Child>, Max, Increment<Depth>>
+ * )} InternalAncestor
+ *   Collect nodes in `Tree` that can be ancestors of `Child`.
+ * @template {UnistNode} Node
+ *   All node types in a tree.
+ * @template {UnistNode} Child
+ *   Node to search for.
+ * @template {Uint} [Max=10]
+ *   Max; searches up to this depth.
+ * @template {Uint} [Depth=0]
+ *   Current depth.
+ */
+
+/**
+ * @typedef {(
+ *   Tree extends UnistParent
+ *     ? Depth extends Max
+ *       ? Tree
+ *       : Tree | InclusiveDescendant<Tree['children'][number], Max, Increment<Depth>>
+ *     : Tree
+ * )} InclusiveDescendant
+ *   Collect all (inclusive) descendants of `Tree`.
+ *
+ *   > 👉 **Note**: for performance reasons, this seems to be the fastest way to
+ *   > recurse without actually running into an infinite loop, which the
+ *   > previous version did.
+ *   >
+ *   > Practically, a max of `2` is typically enough assuming a `Root` is
+ *   > passed, but it doesn’t improve performance.
+ *   > It gets higher with `List > ListItem > Table > TableRow > TableCell`.
+ *   > Using up to `10` doesn’t hurt or help either.
+ * @template {UnistNode} Tree
+ *   Tree type.
+ * @template {Uint} [Max=10]
+ *   Max; searches up to this depth.
+ * @template {Uint} [Depth=0]
+ *   Current depth.
+ */
+
+/**
+ * @callback Visitor
+ *   Handle a node (matching `test`, if given).
+ *
+ *   Visitors are free to transform `node`.
+ *   They can also transform `parent`.
+ *
+ *   Replacing `node` itself, if `SKIP` is not returned, still causes its
+ *   descendants to be walked (which is a bug).
+ *
+ *   When adding or removing previous siblings of `node` (or next siblings, in
+ *   case of reverse), the `Visitor` should return a new `Index` to specify the
+ *   sibling to traverse after `node` is traversed.
+ *   Adding or removing next siblings of `node` (or previous siblings, in case
+ *   of reverse) is handled as expected without needing to return a new `Index`.
+ *
+ *   Removing the children property of `parent` still results in them being
+ *   traversed.
+ * @param {Visited} node
+ *   Found node.
+ * @param {Visited extends UnistNode ? number | undefined : never} index
+ *   Index of `node` in `parent`.
+ * @param {Ancestor extends UnistParent ? Ancestor | undefined : never} parent
+ *   Parent of `node`.
+ * @returns {VisitorResult}
+ *   What to do next.
+ *
+ *   An `Index` is treated as a tuple of `[CONTINUE, Index]`.
+ *   An `Action` is treated as a tuple of `[Action]`.
+ *
+ *   Passing a tuple back only makes sense if the `Action` is `SKIP`.
+ *   When the `Action` is `EXIT`, that action can be returned.
+ *   When the `Action` is `CONTINUE`, `Index` can be returned.
+ * @template {UnistNode} [Visited=UnistNode]
+ *   Visited node type.
+ * @template {UnistParent} [Ancestor=UnistParent]
+ *   Ancestor type.
+ */
+
+/**
+ * @typedef {Visitor<Visited, Parent<Ancestor, Visited>>} BuildVisitorFromMatch
+ *   Build a typed `Visitor` function from a node and all possible parents.
+ *
+ *   It will infer which values are passed as `node` and which as `parent`.
+ * @template {UnistNode} Visited
+ *   Node type.
+ * @template {UnistParent} Ancestor
+ *   Parent type.
+ */
+
+/**
+ * @typedef {(
+ *   BuildVisitorFromMatch<
+ *     Matches<Descendant, Check>,
+ *     Extract<Descendant, UnistParent>
+ *   >
+ * )} BuildVisitorFromDescendants
+ *   Build a typed `Visitor` function from a list of descendants and a test.
+ *
+ *   It will infer which values are passed as `node` and which as `parent`.
+ * @template {UnistNode} Descendant
+ *   Node type.
+ * @template {Test} Check
+ *   Test type.
+ */
+
+/**
+ * @typedef {(
+ *   BuildVisitorFromDescendants<
+ *     InclusiveDescendant<Tree>,
+ *     Check
+ *   >
+ * )} BuildVisitor
+ *   Build a typed `Visitor` function from a tree and a test.
+ *
+ *   It will infer which values are passed as `node` and which as `parent`.
+ * @template {UnistNode} [Tree=UnistNode]
+ *   Node type.
+ * @template {Test} [Check=Test]
+ *   Test type.
+ */
+
+
+
+
+
+/**
+ * Visit nodes.
+ *
+ * This algorithm performs *depth-first* *tree traversal* in *preorder*
+ * (**NLR**) or if `reverse` is given, in *reverse preorder* (**NRL**).
+ *
+ * You can choose for which nodes `visitor` is called by passing a `test`.
+ * For complex tests, you should test yourself in `visitor`, as it will be
+ * faster and will have improved type information.
+ *
+ * Walking the tree is an intensive task.
+ * Make use of the return values of the visitor when possible.
+ * Instead of walking a tree multiple times, walk it once, use `unist-util-is`
+ * to check if a node matches, and then perform different operations.
+ *
+ * You can change the tree.
+ * See `Visitor` for more info.
+ *
+ * @overload
+ * @param {Tree} tree
+ * @param {Check} check
+ * @param {BuildVisitor<Tree, Check>} visitor
+ * @param {boolean | null | undefined} [reverse]
+ * @returns {undefined}
+ *
+ * @overload
+ * @param {Tree} tree
+ * @param {BuildVisitor<Tree>} visitor
+ * @param {boolean | null | undefined} [reverse]
+ * @returns {undefined}
+ *
+ * @param {UnistNode} tree
+ *   Tree to traverse.
+ * @param {Visitor | Test} testOrVisitor
+ *   `unist-util-is`-compatible test (optional, omit to pass a visitor).
+ * @param {Visitor | boolean | null | undefined} [visitorOrReverse]
+ *   Handle each node (when test is omitted, pass `reverse`).
+ * @param {boolean | null | undefined} [maybeReverse=false]
+ *   Traverse in reverse preorder (NRL) instead of the default preorder (NLR).
+ * @returns {undefined}
+ *   Nothing.
+ *
+ * @template {UnistNode} Tree
+ *   Node type.
+ * @template {Test} Check
+ *   `unist-util-is`-compatible test.
+ */
+function visit(tree, testOrVisitor, visitorOrReverse, maybeReverse) {
+  /** @type {boolean | null | undefined} */
+  let reverse
+  /** @type {Test} */
+  let test
+  /** @type {Visitor} */
+  let visitor
+
+  if (
+    typeof testOrVisitor === 'function' &&
+    typeof visitorOrReverse !== 'function'
+  ) {
+    test = undefined
+    visitor = testOrVisitor
+    reverse = visitorOrReverse
+  } else {
+    // @ts-expect-error: assume the overload with test was given.
+    test = testOrVisitor
+    // @ts-expect-error: assume the overload with test was given.
+    visitor = visitorOrReverse
+    reverse = maybeReverse
+  }
+
+  visitParents(tree, test, overload, reverse)
+
+  /**
+   * @param {UnistNode} node
+   * @param {Array<UnistParent>} parents
+   */
+  function overload(node, parents) {
+    const parent = parents[parents.length - 1]
+    const index = parent ? parent.children.indexOf(node) : undefined
+    return visitor(node, index, parent)
+  }
+}
+
+;// CONCATENATED MODULE: ./src/ast.ts
+const mdastLiterals = (/* unused pure expression or super */ null && ([
+    'code',
+    'html',
+    'inlineCode',
+    'text',
+    'yaml',
+]));
+const literalsToCheck = [
+    'code',
+    'inlineCode',
+    'text',
+];
+const codeLangsToCheck = [
+    void 0,
+    null,
+];
+const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
+
+;// CONCATENATED MODULE: ./src/formatOutput.ts
+
+const oasPathPartsToPath = (pathParts) => `/${pathParts
+    .map(p => {
+    switch (p.type) {
+        case 'literal':
+            return p.value;
+        case 'parameter':
+            return `{${p.name}}`;
+    }
+})
+    .join('/')}`;
+const formatOutput = (failOutput, options) => {
+    if (failOutput.length === 0) {
+        return '### ✅No inconsistencies found between Open API specifiaction and Documentation!';
+    }
+    const oasOnly = failOutput
+        .flatMap(fail => {
+        if (fail.type !== 'only-in-oas')
+            return [];
+        return [
+            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.endpoint.pathParts)}\`](${options.oasPath})`,
+        ];
+    })
+        .join('\n\t');
+    const oasOnlySection = oasOnly.length > 0
+        ? `- ### 🟩Found in Open API specification, 🟥Not found in Documentation\n\t${oasOnly}`
+        : '';
+    const docOnly = failOutput
+        .flatMap(fail => {
+        if (fail.type !== 'only-in-doc')
+            return [];
+        return [
+            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.endpoint.line})`,
+        ];
+    })
+        .join('\n\t');
+    const docOnlySection = docOnly.length > 0
+        ? `- ### 🟥Not found in Open API specification, 🟩Found in Documentation\n\t${docOnly}`
+        : '';
+    const matchesWithInconsistencies = failOutput
+        .flatMap(fail => {
+        if (fail.type !== 'match-with-inconsistenties')
+            return [];
+        const inconsistencies = [
+            `- | Inconsistency type | Open API specification <br /> [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.docEndpoint.line}) |`,
+            '| --- | --- | --- |',
+            ...fail.inconsistencies.map(i => {
+                switch (i.type) {
+                    case 'method-mismatch':
+                        return `| Method mismatch | \`${fail.oasEndpoint.method.toUpperCase()}\` | \`${fail.docEndpoint.method.toUpperCase()}\` |`;
+                    case 'path-path-parameter-name-mismatch':
+                        const oasServerBasePath = (i.oasServerIndex
+                            ? fail.oasEndpoint.servers[i.oasServerIndex]?.basePath
+                            : null) ?? [];
+                        const oasFullPath = [
+                            ...oasServerBasePath,
+                            ...fail.oasEndpoint.pathParts,
+                        ];
+                        const oasMismatchedParam = oasFullPath.flatMap(p => p.type === 'parameter' ? [p.name] : [])[i.parameterIndex];
+                        const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
+                        external_assert_default()(oasMismatchedParam);
+                        external_assert_default()(docMismatchedParam);
+                        return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
+                    case 'host-mismatch':
+                        throw new Error('Host mismatch not implemented');
+                    case 'doc-scheme-not-supported-by-oas-server':
+                        throw new Error('Doc scheme not supported by oas server not implemented');
+                }
+            }),
+        ].join('\n\t\t');
+        return inconsistencies;
+    })
+        .join('\n\t');
+    const matchesWithInconsistenciesSection = matchesWithInconsistencies.length > 0
+        ? `- ### 🟩Found in Open API specification, 🟩Found in Documentation, 🟥Have Inconsistencies\n\t${matchesWithInconsistencies}`
+        : '';
+    return `
+I have identified the following possible instances of inconsistencies between [Open API specification](${options.oasPath}) and [Documentation](${options.docPath}):
+
+${oasOnlySection}
+${docOnlySection}
+${matchesWithInconsistenciesSection}
+
+**About**
+
+This is part of a research project that aims to detect API documentation inconsistencies in GitHub repositories automatically. I am evaluating the validity of the approach by identifying such inconsistencies in real-world repositories. 
+
+Hopefully, this is a step towards easier maintenance of API documentation. If you find this helpful, please consider updating the documentation to keep it in sync with the source code. I am also happy to assist with it, if appropriate. If this has not been useful, consider updating this issue with an explanation, so I can improve my approach. Thank you!
+    `;
+};
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseProperty.js
+/**
+ * The base implementation of `_.property` without support for deep paths.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ */
+function baseProperty(key) {
+  return function(object) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+/* harmony default export */ const _baseProperty = (baseProperty);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/unzip.js
+
+
+
+
+
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var unzip_nativeMax = Math.max;
+
+/**
+ * This method is like `_.zip` except that it accepts an array of grouped
+ * elements and creates an array regrouping the elements to their pre-zip
+ * configuration.
+ *
+ * @static
+ * @memberOf _
+ * @since 1.2.0
+ * @category Array
+ * @param {Array} array The array of grouped elements to process.
+ * @returns {Array} Returns the new array of regrouped elements.
+ * @example
+ *
+ * var zipped = _.zip(['a', 'b'], [1, 2], [true, false]);
+ * // => [['a', 1, true], ['b', 2, false]]
+ *
+ * _.unzip(zipped);
+ * // => [['a', 'b'], [1, 2], [true, false]]
+ */
+function unzip(array) {
+  if (!(array && array.length)) {
+    return [];
+  }
+  var length = 0;
+  array = _arrayFilter(array, function(group) {
+    if (lodash_es_isArrayLikeObject(group)) {
+      length = unzip_nativeMax(group.length, length);
+      return true;
+    }
+  });
+  return _baseTimes(length, function(index) {
+    return _arrayMap(array, _baseProperty(index));
+  });
+}
+
+/* harmony default export */ const lodash_es_unzip = (unzip);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/zip.js
+
+
+
+/**
+ * Creates an array of grouped elements, the first of which contains the
+ * first elements of the given arrays, the second of which contains the
+ * second elements of the given arrays, and so on.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Array
+ * @param {...Array} [arrays] The arrays to process.
+ * @returns {Array} Returns the new array of grouped elements.
+ * @example
+ *
+ * _.zip(['a', 'b'], [1, 2], [true, false]);
+ * // => [['a', 1, true], ['b', 2, false]]
+ */
+var zip = _baseRest(lodash_es_unzip);
+
+/* harmony default export */ const lodash_es_zip = (zip);
+
+;// CONCATENATED MODULE: ./src/utils.ts
+const objectKeys = (obj) => Object.keys(obj);
+const objectEntries = (obj) => Object.entries(obj);
+const mapIncrement = (map, key) => map.set(key, (map.get(key) ?? 0) + 1);
+const mapGetOrSetDefault = (map, key, def) => {
+    let value = map.get(key);
+    if (value === void 0) {
+        value = def;
+        map.set(key, value);
+    }
+    return value;
+};
+const makeKey = ([i1, i2]) => `${i1} ${i2}`;
+
+;// CONCATENATED MODULE: ./src/matching.ts
+
+
+
+const addEdges = (graph, key, values, negate) => {
+    const neighbors = mapGetOrSetDefault(graph, key, []);
+    for (const val of values) {
+        neighbors.push(negate ? -(val + 1) : val);
+    }
+};
+const bfs = (graph, startNode, visited) => {
+    const queue = [];
+    const component = new Set();
+    for (let current = startNode; current !== void 0; current = queue.shift()) {
+        if (visited.has(current))
+            continue;
+        visited.add(current);
+        component.add(current);
+        const neighbors = graph.get(current) || [];
+        for (const neighbor of neighbors) {
+            if (!visited.has(neighbor)) {
+                queue.push(neighbor);
+            }
+        }
+    }
+    return component;
+};
+const getGroups = (oasIndexToDocIndices, docIndexToOasIndices) => {
+    const graph = new Map();
+    for (const [k, v] of oasIndexToDocIndices.entries()) {
+        addEdges(graph, k, v, true);
+    }
+    for (const [k, v] of docIndexToOasIndices.entries()) {
+        addEdges(graph, -(k + 1), v, false);
+    }
+    const visited = new Set();
+    const components = [];
+    for (const node of graph.keys()) {
+        if (!visited.has(node)) {
+            const component = bfs(graph, node, visited);
+            components.push(component);
+        }
+    }
+    // Format output as required
+    const result = [];
+    for (const component of components) {
+        const oasGroup = [];
+        const docGroup = [];
+        for (const node of component) {
+            if (node >= 0)
+                oasGroup.push(node);
+            else
+                docGroup.push(-node - 1);
+        }
+        result.push([oasGroup, docGroup]);
+    }
+    return result;
+};
+const evaluateConfiguration = (config, isOasIndexFirst, inconsistencyMap) => {
+    let totalInconsistencies = 0;
+    for (const [i1, i2] of config) {
+        if (i1 === void 0 || i2 === void 0)
+            continue;
+        const key = makeKey(isOasIndexFirst ? [i1, i2] : [i2, i1]);
+        const inconsistencies = inconsistencyMap.get(key) || [];
+        totalInconsistencies += inconsistencies.length;
+    }
+    return totalInconsistencies;
+};
+const permute = (arr) => {
+    if (arr.length <= 1)
+        return [arr];
+    const result = [];
+    for (const [i, elem] of arr.entries()) {
+        const restPerms = permute([...arr.slice(0, i), ...arr.slice(i + 1)]);
+        for (const perm of restPerms) {
+            result.push([elem, ...perm]);
+        }
+    }
+    return result;
+};
+const getBestMatches = (oasGroup, docGroup, inconsistencyMap) => {
+    const areMoreInOas = oasGroup.length > docGroup.length;
+    const perms = permute(areMoreInOas ? oasGroup : docGroup);
+    let minTotalInconsistencies = Infinity;
+    let bestConfiguration = [];
+    for (const perm of perms) {
+        const currentConfig = lodash_es_zip(perm, areMoreInOas ? docGroup : oasGroup);
+        const totalInconsistencies = evaluateConfiguration(currentConfig, areMoreInOas, inconsistencyMap);
+        if (totalInconsistencies >= minTotalInconsistencies)
+            continue;
+        minTotalInconsistencies = totalInconsistencies;
+        bestConfiguration = areMoreInOas
+            ? currentConfig
+            : currentConfig.map(([i2, i1]) => [i1, i2]);
+    }
+    return bestConfiguration;
+};
+const matchEndpoints = (groups, inconsistencyMap) => {
+    const matches = [];
+    for (const [oasGroup, docGroup] of groups) {
+        if (oasGroup.length === 1 && docGroup.length === 1) {
+            external_assert_default()(oasGroup[0] !== void 0);
+            external_assert_default()(docGroup[0] !== void 0);
+            matches.push([oasGroup[0], docGroup[0]]);
+        }
+        else {
+            const bestMatches = getBestMatches(oasGroup, docGroup, inconsistencyMap);
+            for (const [i1, i2] of bestMatches) {
+                if (i1 === void 0 || i2 === void 0)
+                    continue;
+                matches.push([i1, i2]);
+            }
+        }
+    }
+    return matches;
+};
+const findBestMatches = (oasIndexToDocIndices, docIndexToOasIndices, inconsistenciesMap) => {
+    const groups = getGroups(oasIndexToDocIndices, docIndexToOasIndices);
+    return matchEndpoints(groups, inconsistenciesMap);
+};
+
+// EXTERNAL MODULE: ./node_modules/openapi-types/dist/index.js
+var dist = __nccwpck_require__(5194);
+;// CONCATENATED MODULE: ./src/parsing/index.ts
+
+const methods = Object.values(dist/* OpenAPIV3.HttpMethods */.ZT.HttpMethods);
+const validSchemes = ['https', 'http', 'ws', 'wss'];
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/isString.js
+
+
+
+
+/** `Object#toString` result references. */
+var isString_stringTag = '[object String]';
+
+/**
+ * Checks if `value` is classified as a `String` primitive or object.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a string, else `false`.
+ * @example
+ *
+ * _.isString('abc');
+ * // => true
+ *
+ * _.isString(1);
+ * // => false
+ */
+function isString(value) {
+  return typeof value == 'string' ||
+    (!lodash_es_isArray(value) && lodash_es_isObjectLike(value) && _baseGetTag(value) == isString_stringTag);
+}
+
+/* harmony default export */ const lodash_es_isString = (isString);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_trimmedEndIndex.js
+/** Used to match a single whitespace character. */
+var reWhitespace = /\s/;
+
+/**
+ * Used by `_.trim` and `_.trimEnd` to get the index of the last non-whitespace
+ * character of `string`.
+ *
+ * @private
+ * @param {string} string The string to inspect.
+ * @returns {number} Returns the index of the last non-whitespace character.
+ */
+function trimmedEndIndex(string) {
+  var index = string.length;
+
+  while (index-- && reWhitespace.test(string.charAt(index))) {}
+  return index;
+}
+
+/* harmony default export */ const _trimmedEndIndex = (trimmedEndIndex);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseTrim.js
+
+
+/** Used to match leading whitespace. */
+var reTrimStart = /^\s+/;
+
+/**
+ * The base implementation of `_.trim`.
+ *
+ * @private
+ * @param {string} string The string to trim.
+ * @returns {string} Returns the trimmed string.
+ */
+function baseTrim(string) {
+  return string
+    ? string.slice(0, _trimmedEndIndex(string) + 1).replace(reTrimStart, '')
+    : string;
+}
+
+/* harmony default export */ const _baseTrim = (baseTrim);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/isSymbol.js
+
+
+
+/** `Object#toString` result references. */
+var isSymbol_symbolTag = '[object Symbol]';
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (lodash_es_isObjectLike(value) && _baseGetTag(value) == isSymbol_symbolTag);
+}
+
+/* harmony default export */ const lodash_es_isSymbol = (isSymbol);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/toNumber.js
+
+
+
+
+/** Used as references for various `Number` constants. */
+var NAN = 0 / 0;
+
+/** Used to detect bad signed hexadecimal string values. */
+var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
+
+/** Used to detect binary string values. */
+var reIsBinary = /^0b[01]+$/i;
+
+/** Used to detect octal string values. */
+var reIsOctal = /^0o[0-7]+$/i;
+
+/** Built-in method references without a dependency on `root`. */
+var freeParseInt = parseInt;
+
+/**
+ * Converts `value` to a number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to process.
+ * @returns {number} Returns the number.
+ * @example
+ *
+ * _.toNumber(3.2);
+ * // => 3.2
+ *
+ * _.toNumber(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toNumber(Infinity);
+ * // => Infinity
+ *
+ * _.toNumber('3.2');
+ * // => 3.2
+ */
+function toNumber(value) {
+  if (typeof value == 'number') {
+    return value;
+  }
+  if (lodash_es_isSymbol(value)) {
+    return NAN;
+  }
+  if (lodash_es_isObject(value)) {
+    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
+    value = lodash_es_isObject(other) ? (other + '') : other;
+  }
+  if (typeof value != 'string') {
+    return value === 0 ? value : +value;
+  }
+  value = _baseTrim(value);
+  var isBinary = reIsBinary.test(value);
+  return (isBinary || reIsOctal.test(value))
+    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
+    : (reIsBadHex.test(value) ? NAN : +value);
+}
+
+/* harmony default export */ const lodash_es_toNumber = (toNumber);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/toFinite.js
+
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0,
+    MAX_INTEGER = 1.7976931348623157e+308;
+
+/**
+ * Converts `value` to a finite number.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.12.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted number.
+ * @example
+ *
+ * _.toFinite(3.2);
+ * // => 3.2
+ *
+ * _.toFinite(Number.MIN_VALUE);
+ * // => 5e-324
+ *
+ * _.toFinite(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toFinite('3.2');
+ * // => 3.2
+ */
+function toFinite(value) {
+  if (!value) {
+    return value === 0 ? value : 0;
+  }
+  value = lodash_es_toNumber(value);
+  if (value === INFINITY || value === -INFINITY) {
+    var sign = (value < 0 ? -1 : 1);
+    return sign * MAX_INTEGER;
+  }
+  return value === value ? value : 0;
+}
+
+/* harmony default export */ const lodash_es_toFinite = (toFinite);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/toInteger.js
+
+
+/**
+ * Converts `value` to an integer.
+ *
+ * **Note:** This method is loosely based on
+ * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {number} Returns the converted integer.
+ * @example
+ *
+ * _.toInteger(3.2);
+ * // => 3
+ *
+ * _.toInteger(Number.MIN_VALUE);
+ * // => 0
+ *
+ * _.toInteger(Infinity);
+ * // => 1.7976931348623157e+308
+ *
+ * _.toInteger('3.2');
+ * // => 3
+ */
+function toInteger(value) {
+  var result = lodash_es_toFinite(value),
+      remainder = result % 1;
+
+  return result === result ? (remainder ? result - remainder : result) : 0;
+}
+
+/* harmony default export */ const lodash_es_toInteger = (toInteger);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseValues.js
+
+
+/**
+ * The base implementation of `_.values` and `_.valuesIn` which creates an
+ * array of `object` property values corresponding to the property names
+ * of `props`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array} props The property names to get values for.
+ * @returns {Object} Returns the array of property values.
+ */
+function baseValues(object, props) {
+  return _arrayMap(props, function(key) {
+    return object[key];
+  });
+}
+
+/* harmony default export */ const _baseValues = (baseValues);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/values.js
+
+
+
+/**
+ * Creates an array of the own enumerable string keyed property values of `object`.
+ *
+ * **Note:** Non-object values are coerced to objects.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Object
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the array of property values.
+ * @example
+ *
+ * function Foo() {
+ *   this.a = 1;
+ *   this.b = 2;
+ * }
+ *
+ * Foo.prototype.c = 3;
+ *
+ * _.values(new Foo);
+ * // => [1, 2] (iteration order is not guaranteed)
+ *
+ * _.values('hi');
+ * // => ['h', 'i']
+ */
+function values(object) {
+  return object == null ? [] : _baseValues(object, lodash_es_keys(object));
+}
+
+/* harmony default export */ const lodash_es_values = (values);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/includes.js
+
+
+
+
+
+
+/* Built-in method references for those with the same name as other `lodash` methods. */
+var includes_nativeMax = Math.max;
+
+/**
+ * Checks if `value` is in `collection`. If `collection` is a string, it's
+ * checked for a substring of `value`, otherwise
+ * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
+ * is used for equality comparisons. If `fromIndex` is negative, it's used as
+ * the offset from the end of `collection`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object|string} collection The collection to inspect.
+ * @param {*} value The value to search for.
+ * @param {number} [fromIndex=0] The index to search from.
+ * @param- {Object} [guard] Enables use as an iteratee for methods like `_.reduce`.
+ * @returns {boolean} Returns `true` if `value` is found, else `false`.
+ * @example
+ *
+ * _.includes([1, 2, 3], 1);
+ * // => true
+ *
+ * _.includes([1, 2, 3], 1, 2);
+ * // => false
+ *
+ * _.includes({ 'a': 1, 'b': 2 }, 1);
+ * // => true
+ *
+ * _.includes('abcd', 'bc');
+ * // => true
+ */
+function includes(collection, value, fromIndex, guard) {
+  collection = lodash_es_isArrayLike(collection) ? collection : lodash_es_values(collection);
+  fromIndex = (fromIndex && !guard) ? lodash_es_toInteger(fromIndex) : 0;
+
+  var length = collection.length;
+  if (fromIndex < 0) {
+    fromIndex = includes_nativeMax(length + fromIndex, 0);
+  }
+  return lodash_es_isString(collection)
+    ? (fromIndex <= length && collection.indexOf(value, fromIndex) > -1)
+    : (!!length && _baseIndexOf(collection, value, fromIndex) > -1);
+}
+
+/* harmony default export */ const lodash_es_includes = (includes);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_arrayReduce.js
+/**
+ * A specialized version of `_.reduce` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @param {*} [accumulator] The initial value.
+ * @param {boolean} [initAccum] Specify using the first element of `array` as
+ *  the initial value.
+ * @returns {*} Returns the accumulated value.
+ */
+function arrayReduce(array, iteratee, accumulator, initAccum) {
+  var index = -1,
+      length = array == null ? 0 : array.length;
+
+  if (initAccum && length) {
+    accumulator = array[++index];
+  }
+  while (++index < length) {
+    accumulator = iteratee(accumulator, array[index], index, array);
+  }
+  return accumulator;
+}
+
+/* harmony default export */ const _arrayReduce = (arrayReduce);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_createBaseFor.js
+/**
+ * Creates a base function for methods like `_.forIn` and `_.forOwn`.
+ *
+ * @private
+ * @param {boolean} [fromRight] Specify iterating from right to left.
+ * @returns {Function} Returns the new base function.
+ */
+function createBaseFor(fromRight) {
+  return function(object, iteratee, keysFunc) {
+    var index = -1,
+        iterable = Object(object),
+        props = keysFunc(object),
+        length = props.length;
+
+    while (length--) {
+      var key = props[fromRight ? length : ++index];
+      if (iteratee(iterable[key], key, iterable) === false) {
+        break;
+      }
+    }
+    return object;
+  };
+}
+
+/* harmony default export */ const _createBaseFor = (createBaseFor);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseFor.js
+
+
+/**
+ * The base implementation of `baseForOwn` which iterates over `object`
+ * properties returned by `keysFunc` and invokes `iteratee` for each property.
+ * Iteratee functions may exit iteration early by explicitly returning `false`.
+ *
+ * @private
+ * @param {Object} object The object to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @param {Function} keysFunc The function to get the keys of `object`.
+ * @returns {Object} Returns `object`.
+ */
+var baseFor = _createBaseFor();
+
+/* harmony default export */ const _baseFor = (baseFor);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseForOwn.js
+
+
+
+/**
+ * The base implementation of `_.forOwn` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Object} object The object to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Object} Returns `object`.
+ */
+function baseForOwn(object, iteratee) {
+  return object && _baseFor(object, iteratee, lodash_es_keys);
+}
+
+/* harmony default export */ const _baseForOwn = (baseForOwn);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_createBaseEach.js
+
+
+/**
+ * Creates a `baseEach` or `baseEachRight` function.
+ *
+ * @private
+ * @param {Function} eachFunc The function to iterate over a collection.
+ * @param {boolean} [fromRight] Specify iterating from right to left.
+ * @returns {Function} Returns the new base function.
+ */
+function createBaseEach(eachFunc, fromRight) {
+  return function(collection, iteratee) {
+    if (collection == null) {
+      return collection;
+    }
+    if (!lodash_es_isArrayLike(collection)) {
+      return eachFunc(collection, iteratee);
+    }
+    var length = collection.length,
+        index = fromRight ? length : -1,
+        iterable = Object(collection);
+
+    while ((fromRight ? index-- : ++index < length)) {
+      if (iteratee(iterable[index], index, iterable) === false) {
+        break;
+      }
+    }
+    return collection;
+  };
+}
+
+/* harmony default export */ const _createBaseEach = (createBaseEach);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseEach.js
+
+
+
+/**
+ * The base implementation of `_.forEach` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array|Object} Returns `collection`.
+ */
+var baseEach = _createBaseEach(_baseForOwn);
+
+/* harmony default export */ const _baseEach = (baseEach);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseIsMatch.js
+
+
+
+/** Used to compose bitmasks for value comparisons. */
+var _baseIsMatch_COMPARE_PARTIAL_FLAG = 1,
+    _baseIsMatch_COMPARE_UNORDERED_FLAG = 2;
+
+/**
+ * The base implementation of `_.isMatch` without support for iteratee shorthands.
+ *
+ * @private
+ * @param {Object} object The object to inspect.
+ * @param {Object} source The object of property values to match.
+ * @param {Array} matchData The property names, values, and compare flags to match.
+ * @param {Function} [customizer] The function to customize comparisons.
+ * @returns {boolean} Returns `true` if `object` is a match, else `false`.
+ */
+function baseIsMatch(object, source, matchData, customizer) {
+  var index = matchData.length,
+      length = index,
+      noCustomizer = !customizer;
+
+  if (object == null) {
+    return !length;
+  }
+  object = Object(object);
+  while (index--) {
+    var data = matchData[index];
+    if ((noCustomizer && data[2])
+          ? data[1] !== object[data[0]]
+          : !(data[0] in object)
+        ) {
+      return false;
+    }
+  }
+  while (++index < length) {
+    data = matchData[index];
+    var key = data[0],
+        objValue = object[key],
+        srcValue = data[1];
+
+    if (noCustomizer && data[2]) {
+      if (objValue === undefined && !(key in object)) {
+        return false;
+      }
+    } else {
+      var stack = new _Stack;
+      if (customizer) {
+        var result = customizer(objValue, srcValue, key, object, source, stack);
+      }
+      if (!(result === undefined
+            ? _baseIsEqual(srcValue, objValue, _baseIsMatch_COMPARE_PARTIAL_FLAG | _baseIsMatch_COMPARE_UNORDERED_FLAG, customizer, stack)
+            : result
+          )) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+/* harmony default export */ const _baseIsMatch = (baseIsMatch);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_isStrictComparable.js
+
+
+/**
+ * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` if suitable for strict
+ *  equality comparisons, else `false`.
+ */
+function isStrictComparable(value) {
+  return value === value && !lodash_es_isObject(value);
+}
+
+/* harmony default export */ const _isStrictComparable = (isStrictComparable);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_getMatchData.js
+
+
+
+/**
+ * Gets the property names, values, and compare flags of `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Array} Returns the match data of `object`.
+ */
+function getMatchData(object) {
+  var result = lodash_es_keys(object),
+      length = result.length;
+
+  while (length--) {
+    var key = result[length],
+        value = object[key];
+
+    result[length] = [key, value, _isStrictComparable(value)];
+  }
+  return result;
+}
+
+/* harmony default export */ const _getMatchData = (getMatchData);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_matchesStrictComparable.js
+/**
+ * A specialized version of `matchesProperty` for source values suitable
+ * for strict equality comparisons, i.e. `===`.
+ *
+ * @private
+ * @param {string} key The key of the property to get.
+ * @param {*} srcValue The value to match.
+ * @returns {Function} Returns the new spec function.
+ */
+function matchesStrictComparable(key, srcValue) {
+  return function(object) {
+    if (object == null) {
+      return false;
+    }
+    return object[key] === srcValue &&
+      (srcValue !== undefined || (key in Object(object)));
+  };
+}
+
+/* harmony default export */ const _matchesStrictComparable = (matchesStrictComparable);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseMatches.js
+
+
+
+
+/**
+ * The base implementation of `_.matches` which doesn't clone `source`.
+ *
+ * @private
+ * @param {Object} source The object of property values to match.
+ * @returns {Function} Returns the new spec function.
+ */
+function baseMatches(source) {
+  var matchData = _getMatchData(source);
+  if (matchData.length == 1 && matchData[0][2]) {
+    return _matchesStrictComparable(matchData[0][0], matchData[0][1]);
+  }
+  return function(object) {
+    return object === source || _baseIsMatch(object, source, matchData);
+  };
+}
+
+/* harmony default export */ const _baseMatches = (baseMatches);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_isKey.js
+
+
+
+/** Used to match property names within property paths. */
+var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
+    reIsPlainProp = /^\w*$/;
+
+/**
+ * Checks if `value` is a property name and not a property path.
+ *
+ * @private
+ * @param {*} value The value to check.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
+ */
+function isKey(value, object) {
+  if (lodash_es_isArray(value)) {
+    return false;
+  }
+  var type = typeof value;
+  if (type == 'number' || type == 'symbol' || type == 'boolean' ||
+      value == null || lodash_es_isSymbol(value)) {
+    return true;
+  }
+  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
+    (object != null && value in Object(object));
+}
+
+/* harmony default export */ const _isKey = (isKey);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/memoize.js
+
+
+/** Error message constants. */
+var FUNC_ERROR_TEXT = 'Expected a function';
+
+/**
+ * Creates a function that memoizes the result of `func`. If `resolver` is
+ * provided, it determines the cache key for storing the result based on the
+ * arguments provided to the memoized function. By default, the first argument
+ * provided to the memoized function is used as the map cache key. The `func`
+ * is invoked with the `this` binding of the memoized function.
+ *
+ * **Note:** The cache is exposed as the `cache` property on the memoized
+ * function. Its creation may be customized by replacing the `_.memoize.Cache`
+ * constructor with one whose instances implement the
+ * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
+ * method interface of `clear`, `delete`, `get`, `has`, and `set`.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to have its output memoized.
+ * @param {Function} [resolver] The function to resolve the cache key.
+ * @returns {Function} Returns the new memoized function.
+ * @example
+ *
+ * var object = { 'a': 1, 'b': 2 };
+ * var other = { 'c': 3, 'd': 4 };
+ *
+ * var values = _.memoize(_.values);
+ * values(object);
+ * // => [1, 2]
+ *
+ * values(other);
+ * // => [3, 4]
+ *
+ * object.a = 2;
+ * values(object);
+ * // => [1, 2]
+ *
+ * // Modify the result cache.
+ * values.cache.set(object, ['a', 'b']);
+ * values(object);
+ * // => ['a', 'b']
+ *
+ * // Replace `_.memoize.Cache`.
+ * _.memoize.Cache = WeakMap;
+ */
+function memoize(func, resolver) {
+  if (typeof func != 'function' || (resolver != null && typeof resolver != 'function')) {
+    throw new TypeError(FUNC_ERROR_TEXT);
+  }
+  var memoized = function() {
+    var args = arguments,
+        key = resolver ? resolver.apply(this, args) : args[0],
+        cache = memoized.cache;
+
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    var result = func.apply(this, args);
+    memoized.cache = cache.set(key, result) || cache;
+    return result;
+  };
+  memoized.cache = new (memoize.Cache || _MapCache);
+  return memoized;
+}
+
+// Expose `MapCache`.
+memoize.Cache = _MapCache;
+
+/* harmony default export */ const lodash_es_memoize = (memoize);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_memoizeCapped.js
+
+
+/** Used as the maximum memoize cache size. */
+var MAX_MEMOIZE_SIZE = 500;
+
+/**
+ * A specialized version of `_.memoize` which clears the memoized function's
+ * cache when it exceeds `MAX_MEMOIZE_SIZE`.
+ *
+ * @private
+ * @param {Function} func The function to have its output memoized.
+ * @returns {Function} Returns the new memoized function.
+ */
+function memoizeCapped(func) {
+  var result = lodash_es_memoize(func, function(key) {
+    if (cache.size === MAX_MEMOIZE_SIZE) {
+      cache.clear();
+    }
+    return key;
+  });
+
+  var cache = result.cache;
+  return result;
+}
+
+/* harmony default export */ const _memoizeCapped = (memoizeCapped);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_stringToPath.js
+
+
+/** Used to match property names within property paths. */
+var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
+
+/** Used to match backslashes in property paths. */
+var reEscapeChar = /\\(\\)?/g;
+
+/**
+ * Converts `string` to a property path array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the property path array.
+ */
+var stringToPath = _memoizeCapped(function(string) {
+  var result = [];
+  if (string.charCodeAt(0) === 46 /* . */) {
+    result.push('');
+  }
+  string.replace(rePropName, function(match, number, quote, subString) {
+    result.push(quote ? subString.replace(reEscapeChar, '$1') : (number || match));
+  });
+  return result;
+});
+
+/* harmony default export */ const _stringToPath = (stringToPath);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseToString.js
+
+
+
+
+
+/** Used as references for various `Number` constants. */
+var _baseToString_INFINITY = 1 / 0;
+
+/** Used to convert symbols to primitives and strings. */
+var _baseToString_symbolProto = _Symbol ? _Symbol.prototype : undefined,
+    symbolToString = _baseToString_symbolProto ? _baseToString_symbolProto.toString : undefined;
+
+/**
+ * The base implementation of `_.toString` which doesn't convert nullish
+ * values to empty strings.
+ *
+ * @private
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ */
+function baseToString(value) {
+  // Exit early for strings to avoid a performance hit in some environments.
+  if (typeof value == 'string') {
+    return value;
+  }
+  if (lodash_es_isArray(value)) {
+    // Recursively convert values (susceptible to call stack limits).
+    return _arrayMap(value, baseToString) + '';
+  }
+  if (lodash_es_isSymbol(value)) {
+    return symbolToString ? symbolToString.call(value) : '';
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -_baseToString_INFINITY) ? '-0' : result;
+}
+
+/* harmony default export */ const _baseToString = (baseToString);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/toString.js
+
+
+/**
+ * Converts `value` to a string. An empty string is returned for `null`
+ * and `undefined` values. The sign of `-0` is preserved.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ * @example
+ *
+ * _.toString(null);
+ * // => ''
+ *
+ * _.toString(-0);
+ * // => '-0'
+ *
+ * _.toString([1, 2, 3]);
+ * // => '1,2,3'
+ */
+function toString_toString(value) {
+  return value == null ? '' : _baseToString(value);
+}
+
+/* harmony default export */ const lodash_es_toString = (toString_toString);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_castPath.js
+
+
+
+
+
+/**
+ * Casts `value` to a path array if it's not one.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @param {Object} [object] The object to query keys on.
+ * @returns {Array} Returns the cast property path array.
+ */
+function castPath(value, object) {
+  if (lodash_es_isArray(value)) {
+    return value;
+  }
+  return _isKey(value, object) ? [value] : _stringToPath(lodash_es_toString(value));
+}
+
+/* harmony default export */ const _castPath = (castPath);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_toKey.js
+
+
+/** Used as references for various `Number` constants. */
+var _toKey_INFINITY = 1 / 0;
+
+/**
+ * Converts `value` to a string key if it's not a string or symbol.
+ *
+ * @private
+ * @param {*} value The value to inspect.
+ * @returns {string|symbol} Returns the key.
+ */
+function toKey(value) {
+  if (typeof value == 'string' || lodash_es_isSymbol(value)) {
+    return value;
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -_toKey_INFINITY) ? '-0' : result;
+}
+
+/* harmony default export */ const _toKey = (toKey);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseGet.js
+
+
+
+/**
+ * The base implementation of `_.get` without support for default values.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path of the property to get.
+ * @returns {*} Returns the resolved value.
+ */
+function baseGet(object, path) {
+  path = _castPath(path, object);
+
+  var index = 0,
+      length = path.length;
+
+  while (object != null && index < length) {
+    object = object[_toKey(path[index++])];
+  }
+  return (index && index == length) ? object : undefined;
+}
+
+/* harmony default export */ const _baseGet = (baseGet);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/get.js
+
+
+/**
+ * Gets the value at `path` of `object`. If the resolved value is
+ * `undefined`, the `defaultValue` is returned in its place.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.7.0
+ * @category Object
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path of the property to get.
+ * @param {*} [defaultValue] The value returned for `undefined` resolved values.
+ * @returns {*} Returns the resolved value.
+ * @example
+ *
+ * var object = { 'a': [{ 'b': { 'c': 3 } }] };
+ *
+ * _.get(object, 'a[0].b.c');
+ * // => 3
+ *
+ * _.get(object, ['a', '0', 'b', 'c']);
+ * // => 3
+ *
+ * _.get(object, 'a.b.c', 'default');
+ * // => 'default'
+ */
+function get(object, path, defaultValue) {
+  var result = object == null ? undefined : _baseGet(object, path);
+  return result === undefined ? defaultValue : result;
+}
+
+/* harmony default export */ const lodash_es_get = (get);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseHasIn.js
+/**
+ * The base implementation of `_.hasIn` without support for deep paths.
+ *
+ * @private
+ * @param {Object} [object] The object to query.
+ * @param {Array|string} key The key to check.
+ * @returns {boolean} Returns `true` if `key` exists, else `false`.
+ */
+function baseHasIn(object, key) {
+  return object != null && key in Object(object);
+}
+
+/* harmony default export */ const _baseHasIn = (baseHasIn);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_hasPath.js
+
+
+
+
+
+
+
+/**
+ * Checks if `path` exists on `object`.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path to check.
+ * @param {Function} hasFunc The function to check properties.
+ * @returns {boolean} Returns `true` if `path` exists, else `false`.
+ */
+function hasPath(object, path, hasFunc) {
+  path = _castPath(path, object);
+
+  var index = -1,
+      length = path.length,
+      result = false;
+
+  while (++index < length) {
+    var key = _toKey(path[index]);
+    if (!(result = object != null && hasFunc(object, key))) {
+      break;
+    }
+    object = object[key];
+  }
+  if (result || ++index != length) {
+    return result;
+  }
+  length = object == null ? 0 : object.length;
+  return !!length && lodash_es_isLength(length) && _isIndex(key, length) &&
+    (lodash_es_isArray(object) || lodash_es_isArguments(object));
+}
+
+/* harmony default export */ const _hasPath = (hasPath);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/hasIn.js
+
+
+
+/**
+ * Checks if `path` is a direct or inherited property of `object`.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Object
+ * @param {Object} object The object to query.
+ * @param {Array|string} path The path to check.
+ * @returns {boolean} Returns `true` if `path` exists, else `false`.
+ * @example
+ *
+ * var object = _.create({ 'a': _.create({ 'b': 2 }) });
+ *
+ * _.hasIn(object, 'a');
+ * // => true
+ *
+ * _.hasIn(object, 'a.b');
+ * // => true
+ *
+ * _.hasIn(object, ['a', 'b']);
+ * // => true
+ *
+ * _.hasIn(object, 'b');
+ * // => false
+ */
+function hasIn(object, path) {
+  return object != null && _hasPath(object, path, _baseHasIn);
+}
+
+/* harmony default export */ const lodash_es_hasIn = (hasIn);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseMatchesProperty.js
+
+
+
+
+
+
+
+
+/** Used to compose bitmasks for value comparisons. */
+var _baseMatchesProperty_COMPARE_PARTIAL_FLAG = 1,
+    _baseMatchesProperty_COMPARE_UNORDERED_FLAG = 2;
+
+/**
+ * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
+ *
+ * @private
+ * @param {string} path The path of the property to get.
+ * @param {*} srcValue The value to match.
+ * @returns {Function} Returns the new spec function.
+ */
+function baseMatchesProperty(path, srcValue) {
+  if (_isKey(path) && _isStrictComparable(srcValue)) {
+    return _matchesStrictComparable(_toKey(path), srcValue);
+  }
+  return function(object) {
+    var objValue = lodash_es_get(object, path);
+    return (objValue === undefined && objValue === srcValue)
+      ? lodash_es_hasIn(object, path)
+      : _baseIsEqual(srcValue, objValue, _baseMatchesProperty_COMPARE_PARTIAL_FLAG | _baseMatchesProperty_COMPARE_UNORDERED_FLAG);
+  };
+}
+
+/* harmony default export */ const _baseMatchesProperty = (baseMatchesProperty);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_basePropertyDeep.js
+
+
+/**
+ * A specialized version of `baseProperty` which supports deep paths.
+ *
+ * @private
+ * @param {Array|string} path The path of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ */
+function basePropertyDeep(path) {
+  return function(object) {
+    return _baseGet(object, path);
+  };
+}
+
+/* harmony default export */ const _basePropertyDeep = (basePropertyDeep);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/property.js
+
+
+
+
+
+/**
+ * Creates a function that returns the value at `path` of a given object.
+ *
+ * @static
+ * @memberOf _
+ * @since 2.4.0
+ * @category Util
+ * @param {Array|string} path The path of the property to get.
+ * @returns {Function} Returns the new accessor function.
+ * @example
+ *
+ * var objects = [
+ *   { 'a': { 'b': 2 } },
+ *   { 'a': { 'b': 1 } }
+ * ];
+ *
+ * _.map(objects, _.property('a.b'));
+ * // => [2, 1]
+ *
+ * _.map(_.sortBy(objects, _.property(['a', 'b'])), 'a.b');
+ * // => [1, 2]
+ */
+function property(path) {
+  return _isKey(path) ? _baseProperty(_toKey(path)) : _basePropertyDeep(path);
+}
+
+/* harmony default export */ const lodash_es_property = (property);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseIteratee.js
+
+
+
+
+
+
+/**
+ * The base implementation of `_.iteratee`.
+ *
+ * @private
+ * @param {*} [value=_.identity] The value to convert to an iteratee.
+ * @returns {Function} Returns the iteratee.
+ */
+function baseIteratee(value) {
+  // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
+  // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
+  if (typeof value == 'function') {
+    return value;
+  }
+  if (value == null) {
+    return lodash_es_identity;
+  }
+  if (typeof value == 'object') {
+    return lodash_es_isArray(value)
+      ? _baseMatchesProperty(value[0], value[1])
+      : _baseMatches(value);
+  }
+  return lodash_es_property(value);
+}
+
+/* harmony default export */ const _baseIteratee = (baseIteratee);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseReduce.js
+/**
+ * The base implementation of `_.reduce` and `_.reduceRight`, without support
+ * for iteratee shorthands, which iterates over `collection` using `eachFunc`.
+ *
+ * @private
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @param {*} accumulator The initial value.
+ * @param {boolean} initAccum Specify using the first or last element of
+ *  `collection` as the initial value.
+ * @param {Function} eachFunc The function to iterate over `collection`.
+ * @returns {*} Returns the accumulated value.
+ */
+function baseReduce(collection, iteratee, accumulator, initAccum, eachFunc) {
+  eachFunc(collection, function(value, index, collection) {
+    accumulator = initAccum
+      ? (initAccum = false, value)
+      : iteratee(accumulator, value, index, collection);
+  });
+  return accumulator;
+}
+
+/* harmony default export */ const _baseReduce = (baseReduce);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/reduce.js
+
+
+
+
+
+
+/**
+ * Reduces `collection` to a value which is the accumulated result of running
+ * each element in `collection` thru `iteratee`, where each successive
+ * invocation is supplied the return value of the previous. If `accumulator`
+ * is not given, the first element of `collection` is used as the initial
+ * value. The iteratee is invoked with four arguments:
+ * (accumulator, value, index|key, collection).
+ *
+ * Many lodash methods are guarded to work as iteratees for methods like
+ * `_.reduce`, `_.reduceRight`, and `_.transform`.
+ *
+ * The guarded methods are:
+ * `assign`, `defaults`, `defaultsDeep`, `includes`, `merge`, `orderBy`,
+ * and `sortBy`
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Collection
+ * @param {Array|Object} collection The collection to iterate over.
+ * @param {Function} [iteratee=_.identity] The function invoked per iteration.
+ * @param {*} [accumulator] The initial value.
+ * @returns {*} Returns the accumulated value.
+ * @see _.reduceRight
+ * @example
+ *
+ * _.reduce([1, 2], function(sum, n) {
+ *   return sum + n;
+ * }, 0);
+ * // => 3
+ *
+ * _.reduce({ 'a': 1, 'b': 2, 'c': 1 }, function(result, value, key) {
+ *   (result[value] || (result[value] = [])).push(key);
+ *   return result;
+ * }, {});
+ * // => { '1': ['a', 'c'], '2': ['b'] } (iteration order is not guaranteed)
+ */
+function reduce(collection, iteratee, accumulator) {
+  var func = lodash_es_isArray(collection) ? _arrayReduce : _baseReduce,
+      initAccum = arguments.length < 3;
+
+  return func(collection, _baseIteratee(iteratee, 4), accumulator, initAccum, _baseEach);
+}
+
+/* harmony default export */ const lodash_es_reduce = (reduce);
+
 ;// CONCATENATED MODULE: ./node_modules/mdast-util-to-string/lib/index.js
 /**
  * @typedef {import('mdast').Nodes} Nodes
@@ -68910,7 +74453,7 @@ function lib_toString(value, options) {
   const includeHtml =
     typeof settings.includeHtml === 'boolean' ? settings.includeHtml : true
 
-  return one(value, includeImageAlt, includeHtml)
+  return lib_one(value, includeImageAlt, includeHtml)
 }
 
 /**
@@ -68925,7 +74468,7 @@ function lib_toString(value, options) {
  * @returns {string}
  *   Serialized node.
  */
-function one(value, includeImageAlt, includeHtml) {
+function lib_one(value, includeImageAlt, includeHtml) {
   if (node(value)) {
     if ('value' in value) {
       return value.type === 'html' && !includeHtml ? '' : value.value
@@ -68965,7 +74508,7 @@ function lib_all(values, includeImageAlt, includeHtml) {
   let index = -1
 
   while (++index < values.length) {
-    result[index] = one(values[index], includeImageAlt, includeHtml)
+    result[index] = lib_one(values[index], includeImageAlt, includeHtml)
   }
 
   return result.join('')
@@ -76998,7 +82541,7 @@ const characterEntities = {
 ;// CONCATENATED MODULE: ./node_modules/decode-named-character-reference/index.js
 
 
-const own = {}.hasOwnProperty
+const decode_named_character_reference_own = {}.hasOwnProperty
 
 /**
  * Decode a single character reference (without the `&` or `;`).
@@ -77012,7 +82555,7 @@ const own = {}.hasOwnProperty
  *   Decoded reference.
  */
 function decodeNamedCharacterReference(value) {
-  return own.call(characterEntities, value) ? characterEntities[value] : false
+  return decode_named_character_reference_own.call(characterEntities, value) ? characterEntities[value] : false
 }
 
 ;// CONCATENATED MODULE: ./node_modules/micromark-core-commonmark/lib/character-reference.js
@@ -79684,7 +85227,7 @@ const disable = {
  * @param {ParseOptions | null | undefined} [options]
  * @returns {ParseContext}
  */
-function parse_parse(options) {
+function lib_parse_parse(options) {
   const settings = options || {}
   const constructs =
     /** @type {FullNormalizedExtension} */
@@ -80168,7 +85711,7 @@ function fromMarkdown(value, encoding, options) {
   }
   return compiler(options)(
     postprocess(
-      parse_parse(options).document().write(preprocess()(value, encoding, true))
+      lib_parse_parse(options).document().write(preprocess()(value, encoding, true))
     )
   )
 }
@@ -81392,126 +86935,6 @@ function remarkParse(options) {
   }
 }
 
-;// CONCATENATED MODULE: ./node_modules/zwitch/index.js
-/**
- * @callback Handler
- *   Handle a value, with a certain ID field set to a certain value.
- *   The ID field is passed to `zwitch`, and it’s value is this function’s
- *   place on the `handlers` record.
- * @param {...any} parameters
- *   Arbitrary parameters passed to the zwitch.
- *   The first will be an object with a certain ID field set to a certain value.
- * @returns {any}
- *   Anything!
- */
-
-/**
- * @callback UnknownHandler
- *   Handle values that do have a certain ID field, but it’s set to a value
- *   that is not listed in the `handlers` record.
- * @param {unknown} value
- *   An object with a certain ID field set to an unknown value.
- * @param {...any} rest
- *   Arbitrary parameters passed to the zwitch.
- * @returns {any}
- *   Anything!
- */
-
-/**
- * @callback InvalidHandler
- *   Handle values that do not have a certain ID field.
- * @param {unknown} value
- *   Any unknown value.
- * @param {...any} rest
- *   Arbitrary parameters passed to the zwitch.
- * @returns {void|null|undefined|never}
- *   This should crash or return nothing.
- */
-
-/**
- * @template {InvalidHandler} [Invalid=InvalidHandler]
- * @template {UnknownHandler} [Unknown=UnknownHandler]
- * @template {Record<string, Handler>} [Handlers=Record<string, Handler>]
- * @typedef Options
- *   Configuration (required).
- * @property {Invalid} [invalid]
- *   Handler to use for invalid values.
- * @property {Unknown} [unknown]
- *   Handler to use for unknown values.
- * @property {Handlers} [handlers]
- *   Handlers to use.
- */
-
-const zwitch_own = {}.hasOwnProperty
-
-/**
- * Handle values based on a field.
- *
- * @template {InvalidHandler} [Invalid=InvalidHandler]
- * @template {UnknownHandler} [Unknown=UnknownHandler]
- * @template {Record<string, Handler>} [Handlers=Record<string, Handler>]
- * @param {string} key
- *   Field to switch on.
- * @param {Options<Invalid, Unknown, Handlers>} [options]
- *   Configuration (required).
- * @returns {{unknown: Unknown, invalid: Invalid, handlers: Handlers, (...parameters: Parameters<Handlers[keyof Handlers]>): ReturnType<Handlers[keyof Handlers]>, (...parameters: Parameters<Unknown>): ReturnType<Unknown>}}
- */
-function zwitch(key, options) {
-  const settings = options || {}
-
-  /**
-   * Handle one value.
-   *
-   * Based on the bound `key`, a respective handler will be called.
-   * If `value` is not an object, or doesn’t have a `key` property, the special
-   * “invalid” handler will be called.
-   * If `value` has an unknown `key`, the special “unknown” handler will be
-   * called.
-   *
-   * All arguments, and the context object, are passed through to the handler,
-   * and it’s result is returned.
-   *
-   * @this {unknown}
-   *   Any context object.
-   * @param {unknown} [value]
-   *   Any value.
-   * @param {...unknown} parameters
-   *   Arbitrary parameters passed to the zwitch.
-   * @property {Handler} invalid
-   *   Handle for values that do not have a certain ID field.
-   * @property {Handler} unknown
-   *   Handle values that do have a certain ID field, but it’s set to a value
-   *   that is not listed in the `handlers` record.
-   * @property {Handlers} handlers
-   *   Record of handlers.
-   * @returns {unknown}
-   *   Anything.
-   */
-  function one(value, ...parameters) {
-    /** @type {Handler|undefined} */
-    let fn = one.invalid
-    const handlers = one.handlers
-
-    if (value && zwitch_own.call(value, key)) {
-      // @ts-expect-error Indexable.
-      const id = String(value[key])
-      // @ts-expect-error Indexable.
-      fn = zwitch_own.call(handlers, id) ? handlers[id] : one.unknown
-    }
-
-    if (fn) {
-      return fn.call(this, value, ...parameters)
-    }
-  }
-
-  one.handlers = settings.handlers || {}
-  one.invalid = settings.invalid
-  one.unknown = settings.unknown
-
-  // @ts-expect-error: matches!
-  return one
-}
-
 ;// CONCATENATED MODULE: ./node_modules/mdast-util-to-markdown/lib/configure.js
 /**
  * @typedef {import('./types.js').Options} Options
@@ -82048,1023 +87471,6 @@ function emphasis(node, _, state, info) {
  */
 function emphasisPeek(_, _1, state) {
   return state.options.emphasis || '*'
-}
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-is/lib/index.js
-/**
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- */
-
-/**
- * @template Fn
- * @template Fallback
- * @typedef {Fn extends (value: any) => value is infer Thing ? Thing : Fallback} Predicate
- */
-
-/**
- * @callback Check
- *   Check that an arbitrary value is a node.
- * @param {unknown} this
- *   The given context.
- * @param {unknown} [node]
- *   Anything (typically a node).
- * @param {number | null | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} [parent]
- *   The node’s parent.
- * @returns {boolean}
- *   Whether this is a node and passes a test.
- *
- * @typedef {Record<string, unknown> | Node} Props
- *   Object to check for equivalence.
- *
- *   Note: `Node` is included as it is common but is not indexable.
- *
- * @typedef {Array<Props | TestFunction | string> | Props | TestFunction | string | null | undefined} Test
- *   Check for an arbitrary node.
- *
- * @callback TestFunction
- *   Check if a node passes a test.
- * @param {unknown} this
- *   The given context.
- * @param {Node} node
- *   A node.
- * @param {number | undefined} [index]
- *   The node’s position in its parent.
- * @param {Parent | undefined} [parent]
- *   The node’s parent.
- * @returns {boolean | undefined | void}
- *   Whether this node passes the test.
- *
- *   Note: `void` is included until TS sees no return as `undefined`.
- */
-
-/**
- * Check if `node` is a `Node` and whether it passes the given test.
- *
- * @param {unknown} node
- *   Thing to check, typically `Node`.
- * @param {Test} test
- *   A check for a specific node.
- * @param {number | null | undefined} index
- *   The node’s position in its parent.
- * @param {Parent | null | undefined} parent
- *   The node’s parent.
- * @param {unknown} context
- *   Context object (`this`) to pass to `test` functions.
- * @returns {boolean}
- *   Whether `node` is a node and passes a test.
- */
-const is =
-  // Note: overloads in JSDoc can’t yet use different `@template`s.
-  /**
-   * @type {(
-   *   (<Condition extends string>(node: unknown, test: Condition, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & {type: Condition}) &
-   *   (<Condition extends Props>(node: unknown, test: Condition, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & Condition) &
-   *   (<Condition extends TestFunction>(node: unknown, test: Condition, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & Predicate<Condition, Node>) &
-   *   ((node?: null | undefined) => false) &
-   *   ((node: unknown, test?: null | undefined, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node) &
-   *   ((node: unknown, test?: Test, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => boolean)
-   * )}
-   */
-  (
-    /**
-     * @param {unknown} [node]
-     * @param {Test} [test]
-     * @param {number | null | undefined} [index]
-     * @param {Parent | null | undefined} [parent]
-     * @param {unknown} [context]
-     * @returns {boolean}
-     */
-    // eslint-disable-next-line max-params
-    function (node, test, index, parent, context) {
-      const check = convert(test)
-
-      if (
-        index !== undefined &&
-        index !== null &&
-        (typeof index !== 'number' ||
-          index < 0 ||
-          index === Number.POSITIVE_INFINITY)
-      ) {
-        throw new Error('Expected positive finite index')
-      }
-
-      if (
-        parent !== undefined &&
-        parent !== null &&
-        (!is(parent) || !parent.children)
-      ) {
-        throw new Error('Expected parent node')
-      }
-
-      if (
-        (parent === undefined || parent === null) !==
-        (index === undefined || index === null)
-      ) {
-        throw new Error('Expected both parent and index')
-      }
-
-      return looksLikeANode(node)
-        ? check.call(context, node, index, parent)
-        : false
-    }
-  )
-
-/**
- * Generate an assertion from a test.
- *
- * Useful if you’re going to test many nodes, for example when creating a
- * utility where something else passes a compatible test.
- *
- * The created function is a bit faster because it expects valid input only:
- * a `node`, `index`, and `parent`.
- *
- * @param {Test} test
- *   *   when nullish, checks if `node` is a `Node`.
- *   *   when `string`, works like passing `(node) => node.type === test`.
- *   *   when `function` checks if function passed the node is true.
- *   *   when `object`, checks that all keys in test are in node, and that they have (strictly) equal values.
- *   *   when `array`, checks if any one of the subtests pass.
- * @returns {Check}
- *   An assertion.
- */
-const convert =
-  // Note: overloads in JSDoc can’t yet use different `@template`s.
-  /**
-   * @type {(
-   *   (<Condition extends string>(test: Condition) => (node: unknown, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & {type: Condition}) &
-   *   (<Condition extends Props>(test: Condition) => (node: unknown, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & Condition) &
-   *   (<Condition extends TestFunction>(test: Condition) => (node: unknown, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node & Predicate<Condition, Node>) &
-   *   ((test?: null | undefined) => (node?: unknown, index?: number | null | undefined, parent?: Parent | null | undefined, context?: unknown) => node is Node) &
-   *   ((test?: Test) => Check)
-   * )}
-   */
-  (
-    /**
-     * @param {Test} [test]
-     * @returns {Check}
-     */
-    function (test) {
-      if (test === null || test === undefined) {
-        return ok
-      }
-
-      if (typeof test === 'function') {
-        return castFactory(test)
-      }
-
-      if (typeof test === 'object') {
-        return Array.isArray(test) ? anyFactory(test) : propsFactory(test)
-      }
-
-      if (typeof test === 'string') {
-        return typeFactory(test)
-      }
-
-      throw new Error('Expected function, string, or object as test')
-    }
-  )
-
-/**
- * @param {Array<Props | TestFunction | string>} tests
- * @returns {Check}
- */
-function anyFactory(tests) {
-  /** @type {Array<Check>} */
-  const checks = []
-  let index = -1
-
-  while (++index < tests.length) {
-    checks[index] = convert(tests[index])
-  }
-
-  return castFactory(any)
-
-  /**
-   * @this {unknown}
-   * @type {TestFunction}
-   */
-  function any(...parameters) {
-    let index = -1
-
-    while (++index < checks.length) {
-      if (checks[index].apply(this, parameters)) return true
-    }
-
-    return false
-  }
-}
-
-/**
- * Turn an object into a test for a node with a certain fields.
- *
- * @param {Props} check
- * @returns {Check}
- */
-function propsFactory(check) {
-  const checkAsRecord = /** @type {Record<string, unknown>} */ (check)
-
-  return castFactory(all)
-
-  /**
-   * @param {Node} node
-   * @returns {boolean}
-   */
-  function all(node) {
-    const nodeAsRecord = /** @type {Record<string, unknown>} */ (
-      /** @type {unknown} */ (node)
-    )
-
-    /** @type {string} */
-    let key
-
-    for (key in check) {
-      if (nodeAsRecord[key] !== checkAsRecord[key]) return false
-    }
-
-    return true
-  }
-}
-
-/**
- * Turn a string into a test for a node with a certain type.
- *
- * @param {string} check
- * @returns {Check}
- */
-function typeFactory(check) {
-  return castFactory(type)
-
-  /**
-   * @param {Node} node
-   */
-  function type(node) {
-    return node && node.type === check
-  }
-}
-
-/**
- * Turn a custom test into a test for a node that passes that test.
- *
- * @param {TestFunction} testFunction
- * @returns {Check}
- */
-function castFactory(testFunction) {
-  return check
-
-  /**
-   * @this {unknown}
-   * @type {Check}
-   */
-  function check(value, index, parent) {
-    return Boolean(
-      looksLikeANode(value) &&
-        testFunction.call(
-          this,
-          value,
-          typeof index === 'number' ? index : undefined,
-          parent || undefined
-        )
-    )
-  }
-}
-
-function ok() {
-  return true
-}
-
-/**
- * @param {unknown} value
- * @returns {value is Node}
- */
-function looksLikeANode(value) {
-  return value !== null && typeof value === 'object' && 'type' in value
-}
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-visit-parents/lib/color.node.js
-/**
- * @param {string} d
- * @returns {string}
- */
-function color(d) {
-  return '\u001B[33m' + d + '\u001B[39m'
-}
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-visit-parents/lib/index.js
-/**
- * @typedef {import('unist').Node} UnistNode
- * @typedef {import('unist').Parent} UnistParent
- */
-
-/**
- * @typedef {Exclude<import('unist-util-is').Test, undefined> | undefined} Test
- *   Test from `unist-util-is`.
- *
- *   Note: we have remove and add `undefined`, because otherwise when generating
- *   automatic `.d.ts` files, TS tries to flatten paths from a local perspective,
- *   which doesn’t work when publishing on npm.
- */
-
-/**
- * @typedef {(
- *   Fn extends (value: any) => value is infer Thing
- *   ? Thing
- *   : Fallback
- * )} Predicate
- *   Get the value of a type guard `Fn`.
- * @template Fn
- *   Value; typically function that is a type guard (such as `(x): x is Y`).
- * @template Fallback
- *   Value to yield if `Fn` is not a type guard.
- */
-
-/**
- * @typedef {(
- *   Check extends null | undefined // No test.
- *   ? Value
- *   : Value extends {type: Check} // String (type) test.
- *   ? Value
- *   : Value extends Check // Partial test.
- *   ? Value
- *   : Check extends Function // Function test.
- *   ? Predicate<Check, Value> extends Value
- *     ? Predicate<Check, Value>
- *     : never
- *   : never // Some other test?
- * )} MatchesOne
- *   Check whether a node matches a primitive check in the type system.
- * @template Value
- *   Value; typically unist `Node`.
- * @template Check
- *   Value; typically `unist-util-is`-compatible test, but not arrays.
- */
-
-/**
- * @typedef {(
- *   Check extends Array<any>
- *   ? MatchesOne<Value, Check[keyof Check]>
- *   : MatchesOne<Value, Check>
- * )} Matches
- *   Check whether a node matches a check in the type system.
- * @template Value
- *   Value; typically unist `Node`.
- * @template Check
- *   Value; typically `unist-util-is`-compatible test.
- */
-
-/**
- * @typedef {0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10} Uint
- *   Number; capped reasonably.
- */
-
-/**
- * @typedef {I extends 0 ? 1 : I extends 1 ? 2 : I extends 2 ? 3 : I extends 3 ? 4 : I extends 4 ? 5 : I extends 5 ? 6 : I extends 6 ? 7 : I extends 7 ? 8 : I extends 8 ? 9 : 10} Increment
- *   Increment a number in the type system.
- * @template {Uint} [I=0]
- *   Index.
- */
-
-/**
- * @typedef {(
- *   Node extends UnistParent
- *   ? Node extends {children: Array<infer Children>}
- *     ? Child extends Children ? Node : never
- *     : never
- *   : never
- * )} InternalParent
- *   Collect nodes that can be parents of `Child`.
- * @template {UnistNode} Node
- *   All node types in a tree.
- * @template {UnistNode} Child
- *   Node to search for.
- */
-
-/**
- * @typedef {InternalParent<InclusiveDescendant<Tree>, Child>} Parent
- *   Collect nodes in `Tree` that can be parents of `Child`.
- * @template {UnistNode} Tree
- *   All node types in a tree.
- * @template {UnistNode} Child
- *   Node to search for.
- */
-
-/**
- * @typedef {(
- *   Depth extends Max
- *   ? never
- *   :
- *     | InternalParent<Node, Child>
- *     | InternalAncestor<Node, InternalParent<Node, Child>, Max, Increment<Depth>>
- * )} InternalAncestor
- *   Collect nodes in `Tree` that can be ancestors of `Child`.
- * @template {UnistNode} Node
- *   All node types in a tree.
- * @template {UnistNode} Child
- *   Node to search for.
- * @template {Uint} [Max=10]
- *   Max; searches up to this depth.
- * @template {Uint} [Depth=0]
- *   Current depth.
- */
-
-/**
- * @typedef {InternalAncestor<InclusiveDescendant<Tree>, Child>} Ancestor
- *   Collect nodes in `Tree` that can be ancestors of `Child`.
- * @template {UnistNode} Tree
- *   All node types in a tree.
- * @template {UnistNode} Child
- *   Node to search for.
- */
-
-/**
- * @typedef {(
- *   Tree extends UnistParent
- *     ? Depth extends Max
- *       ? Tree
- *       : Tree | InclusiveDescendant<Tree['children'][number], Max, Increment<Depth>>
- *     : Tree
- * )} InclusiveDescendant
- *   Collect all (inclusive) descendants of `Tree`.
- *
- *   > 👉 **Note**: for performance reasons, this seems to be the fastest way to
- *   > recurse without actually running into an infinite loop, which the
- *   > previous version did.
- *   >
- *   > Practically, a max of `2` is typically enough assuming a `Root` is
- *   > passed, but it doesn’t improve performance.
- *   > It gets higher with `List > ListItem > Table > TableRow > TableCell`.
- *   > Using up to `10` doesn’t hurt or help either.
- * @template {UnistNode} Tree
- *   Tree type.
- * @template {Uint} [Max=10]
- *   Max; searches up to this depth.
- * @template {Uint} [Depth=0]
- *   Current depth.
- */
-
-/**
- * @typedef {'skip' | boolean} Action
- *   Union of the action types.
- *
- * @typedef {number} Index
- *   Move to the sibling at `index` next (after node itself is completely
- *   traversed).
- *
- *   Useful if mutating the tree, such as removing the node the visitor is
- *   currently on, or any of its previous siblings.
- *   Results less than 0 or greater than or equal to `children.length` stop
- *   traversing the parent.
- *
- * @typedef {[(Action | null | undefined | void)?, (Index | null | undefined)?]} ActionTuple
- *   List with one or two values, the first an action, the second an index.
- *
- * @typedef {Action | ActionTuple | Index | null | undefined | void} VisitorResult
- *   Any value that can be returned from a visitor.
- */
-
-/**
- * @callback Visitor
- *   Handle a node (matching `test`, if given).
- *
- *   Visitors are free to transform `node`.
- *   They can also transform the parent of node (the last of `ancestors`).
- *
- *   Replacing `node` itself, if `SKIP` is not returned, still causes its
- *   descendants to be walked (which is a bug).
- *
- *   When adding or removing previous siblings of `node` (or next siblings, in
- *   case of reverse), the `Visitor` should return a new `Index` to specify the
- *   sibling to traverse after `node` is traversed.
- *   Adding or removing next siblings of `node` (or previous siblings, in case
- *   of reverse) is handled as expected without needing to return a new `Index`.
- *
- *   Removing the children property of an ancestor still results in them being
- *   traversed.
- * @param {Visited} node
- *   Found node.
- * @param {Array<VisitedParents>} ancestors
- *   Ancestors of `node`.
- * @returns {VisitorResult}
- *   What to do next.
- *
- *   An `Index` is treated as a tuple of `[CONTINUE, Index]`.
- *   An `Action` is treated as a tuple of `[Action]`.
- *
- *   Passing a tuple back only makes sense if the `Action` is `SKIP`.
- *   When the `Action` is `EXIT`, that action can be returned.
- *   When the `Action` is `CONTINUE`, `Index` can be returned.
- * @template {UnistNode} [Visited=UnistNode]
- *   Visited node type.
- * @template {UnistParent} [VisitedParents=UnistParent]
- *   Ancestor type.
- */
-
-/**
- * @typedef {Visitor<Matches<InclusiveDescendant<Tree>, Check>, Ancestor<Tree, Matches<InclusiveDescendant<Tree>, Check>>>} BuildVisitor
- *   Build a typed `Visitor` function from a tree and a test.
- *
- *   It will infer which values are passed as `node` and which as `parents`.
- * @template {UnistNode} [Tree=UnistNode]
- *   Tree type.
- * @template {Test} [Check=Test]
- *   Test type.
- */
-
-
-
-
-/** @type {Readonly<ActionTuple>} */
-const empty = []
-
-/**
- * Continue traversing as normal.
- */
-const CONTINUE = true
-
-/**
- * Stop traversing immediately.
- */
-const EXIT = false
-
-/**
- * Do not traverse this node’s children.
- */
-const SKIP = 'skip'
-
-/**
- * Visit nodes, with ancestral information.
- *
- * This algorithm performs *depth-first* *tree traversal* in *preorder*
- * (**NLR**) or if `reverse` is given, in *reverse preorder* (**NRL**).
- *
- * You can choose for which nodes `visitor` is called by passing a `test`.
- * For complex tests, you should test yourself in `visitor`, as it will be
- * faster and will have improved type information.
- *
- * Walking the tree is an intensive task.
- * Make use of the return values of the visitor when possible.
- * Instead of walking a tree multiple times, walk it once, use `unist-util-is`
- * to check if a node matches, and then perform different operations.
- *
- * You can change the tree.
- * See `Visitor` for more info.
- *
- * @overload
- * @param {Tree} tree
- * @param {Check} check
- * @param {BuildVisitor<Tree, Check>} visitor
- * @param {boolean | null | undefined} [reverse]
- * @returns {undefined}
- *
- * @overload
- * @param {Tree} tree
- * @param {BuildVisitor<Tree>} visitor
- * @param {boolean | null | undefined} [reverse]
- * @returns {undefined}
- *
- * @param {UnistNode} tree
- *   Tree to traverse.
- * @param {Visitor | Test} test
- *   `unist-util-is`-compatible test
- * @param {Visitor | boolean | null | undefined} [visitor]
- *   Handle each node.
- * @param {boolean | null | undefined} [reverse]
- *   Traverse in reverse preorder (NRL) instead of the default preorder (NLR).
- * @returns {undefined}
- *   Nothing.
- *
- * @template {UnistNode} Tree
- *   Node type.
- * @template {Test} Check
- *   `unist-util-is`-compatible test.
- */
-function visitParents(tree, test, visitor, reverse) {
-  /** @type {Test} */
-  let check
-
-  if (typeof test === 'function' && typeof visitor !== 'function') {
-    reverse = visitor
-    // @ts-expect-error no visitor given, so `visitor` is test.
-    visitor = test
-  } else {
-    // @ts-expect-error visitor given, so `test` isn’t a visitor.
-    check = test
-  }
-
-  const is = convert(check)
-  const step = reverse ? -1 : 1
-
-  factory(tree, undefined, [])()
-
-  /**
-   * @param {UnistNode} node
-   * @param {number | undefined} index
-   * @param {Array<UnistParent>} parents
-   */
-  function factory(node, index, parents) {
-    const value = /** @type {Record<string, unknown>} */ (
-      node && typeof node === 'object' ? node : {}
-    )
-
-    if (typeof value.type === 'string') {
-      const name =
-        // `hast`
-        typeof value.tagName === 'string'
-          ? value.tagName
-          : // `xast`
-          typeof value.name === 'string'
-          ? value.name
-          : undefined
-
-      Object.defineProperty(visit, 'name', {
-        value:
-          'node (' + color(node.type + (name ? '<' + name + '>' : '')) + ')'
-      })
-    }
-
-    return visit
-
-    function visit() {
-      /** @type {Readonly<ActionTuple>} */
-      let result = empty
-      /** @type {Readonly<ActionTuple>} */
-      let subresult
-      /** @type {number} */
-      let offset
-      /** @type {Array<UnistParent>} */
-      let grandparents
-
-      if (!test || is(node, index, parents[parents.length - 1] || undefined)) {
-        // @ts-expect-error: `visitor` is now a visitor.
-        result = toResult(visitor(node, parents))
-
-        if (result[0] === EXIT) {
-          return result
-        }
-      }
-
-      if ('children' in node && node.children) {
-        const nodeAsParent = /** @type {UnistParent} */ (node)
-
-        if (nodeAsParent.children && result[0] !== SKIP) {
-          offset = (reverse ? nodeAsParent.children.length : -1) + step
-          grandparents = parents.concat(nodeAsParent)
-
-          while (offset > -1 && offset < nodeAsParent.children.length) {
-            const child = nodeAsParent.children[offset]
-
-            subresult = factory(child, offset, grandparents)()
-
-            if (subresult[0] === EXIT) {
-              return subresult
-            }
-
-            offset =
-              typeof subresult[1] === 'number' ? subresult[1] : offset + step
-          }
-        }
-      }
-
-      return result
-    }
-  }
-}
-
-/**
- * Turn a return value into a clean result.
- *
- * @param {VisitorResult} value
- *   Valid return values from visitors.
- * @returns {Readonly<ActionTuple>}
- *   Clean result.
- */
-function toResult(value) {
-  if (Array.isArray(value)) {
-    return value
-  }
-
-  if (typeof value === 'number') {
-    return [CONTINUE, value]
-  }
-
-  return value === null || value === undefined ? empty : [value]
-}
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-visit/lib/index.js
-/**
- * @typedef {import('unist').Node} UnistNode
- * @typedef {import('unist').Parent} UnistParent
- * @typedef {import('unist-util-visit-parents').VisitorResult} VisitorResult
- */
-
-/**
- * @typedef {Exclude<import('unist-util-is').Test, undefined> | undefined} Test
- *   Test from `unist-util-is`.
- *
- *   Note: we have remove and add `undefined`, because otherwise when generating
- *   automatic `.d.ts` files, TS tries to flatten paths from a local perspective,
- *   which doesn’t work when publishing on npm.
- */
-
-// To do: use types from `unist-util-visit-parents` when it’s released.
-
-/**
- * @typedef {(
- *   Fn extends (value: any) => value is infer Thing
- *   ? Thing
- *   : Fallback
- * )} Predicate
- *   Get the value of a type guard `Fn`.
- * @template Fn
- *   Value; typically function that is a type guard (such as `(x): x is Y`).
- * @template Fallback
- *   Value to yield if `Fn` is not a type guard.
- */
-
-/**
- * @typedef {(
- *   Check extends null | undefined // No test.
- *   ? Value
- *   : Value extends {type: Check} // String (type) test.
- *   ? Value
- *   : Value extends Check // Partial test.
- *   ? Value
- *   : Check extends Function // Function test.
- *   ? Predicate<Check, Value> extends Value
- *     ? Predicate<Check, Value>
- *     : never
- *   : never // Some other test?
- * )} MatchesOne
- *   Check whether a node matches a primitive check in the type system.
- * @template Value
- *   Value; typically unist `Node`.
- * @template Check
- *   Value; typically `unist-util-is`-compatible test, but not arrays.
- */
-
-/**
- * @typedef {(
- *   Check extends Array<any>
- *   ? MatchesOne<Value, Check[keyof Check]>
- *   : MatchesOne<Value, Check>
- * )} Matches
- *   Check whether a node matches a check in the type system.
- * @template Value
- *   Value; typically unist `Node`.
- * @template Check
- *   Value; typically `unist-util-is`-compatible test.
- */
-
-/**
- * @typedef {0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10} Uint
- *   Number; capped reasonably.
- */
-
-/**
- * @typedef {I extends 0 ? 1 : I extends 1 ? 2 : I extends 2 ? 3 : I extends 3 ? 4 : I extends 4 ? 5 : I extends 5 ? 6 : I extends 6 ? 7 : I extends 7 ? 8 : I extends 8 ? 9 : 10} Increment
- *   Increment a number in the type system.
- * @template {Uint} [I=0]
- *   Index.
- */
-
-/**
- * @typedef {(
- *   Node extends UnistParent
- *   ? Node extends {children: Array<infer Children>}
- *     ? Child extends Children ? Node : never
- *     : never
- *   : never
- * )} InternalParent
- *   Collect nodes that can be parents of `Child`.
- * @template {UnistNode} Node
- *   All node types in a tree.
- * @template {UnistNode} Child
- *   Node to search for.
- */
-
-/**
- * @typedef {InternalParent<InclusiveDescendant<Tree>, Child>} Parent
- *   Collect nodes in `Tree` that can be parents of `Child`.
- * @template {UnistNode} Tree
- *   All node types in a tree.
- * @template {UnistNode} Child
- *   Node to search for.
- */
-
-/**
- * @typedef {(
- *   Depth extends Max
- *   ? never
- *   :
- *     | InternalParent<Node, Child>
- *     | InternalAncestor<Node, InternalParent<Node, Child>, Max, Increment<Depth>>
- * )} InternalAncestor
- *   Collect nodes in `Tree` that can be ancestors of `Child`.
- * @template {UnistNode} Node
- *   All node types in a tree.
- * @template {UnistNode} Child
- *   Node to search for.
- * @template {Uint} [Max=10]
- *   Max; searches up to this depth.
- * @template {Uint} [Depth=0]
- *   Current depth.
- */
-
-/**
- * @typedef {(
- *   Tree extends UnistParent
- *     ? Depth extends Max
- *       ? Tree
- *       : Tree | InclusiveDescendant<Tree['children'][number], Max, Increment<Depth>>
- *     : Tree
- * )} InclusiveDescendant
- *   Collect all (inclusive) descendants of `Tree`.
- *
- *   > 👉 **Note**: for performance reasons, this seems to be the fastest way to
- *   > recurse without actually running into an infinite loop, which the
- *   > previous version did.
- *   >
- *   > Practically, a max of `2` is typically enough assuming a `Root` is
- *   > passed, but it doesn’t improve performance.
- *   > It gets higher with `List > ListItem > Table > TableRow > TableCell`.
- *   > Using up to `10` doesn’t hurt or help either.
- * @template {UnistNode} Tree
- *   Tree type.
- * @template {Uint} [Max=10]
- *   Max; searches up to this depth.
- * @template {Uint} [Depth=0]
- *   Current depth.
- */
-
-/**
- * @callback Visitor
- *   Handle a node (matching `test`, if given).
- *
- *   Visitors are free to transform `node`.
- *   They can also transform `parent`.
- *
- *   Replacing `node` itself, if `SKIP` is not returned, still causes its
- *   descendants to be walked (which is a bug).
- *
- *   When adding or removing previous siblings of `node` (or next siblings, in
- *   case of reverse), the `Visitor` should return a new `Index` to specify the
- *   sibling to traverse after `node` is traversed.
- *   Adding or removing next siblings of `node` (or previous siblings, in case
- *   of reverse) is handled as expected without needing to return a new `Index`.
- *
- *   Removing the children property of `parent` still results in them being
- *   traversed.
- * @param {Visited} node
- *   Found node.
- * @param {Visited extends UnistNode ? number | undefined : never} index
- *   Index of `node` in `parent`.
- * @param {Ancestor extends UnistParent ? Ancestor | undefined : never} parent
- *   Parent of `node`.
- * @returns {VisitorResult}
- *   What to do next.
- *
- *   An `Index` is treated as a tuple of `[CONTINUE, Index]`.
- *   An `Action` is treated as a tuple of `[Action]`.
- *
- *   Passing a tuple back only makes sense if the `Action` is `SKIP`.
- *   When the `Action` is `EXIT`, that action can be returned.
- *   When the `Action` is `CONTINUE`, `Index` can be returned.
- * @template {UnistNode} [Visited=UnistNode]
- *   Visited node type.
- * @template {UnistParent} [Ancestor=UnistParent]
- *   Ancestor type.
- */
-
-/**
- * @typedef {Visitor<Visited, Parent<Ancestor, Visited>>} BuildVisitorFromMatch
- *   Build a typed `Visitor` function from a node and all possible parents.
- *
- *   It will infer which values are passed as `node` and which as `parent`.
- * @template {UnistNode} Visited
- *   Node type.
- * @template {UnistParent} Ancestor
- *   Parent type.
- */
-
-/**
- * @typedef {(
- *   BuildVisitorFromMatch<
- *     Matches<Descendant, Check>,
- *     Extract<Descendant, UnistParent>
- *   >
- * )} BuildVisitorFromDescendants
- *   Build a typed `Visitor` function from a list of descendants and a test.
- *
- *   It will infer which values are passed as `node` and which as `parent`.
- * @template {UnistNode} Descendant
- *   Node type.
- * @template {Test} Check
- *   Test type.
- */
-
-/**
- * @typedef {(
- *   BuildVisitorFromDescendants<
- *     InclusiveDescendant<Tree>,
- *     Check
- *   >
- * )} BuildVisitor
- *   Build a typed `Visitor` function from a tree and a test.
- *
- *   It will infer which values are passed as `node` and which as `parent`.
- * @template {UnistNode} [Tree=UnistNode]
- *   Node type.
- * @template {Test} [Check=Test]
- *   Test type.
- */
-
-
-
-
-
-/**
- * Visit nodes.
- *
- * This algorithm performs *depth-first* *tree traversal* in *preorder*
- * (**NLR**) or if `reverse` is given, in *reverse preorder* (**NRL**).
- *
- * You can choose for which nodes `visitor` is called by passing a `test`.
- * For complex tests, you should test yourself in `visitor`, as it will be
- * faster and will have improved type information.
- *
- * Walking the tree is an intensive task.
- * Make use of the return values of the visitor when possible.
- * Instead of walking a tree multiple times, walk it once, use `unist-util-is`
- * to check if a node matches, and then perform different operations.
- *
- * You can change the tree.
- * See `Visitor` for more info.
- *
- * @overload
- * @param {Tree} tree
- * @param {Check} check
- * @param {BuildVisitor<Tree, Check>} visitor
- * @param {boolean | null | undefined} [reverse]
- * @returns {undefined}
- *
- * @overload
- * @param {Tree} tree
- * @param {BuildVisitor<Tree>} visitor
- * @param {boolean | null | undefined} [reverse]
- * @returns {undefined}
- *
- * @param {UnistNode} tree
- *   Tree to traverse.
- * @param {Visitor | Test} testOrVisitor
- *   `unist-util-is`-compatible test (optional, omit to pass a visitor).
- * @param {Visitor | boolean | null | undefined} [visitorOrReverse]
- *   Handle each node (when test is omitted, pass `reverse`).
- * @param {boolean | null | undefined} [maybeReverse=false]
- *   Traverse in reverse preorder (NRL) instead of the default preorder (NLR).
- * @returns {undefined}
- *   Nothing.
- *
- * @template {UnistNode} Tree
- *   Node type.
- * @template {Test} Check
- *   `unist-util-is`-compatible test.
- */
-function visit(tree, testOrVisitor, visitorOrReverse, maybeReverse) {
-  /** @type {boolean | null | undefined} */
-  let reverse
-  /** @type {Test} */
-  let test
-  /** @type {Visitor} */
-  let visitor
-
-  if (
-    typeof testOrVisitor === 'function' &&
-    typeof visitorOrReverse !== 'function'
-  ) {
-    test = undefined
-    visitor = testOrVisitor
-    reverse = visitorOrReverse
-  } else {
-    // @ts-expect-error: assume the overload with test was given.
-    test = testOrVisitor
-    // @ts-expect-error: assume the overload with test was given.
-    visitor = visitorOrReverse
-    reverse = maybeReverse
-  }
-
-  visitParents(tree, test, overload, reverse)
-
-  /**
-   * @param {UnistNode} node
-   * @param {Array<UnistParent>} parents
-   */
-  function overload(node, parents) {
-    const parent = parents[parents.length - 1]
-    const index = parent ? parent.children.indexOf(node) : undefined
-    return visitor(node, index, parent)
-  }
 }
 
 ;// CONCATENATED MODULE: ./node_modules/mdast-util-to-markdown/lib/util/format-heading-as-setext.js
@@ -85182,7 +89588,7 @@ function safeBound(value, config) {
  * @returns {undefined}
  *   Nothing.
  */
-function remarkStringify(options) {
+function lib_remarkStringify(options) {
   /** @type {Processor} */
   // @ts-expect-error: TS in JSDoc generates wrong types if `this` is typed regularly.
   const self = this
@@ -85220,17 +89626,6 @@ function bail(error) {
 
 // EXTERNAL MODULE: ./node_modules/extend/index.js
 var extend = __nccwpck_require__(8171);
-;// CONCATENATED MODULE: ./node_modules/devlop/lib/default.js
-function deprecate(fn) {
-  return fn
-}
-
-function equal() {}
-
-function default_ok() {}
-
-function unreachable() {}
-
 ;// CONCATENATED MODULE: ./node_modules/is-plain-obj/index.js
 function isPlainObject(value) {
 	if (typeof value !== 'object' || value === null) {
@@ -87325,7 +91720,7 @@ class Processor extends CallableInstance {
         } else if (resolve) {
           resolve(file)
         } else {
-          default_ok(done, '`done` is defined if `resolve` is not')
+          ok(done, '`done` is defined if `resolve` is not')
           done(undefined, file)
         }
       }
@@ -87375,7 +91770,7 @@ class Processor extends CallableInstance {
 
     this.process(file, realDone)
     assertDone('processSync', 'process', complete)
-    default_ok(result, 'we either bailed on an error or have a tree')
+    ok(result, 'we either bailed on an error or have a tree')
 
     return result
 
@@ -87450,7 +91845,7 @@ class Processor extends CallableInstance {
      * @returns {undefined}
      */
     function executor(resolve, reject) {
-      default_ok(
+      ok(
         typeof file !== 'function',
         '`file` can’t be a `done` anymore, we checked'
       )
@@ -87474,7 +91869,7 @@ class Processor extends CallableInstance {
         } else if (resolve) {
           resolve(resultingTree)
         } else {
-          default_ok(done, '`done` is defined if `resolve` is not')
+          ok(done, '`done` is defined if `resolve` is not')
           done(undefined, resultingTree, file)
         }
       }
@@ -87507,7 +91902,7 @@ class Processor extends CallableInstance {
     this.run(tree, file, realDone)
 
     assertDone('runSync', 'run', complete)
-    default_ok(result, 'we either bailed on an error or have a tree')
+    ok(result, 'we either bailed on an error or have a tree')
     return result
 
     /**
@@ -87889,7 +92284,7 @@ function lib_isUint8Array(value) {
  * Create a new unified processor that already uses `remark-parse` and
  * `remark-stringify`.
  */
-const remark = unified().use(remarkParse).use(remarkStringify).freeze()
+const remark_remark = unified().use(remarkParse).use(lib_remarkStringify).freeze()
 
 ;// CONCATENATED MODULE: ./node_modules/ccount/index.js
 /**
@@ -88319,7 +92714,7 @@ function exitLiteralAutolinkHttp(token) {
 function exitLiteralAutolinkWww(token) {
   this.config.exit.data.call(this, token)
   const node = this.stack[this.stack.length - 1]
-  default_ok(node.type === 'link')
+  ok(node.type === 'link')
   node.url = 'http://' + this.sliceSerialize(token)
 }
 
@@ -88573,7 +92968,7 @@ function enterFootnoteDefinitionLabelString() {
 function exitFootnoteDefinitionLabelString(token) {
   const label = this.resume()
   const node = this.stack[this.stack.length - 1]
-  default_ok(node.type === 'footnoteDefinition')
+  ok(node.type === 'footnoteDefinition')
   node.label = label
   node.identifier = normalizeIdentifier(
     this.sliceSerialize(token)
@@ -88611,7 +93006,7 @@ function enterFootnoteCallString() {
 function exitFootnoteCallString(token) {
   const label = this.resume()
   const node = this.stack[this.stack.length - 1]
-  default_ok(node.type === 'footnoteReference')
+  ok(node.type === 'footnoteReference')
   node.label = label
   node.identifier = normalizeIdentifier(
     this.sliceSerialize(token)
@@ -89248,7 +93643,7 @@ function gfmTableFromMarkdown() {
  */
 function enterTable(token) {
   const align = token._align
-  default_ok(align, 'expected `_align` on table')
+  ok(align, 'expected `_align` on table')
   this.enter(
     {
       type: 'table',
@@ -89309,7 +93704,7 @@ function exitCodeText(token) {
   }
 
   const node = this.stack[this.stack.length - 1]
-  default_ok(node.type === 'inlineCode')
+  ok(node.type === 'inlineCode')
   node.value = value
   this.exit(token)
 }
@@ -89535,7 +93930,7 @@ function gfmTaskListItemToMarkdown() {
 function exitCheck(token) {
   // We’re always in a paragraph, in a list item.
   const node = this.stack[this.stack.length - 2]
-  default_ok(node.type === 'listItem')
+  ok(node.type === 'listItem')
   node.checked = token.type === 'taskListCheckValueChecked'
 }
 
@@ -89552,7 +93947,7 @@ function exitParagraphWithTaskListItem(token) {
     typeof parent.checked === 'boolean'
   ) {
     const node = this.stack[this.stack.length - 1]
-    default_ok(node.type === 'paragraph')
+    ok(node.type === 'paragraph')
     const head = node.children[0]
 
     if (head && head.type === 'text') {
@@ -92750,7 +97145,7 @@ const lib_emptyOptions = {}
  * @returns {undefined}
  *   Nothing.
  */
-function remarkGfm(options) {
+function lib_remarkGfm(options) {
   // @ts-expect-error: TS is wrong about `this`.
   // eslint-disable-next-line unicorn/no-this-assignment
   const self = /** @type {Processor} */ (this)
@@ -92862,7 +97257,7 @@ function remarkGfm(options) {
  * @returns
  *   Whether `node` is a node and passes a test.
  */
-const lib_is =
+const unist_util_is_lib_is =
   /**
    * @type {(
    *   (() => false) &
@@ -92949,7 +97344,7 @@ const lib_convert =
      */
     function (test) {
       if (test === undefined || test === null) {
-        return lib_ok
+        return unist_util_is_lib_ok
       }
 
       if (typeof test === 'string') {
@@ -93068,7 +97463,7 @@ function lib_castFactory(check) {
   }
 }
 
-function lib_ok() {
+function unist_util_is_lib_ok() {
   return true
 }
 
@@ -93230,7 +97625,7 @@ const findAfter =
  * @returns
  *   Whether `node` is a node and passes a test.
  */
-const unist_util_is_lib_is =
+const node_modules_unist_util_is_lib_is =
   /**
    * @type {(
    *   (() => false) &
@@ -93317,7 +97712,7 @@ const unist_util_is_lib_convert =
      */
     function (test) {
       if (test === undefined || test === null) {
-        return unist_util_is_lib_ok
+        return node_modules_unist_util_is_lib_ok
       }
 
       if (typeof test === 'string') {
@@ -93436,7 +97831,7 @@ function unist_util_is_lib_castFactory(check) {
   }
 }
 
-function unist_util_is_lib_ok() {
+function node_modules_unist_util_is_lib_ok() {
   return true
 }
 
@@ -93924,8 +98319,6 @@ function sectionize (node, index, parent) {
 
 /* harmony default export */ const remark_sectionize = (remark_sectionize_plugin);
 
-// EXTERNAL MODULE: ./node_modules/swagger2openapi/index.js
-var swagger2openapi = __nccwpck_require__(6280);
 ;// CONCATENATED MODULE: external "node:fs"
 const external_node_fs_namespaceObject = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:fs");
 ;// CONCATENATED MODULE: ./node_modules/to-vfile/lib/index.js
@@ -94257,3350 +98650,818 @@ function to_vfile_lib_isUint8Array(value) {
   )
 }
 
-;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/indexes.js
-var emptyMulticharIndex = {};
-var emptyRegularIndex = {};
-function extendIndex(item, index) {
-    var currentIndex = index;
-    for (var pos = 0; pos < item.length; pos++) {
-        var isLast = pos === item.length - 1;
-        var char = item.charAt(pos);
-        var charIndex = currentIndex[char] || (currentIndex[char] = { chars: {} });
-        if (isLast) {
-            charIndex.self = item;
-        }
-        currentIndex = charIndex.chars;
-    }
-}
-function createMulticharIndex(items) {
-    if (items.length === 0) {
-        return emptyMulticharIndex;
-    }
-    var index = {};
-    for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
-        var item = items_1[_i];
-        extendIndex(item, index);
-    }
-    return index;
-}
-function createRegularIndex(items) {
-    if (items.length === 0) {
-        return emptyRegularIndex;
-    }
-    var result = {};
-    for (var _i = 0, items_2 = items; _i < items_2.length; _i++) {
-        var item = items_2[_i];
-        result[item] = true;
-    }
-    return result;
-}
-
-;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/pseudo-signatures.js
-var emptyPseudoSignatures = {};
-var defaultPseudoSignature = {
-    type: 'String',
-    optional: true
-};
-function calculatePseudoSignature(types) {
-    var result = {
-        type: 'NoArgument',
-        optional: false
-    };
-    function setResultType(type) {
-        if (result.type && result.type !== type && result.type !== 'NoArgument') {
-            throw new Error("Conflicting pseudo-class argument type: \"".concat(result.type, "\" vs \"").concat(type, "\"."));
-        }
-        result.type = type;
-    }
-    for (var _i = 0, types_1 = types; _i < types_1.length; _i++) {
-        var type = types_1[_i];
-        if (type === 'NoArgument') {
-            result.optional = true;
-        }
-        if (type === 'Formula') {
-            setResultType('Formula');
-        }
-        if (type === 'FormulaOfSelector') {
-            setResultType('Formula');
-            result.ofSelector = true;
-        }
-        if (type === 'String') {
-            setResultType('String');
-        }
-        if (type === 'Selector') {
-            setResultType('Selector');
-        }
-    }
-    return result;
-}
-function inverseCategories(obj) {
-    var result = {};
-    for (var _i = 0, _a = Object.keys(obj); _i < _a.length; _i++) {
-        var category = _a[_i];
-        var items = obj[category];
-        if (items) {
-            for (var _b = 0, _c = items; _b < _c.length; _b++) {
-                var item = _c[_b];
-                (result[item] || (result[item] = [])).push(category);
-            }
-        }
-    }
-    return result;
-}
-function calculatePseudoSignatures(definitions) {
-    var pseudoClassesToArgumentTypes = inverseCategories(definitions);
-    var result = {};
-    for (var _i = 0, _a = Object.keys(pseudoClassesToArgumentTypes); _i < _a.length; _i++) {
-        var pseudoClass = _a[_i];
-        var argumentTypes = pseudoClassesToArgumentTypes[pseudoClass];
-        if (argumentTypes) {
-            result[pseudoClass] = calculatePseudoSignature(argumentTypes);
-        }
-    }
-    return result;
-}
-
-;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/syntax-definitions.js
-var __assign = (undefined && undefined.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
-var emptyXmlOptions = {};
-var defaultXmlOptions = { wildcard: true };
-function getXmlOptions(param) {
-    if (param) {
-        if (typeof param === 'boolean') {
-            return defaultXmlOptions;
-        }
-        else {
-            return param;
-        }
-    }
-    else {
-        return emptyXmlOptions;
-    }
-}
-function withMigration(migration, merge) {
-    return function (base, extension) { return merge(migration(base), migration(extension)); };
-}
-function withNoNegative(merge) {
-    return function (base, extension) {
-        var result = merge(base, extension);
-        if (!result) {
-            throw new Error("Syntax definition cannot be null or undefined.");
-        }
-        return result;
-    };
-}
-function withPositive(positive, merge) {
-    return function (base, extension) {
-        if (extension === true) {
-            return positive;
-        }
-        return merge(base === true ? positive : base, extension);
-    };
-}
-function mergeSection(values) {
-    return function (base, extension) {
-        if (!extension || !base) {
-            return extension;
-        }
-        if (typeof extension !== 'object' || extension === null) {
-            throw new Error("Unexpected syntax definition extension type: ".concat(extension, "."));
-        }
-        var result = __assign({}, base);
-        for (var _i = 0, _a = Object.entries(extension); _i < _a.length; _i++) {
-            var _b = _a[_i], key = _b[0], value = _b[1];
-            var mergeSchema = values[key];
-            result[key] = mergeSchema(base[key], value);
-        }
-        return result;
-    };
-}
-function replaceValueIfSpecified(base, extension) {
-    if (extension !== undefined) {
-        return extension;
-    }
-    return base;
-}
-function concatArray(base, extension) {
-    if (!extension) {
-        return base;
-    }
-    if (!base) {
-        return extension;
-    }
-    return base.concat(extension);
-}
-function mergeDefinitions(base, extension) {
-    if (!extension) {
-        return base;
-    }
-    if (!base) {
-        return extension;
-    }
-    var result = __assign({}, base);
-    for (var _i = 0, _a = Object.entries(extension); _i < _a.length; _i++) {
-        var _b = _a[_i], key = _b[0], value = _b[1];
-        if (!value) {
-            delete result[key];
-            continue;
-        }
-        var baseValue = base[key];
-        if (!baseValue) {
-            result[key] = value;
-            continue;
-        }
-        result[key] = baseValue.concat(value);
-    }
-    return result;
-}
-var extendSyntaxDefinition = withNoNegative(mergeSection({
-    baseSyntax: replaceValueIfSpecified,
-    tag: withPositive(defaultXmlOptions, mergeSection({
-        wildcard: replaceValueIfSpecified
-    })),
-    ids: replaceValueIfSpecified,
-    classNames: replaceValueIfSpecified,
-    namespace: withPositive(defaultXmlOptions, mergeSection({
-        wildcard: replaceValueIfSpecified
-    })),
-    combinators: concatArray,
-    attributes: mergeSection({
-        operators: concatArray,
-        caseSensitivityModifiers: concatArray,
-        unknownCaseSensitivityModifiers: replaceValueIfSpecified
-    }),
-    pseudoClasses: mergeSection({
-        unknown: replaceValueIfSpecified,
-        definitions: mergeDefinitions
-    }),
-    pseudoElements: mergeSection({
-        unknown: replaceValueIfSpecified,
-        notation: replaceValueIfSpecified,
-        definitions: withMigration(function (definitions) { return (Array.isArray(definitions) ? { NoArgument: definitions } : definitions); }, mergeDefinitions)
-    })
-}));
-var css1SyntaxDefinition = {
-    tag: {},
-    ids: true,
-    classNames: true,
-    combinators: [],
-    pseudoElements: {
-        unknown: 'reject',
-        notation: 'singleColon',
-        definitions: ['first-letter', 'first-line']
-    },
-    pseudoClasses: {
-        unknown: 'reject',
-        definitions: {
-            NoArgument: ['link', 'visited', 'active']
-        }
-    }
-};
-var css2SyntaxDefinition = extendSyntaxDefinition(css1SyntaxDefinition, {
-    tag: { wildcard: true },
-    combinators: ['>', '+'],
-    attributes: {
-        unknownCaseSensitivityModifiers: 'reject',
-        operators: ['=', '~=', '|=']
-    },
-    pseudoElements: {
-        definitions: ['before', 'after']
-    },
-    pseudoClasses: {
-        unknown: 'reject',
-        definitions: {
-            NoArgument: ['hover', 'focus', 'first-child'],
-            String: ['lang']
-        }
-    }
-});
-var selectors3SyntaxDefinition = extendSyntaxDefinition(css2SyntaxDefinition, {
-    namespace: {
-        wildcard: true
-    },
-    combinators: ['~'],
-    attributes: {
-        operators: ['^=', '$=', '*=']
-    },
-    pseudoElements: {
-        notation: 'both'
-    },
-    pseudoClasses: {
-        definitions: {
-            NoArgument: [
-                'root',
-                'last-child',
-                'first-of-type',
-                'last-of-type',
-                'only-child',
-                'only-of-type',
-                'empty',
-                'target',
-                'enabled',
-                'disabled',
-                'checked',
-                'indeterminate'
-            ],
-            Formula: ['nth-child', 'nth-last-child', 'nth-of-type', 'nth-last-of-type'],
-            Selector: ['not']
-        }
-    }
-});
-var selectors4SyntaxDefinition = extendSyntaxDefinition(selectors3SyntaxDefinition, {
-    combinators: ['||'],
-    attributes: {
-        caseSensitivityModifiers: ['i', 'I', 's', 'S']
-    },
-    pseudoClasses: {
-        definitions: {
-            NoArgument: [
-                'any-link',
-                'local-link',
-                'target-within',
-                'scope',
-                'current',
-                'past',
-                'future',
-                'focus-within',
-                'focus-visible',
-                'read-write',
-                'read-only',
-                'placeholder-shown',
-                'default',
-                'valid',
-                'invalid',
-                'in-range',
-                'out-of-range',
-                'required',
-                'optional',
-                'blank',
-                'user-invalid'
-            ],
-            Formula: ['nth-col', 'nth-last-col'],
-            String: ['dir'],
-            FormulaOfSelector: ['nth-child', 'nth-last-child'],
-            Selector: ['current', 'is', 'where', 'has']
-        }
-    }
-});
-var progressiveSyntaxDefinition = extendSyntaxDefinition(selectors4SyntaxDefinition, {
-    pseudoElements: {
-        unknown: 'accept'
-    },
-    pseudoClasses: {
-        unknown: 'accept'
-    },
-    attributes: {
-        unknownCaseSensitivityModifiers: 'accept'
-    }
-});
-var cssSyntaxDefinitions = {
-    css1: css1SyntaxDefinition,
-    css2: css2SyntaxDefinition,
-    css3: selectors3SyntaxDefinition,
-    'selectors-3': selectors3SyntaxDefinition,
-    'selectors-4': selectors4SyntaxDefinition,
-    latest: selectors4SyntaxDefinition,
-    progressive: progressiveSyntaxDefinition
-};
-
-;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/utils.js
-function isIdentStart(c) {
-    return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c === '-' || c === '_' || c === '\\' || c >= '\u00a0';
-}
-function isIdent(c) {
-    return ((c >= 'a' && c <= 'z') ||
-        (c >= 'A' && c <= 'Z') ||
-        (c >= '0' && c <= '9') ||
-        c === '-' ||
-        c === '_' ||
-        c >= '\u00a0');
-}
-function isHex(c) {
-    return (c >= 'a' && c <= 'f') || (c >= 'A' && c <= 'F') || (c >= '0' && c <= '9');
-}
-var identEscapeChars = {
-    '!': true,
-    '"': true,
-    '#': true,
-    $: true,
-    '%': true,
-    '&': true,
-    "'": true,
-    '(': true,
-    ')': true,
-    '*': true,
-    '+': true,
-    ',': true,
-    '.': true,
-    '/': true,
-    ';': true,
-    '<': true,
-    '=': true,
-    '>': true,
-    '?': true,
-    '@': true,
-    '[': true,
-    '\\': true,
-    ']': true,
-    '^': true,
-    '`': true,
-    '{': true,
-    '|': true,
-    '}': true,
-    '~': true
-};
-var stringRenderEscapeChars = {
-    '\n': true,
-    '\r': true,
-    '\t': true,
-    '\f': true,
-    '\v': true
-};
-var whitespaceChars = {
-    ' ': true,
-    '\t': true,
-    '\n': true,
-    '\r': true,
-    '\f': true
-};
-var quoteChars = {
-    '"': true,
-    "'": true
-};
-var digitsChars = {
-    0: true,
-    1: true,
-    2: true,
-    3: true,
-    4: true,
-    5: true,
-    6: true,
-    7: true,
-    8: true,
-    9: true
-};
-var maxHexLength = 6;
-function utils_escapeIdentifier(s) {
-    var len = s.length;
-    var result = '';
-    var i = 0;
-    while (i < len) {
-        var chr = s.charAt(i);
-        if (identEscapeChars[chr] || (chr === '-' && i === 1 && s.charAt(0) === '-')) {
-            result += '\\' + chr;
-        }
-        else {
-            if (chr === '-' ||
-                chr === '_' ||
-                (chr >= 'A' && chr <= 'Z') ||
-                (chr >= 'a' && chr <= 'z') ||
-                (chr >= '0' && chr <= '9' && i !== 0 && !(i === 1 && s.charAt(0) === '-'))) {
-                result += chr;
-            }
-            else {
-                var charCode = chr.charCodeAt(0);
-                if ((charCode & 0xf800) === 0xd800) {
-                    var extraCharCode = s.charCodeAt(i++);
-                    if ((charCode & 0xfc00) !== 0xd800 || (extraCharCode & 0xfc00) !== 0xdc00) {
-                        throw Error('UCS-2(decode): illegal sequence');
-                    }
-                    charCode = ((charCode & 0x3ff) << 10) + (extraCharCode & 0x3ff) + 0x10000;
-                }
-                result += '\\' + charCode.toString(16) + ' ';
-            }
-        }
-        i++;
-    }
-    return result.trim();
-}
-function utils_escapeString(s) {
-    var len = s.length;
-    var result = '';
-    var i = 0;
-    while (i < len) {
-        var chr = s.charAt(i);
-        if (chr === '"') {
-            chr = '\\"';
-        }
-        else if (chr === '\\') {
-            chr = '\\\\';
-        }
-        else if (stringRenderEscapeChars[chr]) {
-            chr = '\\' + chr.charCodeAt(0).toString(16) + (i === len - 1 ? '' : ' ');
-        }
-        result += chr;
-        i++;
-    }
-    return "\"".concat(result, "\"");
-}
-
-;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/parser.js
+// EXTERNAL MODULE: ./node_modules/format/format.js
+var format_format = __nccwpck_require__(7852);
+;// CONCATENATED MODULE: ./node_modules/fault/index.js
+// @ts-expect-error
 
 
-
-
-var errorPrefix = "css-selector-parser parse error: ";
-/**
- * Creates a parse function to be used later to parse CSS selectors.
- */
-function createParser(options) {
-    if (options === void 0) { options = {}; }
-    var _a = options.syntax, syntax = _a === void 0 ? 'latest' : _a, substitutes = options.substitutes, _b = options.strict, strict = _b === void 0 ? true : _b;
-    var syntaxDefinition = typeof syntax === 'object' ? syntax : cssSyntaxDefinitions[syntax];
-    if (syntaxDefinition.baseSyntax) {
-        syntaxDefinition = extendSyntaxDefinition(cssSyntaxDefinitions[syntaxDefinition.baseSyntax], syntaxDefinition);
-    }
-    var _c = syntaxDefinition.tag
-        ? [true, Boolean(getXmlOptions(syntaxDefinition.tag).wildcard)]
-        : [false, false], tagNameEnabled = _c[0], tagNameWildcardEnabled = _c[1];
-    var idEnabled = Boolean(syntaxDefinition.ids);
-    var classNamesEnabled = Boolean(syntaxDefinition.classNames);
-    var namespaceEnabled = Boolean(syntaxDefinition.namespace);
-    var namespaceWildcardEnabled = syntaxDefinition.namespace &&
-        (syntaxDefinition.namespace === true || syntaxDefinition.namespace.wildcard === true);
-    if (namespaceEnabled && !tagNameEnabled) {
-        throw new Error("".concat(errorPrefix, "Namespaces cannot be enabled while tags are disabled."));
-    }
-    var substitutesEnabled = Boolean(substitutes);
-    var combinatorsIndex = syntaxDefinition.combinators
-        ? createMulticharIndex(syntaxDefinition.combinators)
-        : emptyMulticharIndex;
-    var _d = syntaxDefinition.attributes
-        ? [
-            true,
-            syntaxDefinition.attributes.operators
-                ? createMulticharIndex(syntaxDefinition.attributes.operators)
-                : emptyMulticharIndex,
-            syntaxDefinition.attributes.caseSensitivityModifiers
-                ? createRegularIndex(syntaxDefinition.attributes.caseSensitivityModifiers)
-                : emptyRegularIndex,
-            syntaxDefinition.attributes.unknownCaseSensitivityModifiers === 'accept'
-        ]
-        : [false, emptyMulticharIndex, emptyRegularIndex, false], attributesEnabled = _d[0], attributesOperatorsIndex = _d[1], attributesCaseSensitivityModifiers = _d[2], attributesAcceptUnknownCaseSensitivityModifiers = _d[3];
-    var attributesCaseSensitivityModifiersEnabled = attributesAcceptUnknownCaseSensitivityModifiers || Object.keys(attributesCaseSensitivityModifiers).length > 0;
-    var _e = syntaxDefinition.pseudoClasses
-        ? [
-            true,
-            syntaxDefinition.pseudoClasses.definitions
-                ? calculatePseudoSignatures(syntaxDefinition.pseudoClasses.definitions)
-                : emptyPseudoSignatures,
-            syntaxDefinition.pseudoClasses.unknown === 'accept'
-        ]
-        : [false, emptyPseudoSignatures, false], pseudoClassesEnabled = _e[0], pseudoClassesDefinitions = _e[1], pseudoClassesAcceptUnknown = _e[2];
-    var _f = syntaxDefinition.pseudoElements
-        ? [
-            true,
-            syntaxDefinition.pseudoElements.notation === 'singleColon' ||
-                syntaxDefinition.pseudoElements.notation === 'both',
-            !syntaxDefinition.pseudoElements.notation ||
-                syntaxDefinition.pseudoElements.notation === 'doubleColon' ||
-                syntaxDefinition.pseudoElements.notation === 'both',
-            syntaxDefinition.pseudoElements.definitions
-                ? calculatePseudoSignatures(Array.isArray(syntaxDefinition.pseudoElements.definitions)
-                    ? { NoArgument: syntaxDefinition.pseudoElements.definitions }
-                    : syntaxDefinition.pseudoElements.definitions)
-                : emptyPseudoSignatures,
-            syntaxDefinition.pseudoElements.unknown === 'accept'
-        ]
-        : [false, false, false, emptyPseudoSignatures, false], pseudoElementsEnabled = _f[0], pseudoElementsSingleColonNotationEnabled = _f[1], pseudoElementsDoubleColonNotationEnabled = _f[2], pseudoElementsDefinitions = _f[3], pseudoElementsAcceptUnknown = _f[4];
-    var str = '';
-    var l = str.length;
-    var pos = 0;
-    var chr = '';
-    var is = function (comparison) { return chr === comparison; };
-    var isTagStart = function () { return is('*') || isIdentStart(chr); };
-    var rewind = function (newPos) {
-        pos = newPos;
-        chr = str.charAt(pos);
-    };
-    var next = function () {
-        pos++;
-        chr = str.charAt(pos);
-    };
-    var readAndNext = function () {
-        var current = chr;
-        pos++;
-        chr = str.charAt(pos);
-        return current;
-    };
-    /** @throws ParserError */
-    function fail(errorMessage) {
-        var position = Math.min(l - 1, pos);
-        var error = new Error("".concat(errorPrefix).concat(errorMessage, " Pos: ").concat(position, "."));
-        error.position = position;
-        error.name = 'ParserError';
-        throw error;
-    }
-    function assert(condition, errorMessage) {
-        if (!condition) {
-            return fail(errorMessage);
-        }
-    }
-    var assertNonEof = function () {
-        assert(pos < l, 'Unexpected end of input.');
-    };
-    var isEof = function () { return pos >= l; };
-    var pass = function (character) {
-        assert(pos < l, "Expected \"".concat(character, "\" but end of input reached."));
-        assert(chr === character, "Expected \"".concat(character, "\" but \"").concat(chr, "\" found."));
-        pos++;
-        chr = str.charAt(pos);
-    };
-    function matchMulticharIndex(index) {
-        var match = matchMulticharIndexPos(index, pos);
-        if (match) {
-            pos += match.length;
-            chr = str.charAt(pos);
-            return match;
-        }
-    }
-    function matchMulticharIndexPos(index, subPos) {
-        var char = str.charAt(subPos);
-        var charIndex = index[char];
-        if (charIndex) {
-            var subMatch = matchMulticharIndexPos(charIndex.chars, subPos + 1);
-            if (subMatch) {
-                return subMatch;
-            }
-            if (charIndex.self) {
-                return charIndex.self;
-            }
-        }
-    }
-    /**
-     * @see https://www.w3.org/TR/css-syntax/#hex-digit-diagram
-     */
-    function parseHex() {
-        var hex = readAndNext();
-        var count = 1;
-        while (isHex(chr) && count < maxHexLength) {
-            hex += readAndNext();
-            count++;
-        }
-        skipSingleWhitespace();
-        return String.fromCharCode(parseInt(hex, 16));
-    }
-    /**
-     * @see https://www.w3.org/TR/css-syntax/#string-token-diagram
-     */
-    function parseString(quote) {
-        var result = '';
-        pass(quote);
-        while (pos < l) {
-            if (is(quote)) {
-                next();
-                return result;
-            }
-            else if (is('\\')) {
-                next();
-                if (is(quote)) {
-                    result += quote;
-                    next();
-                }
-                else if (chr === '\n' || chr === '\f') {
-                    next();
-                }
-                else if (chr === '\r') {
-                    next();
-                    if (is('\n')) {
-                        next();
-                    }
-                }
-                else if (isHex(chr)) {
-                    result += parseHex();
-                }
-                else {
-                    result += chr;
-                    next();
-                }
-            }
-            else {
-                result += chr;
-                next();
-            }
-        }
-        return result;
-    }
-    /**
-     * @see https://www.w3.org/TR/css-syntax/#ident-token-diagram
-     */
-    function parseIdentifier() {
-        if (!isIdentStart(chr)) {
-            return null;
-        }
-        var result = '';
-        while (is('-')) {
-            result += chr;
-            next();
-        }
-        if (result === '-' && !isIdent(chr) && !is('\\')) {
-            fail('Identifiers cannot consist of a single hyphen.');
-        }
-        if (strict && result.length >= 2) {
-            // Checking this only for strict mode since browsers work fine with these identifiers.
-            fail('Identifiers cannot start with two hyphens with strict mode on.');
-        }
-        if (digitsChars[chr]) {
-            fail('Identifiers cannot start with hyphens followed by digits.');
-        }
-        while (pos < l) {
-            if (isIdent(chr)) {
-                result += readAndNext();
-            }
-            else if (is('\\')) {
-                next();
-                assertNonEof();
-                if (isHex(chr)) {
-                    result += parseHex();
-                }
-                else {
-                    result += readAndNext();
-                }
-            }
-            else {
-                break;
-            }
-        }
-        return result;
-    }
-    function parsePseudoClassString() {
-        var result = '';
-        while (pos < l) {
-            if (is(')')) {
-                break;
-            }
-            else if (is('\\')) {
-                next();
-                if (isEof() && !strict) {
-                    return (result + '\\').trim();
-                }
-                assertNonEof();
-                if (isHex(chr)) {
-                    result += parseHex();
-                }
-                else {
-                    result += readAndNext();
-                }
-            }
-            else {
-                result += readAndNext();
-            }
-        }
-        return result.trim();
-    }
-    function skipSingleWhitespace() {
-        if (chr === ' ' || chr === '\t' || chr === '\f' || chr === '\n') {
-            next();
-            return;
-        }
-        if (chr === '\r') {
-            next();
-        }
-        if (chr === '\n') {
-            next();
-        }
-    }
-    function skipWhitespace() {
-        while (whitespaceChars[chr]) {
-            next();
-        }
-    }
-    function parseSelector(relative) {
-        if (relative === void 0) { relative = false; }
-        skipWhitespace();
-        var rules = [parseRule(relative)];
-        while (is(',')) {
-            next();
-            skipWhitespace();
-            rules.push(parseRule(relative));
-        }
-        return {
-            type: 'Selector',
-            rules: rules
-        };
-    }
-    function parseAttribute() {
-        pass('[');
-        skipWhitespace();
-        var attr;
-        if (is('|')) {
-            assert(namespaceEnabled, 'Namespaces are not enabled.');
-            next();
-            var name_1 = parseIdentifier();
-            assert(name_1, 'Expected attribute name.');
-            attr = {
-                type: 'Attribute',
-                name: name_1,
-                namespace: { type: 'NoNamespace' }
-            };
-        }
-        else if (is('*')) {
-            assert(namespaceEnabled, 'Namespaces are not enabled.');
-            assert(namespaceWildcardEnabled, 'Wildcard namespace is not enabled.');
-            next();
-            pass('|');
-            var name_2 = parseIdentifier();
-            assert(name_2, 'Expected attribute name.');
-            attr = {
-                type: 'Attribute',
-                name: name_2,
-                namespace: { type: 'WildcardNamespace' }
-            };
-        }
-        else {
-            var identifier = parseIdentifier();
-            assert(identifier, 'Expected attribute name.');
-            attr = {
-                type: 'Attribute',
-                name: identifier
-            };
-            if (is('|')) {
-                var savedPos = pos;
-                next();
-                if (isIdentStart(chr)) {
-                    assert(namespaceEnabled, 'Namespaces are not enabled.');
-                    var name_3 = parseIdentifier();
-                    assert(name_3, 'Expected attribute name.');
-                    attr = {
-                        type: 'Attribute',
-                        name: name_3,
-                        namespace: { type: 'NamespaceName', name: identifier }
-                    };
-                }
-                else {
-                    rewind(savedPos);
-                }
-            }
-        }
-        assert(attr.name, 'Expected attribute name.');
-        skipWhitespace();
-        if (isEof() && !strict) {
-            return attr;
-        }
-        if (is(']')) {
-            next();
-        }
-        else {
-            attr.operator = matchMulticharIndex(attributesOperatorsIndex);
-            assert(attr.operator, 'Expected a valid attribute selector operator.');
-            skipWhitespace();
-            assertNonEof();
-            if (quoteChars[chr]) {
-                attr.value = {
-                    type: 'String',
-                    value: parseString(chr)
-                };
-            }
-            else if (substitutesEnabled && is('$')) {
-                next();
-                var name_4 = parseIdentifier();
-                assert(name_4, 'Expected substitute name.');
-                attr.value = {
-                    type: 'Substitution',
-                    name: name_4
-                };
-            }
-            else {
-                var value = parseIdentifier();
-                assert(value, 'Expected attribute value.');
-                attr.value = {
-                    type: 'String',
-                    value: value
-                };
-            }
-            skipWhitespace();
-            if (isEof() && !strict) {
-                return attr;
-            }
-            if (!is(']')) {
-                var caseSensitivityModifier = parseIdentifier();
-                assert(caseSensitivityModifier, 'Expected end of attribute selector.');
-                attr.caseSensitivityModifier = caseSensitivityModifier;
-                assert(attributesCaseSensitivityModifiersEnabled, 'Attribute case sensitivity modifiers are not enabled.');
-                assert(attributesAcceptUnknownCaseSensitivityModifiers ||
-                    attributesCaseSensitivityModifiers[attr.caseSensitivityModifier], 'Unknown attribute case sensitivity modifier.');
-                skipWhitespace();
-                if (isEof() && !strict) {
-                    return attr;
-                }
-            }
-            pass(']');
-        }
-        return attr;
-    }
-    function parseNumber() {
-        var result = '';
-        while (digitsChars[chr]) {
-            result += readAndNext();
-        }
-        assert(result !== '', 'Formula parse error.');
-        return parseInt(result);
-    }
-    var isNumberStart = function () { return is('-') || is('+') || digitsChars[chr]; };
-    function parseFormula() {
-        if (is('e') || is('o')) {
-            var ident = parseIdentifier();
-            if (ident === 'even') {
-                skipWhitespace();
-                return [2, 0];
-            }
-            if (ident === 'odd') {
-                skipWhitespace();
-                return [2, 1];
-            }
-        }
-        var firstNumber = null;
-        var firstNumberMultiplier = 1;
-        if (is('-')) {
-            next();
-            firstNumberMultiplier = -1;
-        }
-        if (isNumberStart()) {
-            if (is('+')) {
-                next();
-            }
-            firstNumber = parseNumber();
-            if (!is('\\') && !is('n')) {
-                return [0, firstNumber * firstNumberMultiplier];
-            }
-        }
-        if (firstNumber === null) {
-            firstNumber = 1;
-        }
-        firstNumber *= firstNumberMultiplier;
-        var identifier;
-        if (is('\\')) {
-            next();
-            if (isHex(chr)) {
-                identifier = parseHex();
-            }
-            else {
-                identifier = readAndNext();
-            }
-        }
-        else {
-            identifier = readAndNext();
-        }
-        assert(identifier === 'n', 'Formula parse error: expected "n".');
-        skipWhitespace();
-        if (is('+') || is('-')) {
-            var sign = is('+') ? 1 : -1;
-            next();
-            skipWhitespace();
-            return [firstNumber, sign * parseNumber()];
-        }
-        else {
-            return [firstNumber, 0];
-        }
-    }
-    function parsePseudoArgument(pseudoName, type, signature) {
-        var argument;
-        if (is('(')) {
-            next();
-            skipWhitespace();
-            if (substitutesEnabled && is('$')) {
-                next();
-                var name_5 = parseIdentifier();
-                assert(name_5, 'Expected substitute name.');
-                argument = {
-                    type: 'Substitution',
-                    name: name_5
-                };
-            }
-            else if (signature.type === 'String') {
-                argument = {
-                    type: 'String',
-                    value: parsePseudoClassString()
-                };
-                assert(argument.value, "Expected ".concat(type, " argument value."));
-            }
-            else if (signature.type === 'Selector') {
-                argument = parseSelector(true);
-            }
-            else if (signature.type === 'Formula') {
-                var _a = parseFormula(), a = _a[0], b = _a[1];
-                argument = {
-                    type: 'Formula',
-                    a: a,
-                    b: b
-                };
-                if (signature.ofSelector) {
-                    skipWhitespace();
-                    if (is('o') || is('\\')) {
-                        var ident = parseIdentifier();
-                        assert(ident === 'of', 'Formula of selector parse error.');
-                        skipWhitespace();
-                        argument = {
-                            type: 'FormulaOfSelector',
-                            a: a,
-                            b: b,
-                            selector: parseRule()
-                        };
-                    }
-                }
-            }
-            else {
-                return fail("Invalid ".concat(type, " signature."));
-            }
-            skipWhitespace();
-            if (isEof() && !strict) {
-                return argument;
-            }
-            pass(')');
-        }
-        else {
-            assert(signature.optional, "Argument is required for ".concat(type, " \"").concat(pseudoName, "\"."));
-        }
-        return argument;
-    }
-    function parseTagName() {
-        if (is('*')) {
-            assert(tagNameWildcardEnabled, 'Wildcard tag name is not enabled.');
-            next();
-            return { type: 'WildcardTag' };
-        }
-        else if (isIdentStart(chr)) {
-            assert(tagNameEnabled, 'Tag names are not enabled.');
-            var name_6 = parseIdentifier();
-            assert(name_6, 'Expected tag name.');
-            return {
-                type: 'TagName',
-                name: name_6
-            };
-        }
-        else {
-            return fail('Expected tag name.');
-        }
-    }
-    function parseTagNameWithNamespace() {
-        if (is('*')) {
-            var savedPos = pos;
-            next();
-            if (!is('|')) {
-                rewind(savedPos);
-                return parseTagName();
-            }
-            next();
-            if (!isTagStart()) {
-                rewind(savedPos);
-                return parseTagName();
-            }
-            assert(namespaceEnabled, 'Namespaces are not enabled.');
-            assert(namespaceWildcardEnabled, 'Wildcard namespace is not enabled.');
-            var tagName = parseTagName();
-            tagName.namespace = { type: 'WildcardNamespace' };
-            return tagName;
-        }
-        else if (is('|')) {
-            assert(namespaceEnabled, 'Namespaces are not enabled.');
-            next();
-            var tagName = parseTagName();
-            tagName.namespace = { type: 'NoNamespace' };
-            return tagName;
-        }
-        else if (isIdentStart(chr)) {
-            var identifier = parseIdentifier();
-            assert(identifier, 'Expected tag name.');
-            if (!is('|')) {
-                assert(tagNameEnabled, 'Tag names are not enabled.');
-                return {
-                    type: 'TagName',
-                    name: identifier
-                };
-            }
-            var savedPos = pos;
-            next();
-            if (!isTagStart()) {
-                rewind(savedPos);
-                return {
-                    type: 'TagName',
-                    name: identifier
-                };
-            }
-            assert(namespaceEnabled, 'Namespaces are not enabled.');
-            var tagName = parseTagName();
-            tagName.namespace = { type: 'NamespaceName', name: identifier };
-            return tagName;
-        }
-        else {
-            return fail('Expected tag name.');
-        }
-    }
-    function parseRule(relative) {
-        var _a, _b;
-        if (relative === void 0) { relative = false; }
-        var rule = { type: 'Rule', items: [] };
-        if (relative) {
-            var combinator = matchMulticharIndex(combinatorsIndex);
-            if (combinator) {
-                rule.combinator = combinator;
-                skipWhitespace();
-            }
-        }
-        while (pos < l) {
-            if (isTagStart()) {
-                assert(rule.items.length === 0, 'Unexpected tag/namespace start.');
-                rule.items.push(parseTagNameWithNamespace());
-            }
-            else if (is('|')) {
-                var savedPos = pos;
-                next();
-                if (isTagStart()) {
-                    assert(rule.items.length === 0, 'Unexpected tag/namespace start.');
-                    rewind(savedPos);
-                    rule.items.push(parseTagNameWithNamespace());
-                }
-                else {
-                    rewind(savedPos);
-                    break;
-                }
-            }
-            else if (is('.')) {
-                assert(classNamesEnabled, 'Class names are not enabled.');
-                next();
-                var className = parseIdentifier();
-                assert(className, 'Expected class name.');
-                rule.items.push({ type: 'ClassName', name: className });
-            }
-            else if (is('#')) {
-                assert(idEnabled, 'IDs are not enabled.');
-                next();
-                var idName = parseIdentifier();
-                assert(idName, 'Expected ID name.');
-                rule.items.push({ type: 'Id', name: idName });
-            }
-            else if (is('[')) {
-                assert(attributesEnabled, 'Attributes are not enabled.');
-                rule.items.push(parseAttribute());
-            }
-            else if (is(':')) {
-                var isDoubleColon = false;
-                var isPseudoElement = false;
-                next();
-                if (is(':')) {
-                    assert(pseudoElementsEnabled, 'Pseudo elements are not enabled.');
-                    assert(pseudoElementsDoubleColonNotationEnabled, 'Pseudo elements double colon notation is not enabled.');
-                    isDoubleColon = true;
-                    next();
-                }
-                var pseudoName = parseIdentifier();
-                assert(isDoubleColon || pseudoName, 'Expected pseudo-class name.');
-                assert(!isDoubleColon || pseudoName, 'Expected pseudo-element name.');
-                assert(pseudoName, 'Expected pseudo-class name.');
-                assert(!isDoubleColon ||
-                    pseudoElementsAcceptUnknown ||
-                    Object.prototype.hasOwnProperty.call(pseudoElementsDefinitions, pseudoName), "Unknown pseudo-element \"".concat(pseudoName, "\"."));
-                isPseudoElement =
-                    pseudoElementsEnabled &&
-                        (isDoubleColon ||
-                            (!isDoubleColon &&
-                                pseudoElementsSingleColonNotationEnabled &&
-                                Object.prototype.hasOwnProperty.call(pseudoElementsDefinitions, pseudoName)));
-                if (isPseudoElement) {
-                    var signature = (_a = pseudoElementsDefinitions[pseudoName]) !== null && _a !== void 0 ? _a : (pseudoElementsAcceptUnknown && defaultPseudoSignature);
-                    var pseudoElement = {
-                        type: 'PseudoElement',
-                        name: pseudoName
-                    };
-                    var argument = parsePseudoArgument(pseudoName, 'pseudo-element', signature);
-                    if (argument) {
-                        assert(argument.type !== 'Formula' && argument.type !== 'FormulaOfSelector', 'Pseudo-elements cannot have formula argument.');
-                        pseudoElement.argument = argument;
-                    }
-                    rule.items.push(pseudoElement);
-                }
-                else {
-                    assert(pseudoClassesEnabled, 'Pseudo-classes are not enabled.');
-                    var signature = (_b = pseudoClassesDefinitions[pseudoName]) !== null && _b !== void 0 ? _b : (pseudoClassesAcceptUnknown && defaultPseudoSignature);
-                    assert(signature, "Unknown pseudo-class: \"".concat(pseudoName, "\"."));
-                    var argument = parsePseudoArgument(pseudoName, 'pseudo-class', signature);
-                    var pseudoClass = {
-                        type: 'PseudoClass',
-                        name: pseudoName
-                    };
-                    if (argument) {
-                        pseudoClass.argument = argument;
-                    }
-                    rule.items.push(pseudoClass);
-                }
-            }
-            else {
-                break;
-            }
-        }
-        if (rule.items.length === 0) {
-            if (isEof()) {
-                return fail('Expected rule but end of input reached.');
-            }
-            else {
-                return fail("Expected rule but \"".concat(chr, "\" found."));
-            }
-        }
-        skipWhitespace();
-        if (!isEof() && !is(',') && !is(')')) {
-            var combinator = matchMulticharIndex(combinatorsIndex);
-            skipWhitespace();
-            rule.nestedRule = parseRule();
-            rule.nestedRule.combinator = combinator;
-        }
-        return rule;
-    }
-    return function (input) {
-        // noinspection SuspiciousTypeOfGuard
-        if (typeof input !== 'string') {
-            throw new Error("".concat(errorPrefix, "Expected string input."));
-        }
-        str = input;
-        l = str.length;
-        pos = 0;
-        chr = str.charAt(0);
-        return parseSelector();
-    };
-}
-
-;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/render.js
-
-var render_errorPrefix = "css-selector-parser render error: ";
-function renderNamespace(namespace) {
-    if (namespace.type === 'WildcardNamespace') {
-        return '*|';
-    }
-    else if (namespace.type === 'NamespaceName') {
-        return "".concat(escapeIdentifier(namespace.name), "|");
-    }
-    else if (namespace.type === 'NoNamespace') {
-        return '|';
-    }
-    throw new Error("".concat(render_errorPrefix, "Unknown namespace type: ").concat(namespace.type, "."));
-}
-function renderSubstitution(sub) {
-    return "$".concat(escapeIdentifier(sub.name));
-}
-function renderFormula(a, b) {
-    if (a) {
-        var result = "".concat(a === 1 ? '' : a === -1 ? '-' : a, "n");
-        if (b) {
-            result += "".concat(b > 0 ? '+' : '').concat(b);
-        }
-        return result;
-    }
-    else {
-        return String(b);
-    }
-}
-/**
- * Renders CSS Selector AST back to a string.
- *
- * @example
- *
- * import {ast, render} from 'css-selector-parser';
- *
- * const selector = ast.selector({
- *     rules: [
- *         ast.rule({
- *             items: [
- *                 ast.tagName({name: 'a'}),
- *                 ast.id({name: 'user-23'}),
- *                 ast.className({name: 'user'}),
- *                 ast.pseudoClass({name: 'visited'}),
- *                 ast.pseudoElement({name: 'before'})
- *             ]
- *         })
- *     ]
- * });
- *
- * console.log(render(selector)); // a#user-23.user:visited::before
- */
-function render(entity) {
-    if (entity.type === 'Selector') {
-        return entity.rules.map(render).join(', ');
-    }
-    if (entity.type === 'Rule') {
-        var result = '';
-        var items = entity.items, combinator = entity.combinator, nestedRule = entity.nestedRule;
-        if (combinator) {
-            result += "".concat(combinator, " ");
-        }
-        for (var _i = 0, items_1 = items; _i < items_1.length; _i++) {
-            var item = items_1[_i];
-            result += render(item);
-        }
-        if (nestedRule) {
-            result += " ".concat(render(nestedRule));
-        }
-        return result;
-    }
-    else if (entity.type === 'TagName' || entity.type === 'WildcardTag') {
-        var result = '';
-        var namespace = entity.namespace;
-        if (namespace) {
-            result += renderNamespace(namespace);
-        }
-        if (entity.type === 'TagName') {
-            result += escapeIdentifier(entity.name);
-        }
-        else if (entity.type === 'WildcardTag') {
-            result += '*';
-        }
-        return result;
-    }
-    else if (entity.type === 'Id') {
-        return "#".concat(escapeIdentifier(entity.name));
-    }
-    else if (entity.type === 'ClassName') {
-        return ".".concat(escapeIdentifier(entity.name));
-    }
-    else if (entity.type === 'Attribute') {
-        var name_1 = entity.name, namespace = entity.namespace, operator = entity.operator, value = entity.value, caseSensitivityModifier = entity.caseSensitivityModifier;
-        var result = '[';
-        if (namespace) {
-            result += renderNamespace(namespace);
-        }
-        result += escapeIdentifier(name_1);
-        if (operator && value) {
-            result += operator;
-            if (value.type === 'String') {
-                result += escapeString(value.value);
-            }
-            else if (value.type === 'Substitution') {
-                result += renderSubstitution(value);
-            }
-            else {
-                throw new Error("Unknown attribute value type: ".concat(value.type, "."));
-            }
-            if (caseSensitivityModifier) {
-                result += " ".concat(escapeIdentifier(caseSensitivityModifier));
-            }
-        }
-        result += ']';
-        return result;
-    }
-    else if (entity.type === 'PseudoClass') {
-        var name_2 = entity.name, argument = entity.argument;
-        var result = ":".concat(escapeIdentifier(name_2));
-        if (argument) {
-            result += "(".concat(argument.type === 'String' ? escapeIdentifier(argument.value) : render(argument), ")");
-        }
-        return result;
-    }
-    else if (entity.type === 'PseudoElement') {
-        var name_3 = entity.name, argument = entity.argument;
-        var result = "::".concat(escapeIdentifier(name_3));
-        if (argument) {
-            result += "(".concat(argument.type === 'String' ? escapeIdentifier(argument.value) : render(argument), ")");
-        }
-        return result;
-    }
-    else if (entity.type === 'String') {
-        throw new Error("".concat(render_errorPrefix, "String cannot be rendered outside of context."));
-    }
-    else if (entity.type === 'Formula') {
-        return renderFormula(entity.a, entity.b);
-    }
-    else if (entity.type === 'FormulaOfSelector') {
-        return renderFormula(entity.a, entity.b) + ' of ' + render(entity.selector);
-    }
-    else if (entity.type === 'Substitution') {
-        return "$".concat(escapeIdentifier(entity.name));
-    }
-    throw new Error("Unknown type specified to render method: ".concat(entity.type, "."));
-}
-
-;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/ast.js
-var ast_assign = (undefined && undefined.__assign) || function () {
-    ast_assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return ast_assign.apply(this, arguments);
-};
-function astMethods(type) {
-    return function (generatorName, checkerName) {
-        var _a;
-        return (_a = {},
-            _a[generatorName] = function (props) { return (ast_assign({ type: type }, props)); },
-            _a[checkerName] = function (entity) {
-                return typeof entity === 'object' && entity !== null && entity.type === type;
-            },
-            _a);
-    };
-}
-/**
- * AST structure generators and matchers.
- * For instance, `ast.selector({rules: [...]})` creates AstSelector and `ast.isSelector(...)` checks if
- * AstSelector was specified.
- *
- * @example
- *
- * // Represents CSS selector: ns|div#user-34.user.user-active[role="button"]:lang(en)::before > *
- * const selector = ast.selector({
- *     rules: [
- *         ast.rule({
- *             items: [
- *                 ast.tagName({name: 'div', namespace: ast.namespaceName({name: 'ns'})}),
- *                 ast.id({name: 'user-34'}),
- *                 ast.className({name: 'user'}),
- *                 ast.className({name: 'user-active'}),
- *                 ast.attribute({
- *                     name: 'role',
- *                     operator: '=',
- *                     value: ast.string({value: 'button'})
- *                 }),
- *                 ast.pseudoClass({
- *                     name: 'lang',
- *                     argument: ast.string({value: 'en'})
- *                 }),
- *                 ast.pseudoElement({name: 'before'})
- *             ],
- *             nestedRule: ast.rule({combinator: '>', items: [ast.wildcardTag()]})
- *         })
- *     ]
- * });
- * console.log(ast.isSelector(selector)); // prints true
- * console.log(ast.isRule(selector)); // prints false
- */
-var ast = ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign(ast_assign({}, astMethods('Selector')('selector', 'isSelector')), astMethods('Rule')('rule', 'isRule')), astMethods('TagName')('tagName', 'isTagName')), astMethods('Id')('id', 'isId')), astMethods('ClassName')('className', 'isClassName')), astMethods('WildcardTag')('wildcardTag', 'isWildcardTag')), astMethods('NamespaceName')('namespaceName', 'isNamespaceName')), astMethods('WildcardNamespace')('wildcardNamespace', 'isWildcardNamespace')), astMethods('NoNamespace')('noNamespace', 'isNoNamespace')), astMethods('Attribute')('attribute', 'isAttribute')), astMethods('PseudoClass')('pseudoClass', 'isPseudoClass')), astMethods('PseudoElement')('pseudoElement', 'isPseudoElement')), astMethods('String')('string', 'isString')), astMethods('Formula')('formula', 'isFormula')), astMethods('FormulaOfSelector')('formulaOfSelector', 'isFormulaOfSelector')), astMethods('Substitution')('substitution', 'isSubstitution'));
-
-;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/index.js
-
-
-
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/parse.js
-/**
- * @typedef {import('css-selector-parser').AstSelector} AstSelector
- */
-
-
-
-const cssSelectorParse = createParser({syntax: 'selectors-4'})
-
-/**
- * @param {string} selector
- * @returns {AstSelector}
- */
-function lib_parse_parse(selector) {
-  if (typeof selector !== 'string') {
-    throw new TypeError('Expected `string` as selector, not `' + selector + '`')
-  }
-
-  return cssSelectorParse(selector)
-}
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/util.js
-/**
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- */
-
-
-
-/**
- * TypeScript helper to check if something is indexable (any object is
- * indexable in JavaScript).
- *
- * @param {unknown} value
- *   Thing to check.
- * @returns {asserts value is Record<string, unknown>}
- *   Nothing.
- * @throws {Error}
- *   When `value` is not an object.
- */
-function indexable(value) {
-  // Always called when something is an object, this is just for TS.
-  /* c8 ignore next 3 */
-  if (!value || typeof value !== 'object') {
-    unreachable('Expected object')
-  }
-}
-
-/**
- * @param {Node} node
- * @returns {node is Parent}
- */
-function util_parent(node) {
-  indexable(node)
-  return Array.isArray(node.children)
-}
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/attribute.js
-/**
- * @typedef {import('css-selector-parser').AstAttribute} AstAttribute
- * @typedef {import('css-selector-parser').AstRule} AstRule
- * @typedef {import('./types.js').Node} Node
- */
-
-
-
-
-/**
- * @param {AstAttribute} query
- *   Query.
- * @param {Node} node
- *   Node.
- * @returns {boolean}
- *   Whether `node` matches `query`.
- */
-
-function attribute(query, node) {
-  indexable(node)
-  const value = node[query.name]
-
-  // Exists.
-  if (!query.value) {
-    return value !== null && value !== undefined
-  }
-
-  default_ok(query.value.type === 'String', 'expected plain string')
-  let key = query.value.value
-  let normal = value === null || value === undefined ? undefined : String(value)
-
-  // Case-sensitivity.
-  if (query.caseSensitivityModifier === 'i') {
-    key = key.toLowerCase()
-
-    if (normal) {
-      normal = normal.toLowerCase()
-    }
-  }
-
-  if (value !== undefined) {
-    switch (query.operator) {
-      // Exact.
-      case '=': {
-        return typeof normal === 'string' && key === normal
-      }
-
-      // Ends.
-      case '$=': {
-        return typeof value === 'string' && value.slice(-key.length) === key
-      }
-
-      // Contains.
-      case '*=': {
-        return typeof value === 'string' && value.includes(key)
-      }
-
-      // Begins.
-      case '^=': {
-        return typeof value === 'string' && key === value.slice(0, key.length)
-      }
-
-      // Space-separated list.
-      case '~=': {
-        // type-coverage:ignore-next-line -- some bug with TS.
-        return (Array.isArray(value) && value.includes(key)) || normal === key
-      }
-      // Other values are not yet supported by CSS.
-      // No default
-    }
-  }
-
-  return false
-}
-
-;// CONCATENATED MODULE: ./node_modules/nth-check/lib/esm/parse.js
-// Following http://www.w3.org/TR/css3-selectors/#nth-child-pseudo
-// Whitespace as per https://www.w3.org/TR/selectors-3/#lex is " \t\r\n\f"
-const whitespace = new Set([9, 10, 12, 13, 32]);
-const ZERO = "0".charCodeAt(0);
-const NINE = "9".charCodeAt(0);
-/**
- * Parses an expression.
- *
- * @throws An `Error` if parsing fails.
- * @returns An array containing the integer step size and the integer offset of the nth rule.
- * @example nthCheck.parse("2n+3"); // returns [2, 3]
- */
-function esm_parse_parse(formula) {
-    formula = formula.trim().toLowerCase();
-    if (formula === "even") {
-        return [2, 0];
-    }
-    else if (formula === "odd") {
-        return [2, 1];
-    }
-    // Parse [ ['-'|'+']? INTEGER? {N} [ S* ['-'|'+'] S* INTEGER ]?
-    let idx = 0;
-    let a = 0;
-    let sign = readSign();
-    let number = readNumber();
-    if (idx < formula.length && formula.charAt(idx) === "n") {
-        idx++;
-        a = sign * (number !== null && number !== void 0 ? number : 1);
-        skipWhitespace();
-        if (idx < formula.length) {
-            sign = readSign();
-            skipWhitespace();
-            number = readNumber();
-        }
-        else {
-            sign = number = 0;
-        }
-    }
-    // Throw if there is anything else
-    if (number === null || idx < formula.length) {
-        throw new Error(`n-th rule couldn't be parsed ('${formula}')`);
-    }
-    return [a, sign * number];
-    function readSign() {
-        if (formula.charAt(idx) === "-") {
-            idx++;
-            return -1;
-        }
-        if (formula.charAt(idx) === "+") {
-            idx++;
-        }
-        return 1;
-    }
-    function readNumber() {
-        const start = idx;
-        let value = 0;
-        while (idx < formula.length &&
-            formula.charCodeAt(idx) >= ZERO &&
-            formula.charCodeAt(idx) <= NINE) {
-            value = value * 10 + (formula.charCodeAt(idx) - ZERO);
-            idx++;
-        }
-        // Return `null` if we didn't read anything.
-        return idx === start ? null : value;
-    }
-    function skipWhitespace() {
-        while (idx < formula.length &&
-            whitespace.has(formula.charCodeAt(idx))) {
-            idx++;
-        }
-    }
-}
-//# sourceMappingURL=parse.js.map
-// EXTERNAL MODULE: ./node_modules/boolbase/index.js
-var boolbase = __nccwpck_require__(4159);
-;// CONCATENATED MODULE: ./node_modules/nth-check/lib/esm/compile.js
-
-/**
- * Returns a function that checks if an elements index matches the given rule
- * highly optimized to return the fastest solution.
- *
- * @param parsed A tuple [a, b], as returned by `parse`.
- * @returns A highly optimized function that returns whether an index matches the nth-check.
- * @example
- *
- * ```js
- * const check = nthCheck.compile([2, 3]);
- *
- * check(0); // `false`
- * check(1); // `false`
- * check(2); // `true`
- * check(3); // `false`
- * check(4); // `true`
- * check(5); // `false`
- * check(6); // `true`
- * ```
- */
-function compile(parsed) {
-    const a = parsed[0];
-    // Subtract 1 from `b`, to convert from one- to zero-indexed.
-    const b = parsed[1] - 1;
-    /*
-     * When `b <= 0`, `a * n` won't be lead to any matches for `a < 0`.
-     * Besides, the specification states that no elements are
-     * matched when `a` and `b` are 0.
-     *
-     * `b < 0` here as we subtracted 1 from `b` above.
-     */
-    if (b < 0 && a <= 0)
-        return boolbase.falseFunc;
-    // When `a` is in the range -1..1, it matches any element (so only `b` is checked).
-    if (a === -1)
-        return (index) => index <= b;
-    if (a === 0)
-        return (index) => index === b;
-    // When `b <= 0` and `a === 1`, they match any element.
-    if (a === 1)
-        return b < 0 ? boolbase.trueFunc : (index) => index >= b;
-    /*
-     * Otherwise, modulo can be used to check if there is a match.
-     *
-     * Modulo doesn't care about the sign, so let's use `a`s absolute value.
-     */
-    const absA = Math.abs(a);
-    // Get `b mod a`, + a if this is negative.
-    const bMod = ((b % absA) + absA) % absA;
-    return a > 1
-        ? (index) => index >= b && index % absA === bMod
-        : (index) => index <= b && index % absA === bMod;
-}
-/**
- * Returns a function that produces a monotonously increasing sequence of indices.
- *
- * If the sequence has an end, the returned function will return `null` after
- * the last index in the sequence.
- *
- * @param parsed A tuple [a, b], as returned by `parse`.
- * @returns A function that produces a sequence of indices.
- * @example <caption>Always increasing (2n+3)</caption>
- *
- * ```js
- * const gen = nthCheck.generate([2, 3])
- *
- * gen() // `1`
- * gen() // `3`
- * gen() // `5`
- * gen() // `8`
- * gen() // `11`
- * ```
- *
- * @example <caption>With end value (-2n+10)</caption>
- *
- * ```js
- *
- * const gen = nthCheck.generate([-2, 5]);
- *
- * gen() // 0
- * gen() // 2
- * gen() // 4
- * gen() // null
- * ```
- */
-function compile_generate(parsed) {
-    const a = parsed[0];
-    // Subtract 1 from `b`, to convert from one- to zero-indexed.
-    let b = parsed[1] - 1;
-    let n = 0;
-    // Make sure to always return an increasing sequence
-    if (a < 0) {
-        const aPos = -a;
-        // Get `b mod a`
-        const minValue = ((b % aPos) + aPos) % aPos;
-        return () => {
-            const val = minValue + aPos * n++;
-            return val > b ? null : val;
-        };
-    }
-    if (a === 0)
-        return b < 0
-            ? // There are no result — always return `null`
-                () => null
-            : // Return `b` exactly once
-                () => (n++ === 0 ? b : null);
-    if (b < 0) {
-        b += a * Math.ceil(-b / a);
-    }
-    return () => a * n++ + b;
-}
-//# sourceMappingURL=compile.js.map
-;// CONCATENATED MODULE: ./node_modules/nth-check/lib/esm/index.js
-
-
-
-/**
- * Parses and compiles a formula to a highly optimized function.
- * Combination of {@link parse} and {@link compile}.
- *
- * If the formula doesn't match any elements,
- * it returns [`boolbase`](https://github.com/fb55/boolbase)'s `falseFunc`.
- * Otherwise, a function accepting an _index_ is returned, which returns
- * whether or not the passed _index_ matches the formula.
- *
- * Note: The nth-rule starts counting at `1`, the returned function at `0`.
- *
- * @param formula The formula to compile.
- * @example
- * const check = nthCheck("2n+3");
- *
- * check(0); // `false`
- * check(1); // `false`
- * check(2); // `true`
- * check(3); // `false`
- * check(4); // `true`
- * check(5); // `false`
- * check(6); // `true`
- */
-function nthCheck(formula) {
-    return compile(esm_parse_parse(formula));
-}
-/**
- * Parses and compiles a formula to a generator that produces a sequence of indices.
- * Combination of {@link parse} and {@link generate}.
- *
- * @param formula The formula to compile.
- * @returns A function that produces a sequence of indices.
- * @example <caption>Always increasing</caption>
- *
- * ```js
- * const gen = nthCheck.sequence('2n+3')
- *
- * gen() // `1`
- * gen() // `3`
- * gen() // `5`
- * gen() // `8`
- * gen() // `11`
- * ```
- *
- * @example <caption>With end value</caption>
- *
- * ```js
- *
- * const gen = nthCheck.sequence('-2n+5');
- *
- * gen() // 0
- * gen() // 2
- * gen() // 4
- * gen() // null
- * ```
- */
-function sequence(formula) {
-    return generate(parse(formula));
-}
-//# sourceMappingURL=index.js.map
-;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/pseudo.js
-/**
- * @typedef {import('css-selector-parser').AstPseudoClass} AstPseudoClass
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- * @typedef {import('./types.js').SelectState} SelectState
- */
-
-
-
-
-
-
-
-/** @type {import('nth-check').default} */
-// @ts-expect-error: `nth-check` types are wrong.
-const pseudo_nthCheck = nthCheck["default"] || nthCheck
-
-/** @type {(rule: AstPseudoClass, node: Node, index: number | undefined, parent: Parent | undefined, state: SelectState) => boolean} */
-const pseudo = zwitch('name', {
-  // @ts-expect-error: always known.
-  unknown: unknownPseudo,
-  invalid: invalidPseudo,
-  handlers: {
-    is: pseudo_is,
-    blank: pseudo_empty,
-    empty: pseudo_empty,
-    'first-child': firstChild,
-    'first-of-type': firstOfType,
-    has,
-    'last-child': lastChild,
-    'last-of-type': lastOfType,
-    not,
-    'nth-child': nthChild,
-    'nth-last-child': nthLastChild,
-    'nth-of-type': nthOfType,
-    'nth-last-of-type': nthLastOfType,
-    'only-child': onlyChild,
-    'only-of-type': onlyOfType,
-    root: pseudo_root,
-    scope
-  }
+const fault = Object.assign(create(Error), {
+  eval: create(EvalError),
+  range: create(RangeError),
+  reference: create(ReferenceError),
+  syntax: create(SyntaxError),
+  type: create(TypeError),
+  uri: create(URIError)
 })
 
 /**
- * Check whether a node matches an `:empty` pseudo.
+ * Create a new `EConstructor`, with the formatted `format` as a first argument.
  *
- * @param {AstPseudoClass} _1
- * @param {Node} node
- * @returns {boolean}
+ * @template {Error} Fault
+ * @template {new (reason: string) => Fault} Class
+ * @param {Class} Constructor
  */
-function pseudo_empty(_1, node) {
-  return util_parent(node) ? node.children.length === 0 : !('value' in node)
-}
+function create(Constructor) {
+  /** @type {string} */
+  // @ts-expect-error
+  FormattedError.displayName = Constructor.displayName || Constructor.name
 
-/**
- * Check whether a node matches a `:first-child` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function firstChild(query, _1, _2, _3, state) {
-  assertDeep(state, query)
-  return state.nodeIndex === 0 // Specifically `0`, not falsey.
-}
+  return FormattedError
 
-/**
- * Check whether a node matches a `:first-of-type` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function firstOfType(query, _1, _2, _3, state) {
-  assertDeep(state, query)
-  return state.typeIndex === 0
-}
-
-/**
- * @param {AstPseudoClass} query
- * @param {Node} node
- * @param {number | undefined} _1
- * @param {Parent | undefined} _2
- * @param {SelectState} state
- * @returns {boolean}
- */
-function has(query, node, _1, _2, state) {
-  const argument = query.argument
-
-  /* c8 ignore next 3 -- never happens with our config */
-  if (!argument || argument.type !== 'Selector') {
-    unreachable('`:has` has selectors')
-  }
-
-  const fragment = {type: 'root', children: util_parent(node) ? node.children : []}
-  /** @type {SelectState} */
-  const childState = {
-    ...state,
-    // Not found yet.
-    found: false,
-    // Do walk deep.
-    shallow: false,
-    // One result is enough.
-    one: true,
-    scopeNodes: [node],
-    results: [],
-    rootQuery: argument
-  }
-
-  walk_walk(childState, fragment)
-
-  return childState.results.length > 0
-}
-
-/**
- * Check whether a node matches a `:last-child` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function lastChild(query, _1, _2, _3, state) {
-  assertDeep(state, query)
-  return (
-    typeof state.nodeCount === 'number' &&
-    state.nodeIndex === state.nodeCount - 1
-  )
-}
-
-/**
- * Check whether a node matches a `:last-of-type` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function lastOfType(query, _1, _2, _3, state) {
-  assertDeep(state, query)
-  return (
-    typeof state.typeCount === 'number' &&
-    state.typeIndex === state.typeCount - 1
-  )
-}
-
-/**
- * Check whether a node `:is` further selectors.
- *
- * @param {AstPseudoClass} query
- * @param {Node} node
- * @param {number | undefined} _1
- * @param {Parent | undefined} _2
- * @param {SelectState} state
- * @returns {boolean}
- */
-function pseudo_is(query, node, _1, _2, state) {
-  const argument = query.argument
-
-  /* c8 ignore next 3 -- never happens with our config */
-  if (!argument || argument.type !== 'Selector') {
-    unreachable('`:is` has selectors')
-  }
-
-  /** @type {SelectState} */
-  const childState = {
-    ...state,
-    // Not found yet.
-    found: false,
-    // Do walk deep.
-    shallow: false,
-    // One result is enough.
-    one: true,
-    scopeNodes: [node],
-    results: [],
-    rootQuery: argument
-  }
-
-  walk_walk(childState, node)
-
-  return childState.results[0] === node
-}
-
-/**
- * Check whether a node does `:not` match further selectors.
- *
- * @param {AstPseudoClass} query
- * @param {Node} node
- * @param {number | undefined} index
- * @param {Parent | undefined} parent
- * @param {SelectState} state
- * @returns {boolean}
- */
-function not(query, node, index, parent, state) {
-  return !pseudo_is(query, node, index, parent, state)
-}
-
-/**
- * Check whether a node matches an `:nth-child` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function nthChild(query, _1, _2, _3, state) {
-  const fn = getCachedNthCheck(query)
-  assertDeep(state, query)
-  return typeof state.nodeIndex === 'number' && fn(state.nodeIndex)
-}
-
-/**
- * Check whether a node matches an `:nth-last-child` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function nthLastChild(query, _1, _2, _3, state) {
-  const fn = getCachedNthCheck(query)
-  assertDeep(state, query)
-  return (
-    typeof state.nodeCount === 'number' &&
-    typeof state.nodeIndex === 'number' &&
-    fn(state.nodeCount - state.nodeIndex - 1)
-  )
-}
-
-/**
- * Check whether a node matches a `:nth-last-of-type` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function nthLastOfType(query, _1, _2, _3, state) {
-  const fn = getCachedNthCheck(query)
-  assertDeep(state, query)
-  return (
-    typeof state.typeIndex === 'number' &&
-    typeof state.typeCount === 'number' &&
-    fn(state.typeCount - 1 - state.typeIndex)
-  )
-}
-
-/**
- * Check whether a node matches an `:nth-of-type` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function nthOfType(query, _1, _2, _3, state) {
-  const fn = getCachedNthCheck(query)
-  assertDeep(state, query)
-  return typeof state.typeIndex === 'number' && fn(state.typeIndex)
-}
-
-/**
- * Check whether a node matches an `:only-child` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function onlyChild(query, _1, _2, _3, state) {
-  assertDeep(state, query)
-  return state.nodeCount === 1
-}
-
-/**
- * Check whether a node matches an `:only-of-type` pseudo.
- *
- * @param {AstPseudoClass} query
- * @param {Node} _1
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function onlyOfType(query, _1, _2, _3, state) {
-  assertDeep(state, query)
-  return state.typeCount === 1
-}
-
-/**
- * Check whether a node matches a `:root` pseudo.
- *
- * @param {AstPseudoClass} _1
- * @param {Node} node
- * @param {number | undefined} _2
- * @param {Parent | undefined} parent
- * @returns {boolean}
- */
-function pseudo_root(_1, node, _2, parent) {
-  return node && !parent
-}
-
-/**
- * Check whether a node matches a `:scope` pseudo.
- *
- * @param {AstPseudoClass} _1
- * @param {Node} node
- * @param {number | undefined} _2
- * @param {Parent | undefined} _3
- * @param {SelectState} state
- * @returns {boolean}
- */
-function scope(_1, node, _2, _3, state) {
-  return node && state.scopeNodes.includes(node)
-}
-
-// Shouldn’t be called, parser gives correct data.
-/* c8 ignore next 3 */
-function invalidPseudo() {
-  throw new Error('Invalid pseudo-selector')
-}
-
-/**
- * @param {AstPseudoClass} query
- * @returns {never}
- */
-function unknownPseudo(query) {
-  throw new Error('Unknown pseudo-selector `' + query.name + '`')
-}
-
-/**
- * @param {SelectState} state
- * @param {AstPseudoClass} query
- */
-function assertDeep(state, query) {
-  if (state.shallow) {
-    throw new Error('Cannot use `:' + query.name + '` without parent')
+  /**
+   * Create an error with a printf-like formatted message.
+   *
+   * @param {string|null} [format]
+   *   Template string.
+   * @param {...unknown} values
+   *   Values to render in `format`.
+   * @returns {Fault}
+   */
+  function FormattedError(format, ...values) {
+    /** @type {string} */
+    const reason = format ? format_format(format, ...values) : format
+    return new Constructor(reason)
   }
 }
 
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-frontmatter/lib/to-matters.js
 /**
- * @param {AstPseudoClass} query
- * @returns {(value: number) => boolean}
- */
-function getCachedNthCheck(query) {
-  /** @type {(value: number) => boolean} */
-  // @ts-expect-error: cache.
-  let fn = query._cachedFn
-
-  if (!fn) {
-    const value = query.argument
-    default_ok(value, 'expected `argument`')
-
-    if (value.type !== 'Formula') {
-      throw new Error(
-        'Expected `nth` formula, such as `even` or `2n+1` (`of` is not yet supported)'
-      )
-    }
-
-    fn = pseudo_nthCheck(value.a + 'n+' + value.b)
-    // @ts-expect-error: cache.
-    query._cachedFn = fn
-  }
-
-  return fn
-}
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/test.js
-/**
- * @typedef {import('css-selector-parser').AstRule} AstRule
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- * @typedef {import('./types.js').SelectState} SelectState
- */
-
-
-
-
-/**
- * @param {AstRule} query
- * @param {Node} node
- * @param {number | undefined} index
- * @param {Parent | undefined} parent
- * @param {SelectState} state
- * @returns {boolean}
- */
-function test(query, node, index, parent, state) {
-  for (const item of query.items) {
-    // eslint-disable-next-line unicorn/prefer-switch
-    if (item.type === 'Attribute') {
-      if (!attribute(item, node)) return false
-    } else if (item.type === 'Id') {
-      throw new Error('Invalid selector: id')
-    } else if (item.type === 'ClassName') {
-      throw new Error('Invalid selector: class')
-    } else if (item.type === 'PseudoClass') {
-      if (!pseudo(item, node, index, parent, state)) return false
-    } else if (item.type === 'PseudoElement') {
-      throw new Error('Invalid selector: `::' + item.name + '`')
-    } else if (item.type === 'TagName') {
-      if (item.name !== node.type) return false
-    } else {
-      // Otherwise `item.type` is `WildcardTag`, which matches.
-    }
-  }
-
-  return true
-}
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-select/lib/walk.js
-/**
- * @typedef {import('css-selector-parser').AstRule} AstRule
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Parent} Parent
- * @typedef {import('./types.js').SelectState} SelectState
+ * @typedef {'toml' | 'yaml'} Preset
+ *   Known name of a frontmatter style.
  *
- * @typedef Nest
- *   Rule sets by nesting.
- * @property {Array<AstRule> | undefined} descendant
- *   `a b`
- * @property {Array<AstRule> | undefined} directChild
- *   `a > b`
- * @property {Array<AstRule> | undefined} adjacentSibling
- *   `a + b`
- * @property {Array<AstRule> | undefined} generalSibling
- *   `a ~ b`
+ * @typedef Info
+ *   Sequence.
  *
- * @typedef Counts
- *   Info on nodes in a parent.
- * @property {number} count
- *   Number of nodes.
- * @property {Map<string, number>} types
- *   Number of nodes by type.
+ *   Depending on how this structure is used, it reflects a marker or a fence.
+ * @property {string} close
+ *   Closing.
+ * @property {string} open
+ *   Opening.
+ *
+ * @typedef MatterProps
+ *   Fields describing a kind of matter.
+ * @property {string} type
+ *   Node type to tokenize as.
+ * @property {boolean | null | undefined} [anywhere=false]
+ *   Whether matter can be found anywhere in the document, normally, only matter
+ *   at the start of the document is recognized.
+ *
+ *   > 👉 **Note**: using this is a terrible idea.
+ *   > It’s called frontmatter, not matter-in-the-middle or so.
+ *   > This makes your markdown less portable.
+ *
+ * @typedef MarkerProps
+ *   Marker configuration.
+ * @property {Info | string} marker
+ *   Character repeated 3 times, used as complete fences.
+ *
+ *   For example the character `'-'` will result in `'---'` being used as the
+ *   fence
+ *   Pass `open` and `close` to specify different characters for opening and
+ *   closing fences.
+ * @property {never} [fence]
+ *   If `marker` is set, `fence` must not be set.
+ *
+ * @typedef FenceProps
+ *   Fence configuration.
+ * @property {Info | string} fence
+ *   Complete fences.
+ *
+ *   This can be used when fences contain different characters or lengths
+ *   other than 3.
+ *   Pass `open` and `close` to interface to specify different characters for opening and
+ *   closing fences.
+ * @property {never} [marker]
+ *   If `fence` is set, `marker` must not be set.
+ *
+ * @typedef {(MatterProps & FenceProps) | (MatterProps & MarkerProps)} Matter
+ *   Fields describing a kind of matter.
+ *
+ *   > 👉 **Note**: using `anywhere` is a terrible idea.
+ *   > It’s called frontmatter, not matter-in-the-middle or so.
+ *   > This makes your markdown less portable.
+ *
+ *   > 👉 **Note**: `marker` and `fence` are mutually exclusive.
+ *   > If `marker` is set, `fence` must not be set, and vice versa.
+ *
+ * @typedef {Matter | Preset | Array<Matter | Preset>} Options
+ *   Configuration.
  */
 
 
-
-
-/** @type {Array<never>} */
-const walk_empty = []
-
-/**
- * Walk a tree.
- *
- * @param {SelectState} state
- * @param {Node | undefined} tree
- */
-function walk_walk(state, tree) {
-  if (tree) {
-    walk_one(state, [], tree, undefined, undefined, tree)
-  }
+const to_matters_own = {}.hasOwnProperty
+const markers = {
+  yaml: '-',
+  toml: '+'
 }
 
 /**
- * Check a node.
+ * Simplify options by normalizing them to an array of matters.
  *
- * @param {SelectState} state
- * @param {Array<AstRule>} currentRules
- * @param {Node} node
- * @param {number | undefined} index
- * @param {Parent | undefined} parentNode
- * @param {Node} tree
- * @returns {Nest}
+ * @param {Options | null | undefined} [options='yaml']
+ *   Configuration (default: `'yaml'`).
+ * @returns {Array<Matter>}
+ *   List of matters.
  */
-function walk_one(state, currentRules, node, index, parentNode, tree) {
-  /** @type {Nest} */
-  let nestResult = {
-    directChild: undefined,
-    descendant: undefined,
-    adjacentSibling: undefined,
-    generalSibling: undefined
-  }
-
-  let rootRules = state.rootQuery.rules
-
-  // Remove direct child rules if this is the root.
-  // This only happens for a `:has()` rule, which can be like
-  // `a:has(> b)`.
-  if (parentNode && parentNode !== tree) {
-    rootRules = state.rootQuery.rules.filter(
-      (d) =>
-        d.combinator === undefined ||
-        (d.combinator === '>' && parentNode === tree)
-    )
-  }
-
-  nestResult = applySelectors(
-    state,
-    // Try the root rules for this node too.
-    combine(currentRules, rootRules),
-    node,
-    index,
-    parentNode
-  )
-
-  // If this is a parent, and we want to delve into them, and we haven’t found
-  // our single result yet.
-  if (util_parent(node) && !state.shallow && !(state.one && state.found)) {
-    walk_all(state, nestResult, node, tree)
-  }
-
-  return nestResult
-}
-
-/**
- * Check a node.
- *
- * @param {SelectState} state
- * @param {Nest} nest
- * @param {Parent} node
- * @param {Node} tree
- * @returns {undefined}
- */
-function walk_all(state, nest, node, tree) {
-  const fromParent = combine(nest.descendant, nest.directChild)
-  /** @type {Array<AstRule> | undefined} */
-  let fromSibling
+function toMatters(options) {
+  /** @type {Array<Matter>} */
+  const result = []
   let index = -1
-  /**
-   * Total counts.
-   * @type {Counts}
-   */
-  const total = {count: 0, types: new Map()}
-  /**
-   * Counts of previous siblings.
-   * @type {Counts}
-   */
-  const before = {count: 0, types: new Map()}
 
-  while (++index < node.children.length) {
-    count(total, node.children[index])
+  /** @type {Array<Matter | Preset>} */
+  const presetsOrMatters = Array.isArray(options)
+    ? options
+    : options
+    ? [options]
+    : ['yaml']
+  while (++index < presetsOrMatters.length) {
+    result[index] = matter(presetsOrMatters[index])
+  }
+  return result
+}
+
+/**
+ * Simplify an option.
+ *
+ * @param {Matter | Preset} option
+ *   Configuration.
+ * @returns {Matter}
+ *   Matter.
+ */
+function matter(option) {
+  let result = option
+  if (typeof result === 'string') {
+    if (!to_matters_own.call(markers, result)) {
+      throw fault('Missing matter definition for `%s`', result)
+    }
+    result = {
+      type: result,
+      marker: markers[result]
+    }
+  } else if (typeof result !== 'object') {
+    throw fault('Expected matter to be an object, not `%j`', result)
+  }
+  if (!to_matters_own.call(result, 'type')) {
+    throw fault('Missing `type` in matter `%j`', result)
+  }
+  if (!to_matters_own.call(result, 'fence') && !to_matters_own.call(result, 'marker')) {
+    throw fault('Missing `marker` or `fence` in matter `%j`', result)
+  }
+  return result
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-frontmatter/node_modules/escape-string-regexp/index.js
+function escape_string_regexp_escapeStringRegexp(string) {
+	if (typeof string !== 'string') {
+		throw new TypeError('Expected a string');
+	}
+
+	// Escape characters with special meaning either inside or outside character sets.
+	// Use a simple backslash escape when it’s always valid, and a `\xnn` escape when the simpler form would be disallowed by Unicode patterns’ stricter grammar.
+	return string
+		.replace(/[|\\{}()[\]^$+*?.]/g, '\\$&')
+		.replace(/-/g, '\\x2d');
+}
+
+;// CONCATENATED MODULE: ./node_modules/mdast-util-frontmatter/lib/index.js
+/**
+ * @typedef {import('mdast').Literal} Literal
+ *
+ * @typedef {import('mdast-util-from-markdown').CompileContext} CompileContext
+ * @typedef {import('mdast-util-from-markdown').Extension} FromMarkdownExtension
+ * @typedef {import('mdast-util-from-markdown').Handle} FromMarkdownHandle
+ * @typedef {import('mdast-util-to-markdown').Options} ToMarkdownExtension
+ *
+ * @typedef {import('micromark-extension-frontmatter').Info} Info
+ * @typedef {import('micromark-extension-frontmatter').Matter} Matter
+ * @typedef {import('micromark-extension-frontmatter').Options} Options
+ */
+
+
+
+
+
+/**
+ * Create an extension for `mdast-util-from-markdown`.
+ *
+ * @param {Options | null | undefined} [options]
+ *   Configuration (optional).
+ * @returns {FromMarkdownExtension}
+ *   Extension for `mdast-util-from-markdown`.
+ */
+function frontmatterFromMarkdown(options) {
+  const matters = toMatters(options)
+  /** @type {FromMarkdownExtension['enter']} */
+  const enter = {}
+  /** @type {FromMarkdownExtension['exit']} */
+  const exit = {}
+  let index = -1
+
+  while (++index < matters.length) {
+    const matter = matters[index]
+    enter[matter.type] = lib_opener(matter)
+    exit[matter.type] = lib_close
+    exit[matter.type + 'Value'] = value
   }
 
-  index = -1
+  return {enter, exit}
+}
 
-  while (++index < node.children.length) {
-    const child = node.children[index]
-    // Uppercase to prevent prototype polution, injecting `constructor` or so.
-    const name = child.type.toUpperCase()
-    // Before counting further nodes:
-    state.nodeIndex = before.count
-    state.typeIndex = before.types.get(name) || 0
-    // After counting all nodes.
-    state.nodeCount = total.count
-    state.typeCount = total.types.get(name)
+/**
+ * @param {Matter} matter
+ * @returns {FromMarkdownHandle} enter
+ */
+function lib_opener(matter) {
+  return open
 
-    // Only apply if this is a parent.
-    const forSibling = combine(fromParent, fromSibling)
-    const nest = walk_one(state, forSibling, node.children[index], index, node, tree)
-    fromSibling = combine(nest.generalSibling, nest.adjacentSibling)
-
-    // We found one thing, and one is enough.
-    if (state.one && state.found) {
-      break
-    }
-
-    count(before, node.children[index])
+  /**
+   * @this {CompileContext}
+   * @type {FromMarkdownHandle}
+   */
+  function open(token) {
+    // @ts-expect-error: custom.
+    this.enter({type: matter.type, value: ''}, token)
+    this.buffer()
   }
 }
 
 /**
- * Apply selectors to a node.
- *
- * @param {SelectState} state
- *   Current state.
- * @param {Array<AstRule>} rules
- *   Rules to apply.
- * @param {Node} node
- *   Node to apply rules to.
- * @param {number | undefined} index
- *   Index of node in parent.
- * @param {Parent | undefined} parent
- *   Parent of node.
- * @returns {Nest}
- *   Further rules.
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
  */
-function applySelectors(state, rules, node, index, parent) {
-  /** @type {Nest} */
-  const nestResult = {
-    directChild: undefined,
-    descendant: undefined,
-    adjacentSibling: undefined,
-    generalSibling: undefined
+function lib_close(token) {
+  const data = this.resume()
+  const node = this.stack[this.stack.length - 1]
+  ok('value' in node)
+  this.exit(token)
+  // Remove the initial and final eol.
+  node.value = data.replace(/^(\r?\n|\r)|(\r?\n|\r)$/g, '')
+}
+
+/**
+ * @this {CompileContext}
+ * @type {FromMarkdownHandle}
+ */
+function value(token) {
+  this.config.enter.data.call(this, token)
+  this.config.exit.data.call(this, token)
+}
+
+/**
+ * Create an extension for `mdast-util-to-markdown`.
+ *
+ * @param {Options | null | undefined} [options]
+ *   Configuration (optional).
+ * @returns {ToMarkdownExtension}
+ *   Extension for `mdast-util-to-markdown`.
+ */
+function frontmatterToMarkdown(options) {
+  /** @type {ToMarkdownExtension['unsafe']} */
+  const unsafe = []
+  /** @type {ToMarkdownExtension['handlers']} */
+  const handlers = {}
+  const matters = toMatters(options)
+  let index = -1
+
+  while (++index < matters.length) {
+    const matter = matters[index]
+
+    // @ts-expect-error: this can add custom frontmatter nodes.
+    // Typing those is the responsibility of the end user.
+    handlers[matter.type] = handler(matter)
+
+    const open = fence(matter, 'open')
+
+    unsafe.push({
+      atBreak: true,
+      character: open.charAt(0),
+      after: escape_string_regexp_escapeStringRegexp(open.charAt(1))
+    })
   }
-  let selectorIndex = -1
 
-  while (++selectorIndex < rules.length) {
-    const rule = rules[selectorIndex]
+  return {unsafe, handlers}
+}
 
-    // We found one thing, and one is enough.
-    if (state.one && state.found) {
-      break
+/**
+ * Create a handle that can serialize a frontmatter node as markdown.
+ *
+ * @param {Matter} matter
+ *   Structure.
+ * @returns {(node: Literal) => string} enter
+ *   Handler.
+ */
+function handler(matter) {
+  const open = fence(matter, 'open')
+  const close = fence(matter, 'close')
+
+  return handle
+
+  /**
+   * Serialize a frontmatter node as markdown.
+   *
+   * @param {Literal} node
+   *   Node to serialize.
+   * @returns {string}
+   *   Serialized node.
+   */
+  function handle(node) {
+    return open + (node.value ? '\n' + node.value : '') + '\n' + close
+  }
+}
+
+/**
+ * Get an `open` or `close` fence.
+ *
+ * @param {Matter} matter
+ *   Structure.
+ * @param {'close' | 'open'} prop
+ *   Field to get.
+ * @returns {string}
+ *   Fence.
+ */
+function fence(matter, prop) {
+  return matter.marker
+    ? pick(matter.marker, prop).repeat(3)
+    : // @ts-expect-error: They’re mutually exclusive.
+      pick(matter.fence, prop)
+}
+
+/**
+ * Take `open` or `close` fields when schema is an info object, or use the
+ * given value when it is a string.
+ *
+ * @param {Info | string} schema
+ *   Info object or value.
+ * @param {'close' | 'open'} prop
+ *   Field to get.
+ * @returns {string}
+ *   Thing to use for the opening or closing.
+ */
+function pick(schema, prop) {
+  return typeof schema === 'string' ? schema : schema[prop]
+}
+
+;// CONCATENATED MODULE: ./node_modules/micromark-extension-frontmatter/lib/syntax.js
+/**
+ * @typedef {import('micromark-util-types').Construct} Construct
+ * @typedef {import('micromark-util-types').ConstructRecord} ConstructRecord
+ * @typedef {import('micromark-util-types').Extension} Extension
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').TokenType} TokenType
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ *
+ * @typedef {import('./to-matters.js').Info} Info
+ * @typedef {import('./to-matters.js').Matter} Matter
+ * @typedef {import('./to-matters.js').Options} Options
+ */
+
+
+
+
+/**
+ * Create an extension for `micromark` to enable frontmatter syntax.
+ *
+ * @param {Options | null | undefined} [options='yaml']
+ *   Configuration (default: `'yaml'`).
+ * @returns {Extension}
+ *   Extension for `micromark` that can be passed in `extensions`, to
+ *   enable frontmatter syntax.
+ */
+function frontmatter(options) {
+  const matters = toMatters(options)
+  /** @type {ConstructRecord} */
+  const flow = {}
+  let index = -1
+  while (++index < matters.length) {
+    const matter = matters[index]
+    const code = syntax_fence(matter, 'open').charCodeAt(0)
+    const construct = createConstruct(matter)
+    const existing = flow[code]
+    if (Array.isArray(existing)) {
+      existing.push(construct)
+    } else {
+      // Never a single object, always an array.
+      flow[code] = [construct]
     }
+  }
+  return {
+    flow
+  }
+}
 
-    // When shallow, we don’t allow nested rules.
-    // Idea: we could allow a stack of parents?
-    // Might get quite complex though.
-    if (state.shallow && rule.nestedRule) {
-      throw new Error('Expected selector without nesting')
-    }
+/**
+ * @param {Matter} matter
+ * @returns {Construct}
+ */
+function createConstruct(matter) {
+  const anywhere = matter.anywhere
+  const frontmatterType = /** @type {TokenType} */ matter.type
+  const fenceType = /** @type {TokenType} */ frontmatterType + 'Fence'
+  const sequenceType = /** @type {TokenType} */ fenceType + 'Sequence'
+  const valueType = /** @type {TokenType} */ frontmatterType + 'Value'
+  const closingFenceConstruct = {
+    tokenize: tokenizeClosingFence,
+    partial: true
+  }
 
-    // If this rule matches:
-    if (test(rule, node, index, parent, state)) {
-      const nest = rule.nestedRule
+  /**
+   * Fence to look for.
+   *
+   * @type {string}
+   */
+  let buffer
+  let bufferIndex = 0
+  return {
+    tokenize: tokenizeFrontmatter,
+    concrete: true
+  }
 
-      // Are there more?
-      if (nest) {
-        /** @type {keyof Nest} */
-        const label =
-          nest.combinator === '+'
-            ? 'adjacentSibling'
-            : nest.combinator === '~'
-            ? 'generalSibling'
-            : nest.combinator === '>'
-            ? 'directChild'
-            : 'descendant'
-        add(nestResult, label, nest)
-      } else {
-        // We have a match!
-        state.found = true
+  /**
+   * @this {TokenizeContext}
+   * @type {Tokenizer}
+   */
+  function tokenizeFrontmatter(effects, ok, nok) {
+    const self = this
+    return start
 
-        if (!state.results.includes(node)) {
-          state.results.push(node)
+    /**
+     * Start of frontmatter.
+     *
+     * ```markdown
+     * > | ---
+     *     ^
+     *   | title: "Venus"
+     *   | ---
+     * ```
+     *
+     * @type {State}
+     */
+    function start(code) {
+      const position = self.now()
+      if (
+        // Indent not allowed.
+        position.column === 1 &&
+        // Normally, only allowed in first line.
+        (position.line === 1 || anywhere)
+      ) {
+        buffer = syntax_fence(matter, 'open')
+        bufferIndex = 0
+        if (code === buffer.charCodeAt(bufferIndex)) {
+          effects.enter(frontmatterType)
+          effects.enter(fenceType)
+          effects.enter(sequenceType)
+          return openSequence(code)
         }
       }
+      return nok(code)
     }
 
-    // Descendant.
-    if (rule.combinator === undefined) {
-      add(nestResult, 'descendant', rule)
+    /**
+     * In open sequence.
+     *
+     * ```markdown
+     * > | ---
+     *     ^
+     *   | title: "Venus"
+     *   | ---
+     * ```
+     *
+     * @type {State}
+     */
+    function openSequence(code) {
+      if (bufferIndex === buffer.length) {
+        effects.exit(sequenceType)
+        if (markdownSpace(code)) {
+          effects.enter('whitespace')
+          return openSequenceWhitespace(code)
+        }
+        return openAfter(code)
+      }
+      if (code === buffer.charCodeAt(bufferIndex++)) {
+        effects.consume(code)
+        return openSequence
+      }
+      return nok(code)
     }
-    // Adjacent.
-    else if (rule.combinator === '~') {
-      add(nestResult, 'generalSibling', rule)
+
+    /**
+     * In whitespace after open sequence.
+     *
+     * ```markdown
+     * > | ---␠
+     *        ^
+     *   | title: "Venus"
+     *   | ---
+     * ```
+     *
+     * @type {State}
+     */
+    function openSequenceWhitespace(code) {
+      if (markdownSpace(code)) {
+        effects.consume(code)
+        return openSequenceWhitespace
+      }
+      effects.exit('whitespace')
+      return openAfter(code)
     }
-    // Drop direct child (`>`), adjacent sibling (`+`).
+
+    /**
+     * After open sequence.
+     *
+     * ```markdown
+     * > | ---
+     *        ^
+     *   | title: "Venus"
+     *   | ---
+     * ```
+     *
+     * @type {State}
+     */
+    function openAfter(code) {
+      if (markdownLineEnding(code)) {
+        effects.exit(fenceType)
+        effects.enter('lineEnding')
+        effects.consume(code)
+        effects.exit('lineEnding')
+        // Get ready for closing fence.
+        buffer = syntax_fence(matter, 'close')
+        bufferIndex = 0
+        return effects.attempt(closingFenceConstruct, after, contentStart)
+      }
+
+      // EOF is not okay.
+      return nok(code)
+    }
+
+    /**
+     * Start of content chunk.
+     *
+     * ```markdown
+     *   | ---
+     * > | title: "Venus"
+     *     ^
+     *   | ---
+     * ```
+     *
+     * @type {State}
+     */
+    function contentStart(code) {
+      if (code === null || markdownLineEnding(code)) {
+        return contentEnd(code)
+      }
+      effects.enter(valueType)
+      return contentInside(code)
+    }
+
+    /**
+     * In content chunk.
+     *
+     * ```markdown
+     *   | ---
+     * > | title: "Venus"
+     *     ^
+     *   | ---
+     * ```
+     *
+     * @type {State}
+     */
+    function contentInside(code) {
+      if (code === null || markdownLineEnding(code)) {
+        effects.exit(valueType)
+        return contentEnd(code)
+      }
+      effects.consume(code)
+      return contentInside
+    }
+
+    /**
+     * End of content chunk.
+     *
+     * ```markdown
+     *   | ---
+     * > | title: "Venus"
+     *                   ^
+     *   | ---
+     * ```
+     *
+     * @type {State}
+     */
+    function contentEnd(code) {
+      // Require a closing fence.
+      if (code === null) {
+        return nok(code)
+      }
+
+      // Can only be an eol.
+      effects.enter('lineEnding')
+      effects.consume(code)
+      effects.exit('lineEnding')
+      return effects.attempt(closingFenceConstruct, after, contentStart)
+    }
+
+    /**
+     * After frontmatter.
+     *
+     * ```markdown
+     *   | ---
+     *   | title: "Venus"
+     * > | ---
+     *        ^
+     * ```
+     *
+     * @type {State}
+     */
+    function after(code) {
+      // `code` must be eol/eof.
+      effects.exit(frontmatterType)
+      return ok(code)
+    }
   }
 
-  return nestResult
-}
+  /** @type {Tokenizer} */
+  function tokenizeClosingFence(effects, ok, nok) {
+    let bufferIndex = 0
+    return closeStart
 
-/**
- * Combine two lists, if needed.
- *
- * This is optimized to create as few lists as possible.
- *
- * @param {Array<AstRule> | undefined} left
- * @param {Array<AstRule> | undefined} right
- * @returns {Array<AstRule>}
- */
-function combine(left, right) {
-  return left && right && left.length > 0 && right.length > 0
-    ? [...left, ...right]
-    : left && left.length > 0
-    ? left
-    : right && right.length > 0
-    ? right
-    : walk_empty
-}
+    /**
+     * Start of close sequence.
+     *
+     * ```markdown
+     *   | ---
+     *   | title: "Venus"
+     * > | ---
+     *     ^
+     * ```
+     *
+     * @type {State}
+     */
+    function closeStart(code) {
+      if (code === buffer.charCodeAt(bufferIndex)) {
+        effects.enter(fenceType)
+        effects.enter(sequenceType)
+        return closeSequence(code)
+      }
+      return nok(code)
+    }
 
-/**
- * Add a rule to a nesting map.
- *
- * @param {Nest} nest
- * @param {keyof Nest} field
- * @param {AstRule} rule
- */
-function add(nest, field, rule) {
-  const list = nest[field]
-  if (list) {
-    list.push(rule)
-  } else {
-    nest[field] = [rule]
+    /**
+     * In close sequence.
+     *
+     * ```markdown
+     *   | ---
+     *   | title: "Venus"
+     * > | ---
+     *     ^
+     * ```
+     *
+     * @type {State}
+     */
+    function closeSequence(code) {
+      if (bufferIndex === buffer.length) {
+        effects.exit(sequenceType)
+        if (markdownSpace(code)) {
+          effects.enter('whitespace')
+          return closeSequenceWhitespace(code)
+        }
+        return closeAfter(code)
+      }
+      if (code === buffer.charCodeAt(bufferIndex++)) {
+        effects.consume(code)
+        return closeSequence
+      }
+      return nok(code)
+    }
+
+    /**
+     * In whitespace after close sequence.
+     *
+     * ```markdown
+     * > | ---
+     *   | title: "Venus"
+     *   | ---␠
+     *        ^
+     * ```
+     *
+     * @type {State}
+     */
+    function closeSequenceWhitespace(code) {
+      if (markdownSpace(code)) {
+        effects.consume(code)
+        return closeSequenceWhitespace
+      }
+      effects.exit('whitespace')
+      return closeAfter(code)
+    }
+
+    /**
+     * After close sequence.
+     *
+     * ```markdown
+     *   | ---
+     *   | title: "Venus"
+     * > | ---
+     *        ^
+     * ```
+     *
+     * @type {State}
+     */
+    function closeAfter(code) {
+      if (code === null || markdownLineEnding(code)) {
+        effects.exit(fenceType)
+        return ok(code)
+      }
+      return nok(code)
+    }
   }
 }
 
 /**
- * Count a node.
+ * @param {Matter} matter
+ * @param {'close' | 'open'} prop
+ * @returns {string}
+ */
+function syntax_fence(matter, prop) {
+  return matter.marker
+    ? syntax_pick(matter.marker, prop).repeat(3)
+    : // @ts-expect-error: They’re mutually exclusive.
+      syntax_pick(matter.fence, prop)
+}
+
+/**
+ * @param {Info | string} schema
+ * @param {'close' | 'open'} prop
+ * @returns {string}
+ */
+function syntax_pick(schema, prop) {
+  return typeof schema === 'string' ? schema : schema[prop]
+}
+
+;// CONCATENATED MODULE: ./node_modules/remark-frontmatter/lib/index.js
+/// <reference types="remark-parse" />
+/// <reference types="remark-stringify" />
+
+/**
+ * @typedef {import('mdast').Root} Root
+ * @typedef {import('micromark-extension-frontmatter').Options} Options
+ * @typedef {import('unified').Processor<Root>} Processor
+ */
+
+
+
+
+/** @type {Options} */
+const remark_frontmatter_lib_emptyOptions = 'yaml'
+
+/**
+ * Add support for frontmatter.
  *
- * @param {Counts} counts
- *   Counts.
- * @param {Node} node
- *   Node.
+ * ###### Notes
+ *
+ * Doesn’t parse the data inside them: create your own plugin to do that.
+ *
+ * @param {Options | null | undefined} [options='yaml']
+ *   Configuration (default: `'yaml'`).
  * @returns {undefined}
  *   Nothing.
  */
-function count(counts, node) {
-  // Uppercase to prevent prototype polution, injecting `constructor` or so.
-  // Normalize because HTML is insensitive.
-  const name = node.type.toUpperCase()
-  const count = (counts.types.get(name) || 0) + 1
-  counts.count++
-  counts.types.set(name, count)
+function lib_remarkFrontmatter(options) {
+  // @ts-expect-error: TS is wrong about `this`.
+  // eslint-disable-next-line unicorn/no-this-assignment
+  const self = /** @type {Processor} */ (this)
+  const settings = options || remark_frontmatter_lib_emptyOptions
+  const data = self.data()
+
+  const micromarkExtensions =
+    data.micromarkExtensions || (data.micromarkExtensions = [])
+  const fromMarkdownExtensions =
+    data.fromMarkdownExtensions || (data.fromMarkdownExtensions = [])
+  const toMarkdownExtensions =
+    data.toMarkdownExtensions || (data.toMarkdownExtensions = [])
+
+  micromarkExtensions.push(frontmatter(settings))
+  fromMarkdownExtensions.push(frontmatterFromMarkdown(settings))
+  toMarkdownExtensions.push(frontmatterToMarkdown(settings))
 }
-
-;// CONCATENATED MODULE: ./node_modules/unist-util-select/index.js
-/**
- * @typedef {import('unist').Position} Position
- * @typedef {import('unist').Node} Node
- * @typedef {import('./lib/types.js').SelectState} SelectState
- */
-
-/**
- * @typedef {Record<string, unknown> & {type: string, position?: Position | undefined}} NodeLike
- */
-
-
-
-
-
-/**
- * Check that the given `node` matches `selector`.
- *
- * This only checks the node itself, not the surrounding tree.
- * Thus, nesting in selectors is not supported (`paragraph strong`,
- * `paragraph > strong`), neither are selectors like `:first-child`, etc.
- * This only checks that the given node matches the selector.
- *
- * @param {string} selector
- *   CSS selector, such as (`heading`, `link, linkReference`).
- * @param {Node | NodeLike | null | undefined} [node]
- *   Node that might match `selector`.
- * @returns {boolean}
- *   Whether `node` matches `selector`.
- */
-function matches(selector, node) {
-  const state = createState(selector, node)
-  state.one = true
-  state.shallow = true
-  walk(state, node || undefined)
-  return state.results.length > 0
-}
-
-/**
- * Select the first node that matches `selector` in the given `tree`.
- *
- * Searches the tree in *preorder*.
- *
- * @param {string} selector
- *   CSS selector, such as (`heading`, `link, linkReference`).
- * @param {Node | NodeLike | null | undefined} [tree]
- *   Tree to search.
- * @returns {Node | undefined}
- *   First node in `tree` that matches `selector` or `null` if nothing is
- *   found.
- *
- *   This could be `tree` itself.
- */
-function unist_util_select_select(selector, tree) {
-  const state = createState(selector, tree)
-  state.one = true
-  walk(state, tree || undefined)
-  return state.results[0]
-}
-
-/**
- * Select all nodes that match `selector` in the given `tree`.
- *
- * Searches the tree in *preorder*.
- *
- * @param {string} selector
- *   CSS selector, such as (`heading`, `link, linkReference`).
- * @param {Node | NodeLike | null | undefined} [tree]
- *   Tree to search.
- * @returns {Array<Node>}
- *   Nodes in `tree` that match `selector`.
- *
- *   This could include `tree` itself.
- */
-function selectAll(selector, tree) {
-  const state = createState(selector, tree)
-  walk_walk(state, tree || undefined)
-  return state.results
-}
-
-/**
- * @param {string} selector
- *   Selector to parse.
- * @param {Node | null | undefined} tree
- *   Tree to search.
- * @returns {SelectState}
- *   State.
- */
-function createState(selector, tree) {
-  return {
-    // State of the query.
-    rootQuery: lib_parse_parse(selector),
-    results: [],
-    scopeNodes: tree
-      ? util_parent(tree) &&
-        // Root in nlcst.
-        (tree.type === 'RootNode' || tree.type === 'root')
-        ? tree.children
-        : [tree]
-      : [],
-    one: false,
-    shallow: false,
-    found: false,
-    // State in the tree.
-    typeIndex: undefined,
-    nodeIndex: undefined,
-    typeCount: undefined,
-    nodeCount: undefined
-  }
-}
-
-;// CONCATENATED MODULE: ./src/ast.ts
-const mdastLiterals = (/* unused pure expression or super */ null && ([
-    'code',
-    'html',
-    'inlineCode',
-    'text',
-    'yaml',
-]));
-const literalsToCheck = [
-    'code',
-    'inlineCode',
-    'text',
-];
-const codeLangsToCheck = [
-    void 0,
-    null,
-];
-const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
-
-;// CONCATENATED MODULE: ./src/formatOutput.ts
-
-const oasPathPartsToPath = (pathParts) => `/${pathParts
-    .map(p => {
-    switch (p.type) {
-        case 'literal':
-            return p.value;
-        case 'parameter':
-            return `{${p.name}}`;
-    }
-})
-    .join('/')}`;
-const formatOutput = (failOutput, options) => {
-    if (failOutput.length === 0) {
-        return '### ✅No inconsistencies found between Open API specifiaction and Documentation!';
-    }
-    const oasOnly = failOutput
-        .flatMap(fail => {
-        if (fail.type !== 'only-in-oas')
-            return [];
-        return [
-            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.endpoint.pathParts)}\`](${options.oasPath})`,
-        ];
-    })
-        .join('\n\t');
-    const oasOnlySection = oasOnly.length > 0
-        ? `- ### 🟩Found in Open API specification, 🟥Not found in Documentation\n\t${oasOnly}`
-        : '';
-    const docOnly = failOutput
-        .flatMap(fail => {
-        if (fail.type !== 'only-in-doc')
-            return [];
-        return [
-            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.endpoint.line})`,
-        ];
-    })
-        .join('\n\t');
-    const docOnlySection = docOnly.length > 0
-        ? `- ### 🟥Not found in Open API specification, 🟩Found in Documentation\n\t${docOnly}`
-        : '';
-    const matchesWithInconsistencies = failOutput
-        .flatMap(fail => {
-        if (fail.type !== 'match-with-inconsistenties')
-            return [];
-        const inconsistencies = [
-            `- | Inconsistency type | Open API specification <br /> [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.docEndpoint.line}) |`,
-            '| --- | --- | --- |',
-            ...fail.inconsistencies.map(i => {
-                switch (i.type) {
-                    case 'method-mismatch':
-                        return `| Method mismatch | \`${fail.oasEndpoint.method.toUpperCase()}\` | \`${fail.docEndpoint.method.toUpperCase()}\` |`;
-                    case 'path-path-parameter-name-mismatch':
-                        const oasServerBasePath = (i.oasServerIndex
-                            ? fail.oasEndpoint.servers[i.oasServerIndex]?.basePath
-                            : null) ?? [];
-                        const oasFullPath = [
-                            ...oasServerBasePath,
-                            ...fail.oasEndpoint.pathParts,
-                        ];
-                        const oasMismatchedParam = oasFullPath.flatMap(p => p.type === 'parameter' ? [p.name] : [])[i.parameterIndex];
-                        const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
-                        external_assert_default()(oasMismatchedParam);
-                        external_assert_default()(docMismatchedParam);
-                        return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
-                    case 'host-mismatch':
-                        throw new Error('Host mismatch not implemented');
-                    case 'doc-scheme-not-supported-by-oas-server':
-                        throw new Error('Doc scheme not supported by oas server not implemented');
-                }
-            }),
-        ].join('\n\t\t');
-        return inconsistencies;
-    })
-        .join('\n\t');
-    const matchesWithInconsistenciesSection = matchesWithInconsistencies.length > 0
-        ? `- ### 🟩Found in Open API specification, 🟩Found in Documentation, 🟥Have Inconsistencies\n\t${matchesWithInconsistencies}`
-        : '';
-    return `
-I have identified the following possible instances of inconsistencies between [Open API specification](${options.oasPath}) and [Documentation](${options.docPath}):
-
-${oasOnlySection}
-${docOnlySection}
-${matchesWithInconsistenciesSection}
-
-**About**
-
-This is part of a research project that aims to detect API documentation inconsistencies in GitHub repositories automatically. I am evaluating the validity of the approach by identifying such inconsistencies in real-world repositories. 
-
-Hopefully, this is a step towards easier maintenance of API documentation. If you find this helpful, please consider updating the documentation to keep it in sync with the source code. I am also happy to assist with it, if appropriate. If this has not been useful, consider updating this issue with an explanation, so I can improve my approach. Thank you!
-    `;
-};
-
-;// CONCATENATED MODULE: ./src/utils.ts
-const objectKeys = (obj) => Object.keys(obj);
-const objectEntries = (obj) => Object.entries(obj);
-const mapIncrement = (map, key) => map.set(key, (map.get(key) ?? 0) + 1);
-const mapGetOrSetDefault = (map, key, def) => {
-    let value = map.get(key);
-    if (value === void 0) {
-        value = def;
-        map.set(key, value);
-    }
-    return value;
-};
-const makeKey = ([i1, i2]) => `${i1} ${i2}`;
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseProperty.js
-/**
- * The base implementation of `_.property` without support for deep paths.
- *
- * @private
- * @param {string} key The key of the property to get.
- * @returns {Function} Returns the new accessor function.
- */
-function baseProperty(key) {
-  return function(object) {
-    return object == null ? undefined : object[key];
-  };
-}
-
-/* harmony default export */ const _baseProperty = (baseProperty);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/unzip.js
-
-
-
-
-
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var unzip_nativeMax = Math.max;
-
-/**
- * This method is like `_.zip` except that it accepts an array of grouped
- * elements and creates an array regrouping the elements to their pre-zip
- * configuration.
- *
- * @static
- * @memberOf _
- * @since 1.2.0
- * @category Array
- * @param {Array} array The array of grouped elements to process.
- * @returns {Array} Returns the new array of regrouped elements.
- * @example
- *
- * var zipped = _.zip(['a', 'b'], [1, 2], [true, false]);
- * // => [['a', 1, true], ['b', 2, false]]
- *
- * _.unzip(zipped);
- * // => [['a', 'b'], [1, 2], [true, false]]
- */
-function unzip(array) {
-  if (!(array && array.length)) {
-    return [];
-  }
-  var length = 0;
-  array = _arrayFilter(array, function(group) {
-    if (lodash_es_isArrayLikeObject(group)) {
-      length = unzip_nativeMax(group.length, length);
-      return true;
-    }
-  });
-  return _baseTimes(length, function(index) {
-    return _arrayMap(array, _baseProperty(index));
-  });
-}
-
-/* harmony default export */ const lodash_es_unzip = (unzip);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/zip.js
-
-
-
-/**
- * Creates an array of grouped elements, the first of which contains the
- * first elements of the given arrays, the second of which contains the
- * second elements of the given arrays, and so on.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Array
- * @param {...Array} [arrays] The arrays to process.
- * @returns {Array} Returns the new array of grouped elements.
- * @example
- *
- * _.zip(['a', 'b'], [1, 2], [true, false]);
- * // => [['a', 1, true], ['b', 2, false]]
- */
-var zip = _baseRest(lodash_es_unzip);
-
-/* harmony default export */ const lodash_es_zip = (zip);
-
-;// CONCATENATED MODULE: ./src/matching.ts
-
-
-
-const addEdges = (graph, key, values, negate) => {
-    const neighbors = mapGetOrSetDefault(graph, key, []);
-    for (const val of values) {
-        neighbors.push(negate ? -(val + 1) : val);
-    }
-};
-const bfs = (graph, startNode, visited) => {
-    const queue = [];
-    const component = new Set();
-    for (let current = startNode; current !== void 0; current = queue.shift()) {
-        if (visited.has(current))
-            continue;
-        visited.add(current);
-        component.add(current);
-        const neighbors = graph.get(current) || [];
-        for (const neighbor of neighbors) {
-            if (!visited.has(neighbor)) {
-                queue.push(neighbor);
-            }
-        }
-    }
-    return component;
-};
-const getGroups = (oasIndexToDocIndices, docIndexToOasIndices) => {
-    const graph = new Map();
-    for (const [k, v] of oasIndexToDocIndices.entries()) {
-        addEdges(graph, k, v, true);
-    }
-    for (const [k, v] of docIndexToOasIndices.entries()) {
-        addEdges(graph, -(k + 1), v, false);
-    }
-    const visited = new Set();
-    const components = [];
-    for (const node of graph.keys()) {
-        if (!visited.has(node)) {
-            const component = bfs(graph, node, visited);
-            components.push(component);
-        }
-    }
-    // Format output as required
-    const result = [];
-    for (const component of components) {
-        const oasGroup = [];
-        const docGroup = [];
-        for (const node of component) {
-            if (node >= 0)
-                oasGroup.push(node);
-            else
-                docGroup.push(-node - 1);
-        }
-        result.push([oasGroup, docGroup]);
-    }
-    return result;
-};
-const evaluateConfiguration = (config, isOasIndexFirst, inconsistencyMap) => {
-    let totalInconsistencies = 0;
-    for (const [i1, i2] of config) {
-        if (i1 === void 0 || i2 === void 0)
-            continue;
-        const key = makeKey(isOasIndexFirst ? [i1, i2] : [i2, i1]);
-        const inconsistencies = inconsistencyMap.get(key) || [];
-        totalInconsistencies += inconsistencies.length;
-    }
-    return totalInconsistencies;
-};
-const permute = (arr) => {
-    if (arr.length <= 1)
-        return [arr];
-    const result = [];
-    for (const [i, elem] of arr.entries()) {
-        const restPerms = permute([...arr.slice(0, i), ...arr.slice(i + 1)]);
-        for (const perm of restPerms) {
-            result.push([elem, ...perm]);
-        }
-    }
-    return result;
-};
-const getBestMatches = (oasGroup, docGroup, inconsistencyMap) => {
-    const areMoreInOas = oasGroup.length > docGroup.length;
-    const perms = permute(areMoreInOas ? oasGroup : docGroup);
-    let minTotalInconsistencies = Infinity;
-    let bestConfiguration = [];
-    for (const perm of perms) {
-        const currentConfig = lodash_es_zip(perm, areMoreInOas ? docGroup : oasGroup);
-        const totalInconsistencies = evaluateConfiguration(currentConfig, areMoreInOas, inconsistencyMap);
-        if (totalInconsistencies >= minTotalInconsistencies)
-            continue;
-        minTotalInconsistencies = totalInconsistencies;
-        bestConfiguration = areMoreInOas
-            ? currentConfig
-            : currentConfig.map(([i2, i1]) => [i1, i2]);
-    }
-    return bestConfiguration;
-};
-const matchEndpoints = (groups, inconsistencyMap) => {
-    const matches = [];
-    for (const [oasGroup, docGroup] of groups) {
-        if (oasGroup.length === 1 && docGroup.length === 1) {
-            external_assert_default()(oasGroup[0] !== void 0);
-            external_assert_default()(docGroup[0] !== void 0);
-            matches.push([oasGroup[0], docGroup[0]]);
-        }
-        else {
-            const bestMatches = getBestMatches(oasGroup, docGroup, inconsistencyMap);
-            for (const [i1, i2] of bestMatches) {
-                if (i1 === void 0 || i2 === void 0)
-                    continue;
-                matches.push([i1, i2]);
-            }
-        }
-    }
-    return matches;
-};
-const findBestMatches = (oasIndexToDocIndices, docIndexToOasIndices, inconsistenciesMap) => {
-    const groups = getGroups(oasIndexToDocIndices, docIndexToOasIndices);
-    return matchEndpoints(groups, inconsistenciesMap);
-};
-
-// EXTERNAL MODULE: ./node_modules/openapi-types/dist/index.js
-var dist = __nccwpck_require__(5194);
-;// CONCATENATED MODULE: ./src/parsing/index.ts
-
-const methods = Object.values(dist/* OpenAPIV3.HttpMethods */.ZT.HttpMethods);
-const validSchemes = ['https', 'http', 'ws', 'wss'];
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/isString.js
-
-
-
-
-/** `Object#toString` result references. */
-var isString_stringTag = '[object String]';
-
-/**
- * Checks if `value` is classified as a `String` primitive or object.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a string, else `false`.
- * @example
- *
- * _.isString('abc');
- * // => true
- *
- * _.isString(1);
- * // => false
- */
-function isString(value) {
-  return typeof value == 'string' ||
-    (!lodash_es_isArray(value) && lodash_es_isObjectLike(value) && _baseGetTag(value) == isString_stringTag);
-}
-
-/* harmony default export */ const lodash_es_isString = (isString);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_trimmedEndIndex.js
-/** Used to match a single whitespace character. */
-var reWhitespace = /\s/;
-
-/**
- * Used by `_.trim` and `_.trimEnd` to get the index of the last non-whitespace
- * character of `string`.
- *
- * @private
- * @param {string} string The string to inspect.
- * @returns {number} Returns the index of the last non-whitespace character.
- */
-function trimmedEndIndex(string) {
-  var index = string.length;
-
-  while (index-- && reWhitespace.test(string.charAt(index))) {}
-  return index;
-}
-
-/* harmony default export */ const _trimmedEndIndex = (trimmedEndIndex);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseTrim.js
-
-
-/** Used to match leading whitespace. */
-var reTrimStart = /^\s+/;
-
-/**
- * The base implementation of `_.trim`.
- *
- * @private
- * @param {string} string The string to trim.
- * @returns {string} Returns the trimmed string.
- */
-function baseTrim(string) {
-  return string
-    ? string.slice(0, _trimmedEndIndex(string) + 1).replace(reTrimStart, '')
-    : string;
-}
-
-/* harmony default export */ const _baseTrim = (baseTrim);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/isSymbol.js
-
-
-
-/** `Object#toString` result references. */
-var isSymbol_symbolTag = '[object Symbol]';
-
-/**
- * Checks if `value` is classified as a `Symbol` primitive or object.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
- * @example
- *
- * _.isSymbol(Symbol.iterator);
- * // => true
- *
- * _.isSymbol('abc');
- * // => false
- */
-function isSymbol(value) {
-  return typeof value == 'symbol' ||
-    (lodash_es_isObjectLike(value) && _baseGetTag(value) == isSymbol_symbolTag);
-}
-
-/* harmony default export */ const lodash_es_isSymbol = (isSymbol);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/toNumber.js
-
-
-
-
-/** Used as references for various `Number` constants. */
-var NAN = 0 / 0;
-
-/** Used to detect bad signed hexadecimal string values. */
-var reIsBadHex = /^[-+]0x[0-9a-f]+$/i;
-
-/** Used to detect binary string values. */
-var reIsBinary = /^0b[01]+$/i;
-
-/** Used to detect octal string values. */
-var reIsOctal = /^0o[0-7]+$/i;
-
-/** Built-in method references without a dependency on `root`. */
-var freeParseInt = parseInt;
-
-/**
- * Converts `value` to a number.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to process.
- * @returns {number} Returns the number.
- * @example
- *
- * _.toNumber(3.2);
- * // => 3.2
- *
- * _.toNumber(Number.MIN_VALUE);
- * // => 5e-324
- *
- * _.toNumber(Infinity);
- * // => Infinity
- *
- * _.toNumber('3.2');
- * // => 3.2
- */
-function toNumber(value) {
-  if (typeof value == 'number') {
-    return value;
-  }
-  if (lodash_es_isSymbol(value)) {
-    return NAN;
-  }
-  if (lodash_es_isObject(value)) {
-    var other = typeof value.valueOf == 'function' ? value.valueOf() : value;
-    value = lodash_es_isObject(other) ? (other + '') : other;
-  }
-  if (typeof value != 'string') {
-    return value === 0 ? value : +value;
-  }
-  value = _baseTrim(value);
-  var isBinary = reIsBinary.test(value);
-  return (isBinary || reIsOctal.test(value))
-    ? freeParseInt(value.slice(2), isBinary ? 2 : 8)
-    : (reIsBadHex.test(value) ? NAN : +value);
-}
-
-/* harmony default export */ const lodash_es_toNumber = (toNumber);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/toFinite.js
-
-
-/** Used as references for various `Number` constants. */
-var INFINITY = 1 / 0,
-    MAX_INTEGER = 1.7976931348623157e+308;
-
-/**
- * Converts `value` to a finite number.
- *
- * @static
- * @memberOf _
- * @since 4.12.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {number} Returns the converted number.
- * @example
- *
- * _.toFinite(3.2);
- * // => 3.2
- *
- * _.toFinite(Number.MIN_VALUE);
- * // => 5e-324
- *
- * _.toFinite(Infinity);
- * // => 1.7976931348623157e+308
- *
- * _.toFinite('3.2');
- * // => 3.2
- */
-function toFinite(value) {
-  if (!value) {
-    return value === 0 ? value : 0;
-  }
-  value = lodash_es_toNumber(value);
-  if (value === INFINITY || value === -INFINITY) {
-    var sign = (value < 0 ? -1 : 1);
-    return sign * MAX_INTEGER;
-  }
-  return value === value ? value : 0;
-}
-
-/* harmony default export */ const lodash_es_toFinite = (toFinite);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/toInteger.js
-
-
-/**
- * Converts `value` to an integer.
- *
- * **Note:** This method is loosely based on
- * [`ToInteger`](http://www.ecma-international.org/ecma-262/7.0/#sec-tointeger).
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {number} Returns the converted integer.
- * @example
- *
- * _.toInteger(3.2);
- * // => 3
- *
- * _.toInteger(Number.MIN_VALUE);
- * // => 0
- *
- * _.toInteger(Infinity);
- * // => 1.7976931348623157e+308
- *
- * _.toInteger('3.2');
- * // => 3
- */
-function toInteger(value) {
-  var result = lodash_es_toFinite(value),
-      remainder = result % 1;
-
-  return result === result ? (remainder ? result - remainder : result) : 0;
-}
-
-/* harmony default export */ const lodash_es_toInteger = (toInteger);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseValues.js
-
-
-/**
- * The base implementation of `_.values` and `_.valuesIn` which creates an
- * array of `object` property values corresponding to the property names
- * of `props`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array} props The property names to get values for.
- * @returns {Object} Returns the array of property values.
- */
-function baseValues(object, props) {
-  return _arrayMap(props, function(key) {
-    return object[key];
-  });
-}
-
-/* harmony default export */ const _baseValues = (baseValues);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/values.js
-
-
-
-/**
- * Creates an array of the own enumerable string keyed property values of `object`.
- *
- * **Note:** Non-object values are coerced to objects.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Object
- * @param {Object} object The object to query.
- * @returns {Array} Returns the array of property values.
- * @example
- *
- * function Foo() {
- *   this.a = 1;
- *   this.b = 2;
- * }
- *
- * Foo.prototype.c = 3;
- *
- * _.values(new Foo);
- * // => [1, 2] (iteration order is not guaranteed)
- *
- * _.values('hi');
- * // => ['h', 'i']
- */
-function values(object) {
-  return object == null ? [] : _baseValues(object, lodash_es_keys(object));
-}
-
-/* harmony default export */ const lodash_es_values = (values);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/includes.js
-
-
-
-
-
-
-/* Built-in method references for those with the same name as other `lodash` methods. */
-var includes_nativeMax = Math.max;
-
-/**
- * Checks if `value` is in `collection`. If `collection` is a string, it's
- * checked for a substring of `value`, otherwise
- * [`SameValueZero`](http://ecma-international.org/ecma-262/7.0/#sec-samevaluezero)
- * is used for equality comparisons. If `fromIndex` is negative, it's used as
- * the offset from the end of `collection`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Collection
- * @param {Array|Object|string} collection The collection to inspect.
- * @param {*} value The value to search for.
- * @param {number} [fromIndex=0] The index to search from.
- * @param- {Object} [guard] Enables use as an iteratee for methods like `_.reduce`.
- * @returns {boolean} Returns `true` if `value` is found, else `false`.
- * @example
- *
- * _.includes([1, 2, 3], 1);
- * // => true
- *
- * _.includes([1, 2, 3], 1, 2);
- * // => false
- *
- * _.includes({ 'a': 1, 'b': 2 }, 1);
- * // => true
- *
- * _.includes('abcd', 'bc');
- * // => true
- */
-function includes(collection, value, fromIndex, guard) {
-  collection = lodash_es_isArrayLike(collection) ? collection : lodash_es_values(collection);
-  fromIndex = (fromIndex && !guard) ? lodash_es_toInteger(fromIndex) : 0;
-
-  var length = collection.length;
-  if (fromIndex < 0) {
-    fromIndex = includes_nativeMax(length + fromIndex, 0);
-  }
-  return lodash_es_isString(collection)
-    ? (fromIndex <= length && collection.indexOf(value, fromIndex) > -1)
-    : (!!length && _baseIndexOf(collection, value, fromIndex) > -1);
-}
-
-/* harmony default export */ const lodash_es_includes = (includes);
 
 ;// CONCATENATED MODULE: ./src/parsing/markdown.ts
+
+
+
+
+
+
 
 
 const docCreateEndpoint = (method, originalPath, line) => {
@@ -97650,6 +99511,7 @@ const docCreateEndpoint = (method, originalPath, line) => {
                     type: 'parameter',
                     name: s.substring(1),
                 });
+                break;
             default:
                 if (s !== '')
                     pathParts.push({ type: 'literal', value: s });
@@ -97689,12 +99551,19 @@ const oasEndpointToDocRegex = (endpoint) => {
         const serverStart = s.schemes && s.host
             ? `(${s.schemes.join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
             : '';
-        const serverEnd = s.basePath ? pathPartsToRegexStr(s.basePath) : '';
+        const serverEnd = s.basePath
+            ? lodash_es_reduce(s.basePath, (acc, p, i, ps) => {
+                const regexStr = escapeRegexSpecial(pathPartsToRegexStr([p]));
+                return acc === ''
+                    ? `(/${regexStr})?`
+                    : `(${acc}/${regexStr})${i === ps.length - 1 ? '' : '?'}`;
+            }, '')
+            : '';
         const server = Boolean(serverStart) && Boolean(serverEnd)
-            ? `((${serverStart})?(/${serverEnd}))`
+            ? `((${serverStart})?${serverEnd})`
             : Boolean(serverStart)
                 ? `((${serverStart})?)`
-                : `(/${serverEnd})`;
+                : serverEnd;
         return server === '' ? [] : server;
     })
         .join('|');
@@ -97709,8 +99578,30 @@ const extractPath = (str) => {
     const path = match[0];
     return path;
 };
+const docParse = async (docPath) => {
+    const docFile = await read(docPath);
+    const docAST = remark_remark().use(lib_remarkFrontmatter).use(lib_remarkGfm).parse(docFile);
+    const tree = remark_remark().use(remark_sectionize).runSync(docAST);
+    return tree;
+};
+const docStringify = (tree) => remark()
+    .use(remarkGfm)
+    .use(remarkFrontmatter)
+    .use(remarkStringify, {
+    handlers: {
+        section: (node, _, state, info) => state.containerFlow(node, info),
+    },
+})
+    .stringify(tree);
 
+// EXTERNAL MODULE: ./node_modules/@apidevtools/swagger-parser/lib/index.js
+var lib = __nccwpck_require__(5999);
+var lib_default = /*#__PURE__*/__nccwpck_require__.n(lib);
+// EXTERNAL MODULE: ./node_modules/swagger2openapi/index.js
+var swagger2openapi = __nccwpck_require__(6280);
 ;// CONCATENATED MODULE: ./src/parsing/openapi.ts
+
+
 
 
 
@@ -97809,13 +99700,16 @@ const oasParseEndpoints = (oas) => {
     }
     return oasIdToEndpoint;
 };
+const oasParse = async (oasPath) => {
+    // TODO changed this from validate, should maybe show warnings if oas not valid
+    const oasDoc = await lib_default().dereference(oasPath);
+    const oas = isV2(oasDoc) ? (await (0,swagger2openapi.convertFile)(oasPath, {})).openapi : oasDoc;
+    return oas;
+};
 
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(1017);
 ;// CONCATENATED MODULE: ./src/main.ts
-
-
-
-
-
 
 
 
@@ -97837,16 +99731,9 @@ const run = async () => {
         const oasPath = core.getInput('openapi-path', { required: true });
         const docPath = core.getInput('doc-path', { required: true });
         const token = core.getInput('token');
-        // TODO changed this from validate, should maybe show warnings if oas not valid
-        const oasDoc = await lib_default().dereference(oasPath);
-        const oas = isV2(oasDoc)
-            ? (await (0,swagger2openapi.convertFile)(oasPath, {})).openapi
-            : oasDoc;
+        const oas = await oasParse(oasPath);
         const oasIdToEndpoint = oasParseEndpoints(oas);
-        const docAST = remark()
-            .use(remarkGfm)
-            .parse(await read(docPath));
-        const tree = remark().use(remark_sectionize).runSync(docAST);
+        const tree = await docParse(docPath);
         const oasIdToDocMatches = new Map([...oasIdToEndpoint.keys()].map(k => [k, []]));
         const docSelectorToMatchedNodes = new Map();
         for (const literal of literalsToCheck) {
@@ -97987,7 +99874,17 @@ const run = async () => {
             ...oasEndpoint.servers,
             {},
         ].some(s => {
-            const oasPath = [...(s.basePath ?? []), ...oasEndpoint.pathParts];
+            const basePath = s.basePath ?? [];
+            if (oasEndpoint.pathParts.length > docEndpoint.pathParts.length) {
+                return false;
+            }
+            const lengthDiff = basePath.length +
+                oasEndpoint.pathParts.length -
+                docEndpoint.pathParts.length;
+            if (lengthDiff < 0)
+                return false;
+            const partialBasePath = basePath.slice(lengthDiff);
+            const oasPath = [...partialBasePath, ...oasEndpoint.pathParts];
             return (oasPath.length === docEndpoint.pathParts.length &&
                 oasPath.every((oasP, i) => {
                     const docP = docEndpoint.pathParts[i];
@@ -98005,61 +99902,85 @@ const run = async () => {
                 if (oasEndpoint.method !== docEndpoint.method) {
                     inconsistencies.push({ type: 'method-mismatch' });
                 }
-                const partialMatchServers = oasEndpoint.servers.filter(s => (docEndpoint.scheme && s.schemes?.includes(docEndpoint.scheme)) ||
-                    (docEndpoint.host && s.host === docEndpoint.host) ||
-                    (s.basePath &&
-                        s.basePath.some(sPart => docEndpoint.pathParts.some(dPart => lodash_es_isEqual(sPart, dPart)))));
-                if (partialMatchServers.length > 1) {
-                    throw new Error('Multiple partially matching servers currently not supported');
-                }
-                const [partialMatchServer] = partialMatchServers;
-                if (partialMatchServer) {
-                    const { host, schemes } = partialMatchServer;
-                    if (docEndpoint.host && host !== docEndpoint.host) {
-                        inconsistencies.push({ type: 'host-mismatch', oasHost: host });
+                const serversInconsistencies = [...oasEndpoint.servers, void 0].map((s, i, arr) => {
+                    if (s &&
+                        !((docEndpoint.scheme &&
+                            s.schemes?.includes(docEndpoint.scheme)) ||
+                            (docEndpoint.host && s.host === docEndpoint.host) ||
+                            (s.basePath &&
+                                s.basePath.some(sPart => docEndpoint.pathParts.some(dPart => lodash_es_isEqual(sPart, dPart)))))) {
+                        return [s, null];
                     }
-                    if (docEndpoint.scheme &&
-                        schemes &&
-                        schemes.includes(docEndpoint.scheme)) {
-                        inconsistencies.push({
-                            type: 'doc-scheme-not-supported-by-oas-server',
-                        });
-                    }
-                }
-                const oasFullPathParts = oasEndpoint.pathParts.length < docEndpoint.pathParts.length
-                    ? [
-                        ...(partialMatchServer?.basePath ?? []),
-                        ...oasEndpoint.pathParts,
-                    ]
-                    : oasEndpoint.pathParts;
-                const oasServerIndex = oasEndpoint.servers.findIndex(s => lodash_es_isEqual(s, partialMatchServer));
-                if (oasFullPathParts.length === docEndpoint.pathParts.length) {
-                    let parameterIndex = -1;
-                    for (const [k, oasPart] of oasFullPathParts.entries()) {
-                        if (oasPart.type === 'parameter')
-                            parameterIndex++;
-                        const docPart = docEndpoint.pathParts[k];
-                        if (!docPart) {
-                            throw new Error('Expected doc path part to be defined');
+                    const serverInconsistencies = [];
+                    if (s) {
+                        const { host, schemes } = s;
+                        if (docEndpoint.host && host !== docEndpoint.host) {
+                            serverInconsistencies.push({
+                                type: 'host-mismatch',
+                                oasHost: host,
+                            });
                         }
-                        if (lodash_es_isEqual(oasPart, docPart))
-                            continue;
-                        if (oasPart.type === 'parameter' &&
-                            docPart.type === 'parameter' &&
-                            oasPart.name !== docPart.name) {
-                            inconsistencies.push({
-                                type: 'path-path-parameter-name-mismatch',
-                                parameterIndex,
-                                oasServerIndex: oasServerIndex === -1 ? null : oasServerIndex,
+                        if (docEndpoint.scheme &&
+                            schemes &&
+                            schemes.includes(docEndpoint.scheme)) {
+                            serverInconsistencies.push({
+                                type: 'doc-scheme-not-supported-by-oas-server',
                             });
                         }
                     }
-                }
+                    const basePath = s?.basePath ?? [];
+                    const lengthDiff = basePath.length +
+                        oasEndpoint.pathParts.length -
+                        docEndpoint.pathParts.length;
+                    if (lengthDiff >= 0) {
+                        const partialBasePath = basePath.slice(lengthDiff);
+                        const oasFullPathParts = [
+                            ...partialBasePath,
+                            ...oasEndpoint.pathParts,
+                        ];
+                        let parameterIndex = -1;
+                        for (const [k, oasPart] of oasFullPathParts.entries()) {
+                            if (oasPart.type === 'parameter')
+                                parameterIndex++;
+                            const docPart = docEndpoint.pathParts[k];
+                            if (!docPart) {
+                                throw new Error('Expected doc path part to be defined');
+                            }
+                            if (lodash_es_isEqual(oasPart, docPart))
+                                continue;
+                            if (oasPart.type === 'parameter' &&
+                                docPart.type === 'parameter' &&
+                                oasPart.name !== docPart.name) {
+                                serverInconsistencies.push({
+                                    type: 'path-path-parameter-name-mismatch',
+                                    parameterIndex,
+                                    oasServerIndex: i === arr.length - 1 ? null : i,
+                                });
+                            }
+                        }
+                    }
+                    return [s, serverInconsistencies];
+                });
+                const serverInconsistencies = serversInconsistencies.reduce((si1, si2) => {
+                    const [s1, i1] = si1;
+                    const [, i2] = si2;
+                    if (i1 === null || i1.length === 0)
+                        return si2;
+                    if (i2 === null || i2.length === 0)
+                        return si1;
+                    if (i1.length === i2.length) {
+                        return s1 === void 0 ? si1 : si2;
+                    }
+                    return i1.length > i2.length ? si2 : si1;
+                })?.[1];
                 const oasEndpointInconsistencies = unmatchedEndpointsTable[i];
                 if (!oasEndpointInconsistencies) {
                     throw new Error('Expected inconsistencies to be defined');
                 }
-                oasEndpointInconsistencies[j] = inconsistencies;
+                oasEndpointInconsistencies[j] = [
+                    ...inconsistencies,
+                    ...(serverInconsistencies ?? []),
+                ];
             }
         }
         const failOutput = [];
@@ -98152,8 +100073,9 @@ const run = async () => {
                 });
             }
         }
-        if (isTestEnv)
-            await (0,promises_namespaceObject.writeFile)('__tests__/output.md', output);
+        if (isTestEnv) {
+            await (0,promises_namespaceObject.writeFile)((0,external_path_.join)(import.meta.dir, 'tests', 'output.md'), output);
+        }
         if (failOutput.length > 0) {
             throw new Error(JSON.stringify(failOutput));
         }

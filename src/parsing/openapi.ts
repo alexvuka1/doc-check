@@ -1,11 +1,11 @@
+import SwaggerParser from '@apidevtools/swagger-parser';
 import { includes } from 'lodash-es';
 import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 import { objectEntries } from 'src/utils';
+import { convertFile } from 'swagger2openapi';
 import { OasEndpoint, OasServerInfo, Scheme, methods, validSchemes } from '.';
 
-export const isV2 = (
-  openapiDoc: OpenAPI.Document,
-): openapiDoc is OpenAPIV2.Document =>
+const isV2 = (openapiDoc: OpenAPI.Document): openapiDoc is OpenAPIV2.Document =>
   !!(openapiDoc as Partial<Pick<OpenAPIV2.Document, 'swagger'>>).swagger;
 
 const oasParseServers = (
@@ -105,4 +105,11 @@ export const oasParseEndpoints = (
     }
   }
   return oasIdToEndpoint;
+};
+
+export const oasParse = async (oasPath: string) => {
+  // TODO changed this from validate, should maybe show warnings if oas not valid
+  const oasDoc = await SwaggerParser.dereference(oasPath);
+  const oas = isV2(oasDoc) ? (await convertFile(oasPath, {})).openapi : oasDoc;
+  return oas;
 };

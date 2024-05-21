@@ -1,7 +1,7 @@
 import assert from 'assert';
+import { zip } from 'lodash-es';
 import { Inconsistency } from './parsing';
 import { makeKey, mapGetOrSetDefault } from './utils';
-import { zip } from 'lodash-es';
 
 const addEdges = (
   graph: Map<number, number[]>,

@@ -4,7 +4,7 @@ import type { Mock } from 'bun:test';
 import { expect } from 'bun:test';
 import { existsSync, mkdirSync } from 'fs';
 import { join, resolve } from 'path';
-import { FailOutput } from '../src/parsing';
+import { FailOutput } from '../parsing';
 
 type GetInputMock = Mock<typeof getInput>;
 type SetFailedMock = Mock<typeof setFailed>;
@@ -40,10 +40,19 @@ export const setupInputRepo = async (
   const githubBase = `https://github.com/${repoName}/blob/${sha}`;
   const pathOasGithub = `${githubBase}/${pathOas}`;
   const pathDocGithub = `${githubBase}/${pathDoc}`;
+
+  const dirPath = join(
+    import.meta.dir,
+    'data',
+    'repos',
+    repoName.replace('/', '__'),
+  );
+
   const [pathOasLocal, pathDocLocal] = await Promise.all([
-    getOrDownload(repoName, pathOasGithub),
-    getOrDownload(repoName, pathDocGithub),
+    getOrDownload(pathOasGithub, dirPath),
+    getOrDownload(pathDocGithub, dirPath),
   ]);
+
   getInputMock.mockImplementation((name: string): string => {
     switch (name) {
       case 'openapi-path':
@@ -59,18 +68,14 @@ export const setupInputRepo = async (
 };
 
 export const getOrDownload = async (
-  repoName: string,
   downloadUrl: string,
-  saveDirPath?: string,
+  saveDirPath: string,
 ) => {
   const fileName = downloadUrl.substring(downloadUrl.lastIndexOf('/') + 1);
 
-  const dirPath =
-    saveDirPath ??
-    join(import.meta.dir, 'data', 'repos', repoName.replace('/', '__'));
-  if (!existsSync(dirPath)) mkdirSync(dirPath);
+  mkdirSync(saveDirPath, { recursive: true });
 
-  const filePath = resolve(dirPath, fileName);
+  const filePath = resolve(saveDirPath, fileName);
   if (existsSync(filePath)) return filePath;
 
   const res = await fetch(`${downloadUrl}?raw=true`);

@@ -50,4 +50,5 @@ export const mapGetOrSetDefault = <K, V>(map: Map<K, V>, key: K, def: V) => {
   return value;
 };
 
-export const makeKey = ([i1, i2]: [number, number]): string => `${i1} ${i2}`;
+export const makeKey = ([i1, i2]: [string | number, string | number]): string =>
+  `${i1.toString()} ${i2.toString()}`;

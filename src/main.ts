@@ -3,7 +3,8 @@ import * as github from '@actions/github';
 import assert from 'assert';
 import { writeFile } from 'fs/promises';
 import { differenceWith, isEqual } from 'lodash-es';
-import { Node, RootContentMap } from 'mdast';
+import { Node } from 'mdast';
+import { join } from 'path';
 import { selectAll } from 'unist-util-select';
 import { visit } from 'unist-util-visit';
 import { visitParents } from 'unist-util-visit-parents';
@@ -27,7 +28,6 @@ import {
 } from './parsing/markdown';
 import { oasParse, oasParseEndpoints } from './parsing/openapi';
 import { makeKey, mapGetOrSetDefault } from './utils';
-import { join } from 'path';
 
 export const run = async () => {
   try {
@@ -169,7 +169,7 @@ export const run = async () => {
           )
         : null;
       if (docHasServer && !server) return false;
-      // Note assumes that the base path will be in the documentation path, which might not be the case in general
+
       return isEqual(
         [...(server?.basePath ?? []), ...oasEndpoint.pathParts],
         docEndpoint.pathParts,

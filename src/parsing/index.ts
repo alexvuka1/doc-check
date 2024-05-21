@@ -1,4 +1,4 @@
-import { OpenAPIV3 } from 'openapi-types';
+import { OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
 
 export const methods: `${OpenAPIV3.HttpMethods}`[] = Object.values(
   OpenAPIV3.HttpMethods,
@@ -16,6 +16,8 @@ export type BaseEndpoint = {
   pathParts: PathPart[];
   method: Method;
 };
+
+export type OasDocument = OpenAPIV3.Document | OpenAPIV3_1.Document;
 
 export type OasServerInfo = Partial<{
   schemes: Scheme[];

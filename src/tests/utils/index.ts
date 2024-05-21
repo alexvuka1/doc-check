@@ -4,7 +4,7 @@ import type { Mock } from 'bun:test';
 import { expect } from 'bun:test';
 import { existsSync, mkdirSync } from 'fs';
 import { join, resolve } from 'path';
-import { FailOutput } from '../parsing';
+import { FailOutput } from '../../parsing';
 
 type GetInputMock = Mock<typeof getInput>;
 type SetFailedMock = Mock<typeof setFailed>;

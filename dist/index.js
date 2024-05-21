@@ -69002,6 +69002,8 @@ function isEqual(value, other) {
 
 /* harmony default export */ const lodash_es_isEqual = (isEqual);
 
+// EXTERNAL MODULE: external "path"
+var external_path_ = __nccwpck_require__(1017);
 ;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/indexes.js
 var emptyMulticharIndex = {};
 var emptyRegularIndex = {};
@@ -72997,7 +72999,7 @@ const mapGetOrSetDefault = (map, key, def) => {
     }
     return value;
 };
-const makeKey = ([i1, i2]) => `${i1} ${i2}`;
+const makeKey = ([i1, i2]) => `${i1.toString()} ${i2.toString()}`;
 
 ;// CONCATENATED MODULE: ./src/matching.ts
 
@@ -99707,8 +99709,6 @@ const oasParse = async (oasPath) => {
     return oas;
 };
 
-// EXTERNAL MODULE: external "path"
-var external_path_ = __nccwpck_require__(1017);
 ;// CONCATENATED MODULE: ./src/main.ts
 
 
@@ -99837,7 +99837,6 @@ const run = async () => {
                 : null;
             if (docHasServer && !server)
                 return false;
-            // Note assumes that the base path will be in the documentation path, which might not be the case in general
             return lodash_es_isEqual([...(server?.basePath ?? []), ...oasEndpoint.pathParts], docEndpoint.pathParts);
         };
         const matchedOasIndices = new Set();

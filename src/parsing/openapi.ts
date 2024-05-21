@@ -1,16 +1,21 @@
 import SwaggerParser from '@apidevtools/swagger-parser';
 import { includes } from 'lodash-es';
-import { OpenAPI, OpenAPIV2, OpenAPIV3, OpenAPIV3_1 } from 'openapi-types';
+import { OpenAPI, OpenAPIV2, OpenAPIV3 } from 'openapi-types';
 import { objectEntries } from 'src/utils';
 import { convertFile } from 'swagger2openapi';
-import { OasEndpoint, OasServerInfo, Scheme, methods, validSchemes } from '.';
+import {
+  OasDocument,
+  OasEndpoint,
+  OasServerInfo,
+  Scheme,
+  methods,
+  validSchemes,
+} from '.';
 
 const isV2 = (openapiDoc: OpenAPI.Document): openapiDoc is OpenAPIV2.Document =>
   !!(openapiDoc as Partial<Pick<OpenAPIV2.Document, 'swagger'>>).swagger;
 
-const oasParseServers = (
-  servers?: OpenAPIV3.ServerObject[] | OpenAPIV3_1.ServerObject[],
-) => {
+const oasParseServers = (servers?: OasDocument['servers']) => {
   if (!servers) return [];
   return servers.map<OasServerInfo>(s => {
     if (s.variables) throw new Error('Server variables not supported yet');
@@ -52,7 +57,7 @@ const oasParseQueryParams = (parameters: OpenAPI.Parameters) => {
   return queryParameters;
 };
 
-const oasParsePath = (path?: string) => {
+export const oasParsePath = (path?: string) => {
   const pathParts: OasEndpoint['pathParts'] = [];
   if (!path) return pathParts;
   if (!path.startsWith('/')) throw new Error('Path must start with /');
@@ -74,9 +79,7 @@ const oasParsePath = (path?: string) => {
   return pathParts;
 };
 
-export const oasParseEndpoints = (
-  oas: OpenAPIV3.Document | OpenAPIV3_1.Document,
-) => {
+export const oasParseEndpoints = (oas: OasDocument) => {
   const oasIdToEndpoint = new Map<string, OasEndpoint>();
   if (!oas.paths) return oasIdToEndpoint;
   const oasServers = oasParseServers(oas.servers);

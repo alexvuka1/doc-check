@@ -98,7 +98,7 @@ export const run = async () => {
           const id = `${method} ${path}`;
           if (docIdToUnmatchedEndpoint.has(id)) return;
           const { position } = node;
-          assert(position);
+          assert(position, 'All nodes should have a position');
           const endpoint = docCreateEndpoint(method, path, position.start.line);
           docIdToUnmatchedEndpoint.set(id, endpoint);
         });
@@ -124,7 +124,7 @@ export const run = async () => {
           const id = `${method} ${path}`;
           if (docIdToUnmatchedEndpoint.has(id)) continue;
           const { position } = sibling;
-          assert(position);
+          assert(position, 'All nodes should have a position');
           const endpoint = docCreateEndpoint(method, path, position.start.line);
           docIdToUnmatchedEndpoint.set(id, endpoint);
         }
@@ -440,11 +440,25 @@ export const run = async () => {
       inconsistenciesMap,
     );
 
-    for (const [i, j] of bestMatches) {
+    for (const i of bestMatches.unmatchedOas) {
+      const endpoint = unmatchedOasEndpoints[i];
+      assert(endpoint, `No unmatched oas endpoint with index ${i}`);
+      failOutput.push({ type: 'only-in-oas', endpoint });
+    }
+
+    for (const i of bestMatches.unmatchedDoc) {
+      const endpoint = unmatchedDocEndpoints[i];
+      assert(endpoint, `No unmatched doc endpoint with index ${i}`);
+      failOutput.push({ type: 'only-in-doc', endpoint });
+    }
+
+    for (const [i, j] of bestMatches.bestMatchesOasToDoc) {
       const oasEndpoint = unmatchedOasEndpoints[i];
+      assert(oasEndpoint, `No unmatched oas endpoint with index ${i}`);
       const docEndpoint = unmatchedDocEndpoints[j];
+      assert(docEndpoint, `No unmatched doc endpoint with index ${i}`);
       const inconsistencies = inconsistenciesMap.get(makeKey([i, j]));
-      assert(oasEndpoint && docEndpoint && inconsistencies);
+      assert(inconsistencies, `No inconsistencies for [${i}, ${j}]`);
       failOutput.push({
         type: 'match-with-inconsistenties',
         oasEndpoint,

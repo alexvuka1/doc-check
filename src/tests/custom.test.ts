@@ -15,7 +15,7 @@ describe('action', () => {
   });
 
   it('handles basic success', async () => {
-    setupInput(getInputMock, './data/custom/basic');
+    setupInput(getInputMock, '../data/custom/basic');
 
     await main.run();
 
@@ -23,7 +23,7 @@ describe('action', () => {
   });
 
   it('handles basic fail', async () => {
-    setupInput(getInputMock, './data/custom/basic-fail');
+    setupInput(getInputMock, '../data/custom/basic-fail');
 
     await main.run();
 
@@ -51,7 +51,7 @@ describe('action', () => {
   });
 
   it('handles basic fail 2', async () => {
-    setupInput(getInputMock, './data/custom/basic-fail-2');
+    setupInput(getInputMock, '../data/custom/basic-fail-2');
 
     await main.run();
 
@@ -62,6 +62,53 @@ describe('action', () => {
           originalPath: '/hello',
           method: 'get',
           pathParts: [{ type: 'literal', value: 'hello' }],
+          queryParameters: [],
+          line: 7,
+        },
+      },
+    ]);
+  });
+
+  it('handles basic fail 3', async () => {
+    setupInput(getInputMock, '../data/custom/basic-fail-3');
+
+    await main.run();
+
+    expectFail(setFailedMock).toEqual([
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [],
+          pathParts: [],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'put',
+          servers: [],
+          pathParts: [],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-doc',
+        endpoint: {
+          originalPath: '/',
+          method: 'delete',
+          pathParts: [],
+          queryParameters: [],
+          line: 5,
+        },
+      },
+      {
+        type: 'only-in-doc',
+        endpoint: {
+          originalPath: '/',
+          method: 'post',
+          pathParts: [],
           queryParameters: [],
           line: 7,
         },

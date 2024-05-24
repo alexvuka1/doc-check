@@ -87,13 +87,23 @@ const evaluateConfiguration = (
   inconsistencyMap: Map<string, Inconsistency[]>,
 ) => {
   let totalInconsistencies = 0;
+  let everyHasMethodMismatch = true;
+
   for (const [i1, i2] of config) {
     if (i1 === void 0 || i2 === void 0) continue;
     const key = makeKey(isOasIndexFirst ? [i1, i2] : [i2, i1]);
     const inconsistencies = inconsistencyMap.get(key) || [];
+    if (
+      everyHasMethodMismatch &&
+      !inconsistencies.find(i => i.type === 'method-mismatch')
+    ) {
+      everyHasMethodMismatch = false;
+    }
     totalInconsistencies += inconsistencies.length;
   }
-  return totalInconsistencies;
+  return config.length > 1 && everyHasMethodMismatch
+    ? Infinity
+    : totalInconsistencies;
 };
 
 const permute = (arr: number[]): number[][] => {
@@ -117,7 +127,8 @@ const getBestMatches = (
   const perms = permute(areMoreInOas ? oasGroup : docGroup);
 
   let minTotalInconsistencies = Infinity;
-  let bestConfiguration: [number | undefined, number | undefined][] = [];
+  let bestConfiguration: [number | undefined, number | undefined][] | null =
+    null;
 
   for (const perm of perms) {
     const currentConfig = zip(perm, areMoreInOas ? docGroup : oasGroup);
@@ -126,7 +137,12 @@ const getBestMatches = (
       areMoreInOas,
       inconsistencyMap,
     );
-    if (totalInconsistencies >= minTotalInconsistencies) continue;
+    if (
+      !Number.isFinite(totalInconsistencies) ||
+      totalInconsistencies >= minTotalInconsistencies
+    ) {
+      continue;
+    }
     minTotalInconsistencies = totalInconsistencies;
     bestConfiguration = areMoreInOas
       ? currentConfig
@@ -136,27 +152,97 @@ const getBestMatches = (
   return bestConfiguration;
 };
 
+type MatchResult = {
+  bestMatchesOasToDoc: [number, number][];
+  unmatchedOas: number[];
+  unmatchedDoc: number[];
+};
+
 const matchEndpoints = (
   groups: [number[], number[]][],
   inconsistencyMap: Map<string, Inconsistency[]>,
-): [number, number][] => {
-  const matches: [number, number][] = [];
+) => {
+  const res: MatchResult = {
+    bestMatchesOasToDoc: [],
+    unmatchedOas: [],
+    unmatchedDoc: [],
+  };
+
+  const unmatchedOas = new Set(groups.flatMap(([oas]) => oas));
+  const unmatchedDoc = new Set(groups.flatMap(([, doc]) => doc));
 
   for (const [oasGroup, docGroup] of groups) {
     if (oasGroup.length === 1 && docGroup.length === 1) {
-      assert(oasGroup[0] !== void 0);
-      assert(docGroup[0] !== void 0);
-      matches.push([oasGroup[0], docGroup[0]]);
-    } else {
-      const bestMatches = getBestMatches(oasGroup, docGroup, inconsistencyMap);
-      for (const [i1, i2] of bestMatches) {
-        if (i1 === void 0 || i2 === void 0) continue;
-        matches.push([i1, i2]);
-      }
+      const oas = oasGroup[0];
+      const doc = docGroup[0];
+      assert(
+        oas !== void 0 && unmatchedOas.has(oas),
+        `Oas endpoint with index ${oas} should be defined and unmatched`,
+      );
+      assert(
+        doc !== void 0 && unmatchedDoc.has(doc),
+        `Doc endpoint with index ${doc} should be defined and unmatched`,
+      );
+      res.bestMatchesOasToDoc.push([oas, doc]);
+      unmatchedOas.delete(oas);
+      unmatchedDoc.delete(doc);
+      continue;
+    }
+
+    // if (oasGroup.length === 1 || docGroup.length === 1) {
+    //   const isOasSingle = oasGroup.length === 1;
+    //   const [[i], multiGroup] = isOasSingle
+    //     ? [oasGroup, docGroup]
+    //     : [docGroup, oasGroup];
+    //   assert(
+    //     i !== void 0,
+    //     `${isOasSingle ? 'Oas' : 'Doc'} endpoint with index ${i} should be defined`,
+    //   );
+    //   const noMethodMatches = multiGroup.every(j => {
+    //     const key = makeKey(isOasSingle ? [i, j] : [j, i]);
+    //     const inconsistencies = inconsistencyMap.get(key) || [];
+    //     return inconsistencies.some(i => i.type === 'method-mismatch');
+    //   });
+    //   if (noMethodMatches) {
+    //     res.unmatchedOas.push(...oasGroup);
+    //     res.unmatchedDoc.push(...docGroup);
+    //     continue;
+    //   }
+    // }
+
+    const bestMatches = getBestMatches(oasGroup, docGroup, inconsistencyMap);
+    if (!bestMatches) {
+      res.unmatchedOas.push(...oasGroup);
+      res.unmatchedDoc.push(...docGroup);
+      continue;
+    }
+    for (const [i1, i2] of bestMatches) {
+      if (i1 === void 0 || i2 === void 0) continue;
+      assert(
+        unmatchedOas.has(i1),
+        `Oas endpoint with index ${i1} should be unmatched`,
+      );
+      assert(
+        unmatchedDoc.has(i2),
+        `Doc endpoint with index ${i2} should be unmatched`,
+      );
+      res.bestMatchesOasToDoc.push([i1, i2]);
+      unmatchedOas.delete(i1);
+      unmatchedDoc.delete(i2);
     }
   }
 
-  return matches;
+  res.unmatchedOas = [...unmatchedOas];
+  res.unmatchedDoc = [...unmatchedDoc];
+
+  assert(
+    groups.reduce((acc, g) => acc + g[0].length + g[1].length, 0) ===
+      res.bestMatchesOasToDoc.length * 2 +
+        res.unmatchedOas.length +
+        res.unmatchedDoc.length,
+    'Number of indices stay the same',
+  );
+  return res;
 };
 
 export const findBestMatches = (

@@ -354,6 +354,38 @@ describe('action', () => {
         },
       },
       {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'GRAPHSCOPE' },
+                { type: 'literal', value: 'InteractiveAPI' },
+                { type: 'literal', value: '1.0.0' },
+              ],
+              host: 'virtserver.swaggerhub.com',
+            },
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'GRAPHSCOPE' },
+                { type: 'literal', value: 'interactive' },
+                { type: 'literal', value: '1.0.0' },
+              ],
+              host: 'virtserver.swaggerhub.com',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'v1' },
+            { type: 'literal', value: 'graph' },
+            { type: 'parameter', name: 'graph_id' },
+          ],
+          queryParameters: [],
+        },
+      },
+      {
         type: 'match-with-inconsistenties',
         oasEndpoint: {
           method: 'delete',

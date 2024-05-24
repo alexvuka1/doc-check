@@ -43,9 +43,8 @@ export const setupInputRepo = async (
 
   const dirPath = join(
     import.meta.dir,
-    'data',
-    'repos',
-    repoName.replace('/', '__'),
+    '..',
+    `data/repos/${repoName.replace('/', '__')}`,
   );
 
   const [pathOasLocal, pathDocLocal] = await Promise.all([
@@ -75,7 +74,7 @@ export const getOrDownload = async (
 
   mkdirSync(saveDirPath, { recursive: true });
 
-  const filePath = resolve(saveDirPath, fileName);
+  const filePath = join(saveDirPath, fileName);
   if (existsSync(filePath)) return filePath;
 
   const res = await fetch(`${downloadUrl}?raw=true`);
@@ -88,6 +87,12 @@ export const expectFail = (setFailedMock: SetFailedMock) => ({
   toEqual: (expectedFail: FailOutput) => {
     const fail = setFailedMock.mock.calls[0][0];
     expect(fail).toBeString();
-    expect(JSON.parse(fail as string)).toEqual(expectedFail);
+    let failOutput: FailOutput;
+    try {
+      failOutput = JSON.parse(fail as string);
+    } catch (e) {
+      throw fail;
+    }
+    expect(failOutput).toEqual(expectedFail);
   },
 });

@@ -24,6 +24,7 @@ describe('action', () => {
 
     await main.run();
 
+    console.log(setFailedMock.mock.calls[0][0]);
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
@@ -353,6 +354,285 @@ describe('action', () => {
             { name: 'sort', required: false },
             { name: 'q', required: false },
           ],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+            {
+              schemes: ['http'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'appointments' },
+            { type: 'parameter', name: 'appointmentId' },
+          ],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+            {
+              schemes: ['http'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'unavailabilities' },
+            { type: 'parameter', name: 'unavailabilityId' },
+          ],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+            {
+              schemes: ['http'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'customers' },
+            { type: 'parameter', name: 'customerId' },
+          ],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+            {
+              schemes: ['http'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'services' },
+            { type: 'parameter', name: 'serviceId' },
+          ],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+            {
+              schemes: ['http'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'categories' },
+            { type: 'parameter', name: 'categoryId' },
+          ],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+            {
+              schemes: ['http'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'admins' },
+            { type: 'parameter', name: 'adminId' },
+          ],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+            {
+              schemes: ['http'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'providers' },
+            { type: 'parameter', name: 'providerId' },
+          ],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+            {
+              schemes: ['http'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'secretaries' },
+            { type: 'parameter', name: 'secretaryId' },
+          ],
+          queryParameters: [],
+        },
+      },
+      {
+        type: 'only-in-oas',
+        endpoint: {
+          method: 'get',
+          servers: [
+            {
+              schemes: ['https'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+            {
+              schemes: ['http'],
+              basePath: [
+                { type: 'literal', value: 'index.php' },
+                { type: 'literal', value: 'api' },
+                { type: 'literal', value: 'v1' },
+              ],
+              host: 'demo.easyappointments.org',
+            },
+          ],
+          pathParts: [
+            { type: 'literal', value: 'settings' },
+            { type: 'parameter', name: 'settingName' },
+          ],
+          queryParameters: [],
         },
       },
       {

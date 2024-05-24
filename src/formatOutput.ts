@@ -79,8 +79,14 @@ export const formatOutput = (
               const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(
                 p => (p.type === 'parameter' ? [p.name] : []),
               )[i.parameterIndex];
-              assert(oasMismatchedParam);
-              assert(docMismatchedParam);
+              assert(
+                oasMismatchedParam,
+                `No path parameter with index ${i.parameterIndex} in oas path`,
+              );
+              assert(
+                docMismatchedParam,
+                `No path parameter with index ${i.parameterIndex} in doc path`,
+              );
               return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
             case 'host-mismatch':
               throw new Error('Host mismatch not implemented');

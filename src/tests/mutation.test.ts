@@ -3,14 +3,14 @@ import SwaggerParser from '@apidevtools/swagger-parser';
 import assert from 'assert';
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
 import { mkdir, rm, writeFile } from 'fs/promises';
-import { isEqual, uniqWith } from 'lodash-es';
+import { isEqual, partition, shuffle } from 'lodash-es';
 import { join } from 'path';
 import seedrandom from 'seedrandom';
 import * as main from '../main';
-import { FailOutput, methods } from '../parsing';
+import { FailOutput, OasEndpoint, methods } from '../parsing';
 import { docParse, docStringify } from '../parsing/markdown';
 import { oasParse, oasParsePath } from '../parsing/openapi';
-import { objectEntries, objectKeys } from '../utils';
+import { objectEntries } from '../utils';
 import { getOrDownload } from './utils';
 import { OasMutations, oasMutate } from './utils/oasMutation';
 
@@ -41,9 +41,7 @@ describe('action', () => {
 
   const baseDirPath = join(
     import.meta.dir,
-    'data',
-    'mutation',
-    repoName.replace('/', '__'),
+    `data/mutation/${repoName.replace('/', '__')}`,
   );
 
   it('handles identity oas mutation', async () => {
@@ -88,40 +86,96 @@ describe('action', () => {
       assert(paths !== void 0);
 
       let correctCount = 0;
-      const iterations = 100;
+      const scenarios = 100;
       const probRemovePath = 0.1;
       const probRemoveEndpoint = 0.2;
       const maxAddPath = 15;
       const probAddPath = 0.3;
       const probAddPathMethod = 0.1;
 
-      for (let i = 1; i <= iterations; i++) {
+      for (let i = 1; i <= scenarios; i++) {
+        const removedEndpoints: [
+          OasEndpoint['method'],
+          OasEndpoint['pathParts'],
+        ][] = [];
+        const addedEndpoints: [
+          OasEndpoint['method'],
+          OasEndpoint['pathParts'],
+        ][] = [];
         const mutations: OasMutations = {
-          removePaths: objectKeys(paths).filter(
-            () => rng.quick() < probRemovePath,
-          ),
-          removeEndpoints: objectEntries(paths).flatMap(([path, pathItem]) => {
-            const methodsToRemove = methods.filter(
-              method => pathItem?.[method] && rng.quick() < probRemoveEndpoint,
-            );
-            return methodsToRemove.length === 0
-              ? []
-              : { path, methods: methodsToRemove };
-          }),
-          addEndpoints: [...Array(maxAddPath).keys()].flatMap(i => {
-            const methodsToAdd = methods.filter(
-              () => rng.quick() < probAddPathMethod,
-            );
-            return rng.quick() < probAddPath && methodsToAdd.length > 0
-              ? [
-                  {
-                    path: `/doc-check/mutation-test/${i}`,
-                    methods: methodsToAdd,
-                  },
-                ]
-              : [];
-          }),
+          removePaths: [],
+          removeEndpoints: [],
+          addEndpoints: [],
+          changeMethods: [],
         };
+        for (const [path, pathItem] of objectEntries(paths)) {
+          const pathParts = oasParsePath(path);
+          if (rng.quick() < probRemovePath) {
+            mutations.removePaths.push(path);
+            for (const method of methods) {
+              if (!pathItem?.[method]) continue;
+              removedEndpoints.push([method, pathParts]);
+            }
+            continue;
+          }
+
+          const methodsToRemove: OasEndpoint['method'][] = [];
+          const methodsToChange: OasEndpoint['method'][] = [];
+
+          const [existingMethods, nonExistingMethods] = partition(
+            methods,
+            m => pathItem?.[m],
+          );
+
+          for (const method of existingMethods) {
+            assert(pathItem?.[method]);
+            const x = rng.quick();
+            if (x < probRemoveEndpoint) {
+              methodsToRemove.push(method);
+            } else if (
+              nonExistingMethods.length > methodsToChange.length &&
+              x < probRemoveEndpoint + probAddPathMethod
+            ) {
+              methodsToChange.push(method);
+            }
+          }
+          if (methodsToRemove.length > 0) {
+            mutations.removeEndpoints.push({
+              path,
+              methods: methodsToRemove,
+            });
+            for (const method of methodsToRemove) {
+              removedEndpoints.push([method, pathParts]);
+            }
+          }
+          if (methodsToChange.length > 0) {
+            const shuffledNonExistingMethods = shuffle(nonExistingMethods);
+            mutations.changeMethods.push({
+              path,
+              changes: methodsToChange.map((m, i) => ({
+                oldMethod: m,
+                newMethod: shuffledNonExistingMethods[i],
+              })),
+            });
+            for (const [i, method] of methodsToChange.entries()) {
+              removedEndpoints.push([method, pathParts]);
+              addedEndpoints.push([shuffledNonExistingMethods[i], pathParts]);
+            }
+          }
+        }
+        for (let i = 0; i < maxAddPath; i++) {
+          if (rng.quick() < probAddPath) continue;
+          const methodsToAdd = methods.filter(
+            () => rng.quick() < probAddPathMethod,
+          );
+          if (methodsToAdd.length === 0) continue;
+          const path = `/doc-check/mutation-test/${i}`;
+          mutations.addEndpoints.push({ path, methods: methodsToAdd });
+          const pathParts = oasParsePath(path);
+          for (const method of methodsToAdd) {
+            addedEndpoints.push([method, pathParts]);
+          }
+        }
         const mutatedOas = oasMutate(oas, mutations);
 
         const dirPath = join(baseDirPath, `iteration_${i}`);
@@ -160,22 +214,6 @@ describe('action', () => {
         if (setFailedMock.mock.calls.length === 1) {
           const failOutput: FailOutput = JSON.parse(
             setFailedMock.mock.calls[0][0] as string,
-          );
-
-          const removedEndpoints = uniqWith(
-            [
-              ...mutations.removePaths.flatMap(rp =>
-                methods.flatMap(m => (oas.paths?.[rp]?.[m] ? [[m, rp]] : [])),
-              ),
-              ...mutations.removeEndpoints.flatMap(re =>
-                re.methods.map(m => [m, re.path]),
-              ),
-            ],
-            isEqual,
-          ).map(([m, p]) => [m, oasParsePath(p)]);
-
-          const addedEndpoints = mutations.addEndpoints.flatMap(ae =>
-            ae.methods.map(m => [m, oasParsePath(ae.path)]),
           );
 
           const matchedRemovedIndices = new Set<number>();
@@ -227,8 +265,8 @@ describe('action', () => {
         getInputMock.mockReset();
         setFailedMock.mockReset();
       }
-      console.log(
-        `Got ${correctCount}/${iterations} correct (${Math.floor((correctCount / iterations) * 100)}%)`,
+      console.info(
+        `Got ${correctCount}/${scenarios} correct (${Math.floor((correctCount / scenarios) * 100)}%)`,
       );
     },
     { timeout: 120_000 },

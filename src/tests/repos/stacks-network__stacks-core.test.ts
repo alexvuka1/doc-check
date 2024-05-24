@@ -1,6 +1,6 @@
 import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
-import { mkdirSync } from 'fs';
+import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import * as main from '../../main';
 import { expectFail, getOrDownload, setupInputRepo } from '../utils';
@@ -27,32 +27,25 @@ describe('action', () => {
     });
 
     const apiDirs = ['contract', 'core-node', 'trait', 'transaction'];
-    const [contractDir, coreNodeDir, traitDir, transactionDir] = apiDirs.map(
-      apiDir => {
-        const apiDirPath = join(
-          import.meta.dir,
-          '..',
-          'data',
-          'repos',
-          repoName.replace('/', '__'),
-          'api',
-          apiDir,
-        );
-        mkdirSync(apiDirPath, { recursive: true });
-        return apiDirPath;
-      },
-    );
+    const [contractDir, coreNodeDir, traitDir, transactionDir] =
+      await Promise.all(
+        apiDirs.map(async apiDir => {
+          const apiDirPath = join(
+            import.meta.dir,
+            '..',
+            `data/repos/${repoName.replace('/', '__')}/api/${apiDir}`,
+          );
+          await mkdir(apiDirPath, { recursive: true });
+          return apiDirPath;
+        }),
+      );
 
     const entitiesContractsDir = join(
       import.meta.dir,
       '..',
-      'data',
-      'repos',
-      repoName.replace('/', '__'),
-      'entities',
-      'contracts',
+      `data/repos/${repoName.replace('/', '__')}/entities/contracts`,
     );
-    mkdirSync(entitiesContractsDir, { recursive: true });
+    await mkdir(entitiesContractsDir, { recursive: true });
 
     const dirToFile = [
       [contractDir, 'contract/post-call-read-only-fn-fail.example.json'],

@@ -57267,8634 +57267,30 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 2877:
-/***/ ((module) => {
-
-module.exports = eval("require")("encoding");
-
-
-/***/ }),
-
-/***/ 9491:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("assert");
-
-/***/ }),
-
-/***/ 852:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("async_hooks");
-
-/***/ }),
-
-/***/ 4300:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("buffer");
-
-/***/ }),
-
-/***/ 6206:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("console");
-
-/***/ }),
-
-/***/ 6113:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("crypto");
-
-/***/ }),
-
-/***/ 7643:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("diagnostics_channel");
-
-/***/ }),
-
-/***/ 2361:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("events");
-
-/***/ }),
-
-/***/ 7147:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("fs");
-
-/***/ }),
-
-/***/ 3685:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("http");
-
-/***/ }),
-
-/***/ 5158:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("http2");
-
-/***/ }),
-
-/***/ 5687:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("https");
-
-/***/ }),
-
-/***/ 1808:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("net");
-
-/***/ }),
-
-/***/ 5673:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:events");
-
-/***/ }),
-
-/***/ 4492:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:stream");
-
-/***/ }),
-
-/***/ 7261:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:util");
-
-/***/ }),
-
-/***/ 2037:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("os");
-
-/***/ }),
-
-/***/ 1017:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("path");
-
-/***/ }),
-
-/***/ 4074:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("perf_hooks");
-
-/***/ }),
-
-/***/ 3477:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("querystring");
-
-/***/ }),
-
-/***/ 2781:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("stream");
-
-/***/ }),
-
-/***/ 5356:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("stream/web");
-
-/***/ }),
-
-/***/ 1576:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("string_decoder");
-
-/***/ }),
-
-/***/ 4404:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("tls");
-
-/***/ }),
-
-/***/ 7310:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("url");
-
-/***/ }),
-
-/***/ 3837:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util");
-
-/***/ }),
-
-/***/ 9830:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util/types");
-
-/***/ }),
-
-/***/ 1267:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("worker_threads");
-
-/***/ }),
-
-/***/ 9796:
-/***/ ((module) => {
-
-module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("zlib");
-
-/***/ }),
-
-/***/ 2960:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
-
-const WritableStream = (__nccwpck_require__(4492).Writable)
-const inherits = (__nccwpck_require__(7261).inherits)
-
-const StreamSearch = __nccwpck_require__(1142)
-
-const PartStream = __nccwpck_require__(1620)
-const HeaderParser = __nccwpck_require__(2032)
-
-const DASH = 45
-const B_ONEDASH = Buffer.from('-')
-const B_CRLF = Buffer.from('\r\n')
-const EMPTY_FN = function () {}
-
-function Dicer (cfg) {
-  if (!(this instanceof Dicer)) { return new Dicer(cfg) }
-  WritableStream.call(this, cfg)
-
-  if (!cfg || (!cfg.headerFirst && typeof cfg.boundary !== 'string')) { throw new TypeError('Boundary required') }
-
-  if (typeof cfg.boundary === 'string') { this.setBoundary(cfg.boundary) } else { this._bparser = undefined }
-
-  this._headerFirst = cfg.headerFirst
-
-  this._dashes = 0
-  this._parts = 0
-  this._finished = false
-  this._realFinish = false
-  this._isPreamble = true
-  this._justMatched = false
-  this._firstWrite = true
-  this._inHeader = true
-  this._part = undefined
-  this._cb = undefined
-  this._ignoreData = false
-  this._partOpts = { highWaterMark: cfg.partHwm }
-  this._pause = false
-
-  const self = this
-  this._hparser = new HeaderParser(cfg)
-  this._hparser.on('header', function (header) {
-    self._inHeader = false
-    self._part.emit('header', header)
-  })
-}
-inherits(Dicer, WritableStream)
-
-Dicer.prototype.emit = function (ev) {
-  if (ev === 'finish' && !this._realFinish) {
-    if (!this._finished) {
-      const self = this
-      process.nextTick(function () {
-        self.emit('error', new Error('Unexpected end of multipart data'))
-        if (self._part && !self._ignoreData) {
-          const type = (self._isPreamble ? 'Preamble' : 'Part')
-          self._part.emit('error', new Error(type + ' terminated early due to unexpected end of multipart data'))
-          self._part.push(null)
-          process.nextTick(function () {
-            self._realFinish = true
-            self.emit('finish')
-            self._realFinish = false
-          })
-          return
-        }
-        self._realFinish = true
-        self.emit('finish')
-        self._realFinish = false
-      })
-    }
-  } else { WritableStream.prototype.emit.apply(this, arguments) }
-}
-
-Dicer.prototype._write = function (data, encoding, cb) {
-  // ignore unexpected data (e.g. extra trailer data after finished)
-  if (!this._hparser && !this._bparser) { return cb() }
-
-  if (this._headerFirst && this._isPreamble) {
-    if (!this._part) {
-      this._part = new PartStream(this._partOpts)
-      if (this._events.preamble) { this.emit('preamble', this._part) } else { this._ignore() }
-    }
-    const r = this._hparser.push(data)
-    if (!this._inHeader && r !== undefined && r < data.length) { data = data.slice(r) } else { return cb() }
-  }
-
-  // allows for "easier" testing
-  if (this._firstWrite) {
-    this._bparser.push(B_CRLF)
-    this._firstWrite = false
-  }
-
-  this._bparser.push(data)
-
-  if (this._pause) { this._cb = cb } else { cb() }
-}
-
-Dicer.prototype.reset = function () {
-  this._part = undefined
-  this._bparser = undefined
-  this._hparser = undefined
-}
-
-Dicer.prototype.setBoundary = function (boundary) {
-  const self = this
-  this._bparser = new StreamSearch('\r\n--' + boundary)
-  this._bparser.on('info', function (isMatch, data, start, end) {
-    self._oninfo(isMatch, data, start, end)
-  })
-}
-
-Dicer.prototype._ignore = function () {
-  if (this._part && !this._ignoreData) {
-    this._ignoreData = true
-    this._part.on('error', EMPTY_FN)
-    // we must perform some kind of read on the stream even though we are
-    // ignoring the data, otherwise node's Readable stream will not emit 'end'
-    // after pushing null to the stream
-    this._part.resume()
-  }
-}
-
-Dicer.prototype._oninfo = function (isMatch, data, start, end) {
-  let buf; const self = this; let i = 0; let r; let shouldWriteMore = true
-
-  if (!this._part && this._justMatched && data) {
-    while (this._dashes < 2 && (start + i) < end) {
-      if (data[start + i] === DASH) {
-        ++i
-        ++this._dashes
-      } else {
-        if (this._dashes) { buf = B_ONEDASH }
-        this._dashes = 0
-        break
-      }
-    }
-    if (this._dashes === 2) {
-      if ((start + i) < end && this._events.trailer) { this.emit('trailer', data.slice(start + i, end)) }
-      this.reset()
-      this._finished = true
-      // no more parts will be added
-      if (self._parts === 0) {
-        self._realFinish = true
-        self.emit('finish')
-        self._realFinish = false
-      }
-    }
-    if (this._dashes) { return }
-  }
-  if (this._justMatched) { this._justMatched = false }
-  if (!this._part) {
-    this._part = new PartStream(this._partOpts)
-    this._part._read = function (n) {
-      self._unpause()
-    }
-    if (this._isPreamble && this._events.preamble) { this.emit('preamble', this._part) } else if (this._isPreamble !== true && this._events.part) { this.emit('part', this._part) } else { this._ignore() }
-    if (!this._isPreamble) { this._inHeader = true }
-  }
-  if (data && start < end && !this._ignoreData) {
-    if (this._isPreamble || !this._inHeader) {
-      if (buf) { shouldWriteMore = this._part.push(buf) }
-      shouldWriteMore = this._part.push(data.slice(start, end))
-      if (!shouldWriteMore) { this._pause = true }
-    } else if (!this._isPreamble && this._inHeader) {
-      if (buf) { this._hparser.push(buf) }
-      r = this._hparser.push(data.slice(start, end))
-      if (!this._inHeader && r !== undefined && r < end) { this._oninfo(false, data, start + r, end) }
-    }
-  }
-  if (isMatch) {
-    this._hparser.reset()
-    if (this._isPreamble) { this._isPreamble = false } else {
-      if (start !== end) {
-        ++this._parts
-        this._part.on('end', function () {
-          if (--self._parts === 0) {
-            if (self._finished) {
-              self._realFinish = true
-              self.emit('finish')
-              self._realFinish = false
-            } else {
-              self._unpause()
-            }
-          }
-        })
-      }
-    }
-    this._part.push(null)
-    this._part = undefined
-    this._ignoreData = false
-    this._justMatched = true
-    this._dashes = 0
-  }
-}
-
-Dicer.prototype._unpause = function () {
-  if (!this._pause) { return }
-
-  this._pause = false
-  if (this._cb) {
-    const cb = this._cb
-    this._cb = undefined
-    cb()
-  }
-}
-
-module.exports = Dicer
-
-
-/***/ }),
-
-/***/ 2032:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
-
-const EventEmitter = (__nccwpck_require__(5673).EventEmitter)
-const inherits = (__nccwpck_require__(7261).inherits)
-const getLimit = __nccwpck_require__(1467)
-
-const StreamSearch = __nccwpck_require__(1142)
-
-const B_DCRLF = Buffer.from('\r\n\r\n')
-const RE_CRLF = /\r\n/g
-const RE_HDR = /^([^:]+):[ \t]?([\x00-\xFF]+)?$/ // eslint-disable-line no-control-regex
-
-function HeaderParser (cfg) {
-  EventEmitter.call(this)
-
-  cfg = cfg || {}
-  const self = this
-  this.nread = 0
-  this.maxed = false
-  this.npairs = 0
-  this.maxHeaderPairs = getLimit(cfg, 'maxHeaderPairs', 2000)
-  this.maxHeaderSize = getLimit(cfg, 'maxHeaderSize', 80 * 1024)
-  this.buffer = ''
-  this.header = {}
-  this.finished = false
-  this.ss = new StreamSearch(B_DCRLF)
-  this.ss.on('info', function (isMatch, data, start, end) {
-    if (data && !self.maxed) {
-      if (self.nread + end - start >= self.maxHeaderSize) {
-        end = self.maxHeaderSize - self.nread + start
-        self.nread = self.maxHeaderSize
-        self.maxed = true
-      } else { self.nread += (end - start) }
-
-      self.buffer += data.toString('binary', start, end)
-    }
-    if (isMatch) { self._finish() }
-  })
-}
-inherits(HeaderParser, EventEmitter)
-
-HeaderParser.prototype.push = function (data) {
-  const r = this.ss.push(data)
-  if (this.finished) { return r }
-}
-
-HeaderParser.prototype.reset = function () {
-  this.finished = false
-  this.buffer = ''
-  this.header = {}
-  this.ss.reset()
-}
-
-HeaderParser.prototype._finish = function () {
-  if (this.buffer) { this._parseHeader() }
-  this.ss.matches = this.ss.maxMatches
-  const header = this.header
-  this.header = {}
-  this.buffer = ''
-  this.finished = true
-  this.nread = this.npairs = 0
-  this.maxed = false
-  this.emit('header', header)
-}
-
-HeaderParser.prototype._parseHeader = function () {
-  if (this.npairs === this.maxHeaderPairs) { return }
-
-  const lines = this.buffer.split(RE_CRLF)
-  const len = lines.length
-  let m, h
-
-  for (var i = 0; i < len; ++i) { // eslint-disable-line no-var
-    if (lines[i].length === 0) { continue }
-    if (lines[i][0] === '\t' || lines[i][0] === ' ') {
-      // folded header content
-      // RFC2822 says to just remove the CRLF and not the whitespace following
-      // it, so we follow the RFC and include the leading whitespace ...
-      if (h) {
-        this.header[h][this.header[h].length - 1] += lines[i]
-        continue
-      }
-    }
-
-    const posColon = lines[i].indexOf(':')
-    if (
-      posColon === -1 ||
-      posColon === 0
-    ) {
-      return
-    }
-    m = RE_HDR.exec(lines[i])
-    h = m[1].toLowerCase()
-    this.header[h] = this.header[h] || []
-    this.header[h].push((m[2] || ''))
-    if (++this.npairs === this.maxHeaderPairs) { break }
-  }
-}
-
-module.exports = HeaderParser
-
-
-/***/ }),
-
-/***/ 1620:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
-
-const inherits = (__nccwpck_require__(7261).inherits)
-const ReadableStream = (__nccwpck_require__(4492).Readable)
-
-function PartStream (opts) {
-  ReadableStream.call(this, opts)
-}
-inherits(PartStream, ReadableStream)
-
-PartStream.prototype._read = function (n) {}
-
-module.exports = PartStream
-
-
-/***/ }),
-
-/***/ 1142:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
-
+/***/ 6144:
+/***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
+
+__nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
+/* harmony import */ var _main__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(4127);
 /**
- * Copyright Brian White. All rights reserved.
- *
- * @see https://github.com/mscdex/streamsearch
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to
- * deal in the Software without restriction, including without limitation the
- * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
- * sell copies of the Software, and to permit persons to whom the Software is
- * furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
- * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
- * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
- * IN THE SOFTWARE.
- *
- * Based heavily on the Streaming Boyer-Moore-Horspool C++ implementation
- * by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
- */
-const EventEmitter = (__nccwpck_require__(5673).EventEmitter)
-const inherits = (__nccwpck_require__(7261).inherits)
-
-function SBMH (needle) {
-  if (typeof needle === 'string') {
-    needle = Buffer.from(needle)
-  }
-
-  if (!Buffer.isBuffer(needle)) {
-    throw new TypeError('The needle has to be a String or a Buffer.')
-  }
-
-  const needleLength = needle.length
-
-  if (needleLength === 0) {
-    throw new Error('The needle cannot be an empty String/Buffer.')
-  }
-
-  if (needleLength > 256) {
-    throw new Error('The needle cannot have a length bigger than 256.')
-  }
-
-  this.maxMatches = Infinity
-  this.matches = 0
-
-  this._occ = new Array(256)
-    .fill(needleLength) // Initialize occurrence table.
-  this._lookbehind_size = 0
-  this._needle = needle
-  this._bufpos = 0
-
-  this._lookbehind = Buffer.alloc(needleLength)
-
-  // Populate occurrence table with analysis of the needle,
-  // ignoring last letter.
-  for (var i = 0; i < needleLength - 1; ++i) { // eslint-disable-line no-var
-    this._occ[needle[i]] = needleLength - 1 - i
-  }
-}
-inherits(SBMH, EventEmitter)
-
-SBMH.prototype.reset = function () {
-  this._lookbehind_size = 0
-  this.matches = 0
-  this._bufpos = 0
-}
-
-SBMH.prototype.push = function (chunk, pos) {
-  if (!Buffer.isBuffer(chunk)) {
-    chunk = Buffer.from(chunk, 'binary')
-  }
-  const chlen = chunk.length
-  this._bufpos = pos || 0
-  let r
-  while (r !== chlen && this.matches < this.maxMatches) { r = this._sbmh_feed(chunk) }
-  return r
-}
-
-SBMH.prototype._sbmh_feed = function (data) {
-  const len = data.length
-  const needle = this._needle
-  const needleLength = needle.length
-  const lastNeedleChar = needle[needleLength - 1]
-
-  // Positive: points to a position in `data`
-  //           pos == 3 points to data[3]
-  // Negative: points to a position in the lookbehind buffer
-  //           pos == -2 points to lookbehind[lookbehind_size - 2]
-  let pos = -this._lookbehind_size
-  let ch
-
-  if (pos < 0) {
-    // Lookbehind buffer is not empty. Perform Boyer-Moore-Horspool
-    // search with character lookup code that considers both the
-    // lookbehind buffer and the current round's haystack data.
-    //
-    // Loop until
-    //   there is a match.
-    // or until
-    //   we've moved past the position that requires the
-    //   lookbehind buffer. In this case we switch to the
-    //   optimized loop.
-    // or until
-    //   the character to look at lies outside the haystack.
-    while (pos < 0 && pos <= len - needleLength) {
-      ch = this._sbmh_lookup_char(data, pos + needleLength - 1)
-
-      if (
-        ch === lastNeedleChar &&
-        this._sbmh_memcmp(data, pos, needleLength - 1)
-      ) {
-        this._lookbehind_size = 0
-        ++this.matches
-        this.emit('info', true)
-
-        return (this._bufpos = pos + needleLength)
-      }
-      pos += this._occ[ch]
-    }
-
-    // No match.
-
-    if (pos < 0) {
-      // There's too few data for Boyer-Moore-Horspool to run,
-      // so let's use a different algorithm to skip as much as
-      // we can.
-      // Forward pos until
-      //   the trailing part of lookbehind + data
-      //   looks like the beginning of the needle
-      // or until
-      //   pos == 0
-      while (pos < 0 && !this._sbmh_memcmp(data, pos, len - pos)) { ++pos }
-    }
-
-    if (pos >= 0) {
-      // Discard lookbehind buffer.
-      this.emit('info', false, this._lookbehind, 0, this._lookbehind_size)
-      this._lookbehind_size = 0
-    } else {
-      // Cut off part of the lookbehind buffer that has
-      // been processed and append the entire haystack
-      // into it.
-      const bytesToCutOff = this._lookbehind_size + pos
-      if (bytesToCutOff > 0) {
-        // The cut off data is guaranteed not to contain the needle.
-        this.emit('info', false, this._lookbehind, 0, bytesToCutOff)
-      }
-
-      this._lookbehind.copy(this._lookbehind, 0, bytesToCutOff,
-        this._lookbehind_size - bytesToCutOff)
-      this._lookbehind_size -= bytesToCutOff
-
-      data.copy(this._lookbehind, this._lookbehind_size)
-      this._lookbehind_size += len
-
-      this._bufpos = len
-      return len
-    }
-  }
-
-  pos += (pos >= 0) * this._bufpos
-
-  // Lookbehind buffer is now empty. We only need to check if the
-  // needle is in the haystack.
-  if (data.indexOf(needle, pos) !== -1) {
-    pos = data.indexOf(needle, pos)
-    ++this.matches
-    if (pos > 0) { this.emit('info', true, data, this._bufpos, pos) } else { this.emit('info', true) }
-
-    return (this._bufpos = pos + needleLength)
-  } else {
-    pos = len - needleLength
-  }
-
-  // There was no match. If there's trailing haystack data that we cannot
-  // match yet using the Boyer-Moore-Horspool algorithm (because the trailing
-  // data is less than the needle size) then match using a modified
-  // algorithm that starts matching from the beginning instead of the end.
-  // Whatever trailing data is left after running this algorithm is added to
-  // the lookbehind buffer.
-  while (
-    pos < len &&
-    (
-      data[pos] !== needle[0] ||
-      (
-        (Buffer.compare(
-          data.subarray(pos, pos + len - pos),
-          needle.subarray(0, len - pos)
-        ) !== 0)
-      )
-    )
-  ) {
-    ++pos
-  }
-  if (pos < len) {
-    data.copy(this._lookbehind, 0, pos, pos + (len - pos))
-    this._lookbehind_size = len - pos
-  }
-
-  // Everything until pos is guaranteed not to contain needle data.
-  if (pos > 0) { this.emit('info', false, data, this._bufpos, pos < len ? pos : len) }
-
-  this._bufpos = len
-  return len
-}
-
-SBMH.prototype._sbmh_lookup_char = function (data, pos) {
-  return (pos < 0)
-    ? this._lookbehind[this._lookbehind_size + pos]
-    : data[pos]
-}
-
-SBMH.prototype._sbmh_memcmp = function (data, pos, len) {
-  for (var i = 0; i < len; ++i) { // eslint-disable-line no-var
-    if (this._sbmh_lookup_char(data, pos + i) !== this._needle[i]) { return false }
-  }
-  return true
-}
-
-module.exports = SBMH
-
-
-/***/ }),
-
-/***/ 727:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
-
-const WritableStream = (__nccwpck_require__(4492).Writable)
-const { inherits } = __nccwpck_require__(7261)
-const Dicer = __nccwpck_require__(2960)
-
-const MultipartParser = __nccwpck_require__(2183)
-const UrlencodedParser = __nccwpck_require__(8306)
-const parseParams = __nccwpck_require__(1854)
-
-function Busboy (opts) {
-  if (!(this instanceof Busboy)) { return new Busboy(opts) }
-
-  if (typeof opts !== 'object') {
-    throw new TypeError('Busboy expected an options-Object.')
-  }
-  if (typeof opts.headers !== 'object') {
-    throw new TypeError('Busboy expected an options-Object with headers-attribute.')
-  }
-  if (typeof opts.headers['content-type'] !== 'string') {
-    throw new TypeError('Missing Content-Type-header.')
-  }
-
-  const {
-    headers,
-    ...streamOptions
-  } = opts
-
-  this.opts = {
-    autoDestroy: false,
-    ...streamOptions
-  }
-  WritableStream.call(this, this.opts)
-
-  this._done = false
-  this._parser = this.getParserByHeaders(headers)
-  this._finished = false
-}
-inherits(Busboy, WritableStream)
-
-Busboy.prototype.emit = function (ev) {
-  if (ev === 'finish') {
-    if (!this._done) {
-      this._parser?.end()
-      return
-    } else if (this._finished) {
-      return
-    }
-    this._finished = true
-  }
-  WritableStream.prototype.emit.apply(this, arguments)
-}
-
-Busboy.prototype.getParserByHeaders = function (headers) {
-  const parsed = parseParams(headers['content-type'])
-
-  const cfg = {
-    defCharset: this.opts.defCharset,
-    fileHwm: this.opts.fileHwm,
-    headers,
-    highWaterMark: this.opts.highWaterMark,
-    isPartAFile: this.opts.isPartAFile,
-    limits: this.opts.limits,
-    parsedConType: parsed,
-    preservePath: this.opts.preservePath
-  }
-
-  if (MultipartParser.detect.test(parsed[0])) {
-    return new MultipartParser(this, cfg)
-  }
-  if (UrlencodedParser.detect.test(parsed[0])) {
-    return new UrlencodedParser(this, cfg)
-  }
-  throw new Error('Unsupported Content-Type.')
-}
-
-Busboy.prototype._write = function (chunk, encoding, cb) {
-  this._parser.write(chunk, cb)
-}
-
-module.exports = Busboy
-module.exports["default"] = Busboy
-module.exports.Busboy = Busboy
-
-module.exports.Dicer = Dicer
-
-
-/***/ }),
-
-/***/ 2183:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
-
-// TODO:
-//  * support 1 nested multipart level
-//    (see second multipart example here:
-//     http://www.w3.org/TR/html401/interact/forms.html#didx-multipartform-data)
-//  * support limits.fieldNameSize
-//     -- this will require modifications to utils.parseParams
-
-const { Readable } = __nccwpck_require__(4492)
-const { inherits } = __nccwpck_require__(7261)
-
-const Dicer = __nccwpck_require__(2960)
-
-const parseParams = __nccwpck_require__(1854)
-const decodeText = __nccwpck_require__(4619)
-const basename = __nccwpck_require__(8647)
-const getLimit = __nccwpck_require__(1467)
-
-const RE_BOUNDARY = /^boundary$/i
-const RE_FIELD = /^form-data$/i
-const RE_CHARSET = /^charset$/i
-const RE_FILENAME = /^filename$/i
-const RE_NAME = /^name$/i
-
-Multipart.detect = /^multipart\/form-data/i
-function Multipart (boy, cfg) {
-  let i
-  let len
-  const self = this
-  let boundary
-  const limits = cfg.limits
-  const isPartAFile = cfg.isPartAFile || ((fieldName, contentType, fileName) => (contentType === 'application/octet-stream' || fileName !== undefined))
-  const parsedConType = cfg.parsedConType || []
-  const defCharset = cfg.defCharset || 'utf8'
-  const preservePath = cfg.preservePath
-  const fileOpts = { highWaterMark: cfg.fileHwm }
-
-  for (i = 0, len = parsedConType.length; i < len; ++i) {
-    if (Array.isArray(parsedConType[i]) &&
-      RE_BOUNDARY.test(parsedConType[i][0])) {
-      boundary = parsedConType[i][1]
-      break
-    }
-  }
-
-  function checkFinished () {
-    if (nends === 0 && finished && !boy._done) {
-      finished = false
-      self.end()
-    }
-  }
-
-  if (typeof boundary !== 'string') { throw new Error('Multipart: Boundary not found') }
-
-  const fieldSizeLimit = getLimit(limits, 'fieldSize', 1 * 1024 * 1024)
-  const fileSizeLimit = getLimit(limits, 'fileSize', Infinity)
-  const filesLimit = getLimit(limits, 'files', Infinity)
-  const fieldsLimit = getLimit(limits, 'fields', Infinity)
-  const partsLimit = getLimit(limits, 'parts', Infinity)
-  const headerPairsLimit = getLimit(limits, 'headerPairs', 2000)
-  const headerSizeLimit = getLimit(limits, 'headerSize', 80 * 1024)
-
-  let nfiles = 0
-  let nfields = 0
-  let nends = 0
-  let curFile
-  let curField
-  let finished = false
-
-  this._needDrain = false
-  this._pause = false
-  this._cb = undefined
-  this._nparts = 0
-  this._boy = boy
-
-  const parserCfg = {
-    boundary,
-    maxHeaderPairs: headerPairsLimit,
-    maxHeaderSize: headerSizeLimit,
-    partHwm: fileOpts.highWaterMark,
-    highWaterMark: cfg.highWaterMark
-  }
-
-  this.parser = new Dicer(parserCfg)
-  this.parser.on('drain', function () {
-    self._needDrain = false
-    if (self._cb && !self._pause) {
-      const cb = self._cb
-      self._cb = undefined
-      cb()
-    }
-  }).on('part', function onPart (part) {
-    if (++self._nparts > partsLimit) {
-      self.parser.removeListener('part', onPart)
-      self.parser.on('part', skipPart)
-      boy.hitPartsLimit = true
-      boy.emit('partsLimit')
-      return skipPart(part)
-    }
-
-    // hack because streams2 _always_ doesn't emit 'end' until nextTick, so let
-    // us emit 'end' early since we know the part has ended if we are already
-    // seeing the next part
-    if (curField) {
-      const field = curField
-      field.emit('end')
-      field.removeAllListeners('end')
-    }
-
-    part.on('header', function (header) {
-      let contype
-      let fieldname
-      let parsed
-      let charset
-      let encoding
-      let filename
-      let nsize = 0
-
-      if (header['content-type']) {
-        parsed = parseParams(header['content-type'][0])
-        if (parsed[0]) {
-          contype = parsed[0].toLowerCase()
-          for (i = 0, len = parsed.length; i < len; ++i) {
-            if (RE_CHARSET.test(parsed[i][0])) {
-              charset = parsed[i][1].toLowerCase()
-              break
-            }
-          }
-        }
-      }
-
-      if (contype === undefined) { contype = 'text/plain' }
-      if (charset === undefined) { charset = defCharset }
-
-      if (header['content-disposition']) {
-        parsed = parseParams(header['content-disposition'][0])
-        if (!RE_FIELD.test(parsed[0])) { return skipPart(part) }
-        for (i = 0, len = parsed.length; i < len; ++i) {
-          if (RE_NAME.test(parsed[i][0])) {
-            fieldname = parsed[i][1]
-          } else if (RE_FILENAME.test(parsed[i][0])) {
-            filename = parsed[i][1]
-            if (!preservePath) { filename = basename(filename) }
-          }
-        }
-      } else { return skipPart(part) }
-
-      if (header['content-transfer-encoding']) { encoding = header['content-transfer-encoding'][0].toLowerCase() } else { encoding = '7bit' }
-
-      let onData,
-        onEnd
-
-      if (isPartAFile(fieldname, contype, filename)) {
-        // file/binary field
-        if (nfiles === filesLimit) {
-          if (!boy.hitFilesLimit) {
-            boy.hitFilesLimit = true
-            boy.emit('filesLimit')
-          }
-          return skipPart(part)
-        }
-
-        ++nfiles
-
-        if (!boy._events.file) {
-          self.parser._ignore()
-          return
-        }
-
-        ++nends
-        const file = new FileStream(fileOpts)
-        curFile = file
-        file.on('end', function () {
-          --nends
-          self._pause = false
-          checkFinished()
-          if (self._cb && !self._needDrain) {
-            const cb = self._cb
-            self._cb = undefined
-            cb()
-          }
-        })
-        file._read = function (n) {
-          if (!self._pause) { return }
-          self._pause = false
-          if (self._cb && !self._needDrain) {
-            const cb = self._cb
-            self._cb = undefined
-            cb()
-          }
-        }
-        boy.emit('file', fieldname, file, filename, encoding, contype)
-
-        onData = function (data) {
-          if ((nsize += data.length) > fileSizeLimit) {
-            const extralen = fileSizeLimit - nsize + data.length
-            if (extralen > 0) { file.push(data.slice(0, extralen)) }
-            file.truncated = true
-            file.bytesRead = fileSizeLimit
-            part.removeAllListeners('data')
-            file.emit('limit')
-            return
-          } else if (!file.push(data)) { self._pause = true }
-
-          file.bytesRead = nsize
-        }
-
-        onEnd = function () {
-          curFile = undefined
-          file.push(null)
-        }
-      } else {
-        // non-file field
-        if (nfields === fieldsLimit) {
-          if (!boy.hitFieldsLimit) {
-            boy.hitFieldsLimit = true
-            boy.emit('fieldsLimit')
-          }
-          return skipPart(part)
-        }
-
-        ++nfields
-        ++nends
-        let buffer = ''
-        let truncated = false
-        curField = part
-
-        onData = function (data) {
-          if ((nsize += data.length) > fieldSizeLimit) {
-            const extralen = (fieldSizeLimit - (nsize - data.length))
-            buffer += data.toString('binary', 0, extralen)
-            truncated = true
-            part.removeAllListeners('data')
-          } else { buffer += data.toString('binary') }
-        }
-
-        onEnd = function () {
-          curField = undefined
-          if (buffer.length) { buffer = decodeText(buffer, 'binary', charset) }
-          boy.emit('field', fieldname, buffer, false, truncated, encoding, contype)
-          --nends
-          checkFinished()
-        }
-      }
-
-      /* As of node@2efe4ab761666 (v0.10.29+/v0.11.14+), busboy had become
-         broken. Streams2/streams3 is a huge black box of confusion, but
-         somehow overriding the sync state seems to fix things again (and still
-         seems to work for previous node versions).
-      */
-      part._readableState.sync = false
-
-      part.on('data', onData)
-      part.on('end', onEnd)
-    }).on('error', function (err) {
-      if (curFile) { curFile.emit('error', err) }
-    })
-  }).on('error', function (err) {
-    boy.emit('error', err)
-  }).on('finish', function () {
-    finished = true
-    checkFinished()
-  })
-}
-
-Multipart.prototype.write = function (chunk, cb) {
-  const r = this.parser.write(chunk)
-  if (r && !this._pause) {
-    cb()
-  } else {
-    this._needDrain = !r
-    this._cb = cb
-  }
-}
-
-Multipart.prototype.end = function () {
-  const self = this
-
-  if (self.parser.writable) {
-    self.parser.end()
-  } else if (!self._boy._done) {
-    process.nextTick(function () {
-      self._boy._done = true
-      self._boy.emit('finish')
-    })
-  }
-}
-
-function skipPart (part) {
-  part.resume()
-}
-
-function FileStream (opts) {
-  Readable.call(this, opts)
-
-  this.bytesRead = 0
-
-  this.truncated = false
-}
-
-inherits(FileStream, Readable)
-
-FileStream.prototype._read = function (n) {}
-
-module.exports = Multipart
-
-
-/***/ }),
-
-/***/ 8306:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-
-
-const Decoder = __nccwpck_require__(7100)
-const decodeText = __nccwpck_require__(4619)
-const getLimit = __nccwpck_require__(1467)
-
-const RE_CHARSET = /^charset$/i
-
-UrlEncoded.detect = /^application\/x-www-form-urlencoded/i
-function UrlEncoded (boy, cfg) {
-  const limits = cfg.limits
-  const parsedConType = cfg.parsedConType
-  this.boy = boy
-
-  this.fieldSizeLimit = getLimit(limits, 'fieldSize', 1 * 1024 * 1024)
-  this.fieldNameSizeLimit = getLimit(limits, 'fieldNameSize', 100)
-  this.fieldsLimit = getLimit(limits, 'fields', Infinity)
-
-  let charset
-  for (var i = 0, len = parsedConType.length; i < len; ++i) { // eslint-disable-line no-var
-    if (Array.isArray(parsedConType[i]) &&
-        RE_CHARSET.test(parsedConType[i][0])) {
-      charset = parsedConType[i][1].toLowerCase()
-      break
-    }
-  }
-
-  if (charset === undefined) { charset = cfg.defCharset || 'utf8' }
-
-  this.decoder = new Decoder()
-  this.charset = charset
-  this._fields = 0
-  this._state = 'key'
-  this._checkingBytes = true
-  this._bytesKey = 0
-  this._bytesVal = 0
-  this._key = ''
-  this._val = ''
-  this._keyTrunc = false
-  this._valTrunc = false
-  this._hitLimit = false
-}
-
-UrlEncoded.prototype.write = function (data, cb) {
-  if (this._fields === this.fieldsLimit) {
-    if (!this.boy.hitFieldsLimit) {
-      this.boy.hitFieldsLimit = true
-      this.boy.emit('fieldsLimit')
-    }
-    return cb()
-  }
-
-  let idxeq; let idxamp; let i; let p = 0; const len = data.length
-
-  while (p < len) {
-    if (this._state === 'key') {
-      idxeq = idxamp = undefined
-      for (i = p; i < len; ++i) {
-        if (!this._checkingBytes) { ++p }
-        if (data[i] === 0x3D/* = */) {
-          idxeq = i
-          break
-        } else if (data[i] === 0x26/* & */) {
-          idxamp = i
-          break
-        }
-        if (this._checkingBytes && this._bytesKey === this.fieldNameSizeLimit) {
-          this._hitLimit = true
-          break
-        } else if (this._checkingBytes) { ++this._bytesKey }
-      }
-
-      if (idxeq !== undefined) {
-        // key with assignment
-        if (idxeq > p) { this._key += this.decoder.write(data.toString('binary', p, idxeq)) }
-        this._state = 'val'
-
-        this._hitLimit = false
-        this._checkingBytes = true
-        this._val = ''
-        this._bytesVal = 0
-        this._valTrunc = false
-        this.decoder.reset()
-
-        p = idxeq + 1
-      } else if (idxamp !== undefined) {
-        // key with no assignment
-        ++this._fields
-        let key; const keyTrunc = this._keyTrunc
-        if (idxamp > p) { key = (this._key += this.decoder.write(data.toString('binary', p, idxamp))) } else { key = this._key }
-
-        this._hitLimit = false
-        this._checkingBytes = true
-        this._key = ''
-        this._bytesKey = 0
-        this._keyTrunc = false
-        this.decoder.reset()
-
-        if (key.length) {
-          this.boy.emit('field', decodeText(key, 'binary', this.charset),
-            '',
-            keyTrunc,
-            false)
-        }
-
-        p = idxamp + 1
-        if (this._fields === this.fieldsLimit) { return cb() }
-      } else if (this._hitLimit) {
-        // we may not have hit the actual limit if there are encoded bytes...
-        if (i > p) { this._key += this.decoder.write(data.toString('binary', p, i)) }
-        p = i
-        if ((this._bytesKey = this._key.length) === this.fieldNameSizeLimit) {
-          // yep, we actually did hit the limit
-          this._checkingBytes = false
-          this._keyTrunc = true
-        }
-      } else {
-        if (p < len) { this._key += this.decoder.write(data.toString('binary', p)) }
-        p = len
-      }
-    } else {
-      idxamp = undefined
-      for (i = p; i < len; ++i) {
-        if (!this._checkingBytes) { ++p }
-        if (data[i] === 0x26/* & */) {
-          idxamp = i
-          break
-        }
-        if (this._checkingBytes && this._bytesVal === this.fieldSizeLimit) {
-          this._hitLimit = true
-          break
-        } else if (this._checkingBytes) { ++this._bytesVal }
-      }
-
-      if (idxamp !== undefined) {
-        ++this._fields
-        if (idxamp > p) { this._val += this.decoder.write(data.toString('binary', p, idxamp)) }
-        this.boy.emit('field', decodeText(this._key, 'binary', this.charset),
-          decodeText(this._val, 'binary', this.charset),
-          this._keyTrunc,
-          this._valTrunc)
-        this._state = 'key'
-
-        this._hitLimit = false
-        this._checkingBytes = true
-        this._key = ''
-        this._bytesKey = 0
-        this._keyTrunc = false
-        this.decoder.reset()
-
-        p = idxamp + 1
-        if (this._fields === this.fieldsLimit) { return cb() }
-      } else if (this._hitLimit) {
-        // we may not have hit the actual limit if there are encoded bytes...
-        if (i > p) { this._val += this.decoder.write(data.toString('binary', p, i)) }
-        p = i
-        if ((this._val === '' && this.fieldSizeLimit === 0) ||
-            (this._bytesVal = this._val.length) === this.fieldSizeLimit) {
-          // yep, we actually did hit the limit
-          this._checkingBytes = false
-          this._valTrunc = true
-        }
-      } else {
-        if (p < len) { this._val += this.decoder.write(data.toString('binary', p)) }
-        p = len
-      }
-    }
-  }
-  cb()
-}
-
-UrlEncoded.prototype.end = function () {
-  if (this.boy._done) { return }
-
-  if (this._state === 'key' && this._key.length > 0) {
-    this.boy.emit('field', decodeText(this._key, 'binary', this.charset),
-      '',
-      this._keyTrunc,
-      false)
-  } else if (this._state === 'val') {
-    this.boy.emit('field', decodeText(this._key, 'binary', this.charset),
-      decodeText(this._val, 'binary', this.charset),
-      this._keyTrunc,
-      this._valTrunc)
-  }
-  this.boy._done = true
-  this.boy.emit('finish')
-}
-
-module.exports = UrlEncoded
-
-
-/***/ }),
-
-/***/ 7100:
-/***/ ((module) => {
-
-
-
-const RE_PLUS = /\+/g
-
-const HEX = [
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-]
-
-function Decoder () {
-  this.buffer = undefined
-}
-Decoder.prototype.write = function (str) {
-  // Replace '+' with ' ' before decoding
-  str = str.replace(RE_PLUS, ' ')
-  let res = ''
-  let i = 0; let p = 0; const len = str.length
-  for (; i < len; ++i) {
-    if (this.buffer !== undefined) {
-      if (!HEX[str.charCodeAt(i)]) {
-        res += '%' + this.buffer
-        this.buffer = undefined
-        --i // retry character
-      } else {
-        this.buffer += str[i]
-        ++p
-        if (this.buffer.length === 2) {
-          res += String.fromCharCode(parseInt(this.buffer, 16))
-          this.buffer = undefined
-        }
-      }
-    } else if (str[i] === '%') {
-      if (i > p) {
-        res += str.substring(p, i)
-        p = i
-      }
-      this.buffer = ''
-      ++p
-    }
-  }
-  if (p < len && this.buffer === undefined) { res += str.substring(p) }
-  return res
-}
-Decoder.prototype.reset = function () {
-  this.buffer = undefined
-}
-
-module.exports = Decoder
-
-
-/***/ }),
-
-/***/ 8647:
-/***/ ((module) => {
-
-
-
-module.exports = function basename (path) {
-  if (typeof path !== 'string') { return '' }
-  for (var i = path.length - 1; i >= 0; --i) { // eslint-disable-line no-var
-    switch (path.charCodeAt(i)) {
-      case 0x2F: // '/'
-      case 0x5C: // '\'
-        path = path.slice(i + 1)
-        return (path === '..' || path === '.' ? '' : path)
-    }
-  }
-  return (path === '..' || path === '.' ? '' : path)
-}
-
-
-/***/ }),
-
-/***/ 4619:
-/***/ (function(module) {
-
-
-
-// Node has always utf-8
-const utf8Decoder = new TextDecoder('utf-8')
-const textDecoders = new Map([
-  ['utf-8', utf8Decoder],
-  ['utf8', utf8Decoder]
-])
-
-function getDecoder (charset) {
-  let lc
-  while (true) {
-    switch (charset) {
-      case 'utf-8':
-      case 'utf8':
-        return decoders.utf8
-      case 'latin1':
-      case 'ascii': // TODO: Make these a separate, strict decoder?
-      case 'us-ascii':
-      case 'iso-8859-1':
-      case 'iso8859-1':
-      case 'iso88591':
-      case 'iso_8859-1':
-      case 'windows-1252':
-      case 'iso_8859-1:1987':
-      case 'cp1252':
-      case 'x-cp1252':
-        return decoders.latin1
-      case 'utf16le':
-      case 'utf-16le':
-      case 'ucs2':
-      case 'ucs-2':
-        return decoders.utf16le
-      case 'base64':
-        return decoders.base64
-      default:
-        if (lc === undefined) {
-          lc = true
-          charset = charset.toLowerCase()
-          continue
-        }
-        return decoders.other.bind(charset)
-    }
-  }
-}
-
-const decoders = {
-  utf8: (data, sourceEncoding) => {
-    if (data.length === 0) {
-      return ''
-    }
-    if (typeof data === 'string') {
-      data = Buffer.from(data, sourceEncoding)
-    }
-    return data.utf8Slice(0, data.length)
-  },
-
-  latin1: (data, sourceEncoding) => {
-    if (data.length === 0) {
-      return ''
-    }
-    if (typeof data === 'string') {
-      return data
-    }
-    return data.latin1Slice(0, data.length)
-  },
-
-  utf16le: (data, sourceEncoding) => {
-    if (data.length === 0) {
-      return ''
-    }
-    if (typeof data === 'string') {
-      data = Buffer.from(data, sourceEncoding)
-    }
-    return data.ucs2Slice(0, data.length)
-  },
-
-  base64: (data, sourceEncoding) => {
-    if (data.length === 0) {
-      return ''
-    }
-    if (typeof data === 'string') {
-      data = Buffer.from(data, sourceEncoding)
-    }
-    return data.base64Slice(0, data.length)
-  },
-
-  other: (data, sourceEncoding) => {
-    if (data.length === 0) {
-      return ''
-    }
-    if (typeof data === 'string') {
-      data = Buffer.from(data, sourceEncoding)
-    }
-
-    if (textDecoders.has(this.toString())) {
-      try {
-        return textDecoders.get(this).decode(data)
-      } catch (e) { }
-    }
-    return typeof data === 'string'
-      ? data
-      : data.toString()
-  }
-}
-
-function decodeText (text, sourceEncoding, destEncoding) {
-  if (text) {
-    return getDecoder(destEncoding)(text, sourceEncoding)
-  }
-  return text
-}
-
-module.exports = decodeText
-
-
-/***/ }),
-
-/***/ 1467:
-/***/ ((module) => {
-
-
-
-module.exports = function getLimit (limits, name, defaultLimit) {
-  if (
-    !limits ||
-    limits[name] === undefined ||
-    limits[name] === null
-  ) { return defaultLimit }
-
-  if (
-    typeof limits[name] !== 'number' ||
-    isNaN(limits[name])
-  ) { throw new TypeError('Limit ' + name + ' is not a valid number') }
-
-  return limits[name]
-}
-
-
-/***/ }),
-
-/***/ 1854:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-/* eslint-disable object-property-newline */
-
-
-const decodeText = __nccwpck_require__(4619)
-
-const RE_ENCODED = /%[a-fA-F0-9][a-fA-F0-9]/g
-
-const EncodedLookup = {
-  '%00': '\x00', '%01': '\x01', '%02': '\x02', '%03': '\x03', '%04': '\x04',
-  '%05': '\x05', '%06': '\x06', '%07': '\x07', '%08': '\x08', '%09': '\x09',
-  '%0a': '\x0a', '%0A': '\x0a', '%0b': '\x0b', '%0B': '\x0b', '%0c': '\x0c',
-  '%0C': '\x0c', '%0d': '\x0d', '%0D': '\x0d', '%0e': '\x0e', '%0E': '\x0e',
-  '%0f': '\x0f', '%0F': '\x0f', '%10': '\x10', '%11': '\x11', '%12': '\x12',
-  '%13': '\x13', '%14': '\x14', '%15': '\x15', '%16': '\x16', '%17': '\x17',
-  '%18': '\x18', '%19': '\x19', '%1a': '\x1a', '%1A': '\x1a', '%1b': '\x1b',
-  '%1B': '\x1b', '%1c': '\x1c', '%1C': '\x1c', '%1d': '\x1d', '%1D': '\x1d',
-  '%1e': '\x1e', '%1E': '\x1e', '%1f': '\x1f', '%1F': '\x1f', '%20': '\x20',
-  '%21': '\x21', '%22': '\x22', '%23': '\x23', '%24': '\x24', '%25': '\x25',
-  '%26': '\x26', '%27': '\x27', '%28': '\x28', '%29': '\x29', '%2a': '\x2a',
-  '%2A': '\x2a', '%2b': '\x2b', '%2B': '\x2b', '%2c': '\x2c', '%2C': '\x2c',
-  '%2d': '\x2d', '%2D': '\x2d', '%2e': '\x2e', '%2E': '\x2e', '%2f': '\x2f',
-  '%2F': '\x2f', '%30': '\x30', '%31': '\x31', '%32': '\x32', '%33': '\x33',
-  '%34': '\x34', '%35': '\x35', '%36': '\x36', '%37': '\x37', '%38': '\x38',
-  '%39': '\x39', '%3a': '\x3a', '%3A': '\x3a', '%3b': '\x3b', '%3B': '\x3b',
-  '%3c': '\x3c', '%3C': '\x3c', '%3d': '\x3d', '%3D': '\x3d', '%3e': '\x3e',
-  '%3E': '\x3e', '%3f': '\x3f', '%3F': '\x3f', '%40': '\x40', '%41': '\x41',
-  '%42': '\x42', '%43': '\x43', '%44': '\x44', '%45': '\x45', '%46': '\x46',
-  '%47': '\x47', '%48': '\x48', '%49': '\x49', '%4a': '\x4a', '%4A': '\x4a',
-  '%4b': '\x4b', '%4B': '\x4b', '%4c': '\x4c', '%4C': '\x4c', '%4d': '\x4d',
-  '%4D': '\x4d', '%4e': '\x4e', '%4E': '\x4e', '%4f': '\x4f', '%4F': '\x4f',
-  '%50': '\x50', '%51': '\x51', '%52': '\x52', '%53': '\x53', '%54': '\x54',
-  '%55': '\x55', '%56': '\x56', '%57': '\x57', '%58': '\x58', '%59': '\x59',
-  '%5a': '\x5a', '%5A': '\x5a', '%5b': '\x5b', '%5B': '\x5b', '%5c': '\x5c',
-  '%5C': '\x5c', '%5d': '\x5d', '%5D': '\x5d', '%5e': '\x5e', '%5E': '\x5e',
-  '%5f': '\x5f', '%5F': '\x5f', '%60': '\x60', '%61': '\x61', '%62': '\x62',
-  '%63': '\x63', '%64': '\x64', '%65': '\x65', '%66': '\x66', '%67': '\x67',
-  '%68': '\x68', '%69': '\x69', '%6a': '\x6a', '%6A': '\x6a', '%6b': '\x6b',
-  '%6B': '\x6b', '%6c': '\x6c', '%6C': '\x6c', '%6d': '\x6d', '%6D': '\x6d',
-  '%6e': '\x6e', '%6E': '\x6e', '%6f': '\x6f', '%6F': '\x6f', '%70': '\x70',
-  '%71': '\x71', '%72': '\x72', '%73': '\x73', '%74': '\x74', '%75': '\x75',
-  '%76': '\x76', '%77': '\x77', '%78': '\x78', '%79': '\x79', '%7a': '\x7a',
-  '%7A': '\x7a', '%7b': '\x7b', '%7B': '\x7b', '%7c': '\x7c', '%7C': '\x7c',
-  '%7d': '\x7d', '%7D': '\x7d', '%7e': '\x7e', '%7E': '\x7e', '%7f': '\x7f',
-  '%7F': '\x7f', '%80': '\x80', '%81': '\x81', '%82': '\x82', '%83': '\x83',
-  '%84': '\x84', '%85': '\x85', '%86': '\x86', '%87': '\x87', '%88': '\x88',
-  '%89': '\x89', '%8a': '\x8a', '%8A': '\x8a', '%8b': '\x8b', '%8B': '\x8b',
-  '%8c': '\x8c', '%8C': '\x8c', '%8d': '\x8d', '%8D': '\x8d', '%8e': '\x8e',
-  '%8E': '\x8e', '%8f': '\x8f', '%8F': '\x8f', '%90': '\x90', '%91': '\x91',
-  '%92': '\x92', '%93': '\x93', '%94': '\x94', '%95': '\x95', '%96': '\x96',
-  '%97': '\x97', '%98': '\x98', '%99': '\x99', '%9a': '\x9a', '%9A': '\x9a',
-  '%9b': '\x9b', '%9B': '\x9b', '%9c': '\x9c', '%9C': '\x9c', '%9d': '\x9d',
-  '%9D': '\x9d', '%9e': '\x9e', '%9E': '\x9e', '%9f': '\x9f', '%9F': '\x9f',
-  '%a0': '\xa0', '%A0': '\xa0', '%a1': '\xa1', '%A1': '\xa1', '%a2': '\xa2',
-  '%A2': '\xa2', '%a3': '\xa3', '%A3': '\xa3', '%a4': '\xa4', '%A4': '\xa4',
-  '%a5': '\xa5', '%A5': '\xa5', '%a6': '\xa6', '%A6': '\xa6', '%a7': '\xa7',
-  '%A7': '\xa7', '%a8': '\xa8', '%A8': '\xa8', '%a9': '\xa9', '%A9': '\xa9',
-  '%aa': '\xaa', '%Aa': '\xaa', '%aA': '\xaa', '%AA': '\xaa', '%ab': '\xab',
-  '%Ab': '\xab', '%aB': '\xab', '%AB': '\xab', '%ac': '\xac', '%Ac': '\xac',
-  '%aC': '\xac', '%AC': '\xac', '%ad': '\xad', '%Ad': '\xad', '%aD': '\xad',
-  '%AD': '\xad', '%ae': '\xae', '%Ae': '\xae', '%aE': '\xae', '%AE': '\xae',
-  '%af': '\xaf', '%Af': '\xaf', '%aF': '\xaf', '%AF': '\xaf', '%b0': '\xb0',
-  '%B0': '\xb0', '%b1': '\xb1', '%B1': '\xb1', '%b2': '\xb2', '%B2': '\xb2',
-  '%b3': '\xb3', '%B3': '\xb3', '%b4': '\xb4', '%B4': '\xb4', '%b5': '\xb5',
-  '%B5': '\xb5', '%b6': '\xb6', '%B6': '\xb6', '%b7': '\xb7', '%B7': '\xb7',
-  '%b8': '\xb8', '%B8': '\xb8', '%b9': '\xb9', '%B9': '\xb9', '%ba': '\xba',
-  '%Ba': '\xba', '%bA': '\xba', '%BA': '\xba', '%bb': '\xbb', '%Bb': '\xbb',
-  '%bB': '\xbb', '%BB': '\xbb', '%bc': '\xbc', '%Bc': '\xbc', '%bC': '\xbc',
-  '%BC': '\xbc', '%bd': '\xbd', '%Bd': '\xbd', '%bD': '\xbd', '%BD': '\xbd',
-  '%be': '\xbe', '%Be': '\xbe', '%bE': '\xbe', '%BE': '\xbe', '%bf': '\xbf',
-  '%Bf': '\xbf', '%bF': '\xbf', '%BF': '\xbf', '%c0': '\xc0', '%C0': '\xc0',
-  '%c1': '\xc1', '%C1': '\xc1', '%c2': '\xc2', '%C2': '\xc2', '%c3': '\xc3',
-  '%C3': '\xc3', '%c4': '\xc4', '%C4': '\xc4', '%c5': '\xc5', '%C5': '\xc5',
-  '%c6': '\xc6', '%C6': '\xc6', '%c7': '\xc7', '%C7': '\xc7', '%c8': '\xc8',
-  '%C8': '\xc8', '%c9': '\xc9', '%C9': '\xc9', '%ca': '\xca', '%Ca': '\xca',
-  '%cA': '\xca', '%CA': '\xca', '%cb': '\xcb', '%Cb': '\xcb', '%cB': '\xcb',
-  '%CB': '\xcb', '%cc': '\xcc', '%Cc': '\xcc', '%cC': '\xcc', '%CC': '\xcc',
-  '%cd': '\xcd', '%Cd': '\xcd', '%cD': '\xcd', '%CD': '\xcd', '%ce': '\xce',
-  '%Ce': '\xce', '%cE': '\xce', '%CE': '\xce', '%cf': '\xcf', '%Cf': '\xcf',
-  '%cF': '\xcf', '%CF': '\xcf', '%d0': '\xd0', '%D0': '\xd0', '%d1': '\xd1',
-  '%D1': '\xd1', '%d2': '\xd2', '%D2': '\xd2', '%d3': '\xd3', '%D3': '\xd3',
-  '%d4': '\xd4', '%D4': '\xd4', '%d5': '\xd5', '%D5': '\xd5', '%d6': '\xd6',
-  '%D6': '\xd6', '%d7': '\xd7', '%D7': '\xd7', '%d8': '\xd8', '%D8': '\xd8',
-  '%d9': '\xd9', '%D9': '\xd9', '%da': '\xda', '%Da': '\xda', '%dA': '\xda',
-  '%DA': '\xda', '%db': '\xdb', '%Db': '\xdb', '%dB': '\xdb', '%DB': '\xdb',
-  '%dc': '\xdc', '%Dc': '\xdc', '%dC': '\xdc', '%DC': '\xdc', '%dd': '\xdd',
-  '%Dd': '\xdd', '%dD': '\xdd', '%DD': '\xdd', '%de': '\xde', '%De': '\xde',
-  '%dE': '\xde', '%DE': '\xde', '%df': '\xdf', '%Df': '\xdf', '%dF': '\xdf',
-  '%DF': '\xdf', '%e0': '\xe0', '%E0': '\xe0', '%e1': '\xe1', '%E1': '\xe1',
-  '%e2': '\xe2', '%E2': '\xe2', '%e3': '\xe3', '%E3': '\xe3', '%e4': '\xe4',
-  '%E4': '\xe4', '%e5': '\xe5', '%E5': '\xe5', '%e6': '\xe6', '%E6': '\xe6',
-  '%e7': '\xe7', '%E7': '\xe7', '%e8': '\xe8', '%E8': '\xe8', '%e9': '\xe9',
-  '%E9': '\xe9', '%ea': '\xea', '%Ea': '\xea', '%eA': '\xea', '%EA': '\xea',
-  '%eb': '\xeb', '%Eb': '\xeb', '%eB': '\xeb', '%EB': '\xeb', '%ec': '\xec',
-  '%Ec': '\xec', '%eC': '\xec', '%EC': '\xec', '%ed': '\xed', '%Ed': '\xed',
-  '%eD': '\xed', '%ED': '\xed', '%ee': '\xee', '%Ee': '\xee', '%eE': '\xee',
-  '%EE': '\xee', '%ef': '\xef', '%Ef': '\xef', '%eF': '\xef', '%EF': '\xef',
-  '%f0': '\xf0', '%F0': '\xf0', '%f1': '\xf1', '%F1': '\xf1', '%f2': '\xf2',
-  '%F2': '\xf2', '%f3': '\xf3', '%F3': '\xf3', '%f4': '\xf4', '%F4': '\xf4',
-  '%f5': '\xf5', '%F5': '\xf5', '%f6': '\xf6', '%F6': '\xf6', '%f7': '\xf7',
-  '%F7': '\xf7', '%f8': '\xf8', '%F8': '\xf8', '%f9': '\xf9', '%F9': '\xf9',
-  '%fa': '\xfa', '%Fa': '\xfa', '%fA': '\xfa', '%FA': '\xfa', '%fb': '\xfb',
-  '%Fb': '\xfb', '%fB': '\xfb', '%FB': '\xfb', '%fc': '\xfc', '%Fc': '\xfc',
-  '%fC': '\xfc', '%FC': '\xfc', '%fd': '\xfd', '%Fd': '\xfd', '%fD': '\xfd',
-  '%FD': '\xfd', '%fe': '\xfe', '%Fe': '\xfe', '%fE': '\xfe', '%FE': '\xfe',
-  '%ff': '\xff', '%Ff': '\xff', '%fF': '\xff', '%FF': '\xff'
-}
-
-function encodedReplacer (match) {
-  return EncodedLookup[match]
-}
-
-const STATE_KEY = 0
-const STATE_VALUE = 1
-const STATE_CHARSET = 2
-const STATE_LANG = 3
-
-function parseParams (str) {
-  const res = []
-  let state = STATE_KEY
-  let charset = ''
-  let inquote = false
-  let escaping = false
-  let p = 0
-  let tmp = ''
-  const len = str.length
-
-  for (var i = 0; i < len; ++i) { // eslint-disable-line no-var
-    const char = str[i]
-    if (char === '\\' && inquote) {
-      if (escaping) { escaping = false } else {
-        escaping = true
-        continue
-      }
-    } else if (char === '"') {
-      if (!escaping) {
-        if (inquote) {
-          inquote = false
-          state = STATE_KEY
-        } else { inquote = true }
-        continue
-      } else { escaping = false }
-    } else {
-      if (escaping && inquote) { tmp += '\\' }
-      escaping = false
-      if ((state === STATE_CHARSET || state === STATE_LANG) && char === "'") {
-        if (state === STATE_CHARSET) {
-          state = STATE_LANG
-          charset = tmp.substring(1)
-        } else { state = STATE_VALUE }
-        tmp = ''
-        continue
-      } else if (state === STATE_KEY &&
-        (char === '*' || char === '=') &&
-        res.length) {
-        state = char === '*'
-          ? STATE_CHARSET
-          : STATE_VALUE
-        res[p] = [tmp, undefined]
-        tmp = ''
-        continue
-      } else if (!inquote && char === ';') {
-        state = STATE_KEY
-        if (charset) {
-          if (tmp.length) {
-            tmp = decodeText(tmp.replace(RE_ENCODED, encodedReplacer),
-              'binary',
-              charset)
-          }
-          charset = ''
-        } else if (tmp.length) {
-          tmp = decodeText(tmp, 'binary', 'utf8')
-        }
-        if (res[p] === undefined) { res[p] = tmp } else { res[p][1] = tmp }
-        tmp = ''
-        ++p
-        continue
-      } else if (!inquote && (char === ' ' || char === '\t')) { continue }
-    }
-    tmp += char
-  }
-  if (charset && tmp.length) {
-    tmp = decodeText(tmp.replace(RE_ENCODED, encodedReplacer),
-      'binary',
-      charset)
-  } else if (tmp) {
-    tmp = decodeText(tmp, 'binary', 'utf8')
-  }
-
-  if (res[p] === undefined) {
-    if (tmp) { res[p] = tmp }
-  } else { res[p][1] = tmp }
-
-  return res
-}
-
-module.exports = parseParams
-
-
-/***/ }),
-
-/***/ 8082:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-
-var PlainValue = __nccwpck_require__(4941);
-var resolveSeq = __nccwpck_require__(9914);
-var Schema = __nccwpck_require__(1387);
-
-const defaultOptions = {
-  anchorPrefix: 'a',
-  customTags: null,
-  indent: 2,
-  indentSeq: true,
-  keepCstNodes: false,
-  keepNodeTypes: true,
-  keepBlobsInJSON: true,
-  mapAsMap: false,
-  maxAliasCount: 100,
-  prettyErrors: false,
-  // TODO Set true in v2
-  simpleKeys: false,
-  version: '1.2'
-};
-const scalarOptions = {
-  get binary() {
-    return resolveSeq.binaryOptions;
-  },
-
-  set binary(opt) {
-    Object.assign(resolveSeq.binaryOptions, opt);
-  },
-
-  get bool() {
-    return resolveSeq.boolOptions;
-  },
-
-  set bool(opt) {
-    Object.assign(resolveSeq.boolOptions, opt);
-  },
-
-  get int() {
-    return resolveSeq.intOptions;
-  },
-
-  set int(opt) {
-    Object.assign(resolveSeq.intOptions, opt);
-  },
-
-  get null() {
-    return resolveSeq.nullOptions;
-  },
-
-  set null(opt) {
-    Object.assign(resolveSeq.nullOptions, opt);
-  },
-
-  get str() {
-    return resolveSeq.strOptions;
-  },
-
-  set str(opt) {
-    Object.assign(resolveSeq.strOptions, opt);
-  }
-
-};
-const documentOptions = {
-  '1.0': {
-    schema: 'yaml-1.1',
-    merge: true,
-    tagPrefixes: [{
-      handle: '!',
-      prefix: PlainValue.defaultTagPrefix
-    }, {
-      handle: '!!',
-      prefix: 'tag:private.yaml.org,2002:'
-    }]
-  },
-  1.1: {
-    schema: 'yaml-1.1',
-    merge: true,
-    tagPrefixes: [{
-      handle: '!',
-      prefix: '!'
-    }, {
-      handle: '!!',
-      prefix: PlainValue.defaultTagPrefix
-    }]
-  },
-  1.2: {
-    schema: 'core',
-    merge: false,
-    tagPrefixes: [{
-      handle: '!',
-      prefix: '!'
-    }, {
-      handle: '!!',
-      prefix: PlainValue.defaultTagPrefix
-    }]
-  }
-};
-
-function stringifyTag(doc, tag) {
-  if ((doc.version || doc.options.version) === '1.0') {
-    const priv = tag.match(/^tag:private\.yaml\.org,2002:([^:/]+)$/);
-    if (priv) return '!' + priv[1];
-    const vocab = tag.match(/^tag:([a-zA-Z0-9-]+)\.yaml\.org,2002:(.*)/);
-    return vocab ? `!${vocab[1]}/${vocab[2]}` : `!${tag.replace(/^tag:/, '')}`;
-  }
-
-  let p = doc.tagPrefixes.find(p => tag.indexOf(p.prefix) === 0);
-
-  if (!p) {
-    const dtp = doc.getDefaults().tagPrefixes;
-    p = dtp && dtp.find(p => tag.indexOf(p.prefix) === 0);
-  }
-
-  if (!p) return tag[0] === '!' ? tag : `!<${tag}>`;
-  const suffix = tag.substr(p.prefix.length).replace(/[!,[\]{}]/g, ch => ({
-    '!': '%21',
-    ',': '%2C',
-    '[': '%5B',
-    ']': '%5D',
-    '{': '%7B',
-    '}': '%7D'
-  })[ch]);
-  return p.handle + suffix;
-}
-
-function getTagObject(tags, item) {
-  if (item instanceof resolveSeq.Alias) return resolveSeq.Alias;
-
-  if (item.tag) {
-    const match = tags.filter(t => t.tag === item.tag);
-    if (match.length > 0) return match.find(t => t.format === item.format) || match[0];
-  }
-
-  let tagObj, obj;
-
-  if (item instanceof resolveSeq.Scalar) {
-    obj = item.value; // TODO: deprecate/remove class check
-
-    const match = tags.filter(t => t.identify && t.identify(obj) || t.class && obj instanceof t.class);
-    tagObj = match.find(t => t.format === item.format) || match.find(t => !t.format);
-  } else {
-    obj = item;
-    tagObj = tags.find(t => t.nodeClass && obj instanceof t.nodeClass);
-  }
-
-  if (!tagObj) {
-    const name = obj && obj.constructor ? obj.constructor.name : typeof obj;
-    throw new Error(`Tag not resolved for ${name} value`);
-  }
-
-  return tagObj;
-} // needs to be called before value stringifier to allow for circular anchor refs
-
-
-function stringifyProps(node, tagObj, {
-  anchors,
-  doc
-}) {
-  const props = [];
-  const anchor = doc.anchors.getName(node);
-
-  if (anchor) {
-    anchors[anchor] = node;
-    props.push(`&${anchor}`);
-  }
-
-  if (node.tag) {
-    props.push(stringifyTag(doc, node.tag));
-  } else if (!tagObj.default) {
-    props.push(stringifyTag(doc, tagObj.tag));
-  }
-
-  return props.join(' ');
-}
-
-function stringify(item, ctx, onComment, onChompKeep) {
-  const {
-    anchors,
-    schema
-  } = ctx.doc;
-  let tagObj;
-
-  if (!(item instanceof resolveSeq.Node)) {
-    const createCtx = {
-      aliasNodes: [],
-      onTagObj: o => tagObj = o,
-      prevObjects: new Map()
-    };
-    item = schema.createNode(item, true, null, createCtx);
-
-    for (const alias of createCtx.aliasNodes) {
-      alias.source = alias.source.node;
-      let name = anchors.getName(alias.source);
-
-      if (!name) {
-        name = anchors.newName();
-        anchors.map[name] = alias.source;
-      }
-    }
-  }
-
-  if (item instanceof resolveSeq.Pair) return item.toString(ctx, onComment, onChompKeep);
-  if (!tagObj) tagObj = getTagObject(schema.tags, item);
-  const props = stringifyProps(item, tagObj, ctx);
-  if (props.length > 0) ctx.indentAtStart = (ctx.indentAtStart || 0) + props.length + 1;
-  const str = typeof tagObj.stringify === 'function' ? tagObj.stringify(item, ctx, onComment, onChompKeep) : item instanceof resolveSeq.Scalar ? resolveSeq.stringifyString(item, ctx, onComment, onChompKeep) : item.toString(ctx, onComment, onChompKeep);
-  if (!props) return str;
-  return item instanceof resolveSeq.Scalar || str[0] === '{' || str[0] === '[' ? `${props} ${str}` : `${props}\n${ctx.indent}${str}`;
-}
-
-class Anchors {
-  static validAnchorNode(node) {
-    return node instanceof resolveSeq.Scalar || node instanceof resolveSeq.YAMLSeq || node instanceof resolveSeq.YAMLMap;
-  }
-
-  constructor(prefix) {
-    PlainValue._defineProperty(this, "map", Object.create(null));
-
-    this.prefix = prefix;
-  }
-
-  createAlias(node, name) {
-    this.setAnchor(node, name);
-    return new resolveSeq.Alias(node);
-  }
-
-  createMergePair(...sources) {
-    const merge = new resolveSeq.Merge();
-    merge.value.items = sources.map(s => {
-      if (s instanceof resolveSeq.Alias) {
-        if (s.source instanceof resolveSeq.YAMLMap) return s;
-      } else if (s instanceof resolveSeq.YAMLMap) {
-        return this.createAlias(s);
-      }
-
-      throw new Error('Merge sources must be Map nodes or their Aliases');
-    });
-    return merge;
-  }
-
-  getName(node) {
-    const {
-      map
-    } = this;
-    return Object.keys(map).find(a => map[a] === node);
-  }
-
-  getNames() {
-    return Object.keys(this.map);
-  }
-
-  getNode(name) {
-    return this.map[name];
-  }
-
-  newName(prefix) {
-    if (!prefix) prefix = this.prefix;
-    const names = Object.keys(this.map);
-
-    for (let i = 1; true; ++i) {
-      const name = `${prefix}${i}`;
-      if (!names.includes(name)) return name;
-    }
-  } // During parsing, map & aliases contain CST nodes
-
-
-  resolveNodes() {
-    const {
-      map,
-      _cstAliases
-    } = this;
-    Object.keys(map).forEach(a => {
-      map[a] = map[a].resolved;
-    });
-
-    _cstAliases.forEach(a => {
-      a.source = a.source.resolved;
-    });
-
-    delete this._cstAliases;
-  }
-
-  setAnchor(node, name) {
-    if (node != null && !Anchors.validAnchorNode(node)) {
-      throw new Error('Anchors may only be set for Scalar, Seq and Map nodes');
-    }
-
-    if (name && /[\x00-\x19\s,[\]{}]/.test(name)) {
-      throw new Error('Anchor names must not contain whitespace or control characters');
-    }
-
-    const {
-      map
-    } = this;
-    const prev = node && Object.keys(map).find(a => map[a] === node);
-
-    if (prev) {
-      if (!name) {
-        return prev;
-      } else if (prev !== name) {
-        delete map[prev];
-        map[name] = node;
-      }
-    } else {
-      if (!name) {
-        if (!node) return null;
-        name = this.newName();
-      }
-
-      map[name] = node;
-    }
-
-    return name;
-  }
-
-}
-
-const visit = (node, tags) => {
-  if (node && typeof node === 'object') {
-    const {
-      tag
-    } = node;
-
-    if (node instanceof resolveSeq.Collection) {
-      if (tag) tags[tag] = true;
-      node.items.forEach(n => visit(n, tags));
-    } else if (node instanceof resolveSeq.Pair) {
-      visit(node.key, tags);
-      visit(node.value, tags);
-    } else if (node instanceof resolveSeq.Scalar) {
-      if (tag) tags[tag] = true;
-    }
-  }
-
-  return tags;
-};
-
-const listTagNames = node => Object.keys(visit(node, {}));
-
-function parseContents(doc, contents) {
-  const comments = {
-    before: [],
-    after: []
-  };
-  let body = undefined;
-  let spaceBefore = false;
-
-  for (const node of contents) {
-    if (node.valueRange) {
-      if (body !== undefined) {
-        const msg = 'Document contains trailing content not separated by a ... or --- line';
-        doc.errors.push(new PlainValue.YAMLSyntaxError(node, msg));
-        break;
-      }
-
-      const res = resolveSeq.resolveNode(doc, node);
-
-      if (spaceBefore) {
-        res.spaceBefore = true;
-        spaceBefore = false;
-      }
-
-      body = res;
-    } else if (node.comment !== null) {
-      const cc = body === undefined ? comments.before : comments.after;
-      cc.push(node.comment);
-    } else if (node.type === PlainValue.Type.BLANK_LINE) {
-      spaceBefore = true;
-
-      if (body === undefined && comments.before.length > 0 && !doc.commentBefore) {
-        // space-separated comments at start are parsed as document comments
-        doc.commentBefore = comments.before.join('\n');
-        comments.before = [];
-      }
-    }
-  }
-
-  doc.contents = body || null;
-
-  if (!body) {
-    doc.comment = comments.before.concat(comments.after).join('\n') || null;
-  } else {
-    const cb = comments.before.join('\n');
-
-    if (cb) {
-      const cbNode = body instanceof resolveSeq.Collection && body.items[0] ? body.items[0] : body;
-      cbNode.commentBefore = cbNode.commentBefore ? `${cb}\n${cbNode.commentBefore}` : cb;
-    }
-
-    doc.comment = comments.after.join('\n') || null;
-  }
-}
-
-function resolveTagDirective({
-  tagPrefixes
-}, directive) {
-  const [handle, prefix] = directive.parameters;
-
-  if (!handle || !prefix) {
-    const msg = 'Insufficient parameters given for %TAG directive';
-    throw new PlainValue.YAMLSemanticError(directive, msg);
-  }
-
-  if (tagPrefixes.some(p => p.handle === handle)) {
-    const msg = 'The %TAG directive must only be given at most once per handle in the same document.';
-    throw new PlainValue.YAMLSemanticError(directive, msg);
-  }
-
-  return {
-    handle,
-    prefix
-  };
-}
-
-function resolveYamlDirective(doc, directive) {
-  let [version] = directive.parameters;
-  if (directive.name === 'YAML:1.0') version = '1.0';
-
-  if (!version) {
-    const msg = 'Insufficient parameters given for %YAML directive';
-    throw new PlainValue.YAMLSemanticError(directive, msg);
-  }
-
-  if (!documentOptions[version]) {
-    const v0 = doc.version || doc.options.version;
-    const msg = `Document will be parsed as YAML ${v0} rather than YAML ${version}`;
-    doc.warnings.push(new PlainValue.YAMLWarning(directive, msg));
-  }
-
-  return version;
-}
-
-function parseDirectives(doc, directives, prevDoc) {
-  const directiveComments = [];
-  let hasDirectives = false;
-
-  for (const directive of directives) {
-    const {
-      comment,
-      name
-    } = directive;
-
-    switch (name) {
-      case 'TAG':
-        try {
-          doc.tagPrefixes.push(resolveTagDirective(doc, directive));
-        } catch (error) {
-          doc.errors.push(error);
-        }
-
-        hasDirectives = true;
-        break;
-
-      case 'YAML':
-      case 'YAML:1.0':
-        if (doc.version) {
-          const msg = 'The %YAML directive must only be given at most once per document.';
-          doc.errors.push(new PlainValue.YAMLSemanticError(directive, msg));
-        }
-
-        try {
-          doc.version = resolveYamlDirective(doc, directive);
-        } catch (error) {
-          doc.errors.push(error);
-        }
-
-        hasDirectives = true;
-        break;
-
-      default:
-        if (name) {
-          const msg = `YAML only supports %TAG and %YAML directives, and not %${name}`;
-          doc.warnings.push(new PlainValue.YAMLWarning(directive, msg));
-        }
-
-    }
-
-    if (comment) directiveComments.push(comment);
-  }
-
-  if (prevDoc && !hasDirectives && '1.1' === (doc.version || prevDoc.version || doc.options.version)) {
-    const copyTagPrefix = ({
-      handle,
-      prefix
-    }) => ({
-      handle,
-      prefix
-    });
-
-    doc.tagPrefixes = prevDoc.tagPrefixes.map(copyTagPrefix);
-    doc.version = prevDoc.version;
-  }
-
-  doc.commentBefore = directiveComments.join('\n') || null;
-}
-
-function assertCollection(contents) {
-  if (contents instanceof resolveSeq.Collection) return true;
-  throw new Error('Expected a YAML collection as document contents');
-}
-
-class Document {
-  constructor(options) {
-    this.anchors = new Anchors(options.anchorPrefix);
-    this.commentBefore = null;
-    this.comment = null;
-    this.contents = null;
-    this.directivesEndMarker = null;
-    this.errors = [];
-    this.options = options;
-    this.schema = null;
-    this.tagPrefixes = [];
-    this.version = null;
-    this.warnings = [];
-  }
-
-  add(value) {
-    assertCollection(this.contents);
-    return this.contents.add(value);
-  }
-
-  addIn(path, value) {
-    assertCollection(this.contents);
-    this.contents.addIn(path, value);
-  }
-
-  delete(key) {
-    assertCollection(this.contents);
-    return this.contents.delete(key);
-  }
-
-  deleteIn(path) {
-    if (resolveSeq.isEmptyPath(path)) {
-      if (this.contents == null) return false;
-      this.contents = null;
-      return true;
-    }
-
-    assertCollection(this.contents);
-    return this.contents.deleteIn(path);
-  }
-
-  getDefaults() {
-    return Document.defaults[this.version] || Document.defaults[this.options.version] || {};
-  }
-
-  get(key, keepScalar) {
-    return this.contents instanceof resolveSeq.Collection ? this.contents.get(key, keepScalar) : undefined;
-  }
-
-  getIn(path, keepScalar) {
-    if (resolveSeq.isEmptyPath(path)) return !keepScalar && this.contents instanceof resolveSeq.Scalar ? this.contents.value : this.contents;
-    return this.contents instanceof resolveSeq.Collection ? this.contents.getIn(path, keepScalar) : undefined;
-  }
-
-  has(key) {
-    return this.contents instanceof resolveSeq.Collection ? this.contents.has(key) : false;
-  }
-
-  hasIn(path) {
-    if (resolveSeq.isEmptyPath(path)) return this.contents !== undefined;
-    return this.contents instanceof resolveSeq.Collection ? this.contents.hasIn(path) : false;
-  }
-
-  set(key, value) {
-    assertCollection(this.contents);
-    this.contents.set(key, value);
-  }
-
-  setIn(path, value) {
-    if (resolveSeq.isEmptyPath(path)) this.contents = value;else {
-      assertCollection(this.contents);
-      this.contents.setIn(path, value);
-    }
-  }
-
-  setSchema(id, customTags) {
-    if (!id && !customTags && this.schema) return;
-    if (typeof id === 'number') id = id.toFixed(1);
-
-    if (id === '1.0' || id === '1.1' || id === '1.2') {
-      if (this.version) this.version = id;else this.options.version = id;
-      delete this.options.schema;
-    } else if (id && typeof id === 'string') {
-      this.options.schema = id;
-    }
-
-    if (Array.isArray(customTags)) this.options.customTags = customTags;
-    const opt = Object.assign({}, this.getDefaults(), this.options);
-    this.schema = new Schema.Schema(opt);
-  }
-
-  parse(node, prevDoc) {
-    if (this.options.keepCstNodes) this.cstNode = node;
-    if (this.options.keepNodeTypes) this.type = 'DOCUMENT';
-    const {
-      directives = [],
-      contents = [],
-      directivesEndMarker,
-      error,
-      valueRange
-    } = node;
-
-    if (error) {
-      if (!error.source) error.source = this;
-      this.errors.push(error);
-    }
-
-    parseDirectives(this, directives, prevDoc);
-    if (directivesEndMarker) this.directivesEndMarker = true;
-    this.range = valueRange ? [valueRange.start, valueRange.end] : null;
-    this.setSchema();
-    this.anchors._cstAliases = [];
-    parseContents(this, contents);
-    this.anchors.resolveNodes();
-
-    if (this.options.prettyErrors) {
-      for (const error of this.errors) if (error instanceof PlainValue.YAMLError) error.makePretty();
-
-      for (const warn of this.warnings) if (warn instanceof PlainValue.YAMLError) warn.makePretty();
-    }
-
-    return this;
-  }
-
-  listNonDefaultTags() {
-    return listTagNames(this.contents).filter(t => t.indexOf(Schema.Schema.defaultPrefix) !== 0);
-  }
-
-  setTagPrefix(handle, prefix) {
-    if (handle[0] !== '!' || handle[handle.length - 1] !== '!') throw new Error('Handle must start and end with !');
-
-    if (prefix) {
-      const prev = this.tagPrefixes.find(p => p.handle === handle);
-      if (prev) prev.prefix = prefix;else this.tagPrefixes.push({
-        handle,
-        prefix
-      });
-    } else {
-      this.tagPrefixes = this.tagPrefixes.filter(p => p.handle !== handle);
-    }
-  }
-
-  toJSON(arg, onAnchor) {
-    const {
-      keepBlobsInJSON,
-      mapAsMap,
-      maxAliasCount
-    } = this.options;
-    const keep = keepBlobsInJSON && (typeof arg !== 'string' || !(this.contents instanceof resolveSeq.Scalar));
-    const ctx = {
-      doc: this,
-      indentStep: '  ',
-      keep,
-      mapAsMap: keep && !!mapAsMap,
-      maxAliasCount,
-      stringify // Requiring directly in Pair would create circular dependencies
-
-    };
-    const anchorNames = Object.keys(this.anchors.map);
-    if (anchorNames.length > 0) ctx.anchors = new Map(anchorNames.map(name => [this.anchors.map[name], {
-      alias: [],
-      aliasCount: 0,
-      count: 1
-    }]));
-    const res = resolveSeq.toJSON(this.contents, arg, ctx);
-    if (typeof onAnchor === 'function' && ctx.anchors) for (const {
-      count,
-      res
-    } of ctx.anchors.values()) onAnchor(res, count);
-    return res;
-  }
-
-  toString() {
-    if (this.errors.length > 0) throw new Error('Document with errors cannot be stringified');
-    const indentSize = this.options.indent;
-
-    if (!Number.isInteger(indentSize) || indentSize <= 0) {
-      const s = JSON.stringify(indentSize);
-      throw new Error(`"indent" option must be a positive integer, not ${s}`);
-    }
-
-    this.setSchema();
-    const lines = [];
-    let hasDirectives = false;
-
-    if (this.version) {
-      let vd = '%YAML 1.2';
-
-      if (this.schema.name === 'yaml-1.1') {
-        if (this.version === '1.0') vd = '%YAML:1.0';else if (this.version === '1.1') vd = '%YAML 1.1';
-      }
-
-      lines.push(vd);
-      hasDirectives = true;
-    }
-
-    const tagNames = this.listNonDefaultTags();
-    this.tagPrefixes.forEach(({
-      handle,
-      prefix
-    }) => {
-      if (tagNames.some(t => t.indexOf(prefix) === 0)) {
-        lines.push(`%TAG ${handle} ${prefix}`);
-        hasDirectives = true;
-      }
-    });
-    if (hasDirectives || this.directivesEndMarker) lines.push('---');
-
-    if (this.commentBefore) {
-      if (hasDirectives || !this.directivesEndMarker) lines.unshift('');
-      lines.unshift(this.commentBefore.replace(/^/gm, '#'));
-    }
-
-    const ctx = {
-      anchors: Object.create(null),
-      doc: this,
-      indent: '',
-      indentStep: ' '.repeat(indentSize),
-      stringify // Requiring directly in nodes would create circular dependencies
-
-    };
-    let chompKeep = false;
-    let contentComment = null;
-
-    if (this.contents) {
-      if (this.contents instanceof resolveSeq.Node) {
-        if (this.contents.spaceBefore && (hasDirectives || this.directivesEndMarker)) lines.push('');
-        if (this.contents.commentBefore) lines.push(this.contents.commentBefore.replace(/^/gm, '#')); // top-level block scalars need to be indented if followed by a comment
-
-        ctx.forceBlockIndent = !!this.comment;
-        contentComment = this.contents.comment;
-      }
-
-      const onChompKeep = contentComment ? null : () => chompKeep = true;
-      const body = stringify(this.contents, ctx, () => contentComment = null, onChompKeep);
-      lines.push(resolveSeq.addComment(body, '', contentComment));
-    } else if (this.contents !== undefined) {
-      lines.push(stringify(this.contents, ctx));
-    }
-
-    if (this.comment) {
-      if ((!chompKeep || contentComment) && lines[lines.length - 1] !== '') lines.push('');
-      lines.push(this.comment.replace(/^/gm, '#'));
-    }
-
-    return lines.join('\n') + '\n';
-  }
-
-}
-
-PlainValue._defineProperty(Document, "defaults", documentOptions);
-
-exports.Document = Document;
-exports.defaultOptions = defaultOptions;
-exports.scalarOptions = scalarOptions;
-
-
-/***/ }),
-
-/***/ 4941:
-/***/ ((__unused_webpack_module, exports) => {
-
-
-
-const Char = {
-  ANCHOR: '&',
-  COMMENT: '#',
-  TAG: '!',
-  DIRECTIVES_END: '-',
-  DOCUMENT_END: '.'
-};
-const Type = {
-  ALIAS: 'ALIAS',
-  BLANK_LINE: 'BLANK_LINE',
-  BLOCK_FOLDED: 'BLOCK_FOLDED',
-  BLOCK_LITERAL: 'BLOCK_LITERAL',
-  COMMENT: 'COMMENT',
-  DIRECTIVE: 'DIRECTIVE',
-  DOCUMENT: 'DOCUMENT',
-  FLOW_MAP: 'FLOW_MAP',
-  FLOW_SEQ: 'FLOW_SEQ',
-  MAP: 'MAP',
-  MAP_KEY: 'MAP_KEY',
-  MAP_VALUE: 'MAP_VALUE',
-  PLAIN: 'PLAIN',
-  QUOTE_DOUBLE: 'QUOTE_DOUBLE',
-  QUOTE_SINGLE: 'QUOTE_SINGLE',
-  SEQ: 'SEQ',
-  SEQ_ITEM: 'SEQ_ITEM'
-};
-const defaultTagPrefix = 'tag:yaml.org,2002:';
-const defaultTags = {
-  MAP: 'tag:yaml.org,2002:map',
-  SEQ: 'tag:yaml.org,2002:seq',
-  STR: 'tag:yaml.org,2002:str'
-};
-
-function findLineStarts(src) {
-  const ls = [0];
-  let offset = src.indexOf('\n');
-
-  while (offset !== -1) {
-    offset += 1;
-    ls.push(offset);
-    offset = src.indexOf('\n', offset);
-  }
-
-  return ls;
-}
-
-function getSrcInfo(cst) {
-  let lineStarts, src;
-
-  if (typeof cst === 'string') {
-    lineStarts = findLineStarts(cst);
-    src = cst;
-  } else {
-    if (Array.isArray(cst)) cst = cst[0];
-
-    if (cst && cst.context) {
-      if (!cst.lineStarts) cst.lineStarts = findLineStarts(cst.context.src);
-      lineStarts = cst.lineStarts;
-      src = cst.context.src;
-    }
-  }
-
-  return {
-    lineStarts,
-    src
-  };
-}
-/**
- * @typedef {Object} LinePos - One-indexed position in the source
- * @property {number} line
- * @property {number} col
+ * The entrypoint for the action.
  */
 
-/**
- * Determine the line/col position matching a character offset.
- *
- * Accepts a source string or a CST document as the second parameter. With
- * the latter, starting indices for lines are cached in the document as
- * `lineStarts: number[]`.
- *
- * Returns a one-indexed `{ line, col }` location if found, or
- * `undefined` otherwise.
- *
- * @param {number} offset
- * @param {string|Document|Document[]} cst
- * @returns {?LinePos}
- */
+await (0,_main__WEBPACK_IMPORTED_MODULE_0__/* .run */ .K)();
 
-
-function getLinePos(offset, cst) {
-  if (typeof offset !== 'number' || offset < 0) return null;
-  const {
-    lineStarts,
-    src
-  } = getSrcInfo(cst);
-  if (!lineStarts || !src || offset > src.length) return null;
-
-  for (let i = 0; i < lineStarts.length; ++i) {
-    const start = lineStarts[i];
-
-    if (offset < start) {
-      return {
-        line: i,
-        col: offset - lineStarts[i - 1] + 1
-      };
-    }
-
-    if (offset === start) return {
-      line: i + 1,
-      col: 1
-    };
-  }
-
-  const line = lineStarts.length;
-  return {
-    line,
-    col: offset - lineStarts[line - 1] + 1
-  };
-}
-/**
- * Get a specified line from the source.
- *
- * Accepts a source string or a CST document as the second parameter. With
- * the latter, starting indices for lines are cached in the document as
- * `lineStarts: number[]`.
- *
- * Returns the line as a string if found, or `null` otherwise.
- *
- * @param {number} line One-indexed line number
- * @param {string|Document|Document[]} cst
- * @returns {?string}
- */
-
-function getLine(line, cst) {
-  const {
-    lineStarts,
-    src
-  } = getSrcInfo(cst);
-  if (!lineStarts || !(line >= 1) || line > lineStarts.length) return null;
-  const start = lineStarts[line - 1];
-  let end = lineStarts[line]; // undefined for last line; that's ok for slice()
-
-  while (end && end > start && src[end - 1] === '\n') --end;
-
-  return src.slice(start, end);
-}
-/**
- * Pretty-print the starting line from the source indicated by the range `pos`
- *
- * Trims output to `maxWidth` chars while keeping the starting column visible,
- * using `…` at either end to indicate dropped characters.
- *
- * Returns a two-line string (or `null`) with `\n` as separator; the second line
- * will hold appropriately indented `^` marks indicating the column range.
- *
- * @param {Object} pos
- * @param {LinePos} pos.start
- * @param {LinePos} [pos.end]
- * @param {string|Document|Document[]*} cst
- * @param {number} [maxWidth=80]
- * @returns {?string}
- */
-
-function getPrettyContext({
-  start,
-  end
-}, cst, maxWidth = 80) {
-  let src = getLine(start.line, cst);
-  if (!src) return null;
-  let {
-    col
-  } = start;
-
-  if (src.length > maxWidth) {
-    if (col <= maxWidth - 10) {
-      src = src.substr(0, maxWidth - 1) + '…';
-    } else {
-      const halfWidth = Math.round(maxWidth / 2);
-      if (src.length > col + halfWidth) src = src.substr(0, col + halfWidth - 1) + '…';
-      col -= src.length - maxWidth;
-      src = '…' + src.substr(1 - maxWidth);
-    }
-  }
-
-  let errLen = 1;
-  let errEnd = '';
-
-  if (end) {
-    if (end.line === start.line && col + (end.col - start.col) <= maxWidth + 1) {
-      errLen = end.col - start.col;
-    } else {
-      errLen = Math.min(src.length + 1, maxWidth) - col;
-      errEnd = '…';
-    }
-  }
-
-  const offset = col > 1 ? ' '.repeat(col - 1) : '';
-  const err = '^'.repeat(errLen);
-  return `${src}\n${offset}${err}${errEnd}`;
-}
-
-class Range {
-  static copy(orig) {
-    return new Range(orig.start, orig.end);
-  }
-
-  constructor(start, end) {
-    this.start = start;
-    this.end = end || start;
-  }
-
-  isEmpty() {
-    return typeof this.start !== 'number' || !this.end || this.end <= this.start;
-  }
-  /**
-   * Set `origStart` and `origEnd` to point to the original source range for
-   * this node, which may differ due to dropped CR characters.
-   *
-   * @param {number[]} cr - Positions of dropped CR characters
-   * @param {number} offset - Starting index of `cr` from the last call
-   * @returns {number} - The next offset, matching the one found for `origStart`
-   */
-
-
-  setOrigRange(cr, offset) {
-    const {
-      start,
-      end
-    } = this;
-
-    if (cr.length === 0 || end <= cr[0]) {
-      this.origStart = start;
-      this.origEnd = end;
-      return offset;
-    }
-
-    let i = offset;
-
-    while (i < cr.length) {
-      if (cr[i] > start) break;else ++i;
-    }
-
-    this.origStart = start + i;
-    const nextOffset = i;
-
-    while (i < cr.length) {
-      // if end was at \n, it should now be at \r
-      if (cr[i] >= end) break;else ++i;
-    }
-
-    this.origEnd = end + i;
-    return nextOffset;
-  }
-
-}
-
-/** Root class of all nodes */
-
-class Node {
-  static addStringTerminator(src, offset, str) {
-    if (str[str.length - 1] === '\n') return str;
-    const next = Node.endOfWhiteSpace(src, offset);
-    return next >= src.length || src[next] === '\n' ? str + '\n' : str;
-  } // ^(---|...)
-
-
-  static atDocumentBoundary(src, offset, sep) {
-    const ch0 = src[offset];
-    if (!ch0) return true;
-    const prev = src[offset - 1];
-    if (prev && prev !== '\n') return false;
-
-    if (sep) {
-      if (ch0 !== sep) return false;
-    } else {
-      if (ch0 !== Char.DIRECTIVES_END && ch0 !== Char.DOCUMENT_END) return false;
-    }
-
-    const ch1 = src[offset + 1];
-    const ch2 = src[offset + 2];
-    if (ch1 !== ch0 || ch2 !== ch0) return false;
-    const ch3 = src[offset + 3];
-    return !ch3 || ch3 === '\n' || ch3 === '\t' || ch3 === ' ';
-  }
-
-  static endOfIdentifier(src, offset) {
-    let ch = src[offset];
-    const isVerbatim = ch === '<';
-    const notOk = isVerbatim ? ['\n', '\t', ' ', '>'] : ['\n', '\t', ' ', '[', ']', '{', '}', ','];
-
-    while (ch && notOk.indexOf(ch) === -1) ch = src[offset += 1];
-
-    if (isVerbatim && ch === '>') offset += 1;
-    return offset;
-  }
-
-  static endOfIndent(src, offset) {
-    let ch = src[offset];
-
-    while (ch === ' ') ch = src[offset += 1];
-
-    return offset;
-  }
-
-  static endOfLine(src, offset) {
-    let ch = src[offset];
-
-    while (ch && ch !== '\n') ch = src[offset += 1];
-
-    return offset;
-  }
-
-  static endOfWhiteSpace(src, offset) {
-    let ch = src[offset];
-
-    while (ch === '\t' || ch === ' ') ch = src[offset += 1];
-
-    return offset;
-  }
-
-  static startOfLine(src, offset) {
-    let ch = src[offset - 1];
-    if (ch === '\n') return offset;
-
-    while (ch && ch !== '\n') ch = src[offset -= 1];
-
-    return offset + 1;
-  }
-  /**
-   * End of indentation, or null if the line's indent level is not more
-   * than `indent`
-   *
-   * @param {string} src
-   * @param {number} indent
-   * @param {number} lineStart
-   * @returns {?number}
-   */
-
-
-  static endOfBlockIndent(src, indent, lineStart) {
-    const inEnd = Node.endOfIndent(src, lineStart);
-
-    if (inEnd > lineStart + indent) {
-      return inEnd;
-    } else {
-      const wsEnd = Node.endOfWhiteSpace(src, inEnd);
-      const ch = src[wsEnd];
-      if (!ch || ch === '\n') return wsEnd;
-    }
-
-    return null;
-  }
-
-  static atBlank(src, offset, endAsBlank) {
-    const ch = src[offset];
-    return ch === '\n' || ch === '\t' || ch === ' ' || endAsBlank && !ch;
-  }
-
-  static nextNodeIsIndented(ch, indentDiff, indicatorAsIndent) {
-    if (!ch || indentDiff < 0) return false;
-    if (indentDiff > 0) return true;
-    return indicatorAsIndent && ch === '-';
-  } // should be at line or string end, or at next non-whitespace char
-
-
-  static normalizeOffset(src, offset) {
-    const ch = src[offset];
-    return !ch ? offset : ch !== '\n' && src[offset - 1] === '\n' ? offset - 1 : Node.endOfWhiteSpace(src, offset);
-  } // fold single newline into space, multiple newlines to N - 1 newlines
-  // presumes src[offset] === '\n'
-
-
-  static foldNewline(src, offset, indent) {
-    let inCount = 0;
-    let error = false;
-    let fold = '';
-    let ch = src[offset + 1];
-
-    while (ch === ' ' || ch === '\t' || ch === '\n') {
-      switch (ch) {
-        case '\n':
-          inCount = 0;
-          offset += 1;
-          fold += '\n';
-          break;
-
-        case '\t':
-          if (inCount <= indent) error = true;
-          offset = Node.endOfWhiteSpace(src, offset + 2) - 1;
-          break;
-
-        case ' ':
-          inCount += 1;
-          offset += 1;
-          break;
-      }
-
-      ch = src[offset + 1];
-    }
-
-    if (!fold) fold = ' ';
-    if (ch && inCount <= indent) error = true;
-    return {
-      fold,
-      offset,
-      error
-    };
-  }
-
-  constructor(type, props, context) {
-    Object.defineProperty(this, 'context', {
-      value: context || null,
-      writable: true
-    });
-    this.error = null;
-    this.range = null;
-    this.valueRange = null;
-    this.props = props || [];
-    this.type = type;
-    this.value = null;
-  }
-
-  getPropValue(idx, key, skipKey) {
-    if (!this.context) return null;
-    const {
-      src
-    } = this.context;
-    const prop = this.props[idx];
-    return prop && src[prop.start] === key ? src.slice(prop.start + (skipKey ? 1 : 0), prop.end) : null;
-  }
-
-  get anchor() {
-    for (let i = 0; i < this.props.length; ++i) {
-      const anchor = this.getPropValue(i, Char.ANCHOR, true);
-      if (anchor != null) return anchor;
-    }
-
-    return null;
-  }
-
-  get comment() {
-    const comments = [];
-
-    for (let i = 0; i < this.props.length; ++i) {
-      const comment = this.getPropValue(i, Char.COMMENT, true);
-      if (comment != null) comments.push(comment);
-    }
-
-    return comments.length > 0 ? comments.join('\n') : null;
-  }
-
-  commentHasRequiredWhitespace(start) {
-    const {
-      src
-    } = this.context;
-    if (this.header && start === this.header.end) return false;
-    if (!this.valueRange) return false;
-    const {
-      end
-    } = this.valueRange;
-    return start !== end || Node.atBlank(src, end - 1);
-  }
-
-  get hasComment() {
-    if (this.context) {
-      const {
-        src
-      } = this.context;
-
-      for (let i = 0; i < this.props.length; ++i) {
-        if (src[this.props[i].start] === Char.COMMENT) return true;
-      }
-    }
-
-    return false;
-  }
-
-  get hasProps() {
-    if (this.context) {
-      const {
-        src
-      } = this.context;
-
-      for (let i = 0; i < this.props.length; ++i) {
-        if (src[this.props[i].start] !== Char.COMMENT) return true;
-      }
-    }
-
-    return false;
-  }
-
-  get includesTrailingLines() {
-    return false;
-  }
-
-  get jsonLike() {
-    const jsonLikeTypes = [Type.FLOW_MAP, Type.FLOW_SEQ, Type.QUOTE_DOUBLE, Type.QUOTE_SINGLE];
-    return jsonLikeTypes.indexOf(this.type) !== -1;
-  }
-
-  get rangeAsLinePos() {
-    if (!this.range || !this.context) return undefined;
-    const start = getLinePos(this.range.start, this.context.root);
-    if (!start) return undefined;
-    const end = getLinePos(this.range.end, this.context.root);
-    return {
-      start,
-      end
-    };
-  }
-
-  get rawValue() {
-    if (!this.valueRange || !this.context) return null;
-    const {
-      start,
-      end
-    } = this.valueRange;
-    return this.context.src.slice(start, end);
-  }
-
-  get tag() {
-    for (let i = 0; i < this.props.length; ++i) {
-      const tag = this.getPropValue(i, Char.TAG, false);
-
-      if (tag != null) {
-        if (tag[1] === '<') {
-          return {
-            verbatim: tag.slice(2, -1)
-          };
-        } else {
-          // eslint-disable-next-line no-unused-vars
-          const [_, handle, suffix] = tag.match(/^(.*!)([^!]*)$/);
-          return {
-            handle,
-            suffix
-          };
-        }
-      }
-    }
-
-    return null;
-  }
-
-  get valueRangeContainsNewline() {
-    if (!this.valueRange || !this.context) return false;
-    const {
-      start,
-      end
-    } = this.valueRange;
-    const {
-      src
-    } = this.context;
-
-    for (let i = start; i < end; ++i) {
-      if (src[i] === '\n') return true;
-    }
-
-    return false;
-  }
-
-  parseComment(start) {
-    const {
-      src
-    } = this.context;
-
-    if (src[start] === Char.COMMENT) {
-      const end = Node.endOfLine(src, start + 1);
-      const commentRange = new Range(start, end);
-      this.props.push(commentRange);
-      return end;
-    }
-
-    return start;
-  }
-  /**
-   * Populates the `origStart` and `origEnd` values of all ranges for this
-   * node. Extended by child classes to handle descendant nodes.
-   *
-   * @param {number[]} cr - Positions of dropped CR characters
-   * @param {number} offset - Starting index of `cr` from the last call
-   * @returns {number} - The next offset, matching the one found for `origStart`
-   */
-
-
-  setOrigRanges(cr, offset) {
-    if (this.range) offset = this.range.setOrigRange(cr, offset);
-    if (this.valueRange) this.valueRange.setOrigRange(cr, offset);
-    this.props.forEach(prop => prop.setOrigRange(cr, offset));
-    return offset;
-  }
-
-  toString() {
-    const {
-      context: {
-        src
-      },
-      range,
-      value
-    } = this;
-    if (value != null) return value;
-    const str = src.slice(range.start, range.end);
-    return Node.addStringTerminator(src, range.end, str);
-  }
-
-}
-
-class YAMLError extends Error {
-  constructor(name, source, message) {
-    if (!message || !(source instanceof Node)) throw new Error(`Invalid arguments for new ${name}`);
-    super();
-    this.name = name;
-    this.message = message;
-    this.source = source;
-  }
-
-  makePretty() {
-    if (!this.source) return;
-    this.nodeType = this.source.type;
-    const cst = this.source.context && this.source.context.root;
-
-    if (typeof this.offset === 'number') {
-      this.range = new Range(this.offset, this.offset + 1);
-      const start = cst && getLinePos(this.offset, cst);
-
-      if (start) {
-        const end = {
-          line: start.line,
-          col: start.col + 1
-        };
-        this.linePos = {
-          start,
-          end
-        };
-      }
-
-      delete this.offset;
-    } else {
-      this.range = this.source.range;
-      this.linePos = this.source.rangeAsLinePos;
-    }
-
-    if (this.linePos) {
-      const {
-        line,
-        col
-      } = this.linePos.start;
-      this.message += ` at line ${line}, column ${col}`;
-      const ctx = cst && getPrettyContext(this.linePos, cst);
-      if (ctx) this.message += `:\n\n${ctx}\n`;
-    }
-
-    delete this.source;
-  }
-
-}
-class YAMLReferenceError extends YAMLError {
-  constructor(source, message) {
-    super('YAMLReferenceError', source, message);
-  }
-
-}
-class YAMLSemanticError extends YAMLError {
-  constructor(source, message) {
-    super('YAMLSemanticError', source, message);
-  }
-
-}
-class YAMLSyntaxError extends YAMLError {
-  constructor(source, message) {
-    super('YAMLSyntaxError', source, message);
-  }
-
-}
-class YAMLWarning extends YAMLError {
-  constructor(source, message) {
-    super('YAMLWarning', source, message);
-  }
-
-}
-
-function _defineProperty(obj, key, value) {
-  if (key in obj) {
-    Object.defineProperty(obj, key, {
-      value: value,
-      enumerable: true,
-      configurable: true,
-      writable: true
-    });
-  } else {
-    obj[key] = value;
-  }
-
-  return obj;
-}
-
-class PlainValue extends Node {
-  static endOfLine(src, start, inFlow) {
-    let ch = src[start];
-    let offset = start;
-
-    while (ch && ch !== '\n') {
-      if (inFlow && (ch === '[' || ch === ']' || ch === '{' || ch === '}' || ch === ',')) break;
-      const next = src[offset + 1];
-      if (ch === ':' && (!next || next === '\n' || next === '\t' || next === ' ' || inFlow && next === ',')) break;
-      if ((ch === ' ' || ch === '\t') && next === '#') break;
-      offset += 1;
-      ch = next;
-    }
-
-    return offset;
-  }
-
-  get strValue() {
-    if (!this.valueRange || !this.context) return null;
-    let {
-      start,
-      end
-    } = this.valueRange;
-    const {
-      src
-    } = this.context;
-    let ch = src[end - 1];
-
-    while (start < end && (ch === '\n' || ch === '\t' || ch === ' ')) ch = src[--end - 1];
-
-    let str = '';
-
-    for (let i = start; i < end; ++i) {
-      const ch = src[i];
-
-      if (ch === '\n') {
-        const {
-          fold,
-          offset
-        } = Node.foldNewline(src, i, -1);
-        str += fold;
-        i = offset;
-      } else if (ch === ' ' || ch === '\t') {
-        // trim trailing whitespace
-        const wsStart = i;
-        let next = src[i + 1];
-
-        while (i < end && (next === ' ' || next === '\t')) {
-          i += 1;
-          next = src[i + 1];
-        }
-
-        if (next !== '\n') str += i > wsStart ? src.slice(wsStart, i + 1) : ch;
-      } else {
-        str += ch;
-      }
-    }
-
-    const ch0 = src[start];
-
-    switch (ch0) {
-      case '\t':
-        {
-          const msg = 'Plain value cannot start with a tab character';
-          const errors = [new YAMLSemanticError(this, msg)];
-          return {
-            errors,
-            str
-          };
-        }
-
-      case '@':
-      case '`':
-        {
-          const msg = `Plain value cannot start with reserved character ${ch0}`;
-          const errors = [new YAMLSemanticError(this, msg)];
-          return {
-            errors,
-            str
-          };
-        }
-
-      default:
-        return str;
-    }
-  }
-
-  parseBlockValue(start) {
-    const {
-      indent,
-      inFlow,
-      src
-    } = this.context;
-    let offset = start;
-    let valueEnd = start;
-
-    for (let ch = src[offset]; ch === '\n'; ch = src[offset]) {
-      if (Node.atDocumentBoundary(src, offset + 1)) break;
-      const end = Node.endOfBlockIndent(src, indent, offset + 1);
-      if (end === null || src[end] === '#') break;
-
-      if (src[end] === '\n') {
-        offset = end;
-      } else {
-        valueEnd = PlainValue.endOfLine(src, end, inFlow);
-        offset = valueEnd;
-      }
-    }
-
-    if (this.valueRange.isEmpty()) this.valueRange.start = start;
-    this.valueRange.end = valueEnd;
-    return valueEnd;
-  }
-  /**
-   * Parses a plain value from the source
-   *
-   * Accepted forms are:
-   * ```
-   * #comment
-   *
-   * first line
-   *
-   * first line #comment
-   *
-   * first line
-   * block
-   * lines
-   *
-   * #comment
-   * block
-   * lines
-   * ```
-   * where block lines are empty or have an indent level greater than `indent`.
-   *
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this scalar, may be `\n`
-   */
-
-
-  parse(context, start) {
-    this.context = context;
-    const {
-      inFlow,
-      src
-    } = context;
-    let offset = start;
-    const ch = src[offset];
-
-    if (ch && ch !== '#' && ch !== '\n') {
-      offset = PlainValue.endOfLine(src, start, inFlow);
-    }
-
-    this.valueRange = new Range(start, offset);
-    offset = Node.endOfWhiteSpace(src, offset);
-    offset = this.parseComment(offset);
-
-    if (!this.hasComment || this.valueRange.isEmpty()) {
-      offset = this.parseBlockValue(offset);
-    }
-
-    return offset;
-  }
-
-}
-
-exports.Char = Char;
-exports.Node = Node;
-exports.PlainValue = PlainValue;
-exports.Range = Range;
-exports.Type = Type;
-exports.YAMLError = YAMLError;
-exports.YAMLReferenceError = YAMLReferenceError;
-exports.YAMLSemanticError = YAMLSemanticError;
-exports.YAMLSyntaxError = YAMLSyntaxError;
-exports.YAMLWarning = YAMLWarning;
-exports._defineProperty = _defineProperty;
-exports.defaultTagPrefix = defaultTagPrefix;
-exports.defaultTags = defaultTags;
-
+__webpack_async_result__();
+} catch(e) { __webpack_async_result__(e); } }, 1);
 
 /***/ }),
 
-/***/ 1387:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+/***/ 4127:
+/***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
-
-var PlainValue = __nccwpck_require__(4941);
-var resolveSeq = __nccwpck_require__(9914);
-var warnings = __nccwpck_require__(5130);
-
-function createMap(schema, obj, ctx) {
-  const map = new resolveSeq.YAMLMap(schema);
-
-  if (obj instanceof Map) {
-    for (const [key, value] of obj) map.items.push(schema.createPair(key, value, ctx));
-  } else if (obj && typeof obj === 'object') {
-    for (const key of Object.keys(obj)) map.items.push(schema.createPair(key, obj[key], ctx));
-  }
-
-  if (typeof schema.sortMapEntries === 'function') {
-    map.items.sort(schema.sortMapEntries);
-  }
-
-  return map;
-}
-
-const map = {
-  createNode: createMap,
-  default: true,
-  nodeClass: resolveSeq.YAMLMap,
-  tag: 'tag:yaml.org,2002:map',
-  resolve: resolveSeq.resolveMap
-};
-
-function createSeq(schema, obj, ctx) {
-  const seq = new resolveSeq.YAMLSeq(schema);
-
-  if (obj && obj[Symbol.iterator]) {
-    for (const it of obj) {
-      const v = schema.createNode(it, ctx.wrapScalars, null, ctx);
-      seq.items.push(v);
-    }
-  }
-
-  return seq;
-}
-
-const seq = {
-  createNode: createSeq,
-  default: true,
-  nodeClass: resolveSeq.YAMLSeq,
-  tag: 'tag:yaml.org,2002:seq',
-  resolve: resolveSeq.resolveSeq
-};
-
-const string = {
-  identify: value => typeof value === 'string',
-  default: true,
-  tag: 'tag:yaml.org,2002:str',
-  resolve: resolveSeq.resolveString,
-
-  stringify(item, ctx, onComment, onChompKeep) {
-    ctx = Object.assign({
-      actualString: true
-    }, ctx);
-    return resolveSeq.stringifyString(item, ctx, onComment, onChompKeep);
-  },
-
-  options: resolveSeq.strOptions
-};
-
-const failsafe = [map, seq, string];
-
-/* global BigInt */
-
-const intIdentify$2 = value => typeof value === 'bigint' || Number.isInteger(value);
-
-const intResolve$1 = (src, part, radix) => resolveSeq.intOptions.asBigInt ? BigInt(src) : parseInt(part, radix);
-
-function intStringify$1(node, radix, prefix) {
-  const {
-    value
-  } = node;
-  if (intIdentify$2(value) && value >= 0) return prefix + value.toString(radix);
-  return resolveSeq.stringifyNumber(node);
-}
-
-const nullObj = {
-  identify: value => value == null,
-  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq.Scalar(null) : null,
-  default: true,
-  tag: 'tag:yaml.org,2002:null',
-  test: /^(?:~|[Nn]ull|NULL)?$/,
-  resolve: () => null,
-  options: resolveSeq.nullOptions,
-  stringify: () => resolveSeq.nullOptions.nullStr
-};
-const boolObj = {
-  identify: value => typeof value === 'boolean',
-  default: true,
-  tag: 'tag:yaml.org,2002:bool',
-  test: /^(?:[Tt]rue|TRUE|[Ff]alse|FALSE)$/,
-  resolve: str => str[0] === 't' || str[0] === 'T',
-  options: resolveSeq.boolOptions,
-  stringify: ({
-    value
-  }) => value ? resolveSeq.boolOptions.trueStr : resolveSeq.boolOptions.falseStr
-};
-const octObj = {
-  identify: value => intIdentify$2(value) && value >= 0,
-  default: true,
-  tag: 'tag:yaml.org,2002:int',
-  format: 'OCT',
-  test: /^0o([0-7]+)$/,
-  resolve: (str, oct) => intResolve$1(str, oct, 8),
-  options: resolveSeq.intOptions,
-  stringify: node => intStringify$1(node, 8, '0o')
-};
-const intObj = {
-  identify: intIdentify$2,
-  default: true,
-  tag: 'tag:yaml.org,2002:int',
-  test: /^[-+]?[0-9]+$/,
-  resolve: str => intResolve$1(str, str, 10),
-  options: resolveSeq.intOptions,
-  stringify: resolveSeq.stringifyNumber
-};
-const hexObj = {
-  identify: value => intIdentify$2(value) && value >= 0,
-  default: true,
-  tag: 'tag:yaml.org,2002:int',
-  format: 'HEX',
-  test: /^0x([0-9a-fA-F]+)$/,
-  resolve: (str, hex) => intResolve$1(str, hex, 16),
-  options: resolveSeq.intOptions,
-  stringify: node => intStringify$1(node, 16, '0x')
-};
-const nanObj = {
-  identify: value => typeof value === 'number',
-  default: true,
-  tag: 'tag:yaml.org,2002:float',
-  test: /^(?:[-+]?\.inf|(\.nan))$/i,
-  resolve: (str, nan) => nan ? NaN : str[0] === '-' ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-  stringify: resolveSeq.stringifyNumber
-};
-const expObj = {
-  identify: value => typeof value === 'number',
-  default: true,
-  tag: 'tag:yaml.org,2002:float',
-  format: 'EXP',
-  test: /^[-+]?(?:\.[0-9]+|[0-9]+(?:\.[0-9]*)?)[eE][-+]?[0-9]+$/,
-  resolve: str => parseFloat(str),
-  stringify: ({
-    value
-  }) => Number(value).toExponential()
-};
-const floatObj = {
-  identify: value => typeof value === 'number',
-  default: true,
-  tag: 'tag:yaml.org,2002:float',
-  test: /^[-+]?(?:\.([0-9]+)|[0-9]+\.([0-9]*))$/,
-
-  resolve(str, frac1, frac2) {
-    const frac = frac1 || frac2;
-    const node = new resolveSeq.Scalar(parseFloat(str));
-    if (frac && frac[frac.length - 1] === '0') node.minFractionDigits = frac.length;
-    return node;
-  },
-
-  stringify: resolveSeq.stringifyNumber
-};
-const core = failsafe.concat([nullObj, boolObj, octObj, intObj, hexObj, nanObj, expObj, floatObj]);
-
-/* global BigInt */
-
-const intIdentify$1 = value => typeof value === 'bigint' || Number.isInteger(value);
-
-const stringifyJSON = ({
-  value
-}) => JSON.stringify(value);
-
-const json = [map, seq, {
-  identify: value => typeof value === 'string',
-  default: true,
-  tag: 'tag:yaml.org,2002:str',
-  resolve: resolveSeq.resolveString,
-  stringify: stringifyJSON
-}, {
-  identify: value => value == null,
-  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq.Scalar(null) : null,
-  default: true,
-  tag: 'tag:yaml.org,2002:null',
-  test: /^null$/,
-  resolve: () => null,
-  stringify: stringifyJSON
-}, {
-  identify: value => typeof value === 'boolean',
-  default: true,
-  tag: 'tag:yaml.org,2002:bool',
-  test: /^true|false$/,
-  resolve: str => str === 'true',
-  stringify: stringifyJSON
-}, {
-  identify: intIdentify$1,
-  default: true,
-  tag: 'tag:yaml.org,2002:int',
-  test: /^-?(?:0|[1-9][0-9]*)$/,
-  resolve: str => resolveSeq.intOptions.asBigInt ? BigInt(str) : parseInt(str, 10),
-  stringify: ({
-    value
-  }) => intIdentify$1(value) ? value.toString() : JSON.stringify(value)
-}, {
-  identify: value => typeof value === 'number',
-  default: true,
-  tag: 'tag:yaml.org,2002:float',
-  test: /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]*)?(?:[eE][-+]?[0-9]+)?$/,
-  resolve: str => parseFloat(str),
-  stringify: stringifyJSON
-}];
-
-json.scalarFallback = str => {
-  throw new SyntaxError(`Unresolved plain scalar ${JSON.stringify(str)}`);
-};
-
-/* global BigInt */
-
-const boolStringify = ({
-  value
-}) => value ? resolveSeq.boolOptions.trueStr : resolveSeq.boolOptions.falseStr;
-
-const intIdentify = value => typeof value === 'bigint' || Number.isInteger(value);
-
-function intResolve(sign, src, radix) {
-  let str = src.replace(/_/g, '');
-
-  if (resolveSeq.intOptions.asBigInt) {
-    switch (radix) {
-      case 2:
-        str = `0b${str}`;
-        break;
-
-      case 8:
-        str = `0o${str}`;
-        break;
-
-      case 16:
-        str = `0x${str}`;
-        break;
-    }
-
-    const n = BigInt(str);
-    return sign === '-' ? BigInt(-1) * n : n;
-  }
-
-  const n = parseInt(str, radix);
-  return sign === '-' ? -1 * n : n;
-}
-
-function intStringify(node, radix, prefix) {
-  const {
-    value
-  } = node;
-
-  if (intIdentify(value)) {
-    const str = value.toString(radix);
-    return value < 0 ? '-' + prefix + str.substr(1) : prefix + str;
-  }
-
-  return resolveSeq.stringifyNumber(node);
-}
-
-const yaml11 = failsafe.concat([{
-  identify: value => value == null,
-  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq.Scalar(null) : null,
-  default: true,
-  tag: 'tag:yaml.org,2002:null',
-  test: /^(?:~|[Nn]ull|NULL)?$/,
-  resolve: () => null,
-  options: resolveSeq.nullOptions,
-  stringify: () => resolveSeq.nullOptions.nullStr
-}, {
-  identify: value => typeof value === 'boolean',
-  default: true,
-  tag: 'tag:yaml.org,2002:bool',
-  test: /^(?:Y|y|[Yy]es|YES|[Tt]rue|TRUE|[Oo]n|ON)$/,
-  resolve: () => true,
-  options: resolveSeq.boolOptions,
-  stringify: boolStringify
-}, {
-  identify: value => typeof value === 'boolean',
-  default: true,
-  tag: 'tag:yaml.org,2002:bool',
-  test: /^(?:N|n|[Nn]o|NO|[Ff]alse|FALSE|[Oo]ff|OFF)$/i,
-  resolve: () => false,
-  options: resolveSeq.boolOptions,
-  stringify: boolStringify
-}, {
-  identify: intIdentify,
-  default: true,
-  tag: 'tag:yaml.org,2002:int',
-  format: 'BIN',
-  test: /^([-+]?)0b([0-1_]+)$/,
-  resolve: (str, sign, bin) => intResolve(sign, bin, 2),
-  stringify: node => intStringify(node, 2, '0b')
-}, {
-  identify: intIdentify,
-  default: true,
-  tag: 'tag:yaml.org,2002:int',
-  format: 'OCT',
-  test: /^([-+]?)0([0-7_]+)$/,
-  resolve: (str, sign, oct) => intResolve(sign, oct, 8),
-  stringify: node => intStringify(node, 8, '0')
-}, {
-  identify: intIdentify,
-  default: true,
-  tag: 'tag:yaml.org,2002:int',
-  test: /^([-+]?)([0-9][0-9_]*)$/,
-  resolve: (str, sign, abs) => intResolve(sign, abs, 10),
-  stringify: resolveSeq.stringifyNumber
-}, {
-  identify: intIdentify,
-  default: true,
-  tag: 'tag:yaml.org,2002:int',
-  format: 'HEX',
-  test: /^([-+]?)0x([0-9a-fA-F_]+)$/,
-  resolve: (str, sign, hex) => intResolve(sign, hex, 16),
-  stringify: node => intStringify(node, 16, '0x')
-}, {
-  identify: value => typeof value === 'number',
-  default: true,
-  tag: 'tag:yaml.org,2002:float',
-  test: /^(?:[-+]?\.inf|(\.nan))$/i,
-  resolve: (str, nan) => nan ? NaN : str[0] === '-' ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
-  stringify: resolveSeq.stringifyNumber
-}, {
-  identify: value => typeof value === 'number',
-  default: true,
-  tag: 'tag:yaml.org,2002:float',
-  format: 'EXP',
-  test: /^[-+]?([0-9][0-9_]*)?(\.[0-9_]*)?[eE][-+]?[0-9]+$/,
-  resolve: str => parseFloat(str.replace(/_/g, '')),
-  stringify: ({
-    value
-  }) => Number(value).toExponential()
-}, {
-  identify: value => typeof value === 'number',
-  default: true,
-  tag: 'tag:yaml.org,2002:float',
-  test: /^[-+]?(?:[0-9][0-9_]*)?\.([0-9_]*)$/,
-
-  resolve(str, frac) {
-    const node = new resolveSeq.Scalar(parseFloat(str.replace(/_/g, '')));
-
-    if (frac) {
-      const f = frac.replace(/_/g, '');
-      if (f[f.length - 1] === '0') node.minFractionDigits = f.length;
-    }
-
-    return node;
-  },
-
-  stringify: resolveSeq.stringifyNumber
-}], warnings.binary, warnings.omap, warnings.pairs, warnings.set, warnings.intTime, warnings.floatTime, warnings.timestamp);
-
-const schemas = {
-  core,
-  failsafe,
-  json,
-  yaml11
-};
-const tags = {
-  binary: warnings.binary,
-  bool: boolObj,
-  float: floatObj,
-  floatExp: expObj,
-  floatNaN: nanObj,
-  floatTime: warnings.floatTime,
-  int: intObj,
-  intHex: hexObj,
-  intOct: octObj,
-  intTime: warnings.intTime,
-  map,
-  null: nullObj,
-  omap: warnings.omap,
-  pairs: warnings.pairs,
-  seq,
-  set: warnings.set,
-  timestamp: warnings.timestamp
-};
-
-function findTagObject(value, tagName, tags) {
-  if (tagName) {
-    const match = tags.filter(t => t.tag === tagName);
-    const tagObj = match.find(t => !t.format) || match[0];
-    if (!tagObj) throw new Error(`Tag ${tagName} not found`);
-    return tagObj;
-  } // TODO: deprecate/remove class check
-
-
-  return tags.find(t => (t.identify && t.identify(value) || t.class && value instanceof t.class) && !t.format);
-}
-
-function createNode(value, tagName, ctx) {
-  if (value instanceof resolveSeq.Node) return value;
-  const {
-    defaultPrefix,
-    onTagObj,
-    prevObjects,
-    schema,
-    wrapScalars
-  } = ctx;
-  if (tagName && tagName.startsWith('!!')) tagName = defaultPrefix + tagName.slice(2);
-  let tagObj = findTagObject(value, tagName, schema.tags);
-
-  if (!tagObj) {
-    if (typeof value.toJSON === 'function') value = value.toJSON();
-    if (!value || typeof value !== 'object') return wrapScalars ? new resolveSeq.Scalar(value) : value;
-    tagObj = value instanceof Map ? map : value[Symbol.iterator] ? seq : map;
-  }
-
-  if (onTagObj) {
-    onTagObj(tagObj);
-    delete ctx.onTagObj;
-  } // Detect duplicate references to the same object & use Alias nodes for all
-  // after first. The `obj` wrapper allows for circular references to resolve.
-
-
-  const obj = {
-    value: undefined,
-    node: undefined
-  };
-
-  if (value && typeof value === 'object' && prevObjects) {
-    const prev = prevObjects.get(value);
-
-    if (prev) {
-      const alias = new resolveSeq.Alias(prev); // leaves source dirty; must be cleaned by caller
-
-      ctx.aliasNodes.push(alias); // defined along with prevObjects
-
-      return alias;
-    }
-
-    obj.value = value;
-    prevObjects.set(value, obj);
-  }
-
-  obj.node = tagObj.createNode ? tagObj.createNode(ctx.schema, value, ctx) : wrapScalars ? new resolveSeq.Scalar(value) : value;
-  if (tagName && obj.node instanceof resolveSeq.Node) obj.node.tag = tagName;
-  return obj.node;
-}
-
-function getSchemaTags(schemas, knownTags, customTags, schemaId) {
-  let tags = schemas[schemaId.replace(/\W/g, '')]; // 'yaml-1.1' -> 'yaml11'
-
-  if (!tags) {
-    const keys = Object.keys(schemas).map(key => JSON.stringify(key)).join(', ');
-    throw new Error(`Unknown schema "${schemaId}"; use one of ${keys}`);
-  }
-
-  if (Array.isArray(customTags)) {
-    for (const tag of customTags) tags = tags.concat(tag);
-  } else if (typeof customTags === 'function') {
-    tags = customTags(tags.slice());
-  }
-
-  for (let i = 0; i < tags.length; ++i) {
-    const tag = tags[i];
-
-    if (typeof tag === 'string') {
-      const tagObj = knownTags[tag];
-
-      if (!tagObj) {
-        const keys = Object.keys(knownTags).map(key => JSON.stringify(key)).join(', ');
-        throw new Error(`Unknown custom tag "${tag}"; use one of ${keys}`);
-      }
-
-      tags[i] = tagObj;
-    }
-  }
-
-  return tags;
-}
-
-const sortMapEntriesByKey = (a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
-
-class Schema {
-  // TODO: remove in v2
-  // TODO: remove in v2
-  constructor({
-    customTags,
-    merge,
-    schema,
-    sortMapEntries,
-    tags: deprecatedCustomTags
-  }) {
-    this.merge = !!merge;
-    this.name = schema;
-    this.sortMapEntries = sortMapEntries === true ? sortMapEntriesByKey : sortMapEntries || null;
-    if (!customTags && deprecatedCustomTags) warnings.warnOptionDeprecation('tags', 'customTags');
-    this.tags = getSchemaTags(schemas, tags, customTags || deprecatedCustomTags, schema);
-  }
-
-  createNode(value, wrapScalars, tagName, ctx) {
-    const baseCtx = {
-      defaultPrefix: Schema.defaultPrefix,
-      schema: this,
-      wrapScalars
-    };
-    const createCtx = ctx ? Object.assign(ctx, baseCtx) : baseCtx;
-    return createNode(value, tagName, createCtx);
-  }
-
-  createPair(key, value, ctx) {
-    if (!ctx) ctx = {
-      wrapScalars: true
-    };
-    const k = this.createNode(key, ctx.wrapScalars, null, ctx);
-    const v = this.createNode(value, ctx.wrapScalars, null, ctx);
-    return new resolveSeq.Pair(k, v);
-  }
-
-}
-
-PlainValue._defineProperty(Schema, "defaultPrefix", PlainValue.defaultTagPrefix);
-
-PlainValue._defineProperty(Schema, "defaultTags", PlainValue.defaultTags);
-
-exports.Schema = Schema;
-
-
-/***/ }),
-
-/***/ 4083:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-
-var parseCst = __nccwpck_require__(8232);
-var Document$1 = __nccwpck_require__(8082);
-var Schema = __nccwpck_require__(1387);
-var PlainValue = __nccwpck_require__(4941);
-var warnings = __nccwpck_require__(5130);
-__nccwpck_require__(9914);
-
-function createNode(value, wrapScalars = true, tag) {
-  if (tag === undefined && typeof wrapScalars === 'string') {
-    tag = wrapScalars;
-    wrapScalars = true;
-  }
-
-  const options = Object.assign({}, Document$1.Document.defaults[Document$1.defaultOptions.version], Document$1.defaultOptions);
-  const schema = new Schema.Schema(options);
-  return schema.createNode(value, wrapScalars, tag);
-}
-
-class Document extends Document$1.Document {
-  constructor(options) {
-    super(Object.assign({}, Document$1.defaultOptions, options));
-  }
-
-}
-
-function parseAllDocuments(src, options) {
-  const stream = [];
-  let prev;
-
-  for (const cstDoc of parseCst.parse(src)) {
-    const doc = new Document(options);
-    doc.parse(cstDoc, prev);
-    stream.push(doc);
-    prev = doc;
-  }
-
-  return stream;
-}
-
-function parseDocument(src, options) {
-  const cst = parseCst.parse(src);
-  const doc = new Document(options).parse(cst[0]);
-
-  if (cst.length > 1) {
-    const errMsg = 'Source contains multiple documents; please use YAML.parseAllDocuments()';
-    doc.errors.unshift(new PlainValue.YAMLSemanticError(cst[1], errMsg));
-  }
-
-  return doc;
-}
-
-function parse(src, options) {
-  const doc = parseDocument(src, options);
-  doc.warnings.forEach(warning => warnings.warn(warning));
-  if (doc.errors.length > 0) throw doc.errors[0];
-  return doc.toJSON();
-}
-
-function stringify(value, options) {
-  const doc = new Document(options);
-  doc.contents = value;
-  return String(doc);
-}
-
-const YAML = {
-  createNode,
-  defaultOptions: Document$1.defaultOptions,
-  Document,
-  parse,
-  parseAllDocuments,
-  parseCST: parseCst.parse,
-  parseDocument,
-  scalarOptions: Document$1.scalarOptions,
-  stringify
-};
-
-exports.YAML = YAML;
-
-
-/***/ }),
-
-/***/ 8232:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-
-var PlainValue = __nccwpck_require__(4941);
-
-class BlankLine extends PlainValue.Node {
-  constructor() {
-    super(PlainValue.Type.BLANK_LINE);
-  }
-  /* istanbul ignore next */
-
-
-  get includesTrailingLines() {
-    // This is never called from anywhere, but if it were,
-    // this is the value it should return.
-    return true;
-  }
-  /**
-   * Parses a blank line from the source
-   *
-   * @param {ParseContext} context
-   * @param {number} start - Index of first \n character
-   * @returns {number} - Index of the character after this
-   */
-
-
-  parse(context, start) {
-    this.context = context;
-    this.range = new PlainValue.Range(start, start + 1);
-    return start + 1;
-  }
-
-}
-
-class CollectionItem extends PlainValue.Node {
-  constructor(type, props) {
-    super(type, props);
-    this.node = null;
-  }
-
-  get includesTrailingLines() {
-    return !!this.node && this.node.includesTrailingLines;
-  }
-  /**
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this
-   */
-
-
-  parse(context, start) {
-    this.context = context;
-    const {
-      parseNode,
-      src
-    } = context;
-    let {
-      atLineStart,
-      lineStart
-    } = context;
-    if (!atLineStart && this.type === PlainValue.Type.SEQ_ITEM) this.error = new PlainValue.YAMLSemanticError(this, 'Sequence items must not have preceding content on the same line');
-    const indent = atLineStart ? start - lineStart : context.indent;
-    let offset = PlainValue.Node.endOfWhiteSpace(src, start + 1);
-    let ch = src[offset];
-    const inlineComment = ch === '#';
-    const comments = [];
-    let blankLine = null;
-
-    while (ch === '\n' || ch === '#') {
-      if (ch === '#') {
-        const end = PlainValue.Node.endOfLine(src, offset + 1);
-        comments.push(new PlainValue.Range(offset, end));
-        offset = end;
-      } else {
-        atLineStart = true;
-        lineStart = offset + 1;
-        const wsEnd = PlainValue.Node.endOfWhiteSpace(src, lineStart);
-
-        if (src[wsEnd] === '\n' && comments.length === 0) {
-          blankLine = new BlankLine();
-          lineStart = blankLine.parse({
-            src
-          }, lineStart);
-        }
-
-        offset = PlainValue.Node.endOfIndent(src, lineStart);
-      }
-
-      ch = src[offset];
-    }
-
-    if (PlainValue.Node.nextNodeIsIndented(ch, offset - (lineStart + indent), this.type !== PlainValue.Type.SEQ_ITEM)) {
-      this.node = parseNode({
-        atLineStart,
-        inCollection: false,
-        indent,
-        lineStart,
-        parent: this
-      }, offset);
-    } else if (ch && lineStart > start + 1) {
-      offset = lineStart - 1;
-    }
-
-    if (this.node) {
-      if (blankLine) {
-        // Only blank lines preceding non-empty nodes are captured. Note that
-        // this means that collection item range start indices do not always
-        // increase monotonically. -- eemeli/yaml#126
-        const items = context.parent.items || context.parent.contents;
-        if (items) items.push(blankLine);
-      }
-
-      if (comments.length) Array.prototype.push.apply(this.props, comments);
-      offset = this.node.range.end;
-    } else {
-      if (inlineComment) {
-        const c = comments[0];
-        this.props.push(c);
-        offset = c.end;
-      } else {
-        offset = PlainValue.Node.endOfLine(src, start + 1);
-      }
-    }
-
-    const end = this.node ? this.node.valueRange.end : offset;
-    this.valueRange = new PlainValue.Range(start, end);
-    return offset;
-  }
-
-  setOrigRanges(cr, offset) {
-    offset = super.setOrigRanges(cr, offset);
-    return this.node ? this.node.setOrigRanges(cr, offset) : offset;
-  }
-
-  toString() {
-    const {
-      context: {
-        src
-      },
-      node,
-      range,
-      value
-    } = this;
-    if (value != null) return value;
-    const str = node ? src.slice(range.start, node.range.start) + String(node) : src.slice(range.start, range.end);
-    return PlainValue.Node.addStringTerminator(src, range.end, str);
-  }
-
-}
-
-class Comment extends PlainValue.Node {
-  constructor() {
-    super(PlainValue.Type.COMMENT);
-  }
-  /**
-   * Parses a comment line from the source
-   *
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this scalar
-   */
-
-
-  parse(context, start) {
-    this.context = context;
-    const offset = this.parseComment(start);
-    this.range = new PlainValue.Range(start, offset);
-    return offset;
-  }
-
-}
-
-function grabCollectionEndComments(node) {
-  let cnode = node;
-
-  while (cnode instanceof CollectionItem) cnode = cnode.node;
-
-  if (!(cnode instanceof Collection)) return null;
-  const len = cnode.items.length;
-  let ci = -1;
-
-  for (let i = len - 1; i >= 0; --i) {
-    const n = cnode.items[i];
-
-    if (n.type === PlainValue.Type.COMMENT) {
-      // Keep sufficiently indented comments with preceding node
-      const {
-        indent,
-        lineStart
-      } = n.context;
-      if (indent > 0 && n.range.start >= lineStart + indent) break;
-      ci = i;
-    } else if (n.type === PlainValue.Type.BLANK_LINE) ci = i;else break;
-  }
-
-  if (ci === -1) return null;
-  const ca = cnode.items.splice(ci, len - ci);
-  const prevEnd = ca[0].range.start;
-
-  while (true) {
-    cnode.range.end = prevEnd;
-    if (cnode.valueRange && cnode.valueRange.end > prevEnd) cnode.valueRange.end = prevEnd;
-    if (cnode === node) break;
-    cnode = cnode.context.parent;
-  }
-
-  return ca;
-}
-class Collection extends PlainValue.Node {
-  static nextContentHasIndent(src, offset, indent) {
-    const lineStart = PlainValue.Node.endOfLine(src, offset) + 1;
-    offset = PlainValue.Node.endOfWhiteSpace(src, lineStart);
-    const ch = src[offset];
-    if (!ch) return false;
-    if (offset >= lineStart + indent) return true;
-    if (ch !== '#' && ch !== '\n') return false;
-    return Collection.nextContentHasIndent(src, offset, indent);
-  }
-
-  constructor(firstItem) {
-    super(firstItem.type === PlainValue.Type.SEQ_ITEM ? PlainValue.Type.SEQ : PlainValue.Type.MAP);
-
-    for (let i = firstItem.props.length - 1; i >= 0; --i) {
-      if (firstItem.props[i].start < firstItem.context.lineStart) {
-        // props on previous line are assumed by the collection
-        this.props = firstItem.props.slice(0, i + 1);
-        firstItem.props = firstItem.props.slice(i + 1);
-        const itemRange = firstItem.props[0] || firstItem.valueRange;
-        firstItem.range.start = itemRange.start;
-        break;
-      }
-    }
-
-    this.items = [firstItem];
-    const ec = grabCollectionEndComments(firstItem);
-    if (ec) Array.prototype.push.apply(this.items, ec);
-  }
-
-  get includesTrailingLines() {
-    return this.items.length > 0;
-  }
-  /**
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this
-   */
-
-
-  parse(context, start) {
-    this.context = context;
-    const {
-      parseNode,
-      src
-    } = context; // It's easier to recalculate lineStart here rather than tracking down the
-    // last context from which to read it -- eemeli/yaml#2
-
-    let lineStart = PlainValue.Node.startOfLine(src, start);
-    const firstItem = this.items[0]; // First-item context needs to be correct for later comment handling
-    // -- eemeli/yaml#17
-
-    firstItem.context.parent = this;
-    this.valueRange = PlainValue.Range.copy(firstItem.valueRange);
-    const indent = firstItem.range.start - firstItem.context.lineStart;
-    let offset = start;
-    offset = PlainValue.Node.normalizeOffset(src, offset);
-    let ch = src[offset];
-    let atLineStart = PlainValue.Node.endOfWhiteSpace(src, lineStart) === offset;
-    let prevIncludesTrailingLines = false;
-
-    while (ch) {
-      while (ch === '\n' || ch === '#') {
-        if (atLineStart && ch === '\n' && !prevIncludesTrailingLines) {
-          const blankLine = new BlankLine();
-          offset = blankLine.parse({
-            src
-          }, offset);
-          this.valueRange.end = offset;
-
-          if (offset >= src.length) {
-            ch = null;
-            break;
-          }
-
-          this.items.push(blankLine);
-          offset -= 1; // blankLine.parse() consumes terminal newline
-        } else if (ch === '#') {
-          if (offset < lineStart + indent && !Collection.nextContentHasIndent(src, offset, indent)) {
-            return offset;
-          }
-
-          const comment = new Comment();
-          offset = comment.parse({
-            indent,
-            lineStart,
-            src
-          }, offset);
-          this.items.push(comment);
-          this.valueRange.end = offset;
-
-          if (offset >= src.length) {
-            ch = null;
-            break;
-          }
-        }
-
-        lineStart = offset + 1;
-        offset = PlainValue.Node.endOfIndent(src, lineStart);
-
-        if (PlainValue.Node.atBlank(src, offset)) {
-          const wsEnd = PlainValue.Node.endOfWhiteSpace(src, offset);
-          const next = src[wsEnd];
-
-          if (!next || next === '\n' || next === '#') {
-            offset = wsEnd;
-          }
-        }
-
-        ch = src[offset];
-        atLineStart = true;
-      }
-
-      if (!ch) {
-        break;
-      }
-
-      if (offset !== lineStart + indent && (atLineStart || ch !== ':')) {
-        if (offset < lineStart + indent) {
-          if (lineStart > start) offset = lineStart;
-          break;
-        } else if (!this.error) {
-          const msg = 'All collection items must start at the same column';
-          this.error = new PlainValue.YAMLSyntaxError(this, msg);
-        }
-      }
-
-      if (firstItem.type === PlainValue.Type.SEQ_ITEM) {
-        if (ch !== '-') {
-          if (lineStart > start) offset = lineStart;
-          break;
-        }
-      } else if (ch === '-' && !this.error) {
-        // map key may start with -, as long as it's followed by a non-whitespace char
-        const next = src[offset + 1];
-
-        if (!next || next === '\n' || next === '\t' || next === ' ') {
-          const msg = 'A collection cannot be both a mapping and a sequence';
-          this.error = new PlainValue.YAMLSyntaxError(this, msg);
-        }
-      }
-
-      const node = parseNode({
-        atLineStart,
-        inCollection: true,
-        indent,
-        lineStart,
-        parent: this
-      }, offset);
-      if (!node) return offset; // at next document start
-
-      this.items.push(node);
-      this.valueRange.end = node.valueRange.end;
-      offset = PlainValue.Node.normalizeOffset(src, node.range.end);
-      ch = src[offset];
-      atLineStart = false;
-      prevIncludesTrailingLines = node.includesTrailingLines; // Need to reset lineStart and atLineStart here if preceding node's range
-      // has advanced to check the current line's indentation level
-      // -- eemeli/yaml#10 & eemeli/yaml#38
-
-      if (ch) {
-        let ls = offset - 1;
-        let prev = src[ls];
-
-        while (prev === ' ' || prev === '\t') prev = src[--ls];
-
-        if (prev === '\n') {
-          lineStart = ls + 1;
-          atLineStart = true;
-        }
-      }
-
-      const ec = grabCollectionEndComments(node);
-      if (ec) Array.prototype.push.apply(this.items, ec);
-    }
-
-    return offset;
-  }
-
-  setOrigRanges(cr, offset) {
-    offset = super.setOrigRanges(cr, offset);
-    this.items.forEach(node => {
-      offset = node.setOrigRanges(cr, offset);
-    });
-    return offset;
-  }
-
-  toString() {
-    const {
-      context: {
-        src
-      },
-      items,
-      range,
-      value
-    } = this;
-    if (value != null) return value;
-    let str = src.slice(range.start, items[0].range.start) + String(items[0]);
-
-    for (let i = 1; i < items.length; ++i) {
-      const item = items[i];
-      const {
-        atLineStart,
-        indent
-      } = item.context;
-      if (atLineStart) for (let i = 0; i < indent; ++i) str += ' ';
-      str += String(item);
-    }
-
-    return PlainValue.Node.addStringTerminator(src, range.end, str);
-  }
-
-}
-
-class Directive extends PlainValue.Node {
-  constructor() {
-    super(PlainValue.Type.DIRECTIVE);
-    this.name = null;
-  }
-
-  get parameters() {
-    const raw = this.rawValue;
-    return raw ? raw.trim().split(/[ \t]+/) : [];
-  }
-
-  parseName(start) {
-    const {
-      src
-    } = this.context;
-    let offset = start;
-    let ch = src[offset];
-
-    while (ch && ch !== '\n' && ch !== '\t' && ch !== ' ') ch = src[offset += 1];
-
-    this.name = src.slice(start, offset);
-    return offset;
-  }
-
-  parseParameters(start) {
-    const {
-      src
-    } = this.context;
-    let offset = start;
-    let ch = src[offset];
-
-    while (ch && ch !== '\n' && ch !== '#') ch = src[offset += 1];
-
-    this.valueRange = new PlainValue.Range(start, offset);
-    return offset;
-  }
-
-  parse(context, start) {
-    this.context = context;
-    let offset = this.parseName(start + 1);
-    offset = this.parseParameters(offset);
-    offset = this.parseComment(offset);
-    this.range = new PlainValue.Range(start, offset);
-    return offset;
-  }
-
-}
-
-class Document extends PlainValue.Node {
-  static startCommentOrEndBlankLine(src, start) {
-    const offset = PlainValue.Node.endOfWhiteSpace(src, start);
-    const ch = src[offset];
-    return ch === '#' || ch === '\n' ? offset : start;
-  }
-
-  constructor() {
-    super(PlainValue.Type.DOCUMENT);
-    this.directives = null;
-    this.contents = null;
-    this.directivesEndMarker = null;
-    this.documentEndMarker = null;
-  }
-
-  parseDirectives(start) {
-    const {
-      src
-    } = this.context;
-    this.directives = [];
-    let atLineStart = true;
-    let hasDirectives = false;
-    let offset = start;
-
-    while (!PlainValue.Node.atDocumentBoundary(src, offset, PlainValue.Char.DIRECTIVES_END)) {
-      offset = Document.startCommentOrEndBlankLine(src, offset);
-
-      switch (src[offset]) {
-        case '\n':
-          if (atLineStart) {
-            const blankLine = new BlankLine();
-            offset = blankLine.parse({
-              src
-            }, offset);
-
-            if (offset < src.length) {
-              this.directives.push(blankLine);
-            }
-          } else {
-            offset += 1;
-            atLineStart = true;
-          }
-
-          break;
-
-        case '#':
-          {
-            const comment = new Comment();
-            offset = comment.parse({
-              src
-            }, offset);
-            this.directives.push(comment);
-            atLineStart = false;
-          }
-          break;
-
-        case '%':
-          {
-            const directive = new Directive();
-            offset = directive.parse({
-              parent: this,
-              src
-            }, offset);
-            this.directives.push(directive);
-            hasDirectives = true;
-            atLineStart = false;
-          }
-          break;
-
-        default:
-          if (hasDirectives) {
-            this.error = new PlainValue.YAMLSemanticError(this, 'Missing directives-end indicator line');
-          } else if (this.directives.length > 0) {
-            this.contents = this.directives;
-            this.directives = [];
-          }
-
-          return offset;
-      }
-    }
-
-    if (src[offset]) {
-      this.directivesEndMarker = new PlainValue.Range(offset, offset + 3);
-      return offset + 3;
-    }
-
-    if (hasDirectives) {
-      this.error = new PlainValue.YAMLSemanticError(this, 'Missing directives-end indicator line');
-    } else if (this.directives.length > 0) {
-      this.contents = this.directives;
-      this.directives = [];
-    }
-
-    return offset;
-  }
-
-  parseContents(start) {
-    const {
-      parseNode,
-      src
-    } = this.context;
-    if (!this.contents) this.contents = [];
-    let lineStart = start;
-
-    while (src[lineStart - 1] === '-') lineStart -= 1;
-
-    let offset = PlainValue.Node.endOfWhiteSpace(src, start);
-    let atLineStart = lineStart === start;
-    this.valueRange = new PlainValue.Range(offset);
-
-    while (!PlainValue.Node.atDocumentBoundary(src, offset, PlainValue.Char.DOCUMENT_END)) {
-      switch (src[offset]) {
-        case '\n':
-          if (atLineStart) {
-            const blankLine = new BlankLine();
-            offset = blankLine.parse({
-              src
-            }, offset);
-
-            if (offset < src.length) {
-              this.contents.push(blankLine);
-            }
-          } else {
-            offset += 1;
-            atLineStart = true;
-          }
-
-          lineStart = offset;
-          break;
-
-        case '#':
-          {
-            const comment = new Comment();
-            offset = comment.parse({
-              src
-            }, offset);
-            this.contents.push(comment);
-            atLineStart = false;
-          }
-          break;
-
-        default:
-          {
-            const iEnd = PlainValue.Node.endOfIndent(src, offset);
-            const context = {
-              atLineStart,
-              indent: -1,
-              inFlow: false,
-              inCollection: false,
-              lineStart,
-              parent: this
-            };
-            const node = parseNode(context, iEnd);
-            if (!node) return this.valueRange.end = iEnd; // at next document start
-
-            this.contents.push(node);
-            offset = node.range.end;
-            atLineStart = false;
-            const ec = grabCollectionEndComments(node);
-            if (ec) Array.prototype.push.apply(this.contents, ec);
-          }
-      }
-
-      offset = Document.startCommentOrEndBlankLine(src, offset);
-    }
-
-    this.valueRange.end = offset;
-
-    if (src[offset]) {
-      this.documentEndMarker = new PlainValue.Range(offset, offset + 3);
-      offset += 3;
-
-      if (src[offset]) {
-        offset = PlainValue.Node.endOfWhiteSpace(src, offset);
-
-        if (src[offset] === '#') {
-          const comment = new Comment();
-          offset = comment.parse({
-            src
-          }, offset);
-          this.contents.push(comment);
-        }
-
-        switch (src[offset]) {
-          case '\n':
-            offset += 1;
-            break;
-
-          case undefined:
-            break;
-
-          default:
-            this.error = new PlainValue.YAMLSyntaxError(this, 'Document end marker line cannot have a non-comment suffix');
-        }
-      }
-    }
-
-    return offset;
-  }
-  /**
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this
-   */
-
-
-  parse(context, start) {
-    context.root = this;
-    this.context = context;
-    const {
-      src
-    } = context;
-    let offset = src.charCodeAt(start) === 0xfeff ? start + 1 : start; // skip BOM
-
-    offset = this.parseDirectives(offset);
-    offset = this.parseContents(offset);
-    return offset;
-  }
-
-  setOrigRanges(cr, offset) {
-    offset = super.setOrigRanges(cr, offset);
-    this.directives.forEach(node => {
-      offset = node.setOrigRanges(cr, offset);
-    });
-    if (this.directivesEndMarker) offset = this.directivesEndMarker.setOrigRange(cr, offset);
-    this.contents.forEach(node => {
-      offset = node.setOrigRanges(cr, offset);
-    });
-    if (this.documentEndMarker) offset = this.documentEndMarker.setOrigRange(cr, offset);
-    return offset;
-  }
-
-  toString() {
-    const {
-      contents,
-      directives,
-      value
-    } = this;
-    if (value != null) return value;
-    let str = directives.join('');
-
-    if (contents.length > 0) {
-      if (directives.length > 0 || contents[0].type === PlainValue.Type.COMMENT) str += '---\n';
-      str += contents.join('');
-    }
-
-    if (str[str.length - 1] !== '\n') str += '\n';
-    return str;
-  }
-
-}
-
-class Alias extends PlainValue.Node {
-  /**
-   * Parses an *alias from the source
-   *
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this scalar
-   */
-  parse(context, start) {
-    this.context = context;
-    const {
-      src
-    } = context;
-    let offset = PlainValue.Node.endOfIdentifier(src, start + 1);
-    this.valueRange = new PlainValue.Range(start + 1, offset);
-    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
-    offset = this.parseComment(offset);
-    return offset;
-  }
-
-}
-
-const Chomp = {
-  CLIP: 'CLIP',
-  KEEP: 'KEEP',
-  STRIP: 'STRIP'
-};
-class BlockValue extends PlainValue.Node {
-  constructor(type, props) {
-    super(type, props);
-    this.blockIndent = null;
-    this.chomping = Chomp.CLIP;
-    this.header = null;
-  }
-
-  get includesTrailingLines() {
-    return this.chomping === Chomp.KEEP;
-  }
-
-  get strValue() {
-    if (!this.valueRange || !this.context) return null;
-    let {
-      start,
-      end
-    } = this.valueRange;
-    const {
-      indent,
-      src
-    } = this.context;
-    if (this.valueRange.isEmpty()) return '';
-    let lastNewLine = null;
-    let ch = src[end - 1];
-
-    while (ch === '\n' || ch === '\t' || ch === ' ') {
-      end -= 1;
-
-      if (end <= start) {
-        if (this.chomping === Chomp.KEEP) break;else return ''; // probably never happens
-      }
-
-      if (ch === '\n') lastNewLine = end;
-      ch = src[end - 1];
-    }
-
-    let keepStart = end + 1;
-
-    if (lastNewLine) {
-      if (this.chomping === Chomp.KEEP) {
-        keepStart = lastNewLine;
-        end = this.valueRange.end;
-      } else {
-        end = lastNewLine;
-      }
-    }
-
-    const bi = indent + this.blockIndent;
-    const folded = this.type === PlainValue.Type.BLOCK_FOLDED;
-    let atStart = true;
-    let str = '';
-    let sep = '';
-    let prevMoreIndented = false;
-
-    for (let i = start; i < end; ++i) {
-      for (let j = 0; j < bi; ++j) {
-        if (src[i] !== ' ') break;
-        i += 1;
-      }
-
-      const ch = src[i];
-
-      if (ch === '\n') {
-        if (sep === '\n') str += '\n';else sep = '\n';
-      } else {
-        const lineEnd = PlainValue.Node.endOfLine(src, i);
-        const line = src.slice(i, lineEnd);
-        i = lineEnd;
-
-        if (folded && (ch === ' ' || ch === '\t') && i < keepStart) {
-          if (sep === ' ') sep = '\n';else if (!prevMoreIndented && !atStart && sep === '\n') sep = '\n\n';
-          str += sep + line; //+ ((lineEnd < end && src[lineEnd]) || '')
-
-          sep = lineEnd < end && src[lineEnd] || '';
-          prevMoreIndented = true;
-        } else {
-          str += sep + line;
-          sep = folded && i < keepStart ? ' ' : '\n';
-          prevMoreIndented = false;
-        }
-
-        if (atStart && line !== '') atStart = false;
-      }
-    }
-
-    return this.chomping === Chomp.STRIP ? str : str + '\n';
-  }
-
-  parseBlockHeader(start) {
-    const {
-      src
-    } = this.context;
-    let offset = start + 1;
-    let bi = '';
-
-    while (true) {
-      const ch = src[offset];
-
-      switch (ch) {
-        case '-':
-          this.chomping = Chomp.STRIP;
-          break;
-
-        case '+':
-          this.chomping = Chomp.KEEP;
-          break;
-
-        case '0':
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-        case '5':
-        case '6':
-        case '7':
-        case '8':
-        case '9':
-          bi += ch;
-          break;
-
-        default:
-          this.blockIndent = Number(bi) || null;
-          this.header = new PlainValue.Range(start, offset);
-          return offset;
-      }
-
-      offset += 1;
-    }
-  }
-
-  parseBlockValue(start) {
-    const {
-      indent,
-      src
-    } = this.context;
-    const explicit = !!this.blockIndent;
-    let offset = start;
-    let valueEnd = start;
-    let minBlockIndent = 1;
-
-    for (let ch = src[offset]; ch === '\n'; ch = src[offset]) {
-      offset += 1;
-      if (PlainValue.Node.atDocumentBoundary(src, offset)) break;
-      const end = PlainValue.Node.endOfBlockIndent(src, indent, offset); // should not include tab?
-
-      if (end === null) break;
-      const ch = src[end];
-      const lineIndent = end - (offset + indent);
-
-      if (!this.blockIndent) {
-        // no explicit block indent, none yet detected
-        if (src[end] !== '\n') {
-          // first line with non-whitespace content
-          if (lineIndent < minBlockIndent) {
-            const msg = 'Block scalars with more-indented leading empty lines must use an explicit indentation indicator';
-            this.error = new PlainValue.YAMLSemanticError(this, msg);
-          }
-
-          this.blockIndent = lineIndent;
-        } else if (lineIndent > minBlockIndent) {
-          // empty line with more whitespace
-          minBlockIndent = lineIndent;
-        }
-      } else if (ch && ch !== '\n' && lineIndent < this.blockIndent) {
-        if (src[end] === '#') break;
-
-        if (!this.error) {
-          const src = explicit ? 'explicit indentation indicator' : 'first line';
-          const msg = `Block scalars must not be less indented than their ${src}`;
-          this.error = new PlainValue.YAMLSemanticError(this, msg);
-        }
-      }
-
-      if (src[end] === '\n') {
-        offset = end;
-      } else {
-        offset = valueEnd = PlainValue.Node.endOfLine(src, end);
-      }
-    }
-
-    if (this.chomping !== Chomp.KEEP) {
-      offset = src[valueEnd] ? valueEnd + 1 : valueEnd;
-    }
-
-    this.valueRange = new PlainValue.Range(start + 1, offset);
-    return offset;
-  }
-  /**
-   * Parses a block value from the source
-   *
-   * Accepted forms are:
-   * ```
-   * BS
-   * block
-   * lines
-   *
-   * BS #comment
-   * block
-   * lines
-   * ```
-   * where the block style BS matches the regexp `[|>][-+1-9]*` and block lines
-   * are empty or have an indent level greater than `indent`.
-   *
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this block
-   */
-
-
-  parse(context, start) {
-    this.context = context;
-    const {
-      src
-    } = context;
-    let offset = this.parseBlockHeader(start);
-    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
-    offset = this.parseComment(offset);
-    offset = this.parseBlockValue(offset);
-    return offset;
-  }
-
-  setOrigRanges(cr, offset) {
-    offset = super.setOrigRanges(cr, offset);
-    return this.header ? this.header.setOrigRange(cr, offset) : offset;
-  }
-
-}
-
-class FlowCollection extends PlainValue.Node {
-  constructor(type, props) {
-    super(type, props);
-    this.items = null;
-  }
-
-  prevNodeIsJsonLike(idx = this.items.length) {
-    const node = this.items[idx - 1];
-    return !!node && (node.jsonLike || node.type === PlainValue.Type.COMMENT && this.prevNodeIsJsonLike(idx - 1));
-  }
-  /**
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this
-   */
-
-
-  parse(context, start) {
-    this.context = context;
-    const {
-      parseNode,
-      src
-    } = context;
-    let {
-      indent,
-      lineStart
-    } = context;
-    let char = src[start]; // { or [
-
-    this.items = [{
-      char,
-      offset: start
-    }];
-    let offset = PlainValue.Node.endOfWhiteSpace(src, start + 1);
-    char = src[offset];
-
-    while (char && char !== ']' && char !== '}') {
-      switch (char) {
-        case '\n':
-          {
-            lineStart = offset + 1;
-            const wsEnd = PlainValue.Node.endOfWhiteSpace(src, lineStart);
-
-            if (src[wsEnd] === '\n') {
-              const blankLine = new BlankLine();
-              lineStart = blankLine.parse({
-                src
-              }, lineStart);
-              this.items.push(blankLine);
-            }
-
-            offset = PlainValue.Node.endOfIndent(src, lineStart);
-
-            if (offset <= lineStart + indent) {
-              char = src[offset];
-
-              if (offset < lineStart + indent || char !== ']' && char !== '}') {
-                const msg = 'Insufficient indentation in flow collection';
-                this.error = new PlainValue.YAMLSemanticError(this, msg);
-              }
-            }
-          }
-          break;
-
-        case ',':
-          {
-            this.items.push({
-              char,
-              offset
-            });
-            offset += 1;
-          }
-          break;
-
-        case '#':
-          {
-            const comment = new Comment();
-            offset = comment.parse({
-              src
-            }, offset);
-            this.items.push(comment);
-          }
-          break;
-
-        case '?':
-        case ':':
-          {
-            const next = src[offset + 1];
-
-            if (next === '\n' || next === '\t' || next === ' ' || next === ',' || // in-flow : after JSON-like key does not need to be followed by whitespace
-            char === ':' && this.prevNodeIsJsonLike()) {
-              this.items.push({
-                char,
-                offset
-              });
-              offset += 1;
-              break;
-            }
-          }
-        // fallthrough
-
-        default:
-          {
-            const node = parseNode({
-              atLineStart: false,
-              inCollection: false,
-              inFlow: true,
-              indent: -1,
-              lineStart,
-              parent: this
-            }, offset);
-
-            if (!node) {
-              // at next document start
-              this.valueRange = new PlainValue.Range(start, offset);
-              return offset;
-            }
-
-            this.items.push(node);
-            offset = PlainValue.Node.normalizeOffset(src, node.range.end);
-          }
-      }
-
-      offset = PlainValue.Node.endOfWhiteSpace(src, offset);
-      char = src[offset];
-    }
-
-    this.valueRange = new PlainValue.Range(start, offset + 1);
-
-    if (char) {
-      this.items.push({
-        char,
-        offset
-      });
-      offset = PlainValue.Node.endOfWhiteSpace(src, offset + 1);
-      offset = this.parseComment(offset);
-    }
-
-    return offset;
-  }
-
-  setOrigRanges(cr, offset) {
-    offset = super.setOrigRanges(cr, offset);
-    this.items.forEach(node => {
-      if (node instanceof PlainValue.Node) {
-        offset = node.setOrigRanges(cr, offset);
-      } else if (cr.length === 0) {
-        node.origOffset = node.offset;
-      } else {
-        let i = offset;
-
-        while (i < cr.length) {
-          if (cr[i] > node.offset) break;else ++i;
-        }
-
-        node.origOffset = node.offset + i;
-        offset = i;
-      }
-    });
-    return offset;
-  }
-
-  toString() {
-    const {
-      context: {
-        src
-      },
-      items,
-      range,
-      value
-    } = this;
-    if (value != null) return value;
-    const nodes = items.filter(item => item instanceof PlainValue.Node);
-    let str = '';
-    let prevEnd = range.start;
-    nodes.forEach(node => {
-      const prefix = src.slice(prevEnd, node.range.start);
-      prevEnd = node.range.end;
-      str += prefix + String(node);
-
-      if (str[str.length - 1] === '\n' && src[prevEnd - 1] !== '\n' && src[prevEnd] === '\n') {
-        // Comment range does not include the terminal newline, but its
-        // stringified value does. Without this fix, newlines at comment ends
-        // get duplicated.
-        prevEnd += 1;
-      }
-    });
-    str += src.slice(prevEnd, range.end);
-    return PlainValue.Node.addStringTerminator(src, range.end, str);
-  }
-
-}
-
-class QuoteDouble extends PlainValue.Node {
-  static endOfQuote(src, offset) {
-    let ch = src[offset];
-
-    while (ch && ch !== '"') {
-      offset += ch === '\\' ? 2 : 1;
-      ch = src[offset];
-    }
-
-    return offset + 1;
-  }
-  /**
-   * @returns {string | { str: string, errors: YAMLSyntaxError[] }}
-   */
-
-
-  get strValue() {
-    if (!this.valueRange || !this.context) return null;
-    const errors = [];
-    const {
-      start,
-      end
-    } = this.valueRange;
-    const {
-      indent,
-      src
-    } = this.context;
-    if (src[end - 1] !== '"') errors.push(new PlainValue.YAMLSyntaxError(this, 'Missing closing "quote')); // Using String#replace is too painful with escaped newlines preceded by
-    // escaped backslashes; also, this should be faster.
-
-    let str = '';
-
-    for (let i = start + 1; i < end - 1; ++i) {
-      const ch = src[i];
-
-      if (ch === '\n') {
-        if (PlainValue.Node.atDocumentBoundary(src, i + 1)) errors.push(new PlainValue.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
-        const {
-          fold,
-          offset,
-          error
-        } = PlainValue.Node.foldNewline(src, i, indent);
-        str += fold;
-        i = offset;
-        if (error) errors.push(new PlainValue.YAMLSemanticError(this, 'Multi-line double-quoted string needs to be sufficiently indented'));
-      } else if (ch === '\\') {
-        i += 1;
-
-        switch (src[i]) {
-          case '0':
-            str += '\0';
-            break;
-          // null character
-
-          case 'a':
-            str += '\x07';
-            break;
-          // bell character
-
-          case 'b':
-            str += '\b';
-            break;
-          // backspace
-
-          case 'e':
-            str += '\x1b';
-            break;
-          // escape character
-
-          case 'f':
-            str += '\f';
-            break;
-          // form feed
-
-          case 'n':
-            str += '\n';
-            break;
-          // line feed
-
-          case 'r':
-            str += '\r';
-            break;
-          // carriage return
-
-          case 't':
-            str += '\t';
-            break;
-          // horizontal tab
-
-          case 'v':
-            str += '\v';
-            break;
-          // vertical tab
-
-          case 'N':
-            str += '\u0085';
-            break;
-          // Unicode next line
-
-          case '_':
-            str += '\u00a0';
-            break;
-          // Unicode non-breaking space
-
-          case 'L':
-            str += '\u2028';
-            break;
-          // Unicode line separator
-
-          case 'P':
-            str += '\u2029';
-            break;
-          // Unicode paragraph separator
-
-          case ' ':
-            str += ' ';
-            break;
-
-          case '"':
-            str += '"';
-            break;
-
-          case '/':
-            str += '/';
-            break;
-
-          case '\\':
-            str += '\\';
-            break;
-
-          case '\t':
-            str += '\t';
-            break;
-
-          case 'x':
-            str += this.parseCharCode(i + 1, 2, errors);
-            i += 2;
-            break;
-
-          case 'u':
-            str += this.parseCharCode(i + 1, 4, errors);
-            i += 4;
-            break;
-
-          case 'U':
-            str += this.parseCharCode(i + 1, 8, errors);
-            i += 8;
-            break;
-
-          case '\n':
-            // skip escaped newlines, but still trim the following line
-            while (src[i + 1] === ' ' || src[i + 1] === '\t') i += 1;
-
-            break;
-
-          default:
-            errors.push(new PlainValue.YAMLSyntaxError(this, `Invalid escape sequence ${src.substr(i - 1, 2)}`));
-            str += '\\' + src[i];
-        }
-      } else if (ch === ' ' || ch === '\t') {
-        // trim trailing whitespace
-        const wsStart = i;
-        let next = src[i + 1];
-
-        while (next === ' ' || next === '\t') {
-          i += 1;
-          next = src[i + 1];
-        }
-
-        if (next !== '\n') str += i > wsStart ? src.slice(wsStart, i + 1) : ch;
-      } else {
-        str += ch;
-      }
-    }
-
-    return errors.length > 0 ? {
-      errors,
-      str
-    } : str;
-  }
-
-  parseCharCode(offset, length, errors) {
-    const {
-      src
-    } = this.context;
-    const cc = src.substr(offset, length);
-    const ok = cc.length === length && /^[0-9a-fA-F]+$/.test(cc);
-    const code = ok ? parseInt(cc, 16) : NaN;
-
-    if (isNaN(code)) {
-      errors.push(new PlainValue.YAMLSyntaxError(this, `Invalid escape sequence ${src.substr(offset - 2, length + 2)}`));
-      return src.substr(offset - 2, length + 2);
-    }
-
-    return String.fromCodePoint(code);
-  }
-  /**
-   * Parses a "double quoted" value from the source
-   *
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this scalar
-   */
-
-
-  parse(context, start) {
-    this.context = context;
-    const {
-      src
-    } = context;
-    let offset = QuoteDouble.endOfQuote(src, start + 1);
-    this.valueRange = new PlainValue.Range(start, offset);
-    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
-    offset = this.parseComment(offset);
-    return offset;
-  }
-
-}
-
-class QuoteSingle extends PlainValue.Node {
-  static endOfQuote(src, offset) {
-    let ch = src[offset];
-
-    while (ch) {
-      if (ch === "'") {
-        if (src[offset + 1] !== "'") break;
-        ch = src[offset += 2];
-      } else {
-        ch = src[offset += 1];
-      }
-    }
-
-    return offset + 1;
-  }
-  /**
-   * @returns {string | { str: string, errors: YAMLSyntaxError[] }}
-   */
-
-
-  get strValue() {
-    if (!this.valueRange || !this.context) return null;
-    const errors = [];
-    const {
-      start,
-      end
-    } = this.valueRange;
-    const {
-      indent,
-      src
-    } = this.context;
-    if (src[end - 1] !== "'") errors.push(new PlainValue.YAMLSyntaxError(this, "Missing closing 'quote"));
-    let str = '';
-
-    for (let i = start + 1; i < end - 1; ++i) {
-      const ch = src[i];
-
-      if (ch === '\n') {
-        if (PlainValue.Node.atDocumentBoundary(src, i + 1)) errors.push(new PlainValue.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
-        const {
-          fold,
-          offset,
-          error
-        } = PlainValue.Node.foldNewline(src, i, indent);
-        str += fold;
-        i = offset;
-        if (error) errors.push(new PlainValue.YAMLSemanticError(this, 'Multi-line single-quoted string needs to be sufficiently indented'));
-      } else if (ch === "'") {
-        str += ch;
-        i += 1;
-        if (src[i] !== "'") errors.push(new PlainValue.YAMLSyntaxError(this, 'Unescaped single quote? This should not happen.'));
-      } else if (ch === ' ' || ch === '\t') {
-        // trim trailing whitespace
-        const wsStart = i;
-        let next = src[i + 1];
-
-        while (next === ' ' || next === '\t') {
-          i += 1;
-          next = src[i + 1];
-        }
-
-        if (next !== '\n') str += i > wsStart ? src.slice(wsStart, i + 1) : ch;
-      } else {
-        str += ch;
-      }
-    }
-
-    return errors.length > 0 ? {
-      errors,
-      str
-    } : str;
-  }
-  /**
-   * Parses a 'single quoted' value from the source
-   *
-   * @param {ParseContext} context
-   * @param {number} start - Index of first character
-   * @returns {number} - Index of the character after this scalar
-   */
-
-
-  parse(context, start) {
-    this.context = context;
-    const {
-      src
-    } = context;
-    let offset = QuoteSingle.endOfQuote(src, start + 1);
-    this.valueRange = new PlainValue.Range(start, offset);
-    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
-    offset = this.parseComment(offset);
-    return offset;
-  }
-
-}
-
-function createNewNode(type, props) {
-  switch (type) {
-    case PlainValue.Type.ALIAS:
-      return new Alias(type, props);
-
-    case PlainValue.Type.BLOCK_FOLDED:
-    case PlainValue.Type.BLOCK_LITERAL:
-      return new BlockValue(type, props);
-
-    case PlainValue.Type.FLOW_MAP:
-    case PlainValue.Type.FLOW_SEQ:
-      return new FlowCollection(type, props);
-
-    case PlainValue.Type.MAP_KEY:
-    case PlainValue.Type.MAP_VALUE:
-    case PlainValue.Type.SEQ_ITEM:
-      return new CollectionItem(type, props);
-
-    case PlainValue.Type.COMMENT:
-    case PlainValue.Type.PLAIN:
-      return new PlainValue.PlainValue(type, props);
-
-    case PlainValue.Type.QUOTE_DOUBLE:
-      return new QuoteDouble(type, props);
-
-    case PlainValue.Type.QUOTE_SINGLE:
-      return new QuoteSingle(type, props);
-
-    /* istanbul ignore next */
-
-    default:
-      return null;
-    // should never happen
-  }
-}
-/**
- * @param {boolean} atLineStart - Node starts at beginning of line
- * @param {boolean} inFlow - true if currently in a flow context
- * @param {boolean} inCollection - true if currently in a collection context
- * @param {number} indent - Current level of indentation
- * @param {number} lineStart - Start of the current line
- * @param {Node} parent - The parent of the node
- * @param {string} src - Source of the YAML document
- */
-
-
-class ParseContext {
-  static parseType(src, offset, inFlow) {
-    switch (src[offset]) {
-      case '*':
-        return PlainValue.Type.ALIAS;
-
-      case '>':
-        return PlainValue.Type.BLOCK_FOLDED;
-
-      case '|':
-        return PlainValue.Type.BLOCK_LITERAL;
-
-      case '{':
-        return PlainValue.Type.FLOW_MAP;
-
-      case '[':
-        return PlainValue.Type.FLOW_SEQ;
-
-      case '?':
-        return !inFlow && PlainValue.Node.atBlank(src, offset + 1, true) ? PlainValue.Type.MAP_KEY : PlainValue.Type.PLAIN;
-
-      case ':':
-        return !inFlow && PlainValue.Node.atBlank(src, offset + 1, true) ? PlainValue.Type.MAP_VALUE : PlainValue.Type.PLAIN;
-
-      case '-':
-        return !inFlow && PlainValue.Node.atBlank(src, offset + 1, true) ? PlainValue.Type.SEQ_ITEM : PlainValue.Type.PLAIN;
-
-      case '"':
-        return PlainValue.Type.QUOTE_DOUBLE;
-
-      case "'":
-        return PlainValue.Type.QUOTE_SINGLE;
-
-      default:
-        return PlainValue.Type.PLAIN;
-    }
-  }
-
-  constructor(orig = {}, {
-    atLineStart,
-    inCollection,
-    inFlow,
-    indent,
-    lineStart,
-    parent
-  } = {}) {
-    PlainValue._defineProperty(this, "parseNode", (overlay, start) => {
-      if (PlainValue.Node.atDocumentBoundary(this.src, start)) return null;
-      const context = new ParseContext(this, overlay);
-      const {
-        props,
-        type,
-        valueStart
-      } = context.parseProps(start);
-      const node = createNewNode(type, props);
-      let offset = node.parse(context, valueStart);
-      node.range = new PlainValue.Range(start, offset);
-      /* istanbul ignore if */
-
-      if (offset <= start) {
-        // This should never happen, but if it does, let's make sure to at least
-        // step one character forward to avoid a busy loop.
-        node.error = new Error(`Node#parse consumed no characters`);
-        node.error.parseEnd = offset;
-        node.error.source = node;
-        node.range.end = start + 1;
-      }
-
-      if (context.nodeStartsCollection(node)) {
-        if (!node.error && !context.atLineStart && context.parent.type === PlainValue.Type.DOCUMENT) {
-          node.error = new PlainValue.YAMLSyntaxError(node, 'Block collection must not have preceding content here (e.g. directives-end indicator)');
-        }
-
-        const collection = new Collection(node);
-        offset = collection.parse(new ParseContext(context), offset);
-        collection.range = new PlainValue.Range(start, offset);
-        return collection;
-      }
-
-      return node;
-    });
-
-    this.atLineStart = atLineStart != null ? atLineStart : orig.atLineStart || false;
-    this.inCollection = inCollection != null ? inCollection : orig.inCollection || false;
-    this.inFlow = inFlow != null ? inFlow : orig.inFlow || false;
-    this.indent = indent != null ? indent : orig.indent;
-    this.lineStart = lineStart != null ? lineStart : orig.lineStart;
-    this.parent = parent != null ? parent : orig.parent || {};
-    this.root = orig.root;
-    this.src = orig.src;
-  }
-
-  nodeStartsCollection(node) {
-    const {
-      inCollection,
-      inFlow,
-      src
-    } = this;
-    if (inCollection || inFlow) return false;
-    if (node instanceof CollectionItem) return true; // check for implicit key
-
-    let offset = node.range.end;
-    if (src[offset] === '\n' || src[offset - 1] === '\n') return false;
-    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
-    return src[offset] === ':';
-  } // Anchor and tag are before type, which determines the node implementation
-  // class; hence this intermediate step.
-
-
-  parseProps(offset) {
-    const {
-      inFlow,
-      parent,
-      src
-    } = this;
-    const props = [];
-    let lineHasProps = false;
-    offset = this.atLineStart ? PlainValue.Node.endOfIndent(src, offset) : PlainValue.Node.endOfWhiteSpace(src, offset);
-    let ch = src[offset];
-
-    while (ch === PlainValue.Char.ANCHOR || ch === PlainValue.Char.COMMENT || ch === PlainValue.Char.TAG || ch === '\n') {
-      if (ch === '\n') {
-        let inEnd = offset;
-        let lineStart;
-
-        do {
-          lineStart = inEnd + 1;
-          inEnd = PlainValue.Node.endOfIndent(src, lineStart);
-        } while (src[inEnd] === '\n');
-
-        const indentDiff = inEnd - (lineStart + this.indent);
-        const noIndicatorAsIndent = parent.type === PlainValue.Type.SEQ_ITEM && parent.context.atLineStart;
-        if (src[inEnd] !== '#' && !PlainValue.Node.nextNodeIsIndented(src[inEnd], indentDiff, !noIndicatorAsIndent)) break;
-        this.atLineStart = true;
-        this.lineStart = lineStart;
-        lineHasProps = false;
-        offset = inEnd;
-      } else if (ch === PlainValue.Char.COMMENT) {
-        const end = PlainValue.Node.endOfLine(src, offset + 1);
-        props.push(new PlainValue.Range(offset, end));
-        offset = end;
-      } else {
-        let end = PlainValue.Node.endOfIdentifier(src, offset + 1);
-
-        if (ch === PlainValue.Char.TAG && src[end] === ',' && /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+,\d\d\d\d(-\d\d){0,2}\/\S/.test(src.slice(offset + 1, end + 13))) {
-          // Let's presume we're dealing with a YAML 1.0 domain tag here, rather
-          // than an empty but 'foo.bar' private-tagged node in a flow collection
-          // followed without whitespace by a plain string starting with a year
-          // or date divided by something.
-          end = PlainValue.Node.endOfIdentifier(src, end + 5);
-        }
-
-        props.push(new PlainValue.Range(offset, end));
-        lineHasProps = true;
-        offset = PlainValue.Node.endOfWhiteSpace(src, end);
-      }
-
-      ch = src[offset];
-    } // '- &a : b' has an anchor on an empty node
-
-
-    if (lineHasProps && ch === ':' && PlainValue.Node.atBlank(src, offset + 1, true)) offset -= 1;
-    const type = ParseContext.parseType(src, offset, inFlow);
-    return {
-      props,
-      type,
-      valueStart: offset
-    };
-  }
-  /**
-   * Parses a node from the source
-   * @param {ParseContext} overlay
-   * @param {number} start - Index of first non-whitespace character for the node
-   * @returns {?Node} - null if at a document boundary
-   */
-
-
-}
-
-// Published as 'yaml/parse-cst'
-function parse(src) {
-  const cr = [];
-
-  if (src.indexOf('\r') !== -1) {
-    src = src.replace(/\r\n?/g, (match, offset) => {
-      if (match.length > 1) cr.push(offset);
-      return '\n';
-    });
-  }
-
-  const documents = [];
-  let offset = 0;
-
-  do {
-    const doc = new Document();
-    const context = new ParseContext({
-      src
-    });
-    offset = doc.parse(context, offset);
-    documents.push(doc);
-  } while (offset < src.length);
-
-  documents.setOrigRanges = () => {
-    if (cr.length === 0) return false;
-
-    for (let i = 1; i < cr.length; ++i) cr[i] -= i;
-
-    let crOffset = 0;
-
-    for (let i = 0; i < documents.length; ++i) {
-      crOffset = documents[i].setOrigRanges(cr, crOffset);
-    }
-
-    cr.splice(0, cr.length);
-    return true;
-  };
-
-  documents.toString = () => documents.join('...\n');
-
-  return documents;
-}
-
-exports.parse = parse;
-
-
-/***/ }),
-
-/***/ 9914:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-
-var PlainValue = __nccwpck_require__(4941);
-
-function addCommentBefore(str, indent, comment) {
-  if (!comment) return str;
-  const cc = comment.replace(/[\s\S]^/gm, `$&${indent}#`);
-  return `#${cc}\n${indent}${str}`;
-}
-function addComment(str, indent, comment) {
-  return !comment ? str : comment.indexOf('\n') === -1 ? `${str} #${comment}` : `${str}\n` + comment.replace(/^/gm, `${indent || ''}#`);
-}
-
-class Node {}
-
-function toJSON(value, arg, ctx) {
-  if (Array.isArray(value)) return value.map((v, i) => toJSON(v, String(i), ctx));
-
-  if (value && typeof value.toJSON === 'function') {
-    const anchor = ctx && ctx.anchors && ctx.anchors.get(value);
-    if (anchor) ctx.onCreate = res => {
-      anchor.res = res;
-      delete ctx.onCreate;
-    };
-    const res = value.toJSON(arg, ctx);
-    if (anchor && ctx.onCreate) ctx.onCreate(res);
-    return res;
-  }
-
-  if ((!ctx || !ctx.keep) && typeof value === 'bigint') return Number(value);
-  return value;
-}
-
-class Scalar extends Node {
-  constructor(value) {
-    super();
-    this.value = value;
-  }
-
-  toJSON(arg, ctx) {
-    return ctx && ctx.keep ? this.value : toJSON(this.value, arg, ctx);
-  }
-
-  toString() {
-    return String(this.value);
-  }
-
-}
-
-function collectionFromPath(schema, path, value) {
-  let v = value;
-
-  for (let i = path.length - 1; i >= 0; --i) {
-    const k = path[i];
-
-    if (Number.isInteger(k) && k >= 0) {
-      const a = [];
-      a[k] = v;
-      v = a;
-    } else {
-      const o = {};
-      Object.defineProperty(o, k, {
-        value: v,
-        writable: true,
-        enumerable: true,
-        configurable: true
-      });
-      v = o;
-    }
-  }
-
-  return schema.createNode(v, false);
-} // null, undefined, or an empty non-string iterable (e.g. [])
-
-
-const isEmptyPath = path => path == null || typeof path === 'object' && path[Symbol.iterator]().next().done;
-class Collection extends Node {
-  constructor(schema) {
-    super();
-
-    PlainValue._defineProperty(this, "items", []);
-
-    this.schema = schema;
-  }
-
-  addIn(path, value) {
-    if (isEmptyPath(path)) this.add(value);else {
-      const [key, ...rest] = path;
-      const node = this.get(key, true);
-      if (node instanceof Collection) node.addIn(rest, value);else if (node === undefined && this.schema) this.set(key, collectionFromPath(this.schema, rest, value));else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
-    }
-  }
-
-  deleteIn([key, ...rest]) {
-    if (rest.length === 0) return this.delete(key);
-    const node = this.get(key, true);
-    if (node instanceof Collection) return node.deleteIn(rest);else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
-  }
-
-  getIn([key, ...rest], keepScalar) {
-    const node = this.get(key, true);
-    if (rest.length === 0) return !keepScalar && node instanceof Scalar ? node.value : node;else return node instanceof Collection ? node.getIn(rest, keepScalar) : undefined;
-  }
-
-  hasAllNullValues() {
-    return this.items.every(node => {
-      if (!node || node.type !== 'PAIR') return false;
-      const n = node.value;
-      return n == null || n instanceof Scalar && n.value == null && !n.commentBefore && !n.comment && !n.tag;
-    });
-  }
-
-  hasIn([key, ...rest]) {
-    if (rest.length === 0) return this.has(key);
-    const node = this.get(key, true);
-    return node instanceof Collection ? node.hasIn(rest) : false;
-  }
-
-  setIn([key, ...rest], value) {
-    if (rest.length === 0) {
-      this.set(key, value);
-    } else {
-      const node = this.get(key, true);
-      if (node instanceof Collection) node.setIn(rest, value);else if (node === undefined && this.schema) this.set(key, collectionFromPath(this.schema, rest, value));else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
-    }
-  } // overridden in implementations
-
-  /* istanbul ignore next */
-
-
-  toJSON() {
-    return null;
-  }
-
-  toString(ctx, {
-    blockItem,
-    flowChars,
-    isMap,
-    itemIndent
-  }, onComment, onChompKeep) {
-    const {
-      indent,
-      indentStep,
-      stringify
-    } = ctx;
-    const inFlow = this.type === PlainValue.Type.FLOW_MAP || this.type === PlainValue.Type.FLOW_SEQ || ctx.inFlow;
-    if (inFlow) itemIndent += indentStep;
-    const allNullValues = isMap && this.hasAllNullValues();
-    ctx = Object.assign({}, ctx, {
-      allNullValues,
-      indent: itemIndent,
-      inFlow,
-      type: null
-    });
-    let chompKeep = false;
-    let hasItemWithNewLine = false;
-    const nodes = this.items.reduce((nodes, item, i) => {
-      let comment;
-
-      if (item) {
-        if (!chompKeep && item.spaceBefore) nodes.push({
-          type: 'comment',
-          str: ''
-        });
-        if (item.commentBefore) item.commentBefore.match(/^.*$/gm).forEach(line => {
-          nodes.push({
-            type: 'comment',
-            str: `#${line}`
-          });
-        });
-        if (item.comment) comment = item.comment;
-        if (inFlow && (!chompKeep && item.spaceBefore || item.commentBefore || item.comment || item.key && (item.key.commentBefore || item.key.comment) || item.value && (item.value.commentBefore || item.value.comment))) hasItemWithNewLine = true;
-      }
-
-      chompKeep = false;
-      let str = stringify(item, ctx, () => comment = null, () => chompKeep = true);
-      if (inFlow && !hasItemWithNewLine && str.includes('\n')) hasItemWithNewLine = true;
-      if (inFlow && i < this.items.length - 1) str += ',';
-      str = addComment(str, itemIndent, comment);
-      if (chompKeep && (comment || inFlow)) chompKeep = false;
-      nodes.push({
-        type: 'item',
-        str
-      });
-      return nodes;
-    }, []);
-    let str;
-
-    if (nodes.length === 0) {
-      str = flowChars.start + flowChars.end;
-    } else if (inFlow) {
-      const {
-        start,
-        end
-      } = flowChars;
-      const strings = nodes.map(n => n.str);
-
-      if (hasItemWithNewLine || strings.reduce((sum, str) => sum + str.length + 2, 2) > Collection.maxFlowStringSingleLineLength) {
-        str = start;
-
-        for (const s of strings) {
-          str += s ? `\n${indentStep}${indent}${s}` : '\n';
-        }
-
-        str += `\n${indent}${end}`;
-      } else {
-        str = `${start} ${strings.join(' ')} ${end}`;
-      }
-    } else {
-      const strings = nodes.map(blockItem);
-      str = strings.shift();
-
-      for (const s of strings) str += s ? `\n${indent}${s}` : '\n';
-    }
-
-    if (this.comment) {
-      str += '\n' + this.comment.replace(/^/gm, `${indent}#`);
-      if (onComment) onComment();
-    } else if (chompKeep && onChompKeep) onChompKeep();
-
-    return str;
-  }
-
-}
-
-PlainValue._defineProperty(Collection, "maxFlowStringSingleLineLength", 60);
-
-function asItemIndex(key) {
-  let idx = key instanceof Scalar ? key.value : key;
-  if (idx && typeof idx === 'string') idx = Number(idx);
-  return Number.isInteger(idx) && idx >= 0 ? idx : null;
-}
-
-class YAMLSeq extends Collection {
-  add(value) {
-    this.items.push(value);
-  }
-
-  delete(key) {
-    const idx = asItemIndex(key);
-    if (typeof idx !== 'number') return false;
-    const del = this.items.splice(idx, 1);
-    return del.length > 0;
-  }
-
-  get(key, keepScalar) {
-    const idx = asItemIndex(key);
-    if (typeof idx !== 'number') return undefined;
-    const it = this.items[idx];
-    return !keepScalar && it instanceof Scalar ? it.value : it;
-  }
-
-  has(key) {
-    const idx = asItemIndex(key);
-    return typeof idx === 'number' && idx < this.items.length;
-  }
-
-  set(key, value) {
-    const idx = asItemIndex(key);
-    if (typeof idx !== 'number') throw new Error(`Expected a valid index, not ${key}.`);
-    this.items[idx] = value;
-  }
-
-  toJSON(_, ctx) {
-    const seq = [];
-    if (ctx && ctx.onCreate) ctx.onCreate(seq);
-    let i = 0;
-
-    for (const item of this.items) seq.push(toJSON(item, String(i++), ctx));
-
-    return seq;
-  }
-
-  toString(ctx, onComment, onChompKeep) {
-    if (!ctx) return JSON.stringify(this);
-    return super.toString(ctx, {
-      blockItem: n => n.type === 'comment' ? n.str : `- ${n.str}`,
-      flowChars: {
-        start: '[',
-        end: ']'
-      },
-      isMap: false,
-      itemIndent: (ctx.indent || '') + '  '
-    }, onComment, onChompKeep);
-  }
-
-}
-
-const stringifyKey = (key, jsKey, ctx) => {
-  if (jsKey === null) return '';
-  if (typeof jsKey !== 'object') return String(jsKey);
-  if (key instanceof Node && ctx && ctx.doc) return key.toString({
-    anchors: Object.create(null),
-    doc: ctx.doc,
-    indent: '',
-    indentStep: ctx.indentStep,
-    inFlow: true,
-    inStringifyKey: true,
-    stringify: ctx.stringify
-  });
-  return JSON.stringify(jsKey);
-};
-
-class Pair extends Node {
-  constructor(key, value = null) {
-    super();
-    this.key = key;
-    this.value = value;
-    this.type = Pair.Type.PAIR;
-  }
-
-  get commentBefore() {
-    return this.key instanceof Node ? this.key.commentBefore : undefined;
-  }
-
-  set commentBefore(cb) {
-    if (this.key == null) this.key = new Scalar(null);
-    if (this.key instanceof Node) this.key.commentBefore = cb;else {
-      const msg = 'Pair.commentBefore is an alias for Pair.key.commentBefore. To set it, the key must be a Node.';
-      throw new Error(msg);
-    }
-  }
-
-  addToJSMap(ctx, map) {
-    const key = toJSON(this.key, '', ctx);
-
-    if (map instanceof Map) {
-      const value = toJSON(this.value, key, ctx);
-      map.set(key, value);
-    } else if (map instanceof Set) {
-      map.add(key);
-    } else {
-      const stringKey = stringifyKey(this.key, key, ctx);
-      const value = toJSON(this.value, stringKey, ctx);
-      if (stringKey in map) Object.defineProperty(map, stringKey, {
-        value,
-        writable: true,
-        enumerable: true,
-        configurable: true
-      });else map[stringKey] = value;
-    }
-
-    return map;
-  }
-
-  toJSON(_, ctx) {
-    const pair = ctx && ctx.mapAsMap ? new Map() : {};
-    return this.addToJSMap(ctx, pair);
-  }
-
-  toString(ctx, onComment, onChompKeep) {
-    if (!ctx || !ctx.doc) return JSON.stringify(this);
-    const {
-      indent: indentSize,
-      indentSeq,
-      simpleKeys
-    } = ctx.doc.options;
-    let {
-      key,
-      value
-    } = this;
-    let keyComment = key instanceof Node && key.comment;
-
-    if (simpleKeys) {
-      if (keyComment) {
-        throw new Error('With simple keys, key nodes cannot have comments');
-      }
-
-      if (key instanceof Collection) {
-        const msg = 'With simple keys, collection cannot be used as a key value';
-        throw new Error(msg);
-      }
-    }
-
-    let explicitKey = !simpleKeys && (!key || keyComment || (key instanceof Node ? key instanceof Collection || key.type === PlainValue.Type.BLOCK_FOLDED || key.type === PlainValue.Type.BLOCK_LITERAL : typeof key === 'object'));
-    const {
-      doc,
-      indent,
-      indentStep,
-      stringify
-    } = ctx;
-    ctx = Object.assign({}, ctx, {
-      implicitKey: !explicitKey,
-      indent: indent + indentStep
-    });
-    let chompKeep = false;
-    let str = stringify(key, ctx, () => keyComment = null, () => chompKeep = true);
-    str = addComment(str, ctx.indent, keyComment);
-
-    if (!explicitKey && str.length > 1024) {
-      if (simpleKeys) throw new Error('With simple keys, single line scalar must not span more than 1024 characters');
-      explicitKey = true;
-    }
-
-    if (ctx.allNullValues && !simpleKeys) {
-      if (this.comment) {
-        str = addComment(str, ctx.indent, this.comment);
-        if (onComment) onComment();
-      } else if (chompKeep && !keyComment && onChompKeep) onChompKeep();
-
-      return ctx.inFlow && !explicitKey ? str : `? ${str}`;
-    }
-
-    str = explicitKey ? `? ${str}\n${indent}:` : `${str}:`;
-
-    if (this.comment) {
-      // expected (but not strictly required) to be a single-line comment
-      str = addComment(str, ctx.indent, this.comment);
-      if (onComment) onComment();
-    }
-
-    let vcb = '';
-    let valueComment = null;
-
-    if (value instanceof Node) {
-      if (value.spaceBefore) vcb = '\n';
-
-      if (value.commentBefore) {
-        const cs = value.commentBefore.replace(/^/gm, `${ctx.indent}#`);
-        vcb += `\n${cs}`;
-      }
-
-      valueComment = value.comment;
-    } else if (value && typeof value === 'object') {
-      value = doc.schema.createNode(value, true);
-    }
-
-    ctx.implicitKey = false;
-    if (!explicitKey && !this.comment && value instanceof Scalar) ctx.indentAtStart = str.length + 1;
-    chompKeep = false;
-
-    if (!indentSeq && indentSize >= 2 && !ctx.inFlow && !explicitKey && value instanceof YAMLSeq && value.type !== PlainValue.Type.FLOW_SEQ && !value.tag && !doc.anchors.getName(value)) {
-      // If indentSeq === false, consider '- ' as part of indentation where possible
-      ctx.indent = ctx.indent.substr(2);
-    }
-
-    const valueStr = stringify(value, ctx, () => valueComment = null, () => chompKeep = true);
-    let ws = ' ';
-
-    if (vcb || this.comment) {
-      ws = `${vcb}\n${ctx.indent}`;
-    } else if (!explicitKey && value instanceof Collection) {
-      const flow = valueStr[0] === '[' || valueStr[0] === '{';
-      if (!flow || valueStr.includes('\n')) ws = `\n${ctx.indent}`;
-    } else if (valueStr[0] === '\n') ws = '';
-
-    if (chompKeep && !valueComment && onChompKeep) onChompKeep();
-    return addComment(str + ws + valueStr, ctx.indent, valueComment);
-  }
-
-}
-
-PlainValue._defineProperty(Pair, "Type", {
-  PAIR: 'PAIR',
-  MERGE_PAIR: 'MERGE_PAIR'
+// EXPORTS
+__nccwpck_require__.d(__webpack_exports__, {
+  "K": () => (/* binding */ run)
 });
-
-const getAliasCount = (node, anchors) => {
-  if (node instanceof Alias) {
-    const anchor = anchors.get(node.source);
-    return anchor.count * anchor.aliasCount;
-  } else if (node instanceof Collection) {
-    let count = 0;
-
-    for (const item of node.items) {
-      const c = getAliasCount(item, anchors);
-      if (c > count) count = c;
-    }
-
-    return count;
-  } else if (node instanceof Pair) {
-    const kc = getAliasCount(node.key, anchors);
-    const vc = getAliasCount(node.value, anchors);
-    return Math.max(kc, vc);
-  }
-
-  return 1;
-};
-
-class Alias extends Node {
-  static stringify({
-    range,
-    source
-  }, {
-    anchors,
-    doc,
-    implicitKey,
-    inStringifyKey
-  }) {
-    let anchor = Object.keys(anchors).find(a => anchors[a] === source);
-    if (!anchor && inStringifyKey) anchor = doc.anchors.getName(source) || doc.anchors.newName();
-    if (anchor) return `*${anchor}${implicitKey ? ' ' : ''}`;
-    const msg = doc.anchors.getName(source) ? 'Alias node must be after source node' : 'Source node not found for alias node';
-    throw new Error(`${msg} [${range}]`);
-  }
-
-  constructor(source) {
-    super();
-    this.source = source;
-    this.type = PlainValue.Type.ALIAS;
-  }
-
-  set tag(t) {
-    throw new Error('Alias nodes cannot have tags');
-  }
-
-  toJSON(arg, ctx) {
-    if (!ctx) return toJSON(this.source, arg, ctx);
-    const {
-      anchors,
-      maxAliasCount
-    } = ctx;
-    const anchor = anchors.get(this.source);
-    /* istanbul ignore if */
-
-    if (!anchor || anchor.res === undefined) {
-      const msg = 'This should not happen: Alias anchor was not resolved?';
-      if (this.cstNode) throw new PlainValue.YAMLReferenceError(this.cstNode, msg);else throw new ReferenceError(msg);
-    }
-
-    if (maxAliasCount >= 0) {
-      anchor.count += 1;
-      if (anchor.aliasCount === 0) anchor.aliasCount = getAliasCount(this.source, anchors);
-
-      if (anchor.count * anchor.aliasCount > maxAliasCount) {
-        const msg = 'Excessive alias count indicates a resource exhaustion attack';
-        if (this.cstNode) throw new PlainValue.YAMLReferenceError(this.cstNode, msg);else throw new ReferenceError(msg);
-      }
-    }
-
-    return anchor.res;
-  } // Only called when stringifying an alias mapping key while constructing
-  // Object output.
-
-
-  toString(ctx) {
-    return Alias.stringify(this, ctx);
-  }
-
-}
-
-PlainValue._defineProperty(Alias, "default", true);
-
-function findPair(items, key) {
-  const k = key instanceof Scalar ? key.value : key;
-
-  for (const it of items) {
-    if (it instanceof Pair) {
-      if (it.key === key || it.key === k) return it;
-      if (it.key && it.key.value === k) return it;
-    }
-  }
-
-  return undefined;
-}
-class YAMLMap extends Collection {
-  add(pair, overwrite) {
-    if (!pair) pair = new Pair(pair);else if (!(pair instanceof Pair)) pair = new Pair(pair.key || pair, pair.value);
-    const prev = findPair(this.items, pair.key);
-    const sortEntries = this.schema && this.schema.sortMapEntries;
-
-    if (prev) {
-      if (overwrite) prev.value = pair.value;else throw new Error(`Key ${pair.key} already set`);
-    } else if (sortEntries) {
-      const i = this.items.findIndex(item => sortEntries(pair, item) < 0);
-      if (i === -1) this.items.push(pair);else this.items.splice(i, 0, pair);
-    } else {
-      this.items.push(pair);
-    }
-  }
-
-  delete(key) {
-    const it = findPair(this.items, key);
-    if (!it) return false;
-    const del = this.items.splice(this.items.indexOf(it), 1);
-    return del.length > 0;
-  }
-
-  get(key, keepScalar) {
-    const it = findPair(this.items, key);
-    const node = it && it.value;
-    return !keepScalar && node instanceof Scalar ? node.value : node;
-  }
-
-  has(key) {
-    return !!findPair(this.items, key);
-  }
-
-  set(key, value) {
-    this.add(new Pair(key, value), true);
-  }
-  /**
-   * @param {*} arg ignored
-   * @param {*} ctx Conversion context, originally set in Document#toJSON()
-   * @param {Class} Type If set, forces the returned collection type
-   * @returns {*} Instance of Type, Map, or Object
-   */
-
-
-  toJSON(_, ctx, Type) {
-    const map = Type ? new Type() : ctx && ctx.mapAsMap ? new Map() : {};
-    if (ctx && ctx.onCreate) ctx.onCreate(map);
-
-    for (const item of this.items) item.addToJSMap(ctx, map);
-
-    return map;
-  }
-
-  toString(ctx, onComment, onChompKeep) {
-    if (!ctx) return JSON.stringify(this);
-
-    for (const item of this.items) {
-      if (!(item instanceof Pair)) throw new Error(`Map items must all be pairs; found ${JSON.stringify(item)} instead`);
-    }
-
-    return super.toString(ctx, {
-      blockItem: n => n.str,
-      flowChars: {
-        start: '{',
-        end: '}'
-      },
-      isMap: true,
-      itemIndent: ctx.indent || ''
-    }, onComment, onChompKeep);
-  }
-
-}
-
-const MERGE_KEY = '<<';
-class Merge extends Pair {
-  constructor(pair) {
-    if (pair instanceof Pair) {
-      let seq = pair.value;
-
-      if (!(seq instanceof YAMLSeq)) {
-        seq = new YAMLSeq();
-        seq.items.push(pair.value);
-        seq.range = pair.value.range;
-      }
-
-      super(pair.key, seq);
-      this.range = pair.range;
-    } else {
-      super(new Scalar(MERGE_KEY), new YAMLSeq());
-    }
-
-    this.type = Pair.Type.MERGE_PAIR;
-  } // If the value associated with a merge key is a single mapping node, each of
-  // its key/value pairs is inserted into the current mapping, unless the key
-  // already exists in it. If the value associated with the merge key is a
-  // sequence, then this sequence is expected to contain mapping nodes and each
-  // of these nodes is merged in turn according to its order in the sequence.
-  // Keys in mapping nodes earlier in the sequence override keys specified in
-  // later mapping nodes. -- http://yaml.org/type/merge.html
-
-
-  addToJSMap(ctx, map) {
-    for (const {
-      source
-    } of this.value.items) {
-      if (!(source instanceof YAMLMap)) throw new Error('Merge sources must be maps');
-      const srcMap = source.toJSON(null, ctx, Map);
-
-      for (const [key, value] of srcMap) {
-        if (map instanceof Map) {
-          if (!map.has(key)) map.set(key, value);
-        } else if (map instanceof Set) {
-          map.add(key);
-        } else if (!Object.prototype.hasOwnProperty.call(map, key)) {
-          Object.defineProperty(map, key, {
-            value,
-            writable: true,
-            enumerable: true,
-            configurable: true
-          });
-        }
-      }
-    }
-
-    return map;
-  }
-
-  toString(ctx, onComment) {
-    const seq = this.value;
-    if (seq.items.length > 1) return super.toString(ctx, onComment);
-    this.value = seq.items[0];
-    const str = super.toString(ctx, onComment);
-    this.value = seq;
-    return str;
-  }
-
-}
-
-const binaryOptions = {
-  defaultType: PlainValue.Type.BLOCK_LITERAL,
-  lineWidth: 76
-};
-const boolOptions = {
-  trueStr: 'true',
-  falseStr: 'false'
-};
-const intOptions = {
-  asBigInt: false
-};
-const nullOptions = {
-  nullStr: 'null'
-};
-const strOptions = {
-  defaultType: PlainValue.Type.PLAIN,
-  doubleQuoted: {
-    jsonEncoding: false,
-    minMultiLineLength: 40
-  },
-  fold: {
-    lineWidth: 80,
-    minContentWidth: 20
-  }
-};
-
-function resolveScalar(str, tags, scalarFallback) {
-  for (const {
-    format,
-    test,
-    resolve
-  } of tags) {
-    if (test) {
-      const match = str.match(test);
-
-      if (match) {
-        let res = resolve.apply(null, match);
-        if (!(res instanceof Scalar)) res = new Scalar(res);
-        if (format) res.format = format;
-        return res;
-      }
-    }
-  }
-
-  if (scalarFallback) str = scalarFallback(str);
-  return new Scalar(str);
-}
-
-const FOLD_FLOW = 'flow';
-const FOLD_BLOCK = 'block';
-const FOLD_QUOTED = 'quoted'; // presumes i+1 is at the start of a line
-// returns index of last newline in more-indented block
-
-const consumeMoreIndentedLines = (text, i) => {
-  let ch = text[i + 1];
-
-  while (ch === ' ' || ch === '\t') {
-    do {
-      ch = text[i += 1];
-    } while (ch && ch !== '\n');
-
-    ch = text[i + 1];
-  }
-
-  return i;
-};
-/**
- * Tries to keep input at up to `lineWidth` characters, splitting only on spaces
- * not followed by newlines or spaces unless `mode` is `'quoted'`. Lines are
- * terminated with `\n` and started with `indent`.
- *
- * @param {string} text
- * @param {string} indent
- * @param {string} [mode='flow'] `'block'` prevents more-indented lines
- *   from being folded; `'quoted'` allows for `\` escapes, including escaped
- *   newlines
- * @param {Object} options
- * @param {number} [options.indentAtStart] Accounts for leading contents on
- *   the first line, defaulting to `indent.length`
- * @param {number} [options.lineWidth=80]
- * @param {number} [options.minContentWidth=20] Allow highly indented lines to
- *   stretch the line width or indent content from the start
- * @param {function} options.onFold Called once if the text is folded
- * @param {function} options.onFold Called once if any line of text exceeds
- *   lineWidth characters
- */
-
-
-function foldFlowLines(text, indent, mode, {
-  indentAtStart,
-  lineWidth = 80,
-  minContentWidth = 20,
-  onFold,
-  onOverflow
-}) {
-  if (!lineWidth || lineWidth < 0) return text;
-  const endStep = Math.max(1 + minContentWidth, 1 + lineWidth - indent.length);
-  if (text.length <= endStep) return text;
-  const folds = [];
-  const escapedFolds = {};
-  let end = lineWidth - indent.length;
-
-  if (typeof indentAtStart === 'number') {
-    if (indentAtStart > lineWidth - Math.max(2, minContentWidth)) folds.push(0);else end = lineWidth - indentAtStart;
-  }
-
-  let split = undefined;
-  let prev = undefined;
-  let overflow = false;
-  let i = -1;
-  let escStart = -1;
-  let escEnd = -1;
-
-  if (mode === FOLD_BLOCK) {
-    i = consumeMoreIndentedLines(text, i);
-    if (i !== -1) end = i + endStep;
-  }
-
-  for (let ch; ch = text[i += 1];) {
-    if (mode === FOLD_QUOTED && ch === '\\') {
-      escStart = i;
-
-      switch (text[i + 1]) {
-        case 'x':
-          i += 3;
-          break;
-
-        case 'u':
-          i += 5;
-          break;
-
-        case 'U':
-          i += 9;
-          break;
-
-        default:
-          i += 1;
-      }
-
-      escEnd = i;
-    }
-
-    if (ch === '\n') {
-      if (mode === FOLD_BLOCK) i = consumeMoreIndentedLines(text, i);
-      end = i + endStep;
-      split = undefined;
-    } else {
-      if (ch === ' ' && prev && prev !== ' ' && prev !== '\n' && prev !== '\t') {
-        // space surrounded by non-space can be replaced with newline + indent
-        const next = text[i + 1];
-        if (next && next !== ' ' && next !== '\n' && next !== '\t') split = i;
-      }
-
-      if (i >= end) {
-        if (split) {
-          folds.push(split);
-          end = split + endStep;
-          split = undefined;
-        } else if (mode === FOLD_QUOTED) {
-          // white-space collected at end may stretch past lineWidth
-          while (prev === ' ' || prev === '\t') {
-            prev = ch;
-            ch = text[i += 1];
-            overflow = true;
-          } // Account for newline escape, but don't break preceding escape
-
-
-          const j = i > escEnd + 1 ? i - 2 : escStart - 1; // Bail out if lineWidth & minContentWidth are shorter than an escape string
-
-          if (escapedFolds[j]) return text;
-          folds.push(j);
-          escapedFolds[j] = true;
-          end = j + endStep;
-          split = undefined;
-        } else {
-          overflow = true;
-        }
-      }
-    }
-
-    prev = ch;
-  }
-
-  if (overflow && onOverflow) onOverflow();
-  if (folds.length === 0) return text;
-  if (onFold) onFold();
-  let res = text.slice(0, folds[0]);
-
-  for (let i = 0; i < folds.length; ++i) {
-    const fold = folds[i];
-    const end = folds[i + 1] || text.length;
-    if (fold === 0) res = `\n${indent}${text.slice(0, end)}`;else {
-      if (mode === FOLD_QUOTED && escapedFolds[fold]) res += `${text[fold]}\\`;
-      res += `\n${indent}${text.slice(fold + 1, end)}`;
-    }
-  }
-
-  return res;
-}
-
-const getFoldOptions = ({
-  indentAtStart
-}) => indentAtStart ? Object.assign({
-  indentAtStart
-}, strOptions.fold) : strOptions.fold; // Also checks for lines starting with %, as parsing the output as YAML 1.1 will
-// presume that's starting a new document.
-
-
-const containsDocumentMarker = str => /^(%|---|\.\.\.)/m.test(str);
-
-function lineLengthOverLimit(str, lineWidth, indentLength) {
-  if (!lineWidth || lineWidth < 0) return false;
-  const limit = lineWidth - indentLength;
-  const strLen = str.length;
-  if (strLen <= limit) return false;
-
-  for (let i = 0, start = 0; i < strLen; ++i) {
-    if (str[i] === '\n') {
-      if (i - start > limit) return true;
-      start = i + 1;
-      if (strLen - start <= limit) return false;
-    }
-  }
-
-  return true;
-}
-
-function doubleQuotedString(value, ctx) {
-  const {
-    implicitKey
-  } = ctx;
-  const {
-    jsonEncoding,
-    minMultiLineLength
-  } = strOptions.doubleQuoted;
-  const json = JSON.stringify(value);
-  if (jsonEncoding) return json;
-  const indent = ctx.indent || (containsDocumentMarker(value) ? '  ' : '');
-  let str = '';
-  let start = 0;
-
-  for (let i = 0, ch = json[i]; ch; ch = json[++i]) {
-    if (ch === ' ' && json[i + 1] === '\\' && json[i + 2] === 'n') {
-      // space before newline needs to be escaped to not be folded
-      str += json.slice(start, i) + '\\ ';
-      i += 1;
-      start = i;
-      ch = '\\';
-    }
-
-    if (ch === '\\') switch (json[i + 1]) {
-      case 'u':
-        {
-          str += json.slice(start, i);
-          const code = json.substr(i + 2, 4);
-
-          switch (code) {
-            case '0000':
-              str += '\\0';
-              break;
-
-            case '0007':
-              str += '\\a';
-              break;
-
-            case '000b':
-              str += '\\v';
-              break;
-
-            case '001b':
-              str += '\\e';
-              break;
-
-            case '0085':
-              str += '\\N';
-              break;
-
-            case '00a0':
-              str += '\\_';
-              break;
-
-            case '2028':
-              str += '\\L';
-              break;
-
-            case '2029':
-              str += '\\P';
-              break;
-
-            default:
-              if (code.substr(0, 2) === '00') str += '\\x' + code.substr(2);else str += json.substr(i, 6);
-          }
-
-          i += 5;
-          start = i + 1;
-        }
-        break;
-
-      case 'n':
-        if (implicitKey || json[i + 2] === '"' || json.length < minMultiLineLength) {
-          i += 1;
-        } else {
-          // folding will eat first newline
-          str += json.slice(start, i) + '\n\n';
-
-          while (json[i + 2] === '\\' && json[i + 3] === 'n' && json[i + 4] !== '"') {
-            str += '\n';
-            i += 2;
-          }
-
-          str += indent; // space after newline needs to be escaped to not be folded
-
-          if (json[i + 2] === ' ') str += '\\';
-          i += 1;
-          start = i + 1;
-        }
-
-        break;
-
-      default:
-        i += 1;
-    }
-  }
-
-  str = start ? str + json.slice(start) : json;
-  return implicitKey ? str : foldFlowLines(str, indent, FOLD_QUOTED, getFoldOptions(ctx));
-}
-
-function singleQuotedString(value, ctx) {
-  if (ctx.implicitKey) {
-    if (/\n/.test(value)) return doubleQuotedString(value, ctx);
-  } else {
-    // single quoted string can't have leading or trailing whitespace around newline
-    if (/[ \t]\n|\n[ \t]/.test(value)) return doubleQuotedString(value, ctx);
-  }
-
-  const indent = ctx.indent || (containsDocumentMarker(value) ? '  ' : '');
-  const res = "'" + value.replace(/'/g, "''").replace(/\n+/g, `$&\n${indent}`) + "'";
-  return ctx.implicitKey ? res : foldFlowLines(res, indent, FOLD_FLOW, getFoldOptions(ctx));
-}
-
-function blockString({
-  comment,
-  type,
-  value
-}, ctx, onComment, onChompKeep) {
-  // 1. Block can't end in whitespace unless the last line is non-empty.
-  // 2. Strings consisting of only whitespace are best rendered explicitly.
-  if (/\n[\t ]+$/.test(value) || /^\s*$/.test(value)) {
-    return doubleQuotedString(value, ctx);
-  }
-
-  const indent = ctx.indent || (ctx.forceBlockIndent || containsDocumentMarker(value) ? '  ' : '');
-  const indentSize = indent ? '2' : '1'; // root is at -1
-
-  const literal = type === PlainValue.Type.BLOCK_FOLDED ? false : type === PlainValue.Type.BLOCK_LITERAL ? true : !lineLengthOverLimit(value, strOptions.fold.lineWidth, indent.length);
-  let header = literal ? '|' : '>';
-  if (!value) return header + '\n';
-  let wsStart = '';
-  let wsEnd = '';
-  value = value.replace(/[\n\t ]*$/, ws => {
-    const n = ws.indexOf('\n');
-
-    if (n === -1) {
-      header += '-'; // strip
-    } else if (value === ws || n !== ws.length - 1) {
-      header += '+'; // keep
-
-      if (onChompKeep) onChompKeep();
-    }
-
-    wsEnd = ws.replace(/\n$/, '');
-    return '';
-  }).replace(/^[\n ]*/, ws => {
-    if (ws.indexOf(' ') !== -1) header += indentSize;
-    const m = ws.match(/ +$/);
-
-    if (m) {
-      wsStart = ws.slice(0, -m[0].length);
-      return m[0];
-    } else {
-      wsStart = ws;
-      return '';
-    }
-  });
-  if (wsEnd) wsEnd = wsEnd.replace(/\n+(?!\n|$)/g, `$&${indent}`);
-  if (wsStart) wsStart = wsStart.replace(/\n+/g, `$&${indent}`);
-
-  if (comment) {
-    header += ' #' + comment.replace(/ ?[\r\n]+/g, ' ');
-    if (onComment) onComment();
-  }
-
-  if (!value) return `${header}${indentSize}\n${indent}${wsEnd}`;
-
-  if (literal) {
-    value = value.replace(/\n+/g, `$&${indent}`);
-    return `${header}\n${indent}${wsStart}${value}${wsEnd}`;
-  }
-
-  value = value.replace(/\n+/g, '\n$&').replace(/(?:^|\n)([\t ].*)(?:([\n\t ]*)\n(?![\n\t ]))?/g, '$1$2') // more-indented lines aren't folded
-  //         ^ ind.line  ^ empty     ^ capture next empty lines only at end of indent
-  .replace(/\n+/g, `$&${indent}`);
-  const body = foldFlowLines(`${wsStart}${value}${wsEnd}`, indent, FOLD_BLOCK, strOptions.fold);
-  return `${header}\n${indent}${body}`;
-}
-
-function plainString(item, ctx, onComment, onChompKeep) {
-  const {
-    comment,
-    type,
-    value
-  } = item;
-  const {
-    actualString,
-    implicitKey,
-    indent,
-    inFlow
-  } = ctx;
-
-  if (implicitKey && /[\n[\]{},]/.test(value) || inFlow && /[[\]{},]/.test(value)) {
-    return doubleQuotedString(value, ctx);
-  }
-
-  if (!value || /^[\n\t ,[\]{}#&*!|>'"%@`]|^[?-]$|^[?-][ \t]|[\n:][ \t]|[ \t]\n|[\n\t ]#|[\n\t :]$/.test(value)) {
-    // not allowed:
-    // - empty string, '-' or '?'
-    // - start with an indicator character (except [?:-]) or /[?-] /
-    // - '\n ', ': ' or ' \n' anywhere
-    // - '#' not preceded by a non-space char
-    // - end with ' ' or ':'
-    return implicitKey || inFlow || value.indexOf('\n') === -1 ? value.indexOf('"') !== -1 && value.indexOf("'") === -1 ? singleQuotedString(value, ctx) : doubleQuotedString(value, ctx) : blockString(item, ctx, onComment, onChompKeep);
-  }
-
-  if (!implicitKey && !inFlow && type !== PlainValue.Type.PLAIN && value.indexOf('\n') !== -1) {
-    // Where allowed & type not set explicitly, prefer block style for multiline strings
-    return blockString(item, ctx, onComment, onChompKeep);
-  }
-
-  if (indent === '' && containsDocumentMarker(value)) {
-    ctx.forceBlockIndent = true;
-    return blockString(item, ctx, onComment, onChompKeep);
-  }
-
-  const str = value.replace(/\n+/g, `$&\n${indent}`); // Verify that output will be parsed as a string, as e.g. plain numbers and
-  // booleans get parsed with those types in v1.2 (e.g. '42', 'true' & '0.9e-3'),
-  // and others in v1.1.
-
-  if (actualString) {
-    const {
-      tags
-    } = ctx.doc.schema;
-    const resolved = resolveScalar(str, tags, tags.scalarFallback).value;
-    if (typeof resolved !== 'string') return doubleQuotedString(value, ctx);
-  }
-
-  const body = implicitKey ? str : foldFlowLines(str, indent, FOLD_FLOW, getFoldOptions(ctx));
-
-  if (comment && !inFlow && (body.indexOf('\n') !== -1 || comment.indexOf('\n') !== -1)) {
-    if (onComment) onComment();
-    return addCommentBefore(body, indent, comment);
-  }
-
-  return body;
-}
-
-function stringifyString(item, ctx, onComment, onChompKeep) {
-  const {
-    defaultType
-  } = strOptions;
-  const {
-    implicitKey,
-    inFlow
-  } = ctx;
-  let {
-    type,
-    value
-  } = item;
-
-  if (typeof value !== 'string') {
-    value = String(value);
-    item = Object.assign({}, item, {
-      value
-    });
-  }
-
-  const _stringify = _type => {
-    switch (_type) {
-      case PlainValue.Type.BLOCK_FOLDED:
-      case PlainValue.Type.BLOCK_LITERAL:
-        return blockString(item, ctx, onComment, onChompKeep);
-
-      case PlainValue.Type.QUOTE_DOUBLE:
-        return doubleQuotedString(value, ctx);
-
-      case PlainValue.Type.QUOTE_SINGLE:
-        return singleQuotedString(value, ctx);
-
-      case PlainValue.Type.PLAIN:
-        return plainString(item, ctx, onComment, onChompKeep);
-
-      default:
-        return null;
-    }
-  };
-
-  if (type !== PlainValue.Type.QUOTE_DOUBLE && /[\x00-\x08\x0b-\x1f\x7f-\x9f]/.test(value)) {
-    // force double quotes on control characters
-    type = PlainValue.Type.QUOTE_DOUBLE;
-  } else if ((implicitKey || inFlow) && (type === PlainValue.Type.BLOCK_FOLDED || type === PlainValue.Type.BLOCK_LITERAL)) {
-    // should not happen; blocks are not valid inside flow containers
-    type = PlainValue.Type.QUOTE_DOUBLE;
-  }
-
-  let res = _stringify(type);
-
-  if (res === null) {
-    res = _stringify(defaultType);
-    if (res === null) throw new Error(`Unsupported default string type ${defaultType}`);
-  }
-
-  return res;
-}
-
-function stringifyNumber({
-  format,
-  minFractionDigits,
-  tag,
-  value
-}) {
-  if (typeof value === 'bigint') return String(value);
-  if (!isFinite(value)) return isNaN(value) ? '.nan' : value < 0 ? '-.inf' : '.inf';
-  let n = JSON.stringify(value);
-
-  if (!format && minFractionDigits && (!tag || tag === 'tag:yaml.org,2002:float') && /^\d/.test(n)) {
-    let i = n.indexOf('.');
-
-    if (i < 0) {
-      i = n.length;
-      n += '.';
-    }
-
-    let d = minFractionDigits - (n.length - i - 1);
-
-    while (d-- > 0) n += '0';
-  }
-
-  return n;
-}
-
-function checkFlowCollectionEnd(errors, cst) {
-  let char, name;
-
-  switch (cst.type) {
-    case PlainValue.Type.FLOW_MAP:
-      char = '}';
-      name = 'flow map';
-      break;
-
-    case PlainValue.Type.FLOW_SEQ:
-      char = ']';
-      name = 'flow sequence';
-      break;
-
-    default:
-      errors.push(new PlainValue.YAMLSemanticError(cst, 'Not a flow collection!?'));
-      return;
-  }
-
-  let lastItem;
-
-  for (let i = cst.items.length - 1; i >= 0; --i) {
-    const item = cst.items[i];
-
-    if (!item || item.type !== PlainValue.Type.COMMENT) {
-      lastItem = item;
-      break;
-    }
-  }
-
-  if (lastItem && lastItem.char !== char) {
-    const msg = `Expected ${name} to end with ${char}`;
-    let err;
-
-    if (typeof lastItem.offset === 'number') {
-      err = new PlainValue.YAMLSemanticError(cst, msg);
-      err.offset = lastItem.offset + 1;
-    } else {
-      err = new PlainValue.YAMLSemanticError(lastItem, msg);
-      if (lastItem.range && lastItem.range.end) err.offset = lastItem.range.end - lastItem.range.start;
-    }
-
-    errors.push(err);
-  }
-}
-function checkFlowCommentSpace(errors, comment) {
-  const prev = comment.context.src[comment.range.start - 1];
-
-  if (prev !== '\n' && prev !== '\t' && prev !== ' ') {
-    const msg = 'Comments must be separated from other tokens by white space characters';
-    errors.push(new PlainValue.YAMLSemanticError(comment, msg));
-  }
-}
-function getLongKeyError(source, key) {
-  const sk = String(key);
-  const k = sk.substr(0, 8) + '...' + sk.substr(-8);
-  return new PlainValue.YAMLSemanticError(source, `The "${k}" key is too long`);
-}
-function resolveComments(collection, comments) {
-  for (const {
-    afterKey,
-    before,
-    comment
-  } of comments) {
-    let item = collection.items[before];
-
-    if (!item) {
-      if (comment !== undefined) {
-        if (collection.comment) collection.comment += '\n' + comment;else collection.comment = comment;
-      }
-    } else {
-      if (afterKey && item.value) item = item.value;
-
-      if (comment === undefined) {
-        if (afterKey || !item.commentBefore) item.spaceBefore = true;
-      } else {
-        if (item.commentBefore) item.commentBefore += '\n' + comment;else item.commentBefore = comment;
-      }
-    }
-  }
-}
-
-// on error, will return { str: string, errors: Error[] }
-function resolveString(doc, node) {
-  const res = node.strValue;
-  if (!res) return '';
-  if (typeof res === 'string') return res;
-  res.errors.forEach(error => {
-    if (!error.source) error.source = node;
-    doc.errors.push(error);
-  });
-  return res.str;
-}
-
-function resolveTagHandle(doc, node) {
-  const {
-    handle,
-    suffix
-  } = node.tag;
-  let prefix = doc.tagPrefixes.find(p => p.handle === handle);
-
-  if (!prefix) {
-    const dtp = doc.getDefaults().tagPrefixes;
-    if (dtp) prefix = dtp.find(p => p.handle === handle);
-    if (!prefix) throw new PlainValue.YAMLSemanticError(node, `The ${handle} tag handle is non-default and was not declared.`);
-  }
-
-  if (!suffix) throw new PlainValue.YAMLSemanticError(node, `The ${handle} tag has no suffix.`);
-
-  if (handle === '!' && (doc.version || doc.options.version) === '1.0') {
-    if (suffix[0] === '^') {
-      doc.warnings.push(new PlainValue.YAMLWarning(node, 'YAML 1.0 ^ tag expansion is not supported'));
-      return suffix;
-    }
-
-    if (/[:/]/.test(suffix)) {
-      // word/foo -> tag:word.yaml.org,2002:foo
-      const vocab = suffix.match(/^([a-z0-9-]+)\/(.*)/i);
-      return vocab ? `tag:${vocab[1]}.yaml.org,2002:${vocab[2]}` : `tag:${suffix}`;
-    }
-  }
-
-  return prefix.prefix + decodeURIComponent(suffix);
-}
-
-function resolveTagName(doc, node) {
-  const {
-    tag,
-    type
-  } = node;
-  let nonSpecific = false;
-
-  if (tag) {
-    const {
-      handle,
-      suffix,
-      verbatim
-    } = tag;
-
-    if (verbatim) {
-      if (verbatim !== '!' && verbatim !== '!!') return verbatim;
-      const msg = `Verbatim tags aren't resolved, so ${verbatim} is invalid.`;
-      doc.errors.push(new PlainValue.YAMLSemanticError(node, msg));
-    } else if (handle === '!' && !suffix) {
-      nonSpecific = true;
-    } else {
-      try {
-        return resolveTagHandle(doc, node);
-      } catch (error) {
-        doc.errors.push(error);
-      }
-    }
-  }
-
-  switch (type) {
-    case PlainValue.Type.BLOCK_FOLDED:
-    case PlainValue.Type.BLOCK_LITERAL:
-    case PlainValue.Type.QUOTE_DOUBLE:
-    case PlainValue.Type.QUOTE_SINGLE:
-      return PlainValue.defaultTags.STR;
-
-    case PlainValue.Type.FLOW_MAP:
-    case PlainValue.Type.MAP:
-      return PlainValue.defaultTags.MAP;
-
-    case PlainValue.Type.FLOW_SEQ:
-    case PlainValue.Type.SEQ:
-      return PlainValue.defaultTags.SEQ;
-
-    case PlainValue.Type.PLAIN:
-      return nonSpecific ? PlainValue.defaultTags.STR : null;
-
-    default:
-      return null;
-  }
-}
-
-function resolveByTagName(doc, node, tagName) {
-  const {
-    tags
-  } = doc.schema;
-  const matchWithTest = [];
-
-  for (const tag of tags) {
-    if (tag.tag === tagName) {
-      if (tag.test) matchWithTest.push(tag);else {
-        const res = tag.resolve(doc, node);
-        return res instanceof Collection ? res : new Scalar(res);
-      }
-    }
-  }
-
-  const str = resolveString(doc, node);
-  if (typeof str === 'string' && matchWithTest.length > 0) return resolveScalar(str, matchWithTest, tags.scalarFallback);
-  return null;
-}
-
-function getFallbackTagName({
-  type
-}) {
-  switch (type) {
-    case PlainValue.Type.FLOW_MAP:
-    case PlainValue.Type.MAP:
-      return PlainValue.defaultTags.MAP;
-
-    case PlainValue.Type.FLOW_SEQ:
-    case PlainValue.Type.SEQ:
-      return PlainValue.defaultTags.SEQ;
-
-    default:
-      return PlainValue.defaultTags.STR;
-  }
-}
-
-function resolveTag(doc, node, tagName) {
-  try {
-    const res = resolveByTagName(doc, node, tagName);
-
-    if (res) {
-      if (tagName && node.tag) res.tag = tagName;
-      return res;
-    }
-  } catch (error) {
-    /* istanbul ignore if */
-    if (!error.source) error.source = node;
-    doc.errors.push(error);
-    return null;
-  }
-
-  try {
-    const fallback = getFallbackTagName(node);
-    if (!fallback) throw new Error(`The tag ${tagName} is unavailable`);
-    const msg = `The tag ${tagName} is unavailable, falling back to ${fallback}`;
-    doc.warnings.push(new PlainValue.YAMLWarning(node, msg));
-    const res = resolveByTagName(doc, node, fallback);
-    res.tag = tagName;
-    return res;
-  } catch (error) {
-    const refError = new PlainValue.YAMLReferenceError(node, error.message);
-    refError.stack = error.stack;
-    doc.errors.push(refError);
-    return null;
-  }
-}
-
-const isCollectionItem = node => {
-  if (!node) return false;
-  const {
-    type
-  } = node;
-  return type === PlainValue.Type.MAP_KEY || type === PlainValue.Type.MAP_VALUE || type === PlainValue.Type.SEQ_ITEM;
-};
-
-function resolveNodeProps(errors, node) {
-  const comments = {
-    before: [],
-    after: []
-  };
-  let hasAnchor = false;
-  let hasTag = false;
-  const props = isCollectionItem(node.context.parent) ? node.context.parent.props.concat(node.props) : node.props;
-
-  for (const {
-    start,
-    end
-  } of props) {
-    switch (node.context.src[start]) {
-      case PlainValue.Char.COMMENT:
-        {
-          if (!node.commentHasRequiredWhitespace(start)) {
-            const msg = 'Comments must be separated from other tokens by white space characters';
-            errors.push(new PlainValue.YAMLSemanticError(node, msg));
-          }
-
-          const {
-            header,
-            valueRange
-          } = node;
-          const cc = valueRange && (start > valueRange.start || header && start > header.start) ? comments.after : comments.before;
-          cc.push(node.context.src.slice(start + 1, end));
-          break;
-        }
-      // Actual anchor & tag resolution is handled by schema, here we just complain
-
-      case PlainValue.Char.ANCHOR:
-        if (hasAnchor) {
-          const msg = 'A node can have at most one anchor';
-          errors.push(new PlainValue.YAMLSemanticError(node, msg));
-        }
-
-        hasAnchor = true;
-        break;
-
-      case PlainValue.Char.TAG:
-        if (hasTag) {
-          const msg = 'A node can have at most one tag';
-          errors.push(new PlainValue.YAMLSemanticError(node, msg));
-        }
-
-        hasTag = true;
-        break;
-    }
-  }
-
-  return {
-    comments,
-    hasAnchor,
-    hasTag
-  };
-}
-
-function resolveNodeValue(doc, node) {
-  const {
-    anchors,
-    errors,
-    schema
-  } = doc;
-
-  if (node.type === PlainValue.Type.ALIAS) {
-    const name = node.rawValue;
-    const src = anchors.getNode(name);
-
-    if (!src) {
-      const msg = `Aliased anchor not found: ${name}`;
-      errors.push(new PlainValue.YAMLReferenceError(node, msg));
-      return null;
-    } // Lazy resolution for circular references
-
-
-    const res = new Alias(src);
-
-    anchors._cstAliases.push(res);
-
-    return res;
-  }
-
-  const tagName = resolveTagName(doc, node);
-  if (tagName) return resolveTag(doc, node, tagName);
-
-  if (node.type !== PlainValue.Type.PLAIN) {
-    const msg = `Failed to resolve ${node.type} node here`;
-    errors.push(new PlainValue.YAMLSyntaxError(node, msg));
-    return null;
-  }
-
-  try {
-    const str = resolveString(doc, node);
-    return resolveScalar(str, schema.tags, schema.tags.scalarFallback);
-  } catch (error) {
-    if (!error.source) error.source = node;
-    errors.push(error);
-    return null;
-  }
-} // sets node.resolved on success
-
-
-function resolveNode(doc, node) {
-  if (!node) return null;
-  if (node.error) doc.errors.push(node.error);
-  const {
-    comments,
-    hasAnchor,
-    hasTag
-  } = resolveNodeProps(doc.errors, node);
-
-  if (hasAnchor) {
-    const {
-      anchors
-    } = doc;
-    const name = node.anchor;
-    const prev = anchors.getNode(name); // At this point, aliases for any preceding node with the same anchor
-    // name have already been resolved, so it may safely be renamed.
-
-    if (prev) anchors.map[anchors.newName(name)] = prev; // During parsing, we need to store the CST node in anchors.map as
-    // anchors need to be available during resolution to allow for
-    // circular references.
-
-    anchors.map[name] = node;
-  }
-
-  if (node.type === PlainValue.Type.ALIAS && (hasAnchor || hasTag)) {
-    const msg = 'An alias node must not specify any properties';
-    doc.errors.push(new PlainValue.YAMLSemanticError(node, msg));
-  }
-
-  const res = resolveNodeValue(doc, node);
-
-  if (res) {
-    res.range = [node.range.start, node.range.end];
-    if (doc.options.keepCstNodes) res.cstNode = node;
-    if (doc.options.keepNodeTypes) res.type = node.type;
-    const cb = comments.before.join('\n');
-
-    if (cb) {
-      res.commentBefore = res.commentBefore ? `${res.commentBefore}\n${cb}` : cb;
-    }
-
-    const ca = comments.after.join('\n');
-    if (ca) res.comment = res.comment ? `${res.comment}\n${ca}` : ca;
-  }
-
-  return node.resolved = res;
-}
-
-function resolveMap(doc, cst) {
-  if (cst.type !== PlainValue.Type.MAP && cst.type !== PlainValue.Type.FLOW_MAP) {
-    const msg = `A ${cst.type} node cannot be resolved as a mapping`;
-    doc.errors.push(new PlainValue.YAMLSyntaxError(cst, msg));
-    return null;
-  }
-
-  const {
-    comments,
-    items
-  } = cst.type === PlainValue.Type.FLOW_MAP ? resolveFlowMapItems(doc, cst) : resolveBlockMapItems(doc, cst);
-  const map = new YAMLMap();
-  map.items = items;
-  resolveComments(map, comments);
-  let hasCollectionKey = false;
-
-  for (let i = 0; i < items.length; ++i) {
-    const {
-      key: iKey
-    } = items[i];
-    if (iKey instanceof Collection) hasCollectionKey = true;
-
-    if (doc.schema.merge && iKey && iKey.value === MERGE_KEY) {
-      items[i] = new Merge(items[i]);
-      const sources = items[i].value.items;
-      let error = null;
-      sources.some(node => {
-        if (node instanceof Alias) {
-          // During parsing, alias sources are CST nodes; to account for
-          // circular references their resolved values can't be used here.
-          const {
-            type
-          } = node.source;
-          if (type === PlainValue.Type.MAP || type === PlainValue.Type.FLOW_MAP) return false;
-          return error = 'Merge nodes aliases can only point to maps';
-        }
-
-        return error = 'Merge nodes can only have Alias nodes as values';
-      });
-      if (error) doc.errors.push(new PlainValue.YAMLSemanticError(cst, error));
-    } else {
-      for (let j = i + 1; j < items.length; ++j) {
-        const {
-          key: jKey
-        } = items[j];
-
-        if (iKey === jKey || iKey && jKey && Object.prototype.hasOwnProperty.call(iKey, 'value') && iKey.value === jKey.value) {
-          const msg = `Map keys must be unique; "${iKey}" is repeated`;
-          doc.errors.push(new PlainValue.YAMLSemanticError(cst, msg));
-          break;
-        }
-      }
-    }
-  }
-
-  if (hasCollectionKey && !doc.options.mapAsMap) {
-    const warn = 'Keys with collection values will be stringified as YAML due to JS Object restrictions. Use mapAsMap: true to avoid this.';
-    doc.warnings.push(new PlainValue.YAMLWarning(cst, warn));
-  }
-
-  cst.resolved = map;
-  return map;
-}
-
-const valueHasPairComment = ({
-  context: {
-    lineStart,
-    node,
-    src
-  },
-  props
-}) => {
-  if (props.length === 0) return false;
-  const {
-    start
-  } = props[0];
-  if (node && start > node.valueRange.start) return false;
-  if (src[start] !== PlainValue.Char.COMMENT) return false;
-
-  for (let i = lineStart; i < start; ++i) if (src[i] === '\n') return false;
-
-  return true;
-};
-
-function resolvePairComment(item, pair) {
-  if (!valueHasPairComment(item)) return;
-  const comment = item.getPropValue(0, PlainValue.Char.COMMENT, true);
-  let found = false;
-  const cb = pair.value.commentBefore;
-
-  if (cb && cb.startsWith(comment)) {
-    pair.value.commentBefore = cb.substr(comment.length + 1);
-    found = true;
-  } else {
-    const cc = pair.value.comment;
-
-    if (!item.node && cc && cc.startsWith(comment)) {
-      pair.value.comment = cc.substr(comment.length + 1);
-      found = true;
-    }
-  }
-
-  if (found) pair.comment = comment;
-}
-
-function resolveBlockMapItems(doc, cst) {
-  const comments = [];
-  const items = [];
-  let key = undefined;
-  let keyStart = null;
-
-  for (let i = 0; i < cst.items.length; ++i) {
-    const item = cst.items[i];
-
-    switch (item.type) {
-      case PlainValue.Type.BLANK_LINE:
-        comments.push({
-          afterKey: !!key,
-          before: items.length
-        });
-        break;
-
-      case PlainValue.Type.COMMENT:
-        comments.push({
-          afterKey: !!key,
-          before: items.length,
-          comment: item.comment
-        });
-        break;
-
-      case PlainValue.Type.MAP_KEY:
-        if (key !== undefined) items.push(new Pair(key));
-        if (item.error) doc.errors.push(item.error);
-        key = resolveNode(doc, item.node);
-        keyStart = null;
-        break;
-
-      case PlainValue.Type.MAP_VALUE:
-        {
-          if (key === undefined) key = null;
-          if (item.error) doc.errors.push(item.error);
-
-          if (!item.context.atLineStart && item.node && item.node.type === PlainValue.Type.MAP && !item.node.context.atLineStart) {
-            const msg = 'Nested mappings are not allowed in compact mappings';
-            doc.errors.push(new PlainValue.YAMLSemanticError(item.node, msg));
-          }
-
-          let valueNode = item.node;
-
-          if (!valueNode && item.props.length > 0) {
-            // Comments on an empty mapping value need to be preserved, so we
-            // need to construct a minimal empty node here to use instead of the
-            // missing `item.node`. -- eemeli/yaml#19
-            valueNode = new PlainValue.PlainValue(PlainValue.Type.PLAIN, []);
-            valueNode.context = {
-              parent: item,
-              src: item.context.src
-            };
-            const pos = item.range.start + 1;
-            valueNode.range = {
-              start: pos,
-              end: pos
-            };
-            valueNode.valueRange = {
-              start: pos,
-              end: pos
-            };
-
-            if (typeof item.range.origStart === 'number') {
-              const origPos = item.range.origStart + 1;
-              valueNode.range.origStart = valueNode.range.origEnd = origPos;
-              valueNode.valueRange.origStart = valueNode.valueRange.origEnd = origPos;
-            }
-          }
-
-          const pair = new Pair(key, resolveNode(doc, valueNode));
-          resolvePairComment(item, pair);
-          items.push(pair);
-
-          if (key && typeof keyStart === 'number') {
-            if (item.range.start > keyStart + 1024) doc.errors.push(getLongKeyError(cst, key));
-          }
-
-          key = undefined;
-          keyStart = null;
-        }
-        break;
-
-      default:
-        if (key !== undefined) items.push(new Pair(key));
-        key = resolveNode(doc, item);
-        keyStart = item.range.start;
-        if (item.error) doc.errors.push(item.error);
-
-        next: for (let j = i + 1;; ++j) {
-          const nextItem = cst.items[j];
-
-          switch (nextItem && nextItem.type) {
-            case PlainValue.Type.BLANK_LINE:
-            case PlainValue.Type.COMMENT:
-              continue next;
-
-            case PlainValue.Type.MAP_VALUE:
-              break next;
-
-            default:
-              {
-                const msg = 'Implicit map keys need to be followed by map values';
-                doc.errors.push(new PlainValue.YAMLSemanticError(item, msg));
-                break next;
-              }
-          }
-        }
-
-        if (item.valueRangeContainsNewline) {
-          const msg = 'Implicit map keys need to be on a single line';
-          doc.errors.push(new PlainValue.YAMLSemanticError(item, msg));
-        }
-
-    }
-  }
-
-  if (key !== undefined) items.push(new Pair(key));
-  return {
-    comments,
-    items
-  };
-}
-
-function resolveFlowMapItems(doc, cst) {
-  const comments = [];
-  const items = [];
-  let key = undefined;
-  let explicitKey = false;
-  let next = '{';
-
-  for (let i = 0; i < cst.items.length; ++i) {
-    const item = cst.items[i];
-
-    if (typeof item.char === 'string') {
-      const {
-        char,
-        offset
-      } = item;
-
-      if (char === '?' && key === undefined && !explicitKey) {
-        explicitKey = true;
-        next = ':';
-        continue;
-      }
-
-      if (char === ':') {
-        if (key === undefined) key = null;
-
-        if (next === ':') {
-          next = ',';
-          continue;
-        }
-      } else {
-        if (explicitKey) {
-          if (key === undefined && char !== ',') key = null;
-          explicitKey = false;
-        }
-
-        if (key !== undefined) {
-          items.push(new Pair(key));
-          key = undefined;
-
-          if (char === ',') {
-            next = ':';
-            continue;
-          }
-        }
-      }
-
-      if (char === '}') {
-        if (i === cst.items.length - 1) continue;
-      } else if (char === next) {
-        next = ':';
-        continue;
-      }
-
-      const msg = `Flow map contains an unexpected ${char}`;
-      const err = new PlainValue.YAMLSyntaxError(cst, msg);
-      err.offset = offset;
-      doc.errors.push(err);
-    } else if (item.type === PlainValue.Type.BLANK_LINE) {
-      comments.push({
-        afterKey: !!key,
-        before: items.length
-      });
-    } else if (item.type === PlainValue.Type.COMMENT) {
-      checkFlowCommentSpace(doc.errors, item);
-      comments.push({
-        afterKey: !!key,
-        before: items.length,
-        comment: item.comment
-      });
-    } else if (key === undefined) {
-      if (next === ',') doc.errors.push(new PlainValue.YAMLSemanticError(item, 'Separator , missing in flow map'));
-      key = resolveNode(doc, item);
-    } else {
-      if (next !== ',') doc.errors.push(new PlainValue.YAMLSemanticError(item, 'Indicator : missing in flow map entry'));
-      items.push(new Pair(key, resolveNode(doc, item)));
-      key = undefined;
-      explicitKey = false;
-    }
-  }
-
-  checkFlowCollectionEnd(doc.errors, cst);
-  if (key !== undefined) items.push(new Pair(key));
-  return {
-    comments,
-    items
-  };
-}
-
-function resolveSeq(doc, cst) {
-  if (cst.type !== PlainValue.Type.SEQ && cst.type !== PlainValue.Type.FLOW_SEQ) {
-    const msg = `A ${cst.type} node cannot be resolved as a sequence`;
-    doc.errors.push(new PlainValue.YAMLSyntaxError(cst, msg));
-    return null;
-  }
-
-  const {
-    comments,
-    items
-  } = cst.type === PlainValue.Type.FLOW_SEQ ? resolveFlowSeqItems(doc, cst) : resolveBlockSeqItems(doc, cst);
-  const seq = new YAMLSeq();
-  seq.items = items;
-  resolveComments(seq, comments);
-
-  if (!doc.options.mapAsMap && items.some(it => it instanceof Pair && it.key instanceof Collection)) {
-    const warn = 'Keys with collection values will be stringified as YAML due to JS Object restrictions. Use mapAsMap: true to avoid this.';
-    doc.warnings.push(new PlainValue.YAMLWarning(cst, warn));
-  }
-
-  cst.resolved = seq;
-  return seq;
-}
-
-function resolveBlockSeqItems(doc, cst) {
-  const comments = [];
-  const items = [];
-
-  for (let i = 0; i < cst.items.length; ++i) {
-    const item = cst.items[i];
-
-    switch (item.type) {
-      case PlainValue.Type.BLANK_LINE:
-        comments.push({
-          before: items.length
-        });
-        break;
-
-      case PlainValue.Type.COMMENT:
-        comments.push({
-          comment: item.comment,
-          before: items.length
-        });
-        break;
-
-      case PlainValue.Type.SEQ_ITEM:
-        if (item.error) doc.errors.push(item.error);
-        items.push(resolveNode(doc, item.node));
-
-        if (item.hasProps) {
-          const msg = 'Sequence items cannot have tags or anchors before the - indicator';
-          doc.errors.push(new PlainValue.YAMLSemanticError(item, msg));
-        }
-
-        break;
-
-      default:
-        if (item.error) doc.errors.push(item.error);
-        doc.errors.push(new PlainValue.YAMLSyntaxError(item, `Unexpected ${item.type} node in sequence`));
-    }
-  }
-
-  return {
-    comments,
-    items
-  };
-}
-
-function resolveFlowSeqItems(doc, cst) {
-  const comments = [];
-  const items = [];
-  let explicitKey = false;
-  let key = undefined;
-  let keyStart = null;
-  let next = '[';
-  let prevItem = null;
-
-  for (let i = 0; i < cst.items.length; ++i) {
-    const item = cst.items[i];
-
-    if (typeof item.char === 'string') {
-      const {
-        char,
-        offset
-      } = item;
-
-      if (char !== ':' && (explicitKey || key !== undefined)) {
-        if (explicitKey && key === undefined) key = next ? items.pop() : null;
-        items.push(new Pair(key));
-        explicitKey = false;
-        key = undefined;
-        keyStart = null;
-      }
-
-      if (char === next) {
-        next = null;
-      } else if (!next && char === '?') {
-        explicitKey = true;
-      } else if (next !== '[' && char === ':' && key === undefined) {
-        if (next === ',') {
-          key = items.pop();
-
-          if (key instanceof Pair) {
-            const msg = 'Chaining flow sequence pairs is invalid';
-            const err = new PlainValue.YAMLSemanticError(cst, msg);
-            err.offset = offset;
-            doc.errors.push(err);
-          }
-
-          if (!explicitKey && typeof keyStart === 'number') {
-            const keyEnd = item.range ? item.range.start : item.offset;
-            if (keyEnd > keyStart + 1024) doc.errors.push(getLongKeyError(cst, key));
-            const {
-              src
-            } = prevItem.context;
-
-            for (let i = keyStart; i < keyEnd; ++i) if (src[i] === '\n') {
-              const msg = 'Implicit keys of flow sequence pairs need to be on a single line';
-              doc.errors.push(new PlainValue.YAMLSemanticError(prevItem, msg));
-              break;
-            }
-          }
-        } else {
-          key = null;
-        }
-
-        keyStart = null;
-        explicitKey = false;
-        next = null;
-      } else if (next === '[' || char !== ']' || i < cst.items.length - 1) {
-        const msg = `Flow sequence contains an unexpected ${char}`;
-        const err = new PlainValue.YAMLSyntaxError(cst, msg);
-        err.offset = offset;
-        doc.errors.push(err);
-      }
-    } else if (item.type === PlainValue.Type.BLANK_LINE) {
-      comments.push({
-        before: items.length
-      });
-    } else if (item.type === PlainValue.Type.COMMENT) {
-      checkFlowCommentSpace(doc.errors, item);
-      comments.push({
-        comment: item.comment,
-        before: items.length
-      });
-    } else {
-      if (next) {
-        const msg = `Expected a ${next} in flow sequence`;
-        doc.errors.push(new PlainValue.YAMLSemanticError(item, msg));
-      }
-
-      const value = resolveNode(doc, item);
-
-      if (key === undefined) {
-        items.push(value);
-        prevItem = item;
-      } else {
-        items.push(new Pair(key, value));
-        key = undefined;
-      }
-
-      keyStart = item.range.start;
-      next = ',';
-    }
-  }
-
-  checkFlowCollectionEnd(doc.errors, cst);
-  if (key !== undefined) items.push(new Pair(key));
-  return {
-    comments,
-    items
-  };
-}
-
-exports.Alias = Alias;
-exports.Collection = Collection;
-exports.Merge = Merge;
-exports.Node = Node;
-exports.Pair = Pair;
-exports.Scalar = Scalar;
-exports.YAMLMap = YAMLMap;
-exports.YAMLSeq = YAMLSeq;
-exports.addComment = addComment;
-exports.binaryOptions = binaryOptions;
-exports.boolOptions = boolOptions;
-exports.findPair = findPair;
-exports.intOptions = intOptions;
-exports.isEmptyPath = isEmptyPath;
-exports.nullOptions = nullOptions;
-exports.resolveMap = resolveMap;
-exports.resolveNode = resolveNode;
-exports.resolveSeq = resolveSeq;
-exports.resolveString = resolveString;
-exports.strOptions = strOptions;
-exports.stringifyNumber = stringifyNumber;
-exports.stringifyString = stringifyString;
-exports.toJSON = toJSON;
-
-
-/***/ }),
-
-/***/ 5130:
-/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
-
-
-
-var PlainValue = __nccwpck_require__(4941);
-var resolveSeq = __nccwpck_require__(9914);
-
-/* global atob, btoa, Buffer */
-const binary = {
-  identify: value => value instanceof Uint8Array,
-  // Buffer inherits from Uint8Array
-  default: false,
-  tag: 'tag:yaml.org,2002:binary',
-
-  /**
-   * Returns a Buffer in node and an Uint8Array in browsers
-   *
-   * To use the resulting buffer as an image, you'll want to do something like:
-   *
-   *   const blob = new Blob([buffer], { type: 'image/jpeg' })
-   *   document.querySelector('#photo').src = URL.createObjectURL(blob)
-   */
-  resolve: (doc, node) => {
-    const src = resolveSeq.resolveString(doc, node);
-
-    if (typeof Buffer === 'function') {
-      return Buffer.from(src, 'base64');
-    } else if (typeof atob === 'function') {
-      // On IE 11, atob() can't handle newlines
-      const str = atob(src.replace(/[\n\r]/g, ''));
-      const buffer = new Uint8Array(str.length);
-
-      for (let i = 0; i < str.length; ++i) buffer[i] = str.charCodeAt(i);
-
-      return buffer;
-    } else {
-      const msg = 'This environment does not support reading binary tags; either Buffer or atob is required';
-      doc.errors.push(new PlainValue.YAMLReferenceError(node, msg));
-      return null;
-    }
-  },
-  options: resolveSeq.binaryOptions,
-  stringify: ({
-    comment,
-    type,
-    value
-  }, ctx, onComment, onChompKeep) => {
-    let src;
-
-    if (typeof Buffer === 'function') {
-      src = value instanceof Buffer ? value.toString('base64') : Buffer.from(value.buffer).toString('base64');
-    } else if (typeof btoa === 'function') {
-      let s = '';
-
-      for (let i = 0; i < value.length; ++i) s += String.fromCharCode(value[i]);
-
-      src = btoa(s);
-    } else {
-      throw new Error('This environment does not support writing binary tags; either Buffer or btoa is required');
-    }
-
-    if (!type) type = resolveSeq.binaryOptions.defaultType;
-
-    if (type === PlainValue.Type.QUOTE_DOUBLE) {
-      value = src;
-    } else {
-      const {
-        lineWidth
-      } = resolveSeq.binaryOptions;
-      const n = Math.ceil(src.length / lineWidth);
-      const lines = new Array(n);
-
-      for (let i = 0, o = 0; i < n; ++i, o += lineWidth) {
-        lines[i] = src.substr(o, lineWidth);
-      }
-
-      value = lines.join(type === PlainValue.Type.BLOCK_LITERAL ? '\n' : ' ');
-    }
-
-    return resolveSeq.stringifyString({
-      comment,
-      type,
-      value
-    }, ctx, onComment, onChompKeep);
-  }
-};
-
-function parsePairs(doc, cst) {
-  const seq = resolveSeq.resolveSeq(doc, cst);
-
-  for (let i = 0; i < seq.items.length; ++i) {
-    let item = seq.items[i];
-    if (item instanceof resolveSeq.Pair) continue;else if (item instanceof resolveSeq.YAMLMap) {
-      if (item.items.length > 1) {
-        const msg = 'Each pair must have its own sequence indicator';
-        throw new PlainValue.YAMLSemanticError(cst, msg);
-      }
-
-      const pair = item.items[0] || new resolveSeq.Pair();
-      if (item.commentBefore) pair.commentBefore = pair.commentBefore ? `${item.commentBefore}\n${pair.commentBefore}` : item.commentBefore;
-      if (item.comment) pair.comment = pair.comment ? `${item.comment}\n${pair.comment}` : item.comment;
-      item = pair;
-    }
-    seq.items[i] = item instanceof resolveSeq.Pair ? item : new resolveSeq.Pair(item);
-  }
-
-  return seq;
-}
-function createPairs(schema, iterable, ctx) {
-  const pairs = new resolveSeq.YAMLSeq(schema);
-  pairs.tag = 'tag:yaml.org,2002:pairs';
-
-  for (const it of iterable) {
-    let key, value;
-
-    if (Array.isArray(it)) {
-      if (it.length === 2) {
-        key = it[0];
-        value = it[1];
-      } else throw new TypeError(`Expected [key, value] tuple: ${it}`);
-    } else if (it && it instanceof Object) {
-      const keys = Object.keys(it);
-
-      if (keys.length === 1) {
-        key = keys[0];
-        value = it[key];
-      } else throw new TypeError(`Expected { key: value } tuple: ${it}`);
-    } else {
-      key = it;
-    }
-
-    const pair = schema.createPair(key, value, ctx);
-    pairs.items.push(pair);
-  }
-
-  return pairs;
-}
-const pairs = {
-  default: false,
-  tag: 'tag:yaml.org,2002:pairs',
-  resolve: parsePairs,
-  createNode: createPairs
-};
-
-class YAMLOMap extends resolveSeq.YAMLSeq {
-  constructor() {
-    super();
-
-    PlainValue._defineProperty(this, "add", resolveSeq.YAMLMap.prototype.add.bind(this));
-
-    PlainValue._defineProperty(this, "delete", resolveSeq.YAMLMap.prototype.delete.bind(this));
-
-    PlainValue._defineProperty(this, "get", resolveSeq.YAMLMap.prototype.get.bind(this));
-
-    PlainValue._defineProperty(this, "has", resolveSeq.YAMLMap.prototype.has.bind(this));
-
-    PlainValue._defineProperty(this, "set", resolveSeq.YAMLMap.prototype.set.bind(this));
-
-    this.tag = YAMLOMap.tag;
-  }
-
-  toJSON(_, ctx) {
-    const map = new Map();
-    if (ctx && ctx.onCreate) ctx.onCreate(map);
-
-    for (const pair of this.items) {
-      let key, value;
-
-      if (pair instanceof resolveSeq.Pair) {
-        key = resolveSeq.toJSON(pair.key, '', ctx);
-        value = resolveSeq.toJSON(pair.value, key, ctx);
-      } else {
-        key = resolveSeq.toJSON(pair, '', ctx);
-      }
-
-      if (map.has(key)) throw new Error('Ordered maps must not include duplicate keys');
-      map.set(key, value);
-    }
-
-    return map;
-  }
-
-}
-
-PlainValue._defineProperty(YAMLOMap, "tag", 'tag:yaml.org,2002:omap');
-
-function parseOMap(doc, cst) {
-  const pairs = parsePairs(doc, cst);
-  const seenKeys = [];
-
-  for (const {
-    key
-  } of pairs.items) {
-    if (key instanceof resolveSeq.Scalar) {
-      if (seenKeys.includes(key.value)) {
-        const msg = 'Ordered maps must not include duplicate keys';
-        throw new PlainValue.YAMLSemanticError(cst, msg);
-      } else {
-        seenKeys.push(key.value);
-      }
-    }
-  }
-
-  return Object.assign(new YAMLOMap(), pairs);
-}
-
-function createOMap(schema, iterable, ctx) {
-  const pairs = createPairs(schema, iterable, ctx);
-  const omap = new YAMLOMap();
-  omap.items = pairs.items;
-  return omap;
-}
-
-const omap = {
-  identify: value => value instanceof Map,
-  nodeClass: YAMLOMap,
-  default: false,
-  tag: 'tag:yaml.org,2002:omap',
-  resolve: parseOMap,
-  createNode: createOMap
-};
-
-class YAMLSet extends resolveSeq.YAMLMap {
-  constructor() {
-    super();
-    this.tag = YAMLSet.tag;
-  }
-
-  add(key) {
-    const pair = key instanceof resolveSeq.Pair ? key : new resolveSeq.Pair(key);
-    const prev = resolveSeq.findPair(this.items, pair.key);
-    if (!prev) this.items.push(pair);
-  }
-
-  get(key, keepPair) {
-    const pair = resolveSeq.findPair(this.items, key);
-    return !keepPair && pair instanceof resolveSeq.Pair ? pair.key instanceof resolveSeq.Scalar ? pair.key.value : pair.key : pair;
-  }
-
-  set(key, value) {
-    if (typeof value !== 'boolean') throw new Error(`Expected boolean value for set(key, value) in a YAML set, not ${typeof value}`);
-    const prev = resolveSeq.findPair(this.items, key);
-
-    if (prev && !value) {
-      this.items.splice(this.items.indexOf(prev), 1);
-    } else if (!prev && value) {
-      this.items.push(new resolveSeq.Pair(key));
-    }
-  }
-
-  toJSON(_, ctx) {
-    return super.toJSON(_, ctx, Set);
-  }
-
-  toString(ctx, onComment, onChompKeep) {
-    if (!ctx) return JSON.stringify(this);
-    if (this.hasAllNullValues()) return super.toString(ctx, onComment, onChompKeep);else throw new Error('Set items must all have null values');
-  }
-
-}
-
-PlainValue._defineProperty(YAMLSet, "tag", 'tag:yaml.org,2002:set');
-
-function parseSet(doc, cst) {
-  const map = resolveSeq.resolveMap(doc, cst);
-  if (!map.hasAllNullValues()) throw new PlainValue.YAMLSemanticError(cst, 'Set items must all have null values');
-  return Object.assign(new YAMLSet(), map);
-}
-
-function createSet(schema, iterable, ctx) {
-  const set = new YAMLSet();
-
-  for (const value of iterable) set.items.push(schema.createPair(value, null, ctx));
-
-  return set;
-}
-
-const set = {
-  identify: value => value instanceof Set,
-  nodeClass: YAMLSet,
-  default: false,
-  tag: 'tag:yaml.org,2002:set',
-  resolve: parseSet,
-  createNode: createSet
-};
-
-const parseSexagesimal = (sign, parts) => {
-  const n = parts.split(':').reduce((n, p) => n * 60 + Number(p), 0);
-  return sign === '-' ? -n : n;
-}; // hhhh:mm:ss.sss
-
-
-const stringifySexagesimal = ({
-  value
-}) => {
-  if (isNaN(value) || !isFinite(value)) return resolveSeq.stringifyNumber(value);
-  let sign = '';
-
-  if (value < 0) {
-    sign = '-';
-    value = Math.abs(value);
-  }
-
-  const parts = [value % 60]; // seconds, including ms
-
-  if (value < 60) {
-    parts.unshift(0); // at least one : is required
-  } else {
-    value = Math.round((value - parts[0]) / 60);
-    parts.unshift(value % 60); // minutes
-
-    if (value >= 60) {
-      value = Math.round((value - parts[0]) / 60);
-      parts.unshift(value); // hours
-    }
-  }
-
-  return sign + parts.map(n => n < 10 ? '0' + String(n) : String(n)).join(':').replace(/000000\d*$/, '') // % 60 may introduce error
-  ;
-};
-
-const intTime = {
-  identify: value => typeof value === 'number',
-  default: true,
-  tag: 'tag:yaml.org,2002:int',
-  format: 'TIME',
-  test: /^([-+]?)([0-9][0-9_]*(?::[0-5]?[0-9])+)$/,
-  resolve: (str, sign, parts) => parseSexagesimal(sign, parts.replace(/_/g, '')),
-  stringify: stringifySexagesimal
-};
-const floatTime = {
-  identify: value => typeof value === 'number',
-  default: true,
-  tag: 'tag:yaml.org,2002:float',
-  format: 'TIME',
-  test: /^([-+]?)([0-9][0-9_]*(?::[0-5]?[0-9])+\.[0-9_]*)$/,
-  resolve: (str, sign, parts) => parseSexagesimal(sign, parts.replace(/_/g, '')),
-  stringify: stringifySexagesimal
-};
-const timestamp = {
-  identify: value => value instanceof Date,
-  default: true,
-  tag: 'tag:yaml.org,2002:timestamp',
-  // If the time zone is omitted, the timestamp is assumed to be specified in UTC. The time part
-  // may be omitted altogether, resulting in a date format. In such a case, the time part is
-  // assumed to be 00:00:00Z (start of day, UTC).
-  test: RegExp('^(?:' + '([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})' + // YYYY-Mm-Dd
-  '(?:(?:t|T|[ \\t]+)' + // t | T | whitespace
-  '([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}(\\.[0-9]+)?)' + // Hh:Mm:Ss(.ss)?
-  '(?:[ \\t]*(Z|[-+][012]?[0-9](?::[0-9]{2})?))?' + // Z | +5 | -03:30
-  ')?' + ')$'),
-  resolve: (str, year, month, day, hour, minute, second, millisec, tz) => {
-    if (millisec) millisec = (millisec + '00').substr(1, 3);
-    let date = Date.UTC(year, month - 1, day, hour || 0, minute || 0, second || 0, millisec || 0);
-
-    if (tz && tz !== 'Z') {
-      let d = parseSexagesimal(tz[0], tz.slice(1));
-      if (Math.abs(d) < 30) d *= 60;
-      date -= 60000 * d;
-    }
-
-    return new Date(date);
-  },
-  stringify: ({
-    value
-  }) => value.toISOString().replace(/((T00:00)?:00)?\.000Z$/, '')
-};
-
-/* global console, process, YAML_SILENCE_DEPRECATION_WARNINGS, YAML_SILENCE_WARNINGS */
-function shouldWarn(deprecation) {
-  const env = typeof process !== 'undefined' && process.env || {};
-
-  if (deprecation) {
-    if (typeof YAML_SILENCE_DEPRECATION_WARNINGS !== 'undefined') return !YAML_SILENCE_DEPRECATION_WARNINGS;
-    return !env.YAML_SILENCE_DEPRECATION_WARNINGS;
-  }
-
-  if (typeof YAML_SILENCE_WARNINGS !== 'undefined') return !YAML_SILENCE_WARNINGS;
-  return !env.YAML_SILENCE_WARNINGS;
-}
-
-function warn(warning, type) {
-  if (shouldWarn(false)) {
-    const emit = typeof process !== 'undefined' && process.emitWarning; // This will throw in Jest if `warning` is an Error instance due to
-    // https://github.com/facebook/jest/issues/2549
-
-    if (emit) emit(warning, type);else {
-      // eslint-disable-next-line no-console
-      console.warn(type ? `${type}: ${warning}` : warning);
-    }
-  }
-}
-function warnFileDeprecation(filename) {
-  if (shouldWarn(true)) {
-    const path = filename.replace(/.*yaml[/\\]/i, '').replace(/\.js$/, '').replace(/\\/g, '/');
-    warn(`The endpoint 'yaml/${path}' will be removed in a future release.`, 'DeprecationWarning');
-  }
-}
-const warned = {};
-function warnOptionDeprecation(name, alternative) {
-  if (!warned[name] && shouldWarn(true)) {
-    warned[name] = true;
-    let msg = `The option '${name}' will be removed in a future release`;
-    msg += alternative ? `, use '${alternative}' instead.` : '.';
-    warn(msg, 'DeprecationWarning');
-  }
-}
-
-exports.binary = binary;
-exports.floatTime = floatTime;
-exports.intTime = intTime;
-exports.omap = omap;
-exports.pairs = pairs;
-exports.set = set;
-exports.timestamp = timestamp;
-exports.warn = warn;
-exports.warnFileDeprecation = warnFileDeprecation;
-exports.warnOptionDeprecation = warnOptionDeprecation;
-
-
-/***/ }),
-
-/***/ 4603:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-module.exports = __nccwpck_require__(4083).YAML
-
-
-/***/ }),
-
-/***/ 8479:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"id":"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/schemas/v1.2/apiDeclaration.json#","$schema":"http://json-schema.org/draft-04/schema#","type":"object","required":["swaggerVersion","basePath","apis"],"properties":{"swaggerVersion":{"enum":["1.2"]},"apiVersion":{"type":"string"},"basePath":{"type":"string","format":"uri","pattern":"^https?://"},"resourcePath":{"type":"string","format":"uri","pattern":"^/"},"apis":{"type":"array","items":{"$ref":"#/definitions/apiObject"}},"models":{"type":"object","additionalProperties":{"$ref":"modelsObject.json#"}},"produces":{"$ref":"#/definitions/mimeTypeArray"},"consumes":{"$ref":"#/definitions/mimeTypeArray"},"authorizations":{"$ref":"authorizationObject.json#"}},"additionalProperties":false,"definitions":{"apiObject":{"type":"object","required":["path","operations"],"properties":{"path":{"type":"string","format":"uri-template","pattern":"^/"},"description":{"type":"string"},"operations":{"type":"array","items":{"$ref":"operationObject.json#"}}},"additionalProperties":false},"mimeTypeArray":{"type":"array","items":{"type":"string","format":"mime-type"},"uniqueItems":true}}}');
-
-/***/ }),
-
-/***/ 499:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"title":"A JSON Schema for Swagger 2.0 API.","id":"http://swagger.io/v2/schema.json#","$schema":"http://json-schema.org/draft-04/schema#","type":"object","required":["swagger","info","paths"],"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"swagger":{"type":"string","enum":["2.0"],"description":"The Swagger version of this document."},"info":{"$ref":"#/definitions/info"},"host":{"type":"string","pattern":"^[^{}/ :\\\\\\\\]+(?::\\\\d+)?$","description":"The host (name or ip) of the API. Example: \'swagger.io\'"},"basePath":{"type":"string","pattern":"^/","description":"The base path to the API. Example: \'/api\'."},"schemes":{"$ref":"#/definitions/schemesList"},"consumes":{"description":"A list of MIME types accepted by the API.","allOf":[{"$ref":"#/definitions/mediaTypeList"}]},"produces":{"description":"A list of MIME types the API can produce.","allOf":[{"$ref":"#/definitions/mediaTypeList"}]},"paths":{"$ref":"#/definitions/paths"},"definitions":{"$ref":"#/definitions/definitions"},"parameters":{"$ref":"#/definitions/parameterDefinitions"},"responses":{"$ref":"#/definitions/responseDefinitions"},"security":{"$ref":"#/definitions/security"},"securityDefinitions":{"$ref":"#/definitions/securityDefinitions"},"tags":{"type":"array","items":{"$ref":"#/definitions/tag"},"uniqueItems":true},"externalDocs":{"$ref":"#/definitions/externalDocs"}},"definitions":{"info":{"type":"object","description":"General information about the API.","required":["version","title"],"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"title":{"type":"string","description":"A unique and precise title of the API."},"version":{"type":"string","description":"A semantic version number of the API."},"description":{"type":"string","description":"A longer description of the API. Should be different from the title.  GitHub Flavored Markdown is allowed."},"termsOfService":{"type":"string","description":"The terms of service for the API."},"contact":{"$ref":"#/definitions/contact"},"license":{"$ref":"#/definitions/license"}}},"contact":{"type":"object","description":"Contact information for the owners of the API.","additionalProperties":false,"properties":{"name":{"type":"string","description":"The identifying name of the contact person/organization."},"url":{"type":"string","description":"The URL pointing to the contact information.","format":"uri"},"email":{"type":"string","description":"The email address of the contact person/organization.","format":"email"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"license":{"type":"object","required":["name"],"additionalProperties":false,"properties":{"name":{"type":"string","description":"The name of the license type. It\'s encouraged to use an OSI compatible license."},"url":{"type":"string","description":"The URL pointing to the license.","format":"uri"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"paths":{"type":"object","description":"Relative paths to the individual endpoints. They must be relative to the \'basePath\'.","patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"},"^/":{"$ref":"#/definitions/pathItem"}},"additionalProperties":false},"definitions":{"type":"object","additionalProperties":{"$ref":"#/definitions/schema"},"description":"One or more JSON objects describing the schemas being consumed and produced by the API."},"parameterDefinitions":{"type":"object","additionalProperties":{"$ref":"#/definitions/parameter"},"description":"One or more JSON representations for parameters"},"responseDefinitions":{"type":"object","additionalProperties":{"$ref":"#/definitions/response"},"description":"One or more JSON representations for responses"},"externalDocs":{"type":"object","additionalProperties":false,"description":"information about external documentation","required":["url"],"properties":{"description":{"type":"string"},"url":{"type":"string","format":"uri"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"examples":{"type":"object","additionalProperties":true},"mimeType":{"type":"string","description":"The MIME type of the HTTP message."},"operation":{"type":"object","required":["responses"],"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"tags":{"type":"array","items":{"type":"string"},"uniqueItems":true},"summary":{"type":"string","description":"A brief summary of the operation."},"description":{"type":"string","description":"A longer description of the operation, GitHub Flavored Markdown is allowed."},"externalDocs":{"$ref":"#/definitions/externalDocs"},"operationId":{"type":"string","description":"A unique identifier of the operation."},"produces":{"description":"A list of MIME types the API can produce.","allOf":[{"$ref":"#/definitions/mediaTypeList"}]},"consumes":{"description":"A list of MIME types the API can consume.","allOf":[{"$ref":"#/definitions/mediaTypeList"}]},"parameters":{"$ref":"#/definitions/parametersList"},"responses":{"$ref":"#/definitions/responses"},"schemes":{"$ref":"#/definitions/schemesList"},"deprecated":{"type":"boolean","default":false},"security":{"$ref":"#/definitions/security"}}},"pathItem":{"type":"object","additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"$ref":{"type":"string"},"get":{"$ref":"#/definitions/operation"},"put":{"$ref":"#/definitions/operation"},"post":{"$ref":"#/definitions/operation"},"delete":{"$ref":"#/definitions/operation"},"options":{"$ref":"#/definitions/operation"},"head":{"$ref":"#/definitions/operation"},"patch":{"$ref":"#/definitions/operation"},"parameters":{"$ref":"#/definitions/parametersList"}}},"responses":{"type":"object","description":"Response objects names can either be any valid HTTP status code or \'default\'.","minProperties":1,"additionalProperties":false,"patternProperties":{"^([0-9]{3})$|^(default)$":{"$ref":"#/definitions/responseValue"},"^x-":{"$ref":"#/definitions/vendorExtension"}},"not":{"type":"object","additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}}},"responseValue":{"oneOf":[{"$ref":"#/definitions/response"},{"$ref":"#/definitions/jsonReference"}]},"response":{"type":"object","required":["description"],"properties":{"description":{"type":"string"},"schema":{"oneOf":[{"$ref":"#/definitions/schema"},{"$ref":"#/definitions/fileSchema"}]},"headers":{"$ref":"#/definitions/headers"},"examples":{"$ref":"#/definitions/examples"}},"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"headers":{"type":"object","additionalProperties":{"$ref":"#/definitions/header"}},"header":{"type":"object","additionalProperties":false,"required":["type"],"properties":{"type":{"type":"string","enum":["string","number","integer","boolean","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormat"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"vendorExtension":{"description":"Any property starting with x- is valid.","additionalProperties":true,"additionalItems":true},"bodyParameter":{"type":"object","required":["name","in","schema"],"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["body"]},"required":{"type":"boolean","description":"Determines whether or not this parameter is required or optional.","default":false},"schema":{"$ref":"#/definitions/schema"}},"additionalProperties":false},"headerParameterSubSchema":{"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"required":{"type":"boolean","description":"Determines whether or not this parameter is required or optional.","default":false},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["header"]},"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"type":{"type":"string","enum":["string","number","boolean","integer","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormat"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}}},"queryParameterSubSchema":{"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"required":{"type":"boolean","description":"Determines whether or not this parameter is required or optional.","default":false},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["query"]},"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"allowEmptyValue":{"type":"boolean","default":false,"description":"allows sending a parameter by name only or with an empty value."},"type":{"type":"string","enum":["string","number","boolean","integer","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormatWithMulti"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}}},"formDataParameterSubSchema":{"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"required":{"type":"boolean","description":"Determines whether or not this parameter is required or optional.","default":false},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["formData"]},"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"allowEmptyValue":{"type":"boolean","default":false,"description":"allows sending a parameter by name only or with an empty value."},"type":{"type":"string","enum":["string","number","boolean","integer","array","file"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormatWithMulti"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}}},"pathParameterSubSchema":{"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"required":["required"],"properties":{"required":{"type":"boolean","enum":[true],"description":"Determines whether or not this parameter is required or optional."},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["path"]},"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"type":{"type":"string","enum":["string","number","boolean","integer","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormat"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}}},"nonBodyParameter":{"type":"object","required":["name","in","type"],"oneOf":[{"$ref":"#/definitions/headerParameterSubSchema"},{"$ref":"#/definitions/formDataParameterSubSchema"},{"$ref":"#/definitions/queryParameterSubSchema"},{"$ref":"#/definitions/pathParameterSubSchema"}]},"parameter":{"oneOf":[{"$ref":"#/definitions/bodyParameter"},{"$ref":"#/definitions/nonBodyParameter"}]},"schema":{"type":"object","description":"A deterministic version of a JSON Schema object.","patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"$ref":{"type":"string"},"format":{"type":"string"},"title":{"$ref":"http://json-schema.org/draft-04/schema#/properties/title"},"description":{"$ref":"http://json-schema.org/draft-04/schema#/properties/description"},"default":{"$ref":"http://json-schema.org/draft-04/schema#/properties/default"},"multipleOf":{"$ref":"http://json-schema.org/draft-04/schema#/properties/multipleOf"},"maximum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/maximum"},"exclusiveMaximum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/exclusiveMaximum"},"minimum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/minimum"},"exclusiveMinimum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/exclusiveMinimum"},"maxLength":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minLength":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"pattern":{"$ref":"http://json-schema.org/draft-04/schema#/properties/pattern"},"maxItems":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minItems":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"uniqueItems":{"$ref":"http://json-schema.org/draft-04/schema#/properties/uniqueItems"},"maxProperties":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minProperties":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"required":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/stringArray"},"enum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/enum"},"additionalProperties":{"anyOf":[{"$ref":"#/definitions/schema"},{"type":"boolean"}],"default":{}},"type":{"$ref":"http://json-schema.org/draft-04/schema#/properties/type"},"items":{"anyOf":[{"$ref":"#/definitions/schema"},{"type":"array","minItems":1,"items":{"$ref":"#/definitions/schema"}}],"default":{}},"allOf":{"type":"array","minItems":1,"items":{"$ref":"#/definitions/schema"}},"properties":{"type":"object","additionalProperties":{"$ref":"#/definitions/schema"},"default":{}},"discriminator":{"type":"string"},"readOnly":{"type":"boolean","default":false},"xml":{"$ref":"#/definitions/xml"},"externalDocs":{"$ref":"#/definitions/externalDocs"},"example":{}},"additionalProperties":false},"fileSchema":{"type":"object","description":"A deterministic version of a JSON Schema object.","patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"required":["type"],"properties":{"format":{"type":"string"},"title":{"$ref":"http://json-schema.org/draft-04/schema#/properties/title"},"description":{"$ref":"http://json-schema.org/draft-04/schema#/properties/description"},"default":{"$ref":"http://json-schema.org/draft-04/schema#/properties/default"},"required":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/stringArray"},"type":{"type":"string","enum":["file"]},"readOnly":{"type":"boolean","default":false},"externalDocs":{"$ref":"#/definitions/externalDocs"},"example":{}},"additionalProperties":false},"primitivesItems":{"type":"object","additionalProperties":false,"properties":{"type":{"type":"string","enum":["string","number","integer","boolean","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormat"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"security":{"type":"array","items":{"$ref":"#/definitions/securityRequirement"},"uniqueItems":true},"securityRequirement":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"},"uniqueItems":true}},"xml":{"type":"object","additionalProperties":false,"properties":{"name":{"type":"string"},"namespace":{"type":"string"},"prefix":{"type":"string"},"attribute":{"type":"boolean","default":false},"wrapped":{"type":"boolean","default":false}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"tag":{"type":"object","additionalProperties":false,"required":["name"],"properties":{"name":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/definitions/externalDocs"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"securityDefinitions":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/basicAuthenticationSecurity"},{"$ref":"#/definitions/apiKeySecurity"},{"$ref":"#/definitions/oauth2ImplicitSecurity"},{"$ref":"#/definitions/oauth2PasswordSecurity"},{"$ref":"#/definitions/oauth2ApplicationSecurity"},{"$ref":"#/definitions/oauth2AccessCodeSecurity"}]}},"basicAuthenticationSecurity":{"type":"object","additionalProperties":false,"required":["type"],"properties":{"type":{"type":"string","enum":["basic"]},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"apiKeySecurity":{"type":"object","additionalProperties":false,"required":["type","name","in"],"properties":{"type":{"type":"string","enum":["apiKey"]},"name":{"type":"string"},"in":{"type":"string","enum":["header","query"]},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2ImplicitSecurity":{"type":"object","additionalProperties":false,"required":["type","flow","authorizationUrl"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flow":{"type":"string","enum":["implicit"]},"scopes":{"$ref":"#/definitions/oauth2Scopes"},"authorizationUrl":{"type":"string","format":"uri"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2PasswordSecurity":{"type":"object","additionalProperties":false,"required":["type","flow","tokenUrl"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flow":{"type":"string","enum":["password"]},"scopes":{"$ref":"#/definitions/oauth2Scopes"},"tokenUrl":{"type":"string","format":"uri"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2ApplicationSecurity":{"type":"object","additionalProperties":false,"required":["type","flow","tokenUrl"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flow":{"type":"string","enum":["application"]},"scopes":{"$ref":"#/definitions/oauth2Scopes"},"tokenUrl":{"type":"string","format":"uri"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2AccessCodeSecurity":{"type":"object","additionalProperties":false,"required":["type","flow","authorizationUrl","tokenUrl"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flow":{"type":"string","enum":["accessCode"]},"scopes":{"$ref":"#/definitions/oauth2Scopes"},"authorizationUrl":{"type":"string","format":"uri"},"tokenUrl":{"type":"string","format":"uri"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2Scopes":{"type":"object","additionalProperties":{"type":"string"}},"mediaTypeList":{"type":"array","items":{"$ref":"#/definitions/mimeType"},"uniqueItems":true},"parametersList":{"type":"array","description":"The parameters needed to send a valid API call.","additionalItems":false,"items":{"oneOf":[{"$ref":"#/definitions/parameter"},{"$ref":"#/definitions/jsonReference"}]},"uniqueItems":true},"schemesList":{"type":"array","description":"The transfer protocol of the API.","items":{"type":"string","enum":["http","https","ws","wss"]},"uniqueItems":true},"collectionFormat":{"type":"string","enum":["csv","ssv","tsv","pipes"],"default":"csv"},"collectionFormatWithMulti":{"type":"string","enum":["csv","ssv","tsv","pipes","multi"],"default":"csv"},"title":{"$ref":"http://json-schema.org/draft-04/schema#/properties/title"},"description":{"$ref":"http://json-schema.org/draft-04/schema#/properties/description"},"default":{"$ref":"http://json-schema.org/draft-04/schema#/properties/default"},"multipleOf":{"$ref":"http://json-schema.org/draft-04/schema#/properties/multipleOf"},"maximum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/maximum"},"exclusiveMaximum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/exclusiveMaximum"},"minimum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/minimum"},"exclusiveMinimum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/exclusiveMinimum"},"maxLength":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minLength":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"pattern":{"$ref":"http://json-schema.org/draft-04/schema#/properties/pattern"},"maxItems":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minItems":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"uniqueItems":{"$ref":"http://json-schema.org/draft-04/schema#/properties/uniqueItems"},"enum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/enum"},"jsonReference":{"type":"object","required":["$ref"],"additionalProperties":false,"properties":{"$ref":{"type":"string"}}}}}');
-
-/***/ }),
-
-/***/ 3659:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"id":"https://spec.openapis.org/oas/3.0/schema/2019-04-02","$schema":"http://json-schema.org/draft-04/schema#","description":"Validation schema for OpenAPI Specification 3.0.X.","type":"object","required":["openapi","info","paths"],"properties":{"openapi":{"type":"string","pattern":"^3\\\\.0\\\\.\\\\d(-.+)?$"},"info":{"$ref":"#/definitions/Info"},"externalDocs":{"$ref":"#/definitions/ExternalDocumentation"},"servers":{"type":"array","items":{"$ref":"#/definitions/Server"}},"security":{"type":"array","items":{"$ref":"#/definitions/SecurityRequirement"}},"tags":{"type":"array","items":{"$ref":"#/definitions/Tag"},"uniqueItems":true},"paths":{"$ref":"#/definitions/Paths"},"components":{"$ref":"#/definitions/Components"}},"patternProperties":{"^x-":{}},"additionalProperties":false,"definitions":{"Reference":{"type":"object","required":["$ref"],"patternProperties":{"^\\\\$ref$":{"type":"string","format":"uri-reference"}}},"Info":{"type":"object","required":["title","version"],"properties":{"title":{"type":"string"},"description":{"type":"string"},"termsOfService":{"type":"string","format":"uri-reference"},"contact":{"$ref":"#/definitions/Contact"},"license":{"$ref":"#/definitions/License"},"version":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Contact":{"type":"object","properties":{"name":{"type":"string"},"url":{"type":"string","format":"uri-reference"},"email":{"type":"string","format":"email"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"License":{"type":"object","required":["name"],"properties":{"name":{"type":"string"},"url":{"type":"string","format":"uri-reference"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Server":{"type":"object","required":["url"],"properties":{"url":{"type":"string"},"description":{"type":"string"},"variables":{"type":"object","additionalProperties":{"$ref":"#/definitions/ServerVariable"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ServerVariable":{"type":"object","required":["default"],"properties":{"enum":{"type":"array","items":{"type":"string"}},"default":{"type":"string"},"description":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Components":{"type":"object","properties":{"schemas":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}}},"responses":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Response"}]}}},"parameters":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Parameter"}]}}},"examples":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Example"}]}}},"requestBodies":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/RequestBody"}]}}},"headers":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Header"}]}}},"securitySchemes":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/SecurityScheme"}]}}},"links":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Link"}]}}},"callbacks":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Callback"}]}}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Schema":{"type":"object","properties":{"title":{"type":"string"},"multipleOf":{"type":"number","minimum":0,"exclusiveMinimum":true},"maximum":{"type":"number"},"exclusiveMaximum":{"type":"boolean","default":false},"minimum":{"type":"number"},"exclusiveMinimum":{"type":"boolean","default":false},"maxLength":{"type":"integer","minimum":0},"minLength":{"type":"integer","minimum":0,"default":0},"pattern":{"type":"string","format":"regex"},"maxItems":{"type":"integer","minimum":0},"minItems":{"type":"integer","minimum":0,"default":0},"uniqueItems":{"type":"boolean","default":false},"maxProperties":{"type":"integer","minimum":0},"minProperties":{"type":"integer","minimum":0,"default":0},"required":{"type":"array","items":{"type":"string"},"minItems":1,"uniqueItems":true},"enum":{"type":"array","items":{},"minItems":1,"uniqueItems":false},"type":{"type":"string","enum":["array","boolean","integer","number","object","string"]},"not":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"allOf":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}},"oneOf":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}},"anyOf":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}},"items":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"properties":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}},"additionalProperties":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"},{"type":"boolean"}],"default":true},"description":{"type":"string"},"format":{"type":"string"},"default":{},"nullable":{"type":"boolean","default":false},"discriminator":{"$ref":"#/definitions/Discriminator"},"readOnly":{"type":"boolean","default":false},"writeOnly":{"type":"boolean","default":false},"example":{},"externalDocs":{"$ref":"#/definitions/ExternalDocumentation"},"deprecated":{"type":"boolean","default":false},"xml":{"$ref":"#/definitions/XML"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Discriminator":{"type":"object","required":["propertyName"],"properties":{"propertyName":{"type":"string"},"mapping":{"type":"object","additionalProperties":{"type":"string"}}}},"XML":{"type":"object","properties":{"name":{"type":"string"},"namespace":{"type":"string","format":"uri"},"prefix":{"type":"string"},"attribute":{"type":"boolean","default":false},"wrapped":{"type":"boolean","default":false}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Response":{"type":"object","required":["description"],"properties":{"description":{"type":"string"},"headers":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Header"},{"$ref":"#/definitions/Reference"}]}},"content":{"type":"object","additionalProperties":{"$ref":"#/definitions/MediaType"}},"links":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Link"},{"$ref":"#/definitions/Reference"}]}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"MediaType":{"type":"object","properties":{"schema":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"example":{},"examples":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Example"},{"$ref":"#/definitions/Reference"}]}},"encoding":{"type":"object","additionalProperties":{"$ref":"#/definitions/Encoding"}}},"patternProperties":{"^x-":{}},"additionalProperties":false,"allOf":[{"$ref":"#/definitions/ExampleXORExamples"}]},"Example":{"type":"object","properties":{"summary":{"type":"string"},"description":{"type":"string"},"value":{},"externalValue":{"type":"string","format":"uri-reference"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Header":{"type":"object","properties":{"description":{"type":"string"},"required":{"type":"boolean","default":false},"deprecated":{"type":"boolean","default":false},"allowEmptyValue":{"type":"boolean","default":false},"style":{"type":"string","enum":["simple"],"default":"simple"},"explode":{"type":"boolean"},"allowReserved":{"type":"boolean","default":false},"schema":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"content":{"type":"object","additionalProperties":{"$ref":"#/definitions/MediaType"},"minProperties":1,"maxProperties":1},"example":{},"examples":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Example"},{"$ref":"#/definitions/Reference"}]}}},"patternProperties":{"^x-":{}},"additionalProperties":false,"allOf":[{"$ref":"#/definitions/ExampleXORExamples"},{"$ref":"#/definitions/SchemaXORContent"}]},"Paths":{"type":"object","patternProperties":{"^\\\\/":{"$ref":"#/definitions/PathItem"},"^x-":{}},"additionalProperties":false},"PathItem":{"type":"object","properties":{"$ref":{"type":"string"},"summary":{"type":"string"},"description":{"type":"string"},"servers":{"type":"array","items":{"$ref":"#/definitions/Server"}},"parameters":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Parameter"},{"$ref":"#/definitions/Reference"}]},"uniqueItems":true}},"patternProperties":{"^(get|put|post|delete|options|head|patch|trace)$":{"$ref":"#/definitions/Operation"},"^x-":{}},"additionalProperties":false},"Operation":{"type":"object","required":["responses"],"properties":{"tags":{"type":"array","items":{"type":"string"}},"summary":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/definitions/ExternalDocumentation"},"operationId":{"type":"string"},"parameters":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Parameter"},{"$ref":"#/definitions/Reference"}]},"uniqueItems":true},"requestBody":{"oneOf":[{"$ref":"#/definitions/RequestBody"},{"$ref":"#/definitions/Reference"}]},"responses":{"$ref":"#/definitions/Responses"},"callbacks":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Callback"},{"$ref":"#/definitions/Reference"}]}},"deprecated":{"type":"boolean","default":false},"security":{"type":"array","items":{"$ref":"#/definitions/SecurityRequirement"}},"servers":{"type":"array","items":{"$ref":"#/definitions/Server"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Responses":{"type":"object","properties":{"default":{"oneOf":[{"$ref":"#/definitions/Response"},{"$ref":"#/definitions/Reference"}]}},"patternProperties":{"^[1-5](?:\\\\d{2}|XX)$":{"oneOf":[{"$ref":"#/definitions/Response"},{"$ref":"#/definitions/Reference"}]},"^x-":{}},"minProperties":1,"additionalProperties":false},"SecurityRequirement":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},"Tag":{"type":"object","required":["name"],"properties":{"name":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/definitions/ExternalDocumentation"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ExternalDocumentation":{"type":"object","required":["url"],"properties":{"description":{"type":"string"},"url":{"type":"string","format":"uri-reference"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ExampleXORExamples":{"description":"Example and examples are mutually exclusive","not":{"required":["example","examples"]}},"SchemaXORContent":{"description":"Schema and content are mutually exclusive, at least one is required","not":{"required":["schema","content"]},"oneOf":[{"required":["schema"]},{"required":["content"],"description":"Some properties are not allowed if content is present","allOf":[{"not":{"required":["style"]}},{"not":{"required":["explode"]}},{"not":{"required":["allowReserved"]}},{"not":{"required":["example"]}},{"not":{"required":["examples"]}}]}]},"Parameter":{"type":"object","properties":{"name":{"type":"string"},"in":{"type":"string"},"description":{"type":"string"},"required":{"type":"boolean","default":false},"deprecated":{"type":"boolean","default":false},"allowEmptyValue":{"type":"boolean","default":false},"style":{"type":"string"},"explode":{"type":"boolean"},"allowReserved":{"type":"boolean","default":false},"schema":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"content":{"type":"object","additionalProperties":{"$ref":"#/definitions/MediaType"},"minProperties":1,"maxProperties":1},"example":{},"examples":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Example"},{"$ref":"#/definitions/Reference"}]}}},"patternProperties":{"^x-":{}},"additionalProperties":false,"required":["name","in"],"allOf":[{"$ref":"#/definitions/ExampleXORExamples"},{"$ref":"#/definitions/SchemaXORContent"},{"$ref":"#/definitions/ParameterLocation"}]},"ParameterLocation":{"description":"Parameter location","oneOf":[{"description":"Parameter in path","required":["required"],"properties":{"in":{"enum":["path"]},"style":{"enum":["matrix","label","simple"],"default":"simple"},"required":{"enum":[true]}}},{"description":"Parameter in query","properties":{"in":{"enum":["query"]},"style":{"enum":["form","spaceDelimited","pipeDelimited","deepObject"],"default":"form"}}},{"description":"Parameter in header","properties":{"in":{"enum":["header"]},"style":{"enum":["simple"],"default":"simple"}}},{"description":"Parameter in cookie","properties":{"in":{"enum":["cookie"]},"style":{"enum":["form"],"default":"form"}}}]},"RequestBody":{"type":"object","required":["content"],"properties":{"description":{"type":"string"},"content":{"type":"object","additionalProperties":{"$ref":"#/definitions/MediaType"}},"required":{"type":"boolean","default":false}},"patternProperties":{"^x-":{}},"additionalProperties":false},"SecurityScheme":{"oneOf":[{"$ref":"#/definitions/APIKeySecurityScheme"},{"$ref":"#/definitions/HTTPSecurityScheme"},{"$ref":"#/definitions/OAuth2SecurityScheme"},{"$ref":"#/definitions/OpenIdConnectSecurityScheme"}]},"APIKeySecurityScheme":{"type":"object","required":["type","name","in"],"properties":{"type":{"type":"string","enum":["apiKey"]},"name":{"type":"string"},"in":{"type":"string","enum":["header","query","cookie"]},"description":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"HTTPSecurityScheme":{"type":"object","required":["scheme","type"],"properties":{"scheme":{"type":"string"},"bearerFormat":{"type":"string"},"description":{"type":"string"},"type":{"type":"string","enum":["http"]}},"patternProperties":{"^x-":{}},"additionalProperties":false,"oneOf":[{"description":"Bearer","properties":{"scheme":{"enum":["bearer"]}}},{"description":"Non Bearer","not":{"required":["bearerFormat"]},"properties":{"scheme":{"not":{"enum":["bearer"]}}}}]},"OAuth2SecurityScheme":{"type":"object","required":["type","flows"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flows":{"$ref":"#/definitions/OAuthFlows"},"description":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"OpenIdConnectSecurityScheme":{"type":"object","required":["type","openIdConnectUrl"],"properties":{"type":{"type":"string","enum":["openIdConnect"]},"openIdConnectUrl":{"type":"string","format":"uri-reference"},"description":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"OAuthFlows":{"type":"object","properties":{"implicit":{"$ref":"#/definitions/ImplicitOAuthFlow"},"password":{"$ref":"#/definitions/PasswordOAuthFlow"},"clientCredentials":{"$ref":"#/definitions/ClientCredentialsFlow"},"authorizationCode":{"$ref":"#/definitions/AuthorizationCodeOAuthFlow"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ImplicitOAuthFlow":{"type":"object","required":["authorizationUrl","scopes"],"properties":{"authorizationUrl":{"type":"string","format":"uri-reference"},"refreshUrl":{"type":"string","format":"uri-reference"},"scopes":{"type":"object","additionalProperties":{"type":"string"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"PasswordOAuthFlow":{"type":"object","required":["tokenUrl"],"properties":{"tokenUrl":{"type":"string","format":"uri-reference"},"refreshUrl":{"type":"string","format":"uri-reference"},"scopes":{"type":"object","additionalProperties":{"type":"string"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ClientCredentialsFlow":{"type":"object","required":["tokenUrl"],"properties":{"tokenUrl":{"type":"string","format":"uri-reference"},"refreshUrl":{"type":"string","format":"uri-reference"},"scopes":{"type":"object","additionalProperties":{"type":"string"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"AuthorizationCodeOAuthFlow":{"type":"object","required":["authorizationUrl","tokenUrl"],"properties":{"authorizationUrl":{"type":"string","format":"uri-reference"},"tokenUrl":{"type":"string","format":"uri-reference"},"refreshUrl":{"type":"string","format":"uri-reference"},"scopes":{"type":"object","additionalProperties":{"type":"string"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Link":{"type":"object","properties":{"operationId":{"type":"string"},"operationRef":{"type":"string","format":"uri-reference"},"parameters":{"type":"object","additionalProperties":{}},"requestBody":{},"description":{"type":"string"},"server":{"$ref":"#/definitions/Server"}},"patternProperties":{"^x-":{}},"additionalProperties":false,"not":{"description":"Operation Id and Operation Ref are mutually exclusive","required":["operationId","operationRef"]}},"Callback":{"type":"object","additionalProperties":{"$ref":"#/definitions/PathItem"},"patternProperties":{"^x-":{}}},"Encoding":{"type":"object","properties":{"contentType":{"type":"string"},"headers":{"type":"object","additionalProperties":{"$ref":"#/definitions/Header"}},"style":{"type":"string","enum":["form","spaceDelimited","pipeDelimited","deepObject"]},"explode":{"type":"boolean"},"allowReserved":{"type":"boolean","default":false}},"additionalProperties":false}}}');
-
-/***/ }),
-
-/***/ 1201:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$id":"https://spec.openapis.org/oas/3.1/schema/2021-04-15","$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{"openapi":{"type":"string","pattern":"^3\\\\.1\\\\.\\\\d+(-.+)?$"},"info":{"$ref":"#/$defs/info"},"jsonSchemaDialect":{"$ref":"#/$defs/uri","default":"https://spec.openapis.org/oas/3.1/dialect/base"},"servers":{"type":"array","items":{"$ref":"#/$defs/server"}},"paths":{"$ref":"#/$defs/paths"},"webhooks":{"type":"object","additionalProperties":{"$ref":"#/$defs/path-item-or-reference"}},"components":{"$ref":"#/$defs/components"},"security":{"type":"array","items":{"$ref":"#/$defs/security-requirement"}},"tags":{"type":"array","items":{"$ref":"#/$defs/tag"}},"externalDocs":{"$ref":"#/$defs/external-documentation"}},"required":["openapi","info"],"anyOf":[{"required":["paths"]},{"required":["components"]},{"required":["webhooks"]}],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false,"$defs":{"info":{"type":"object","properties":{"title":{"type":"string"},"summary":{"type":"string"},"description":{"type":"string"},"termsOfService":{"type":"string"},"contact":{"$ref":"#/$defs/contact"},"license":{"$ref":"#/$defs/license"},"version":{"type":"string"}},"required":["title","version"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"contact":{"type":"object","properties":{"name":{"type":"string"},"url":{"type":"string"},"email":{"type":"string"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"license":{"type":"object","properties":{"name":{"type":"string"},"identifier":{"type":"string"},"url":{"$ref":"#/$defs/uri"}},"required":["name"],"oneOf":[{"required":["identifier"]},{"required":["url"]}],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"server":{"type":"object","properties":{"url":{"$ref":"#/$defs/uri"},"description":{"type":"string"},"variables":{"type":"object","additionalProperties":{"$ref":"#/$defs/server-variable"}}},"required":["url"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"server-variable":{"type":"object","properties":{"enum":{"type":"array","items":{"type":"string"},"minItems":1},"default":{"type":"string"},"descriptions":{"type":"string"}},"required":["default"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"components":{"type":"object","properties":{"schemas":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"}},"responses":{"type":"object","additionalProperties":{"$ref":"#/$defs/response-or-reference"}},"parameters":{"type":"object","additionalProperties":{"$ref":"#/$defs/parameter-or-reference"}},"examples":{"type":"object","additionalProperties":{"$ref":"#/$defs/example-or-reference"}},"requestBodies":{"type":"object","additionalProperties":{"$ref":"#/$defs/request-body-or-reference"}},"headers":{"type":"object","additionalProperties":{"$ref":"#/$defs/header-or-reference"}},"securitySchemes":{"type":"object","additionalProperties":{"$ref":"#/$defs/security-scheme-or-reference"}},"links":{"type":"object","additionalProperties":{"$ref":"#/$defs/link-or-reference"}},"callbacks":{"type":"object","additionalProperties":{"$ref":"#/$defs/callbacks-or-reference"}},"pathItems":{"type":"object","additionalProperties":{"$ref":"#/$defs/path-item-or-reference"}}},"patternProperties":{"^(schemas|responses|parameters|examples|requestBodies|headers|securitySchemes|links|callbacks|pathItems)$":{"$comment":"Enumerating all of the property names in the regex above is necessary for unevaluatedProperties to work as expected","propertyNames":{"pattern":"^[a-zA-Z0-9._-]+$"}}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"paths":{"type":"object","patternProperties":{"^/":{"$ref":"#/$defs/path-item"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"path-item":{"type":"object","properties":{"summary":{"type":"string"},"description":{"type":"string"},"servers":{"type":"array","items":{"$ref":"#/$defs/server"}},"parameters":{"type":"array","items":{"$ref":"#/$defs/parameter-or-reference"}}},"patternProperties":{"^(get|put|post|delete|options|head|patch|trace)$":{"$ref":"#/$defs/operation"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"path-item-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/path-item"}},"operation":{"type":"object","properties":{"tags":{"type":"array","items":{"type":"string"}},"summary":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/$defs/external-documentation"},"operationId":{"type":"string"},"parameters":{"type":"array","items":{"$ref":"#/$defs/parameter-or-reference"}},"requestBody":{"$ref":"#/$defs/request-body-or-reference"},"responses":{"$ref":"#/$defs/responses"},"callbacks":{"type":"object","additionalProperties":{"$ref":"#/$defs/callbacks-or-reference"}},"deprecated":{"default":false,"type":"boolean"},"security":{"type":"array","items":{"$ref":"#/$defs/security-requirement"}},"servers":{"type":"array","items":{"$ref":"#/$defs/server"}}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"external-documentation":{"type":"object","properties":{"description":{"type":"string"},"url":{"$ref":"#/$defs/uri"}},"required":["url"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"parameter":{"type":"object","properties":{"name":{"type":"string"},"in":{"enum":["query","header","path","cookie"]},"description":{"type":"string"},"required":{"default":false,"type":"boolean"},"deprecated":{"default":false,"type":"boolean"},"allowEmptyValue":{"default":false,"type":"boolean"},"schema":{"$dynamicRef":"#meta"},"content":{"$ref":"#/$defs/content"}},"required":["in"],"oneOf":[{"required":["schema"]},{"required":["content"]}],"dependentSchemas":{"schema":{"properties":{"style":{"type":"string"},"explode":{"type":"boolean"},"allowReserved":{"default":false,"type":"boolean"}},"allOf":[{"$ref":"#/$defs/examples"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-path"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-header"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-query"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-cookie"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-form"}],"$defs":{"styles-for-path":{"if":{"properties":{"in":{"const":"path"}},"required":["in"]},"then":{"properties":{"style":{"default":"simple","enum":["matrix","label","simple"]},"required":{"const":true}},"required":["required"]}},"styles-for-header":{"if":{"properties":{"in":{"const":"header"}},"required":["in"]},"then":{"properties":{"style":{"default":"simple","enum":["simple"]}}}},"styles-for-query":{"if":{"properties":{"in":{"const":"query"}},"required":["in"]},"then":{"properties":{"style":{"default":"form","enum":["form","spaceDelimited","pipeDelimited","deepObject"]}}}},"styles-for-cookie":{"if":{"properties":{"in":{"const":"cookie"}},"required":["in"]},"then":{"properties":{"style":{"default":"form","enum":["form"]}}}},"styles-for-form":{"if":{"properties":{"style":{"const":"form"}},"required":["style"]},"then":{"properties":{"explode":{"default":true}}},"else":{"properties":{"explode":{"default":false}}}}}}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"parameter-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/parameter"}},"request-body":{"type":"object","properties":{"description":{"type":"string"},"content":{"$ref":"#/$defs/content"},"required":{"default":false,"type":"boolean"}},"required":["content"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"request-body-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/request-body"}},"content":{"type":"object","additionalProperties":{"$ref":"#/$defs/media-type"},"propertyNames":{"format":"media-range"}},"media-type":{"type":"object","properties":{"schema":{"$dynamicRef":"#meta"},"encoding":{"type":"object","additionalProperties":{"$ref":"#/$defs/encoding"}}},"allOf":[{"$ref":"#/$defs/specification-extensions"},{"$ref":"#/$defs/examples"}],"unevaluatedProperties":false},"encoding":{"type":"object","properties":{"contentType":{"type":"string","format":"media-range"},"headers":{"type":"object","additionalProperties":{"$ref":"#/$defs/header-or-reference"}},"style":{"default":"form","enum":["form","spaceDelimited","pipeDelimited","deepObject"]},"explode":{"type":"boolean"},"allowReserved":{"default":false,"type":"boolean"}},"allOf":[{"$ref":"#/$defs/specification-extensions"},{"$ref":"#/$defs/encoding/$defs/explode-default"}],"unevaluatedProperties":false,"$defs":{"explode-default":{"if":{"properties":{"style":{"const":"form"}},"required":["style"]},"then":{"properties":{"explode":{"default":true}}},"else":{"properties":{"explode":{"default":false}}}}}},"responses":{"type":"object","properties":{"default":{"$ref":"#/$defs/response-or-reference"}},"patternProperties":{"^[1-5][0-9X]{2}$":{"$ref":"#/$defs/response-or-reference"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"response":{"type":"object","properties":{"description":{"type":"string"},"headers":{"type":"object","additionalProperties":{"$ref":"#/$defs/header-or-reference"}},"content":{"$ref":"#/$defs/content"},"links":{"type":"object","additionalProperties":{"$ref":"#/$defs/link-or-reference"}}},"required":["description"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"response-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/response"}},"callbacks":{"type":"object","$ref":"#/$defs/specification-extensions","additionalProperties":{"$ref":"#/$defs/path-item-or-reference"}},"callbacks-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/callbacks"}},"example":{"type":"object","properties":{"summary":{"type":"string"},"description":{"type":"string"},"value":true,"externalValue":{"$ref":"#/$defs/uri"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"example-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/example"}},"link":{"type":"object","properties":{"operationRef":{"$ref":"#/$defs/uri"},"operationId":true,"parameters":{"$ref":"#/$defs/map-of-strings"},"requestBody":true,"description":{"type":"string"},"body":{"$ref":"#/$defs/server"}},"oneOf":[{"required":["operationRef"]},{"required":["operationId"]}],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"link-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/link"}},"header":{"type":"object","properties":{"description":{"type":"string"},"required":{"default":false,"type":"boolean"},"deprecated":{"default":false,"type":"boolean"},"allowEmptyValue":{"default":false,"type":"boolean"}},"dependentSchemas":{"schema":{"properties":{"style":{"default":"simple","enum":["simple"]},"explode":{"default":false,"type":"boolean"},"allowReserved":{"default":false,"type":"boolean"},"schema":{"$dynamicRef":"#meta"}},"$ref":"#/$defs/examples"},"content":{"properties":{"content":{"$ref":"#/$defs/content"}}}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"header-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/header"}},"tag":{"type":"object","properties":{"name":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/$defs/external-documentation"}},"required":["name"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"reference":{"type":"object","properties":{"$ref":{"$ref":"#/$defs/uri"},"summary":{"type":"string"},"description":{"type":"string"}},"unevaluatedProperties":false},"schema":{"$dynamicAnchor":"meta","type":["object","boolean"]},"security-scheme":{"type":"object","properties":{"type":{"enum":["apiKey","http","mutualTLS","oauth2","openIdConnect"]},"description":{"type":"string"}},"required":["type"],"allOf":[{"$ref":"#/$defs/specification-extensions"},{"$ref":"#/$defs/security-scheme/$defs/type-apikey"},{"$ref":"#/$defs/security-scheme/$defs/type-http"},{"$ref":"#/$defs/security-scheme/$defs/type-http-bearer"},{"$ref":"#/$defs/security-scheme/$defs/type-oauth2"},{"$ref":"#/$defs/security-scheme/$defs/type-oidc"}],"unevaluatedProperties":false,"$defs":{"type-apikey":{"if":{"properties":{"type":{"const":"apiKey"}},"required":["type"]},"then":{"properties":{"name":{"type":"string"},"in":{"enum":["query","header","cookie"]}},"required":["name","in"]}},"type-http":{"if":{"properties":{"type":{"const":"http"}},"required":["type"]},"then":{"properties":{"scheme":{"type":"string"}},"required":["scheme"]}},"type-http-bearer":{"if":{"properties":{"type":{"const":"http"},"scheme":{"const":"bearer"}},"required":["type","scheme"]},"then":{"properties":{"bearerFormat":{"type":"string"}},"required":["scheme"]}},"type-oauth2":{"if":{"properties":{"type":{"const":"oauth2"}},"required":["type"]},"then":{"properties":{"flows":{"$ref":"#/$defs/oauth-flows"}},"required":["flows"]}},"type-oidc":{"if":{"properties":{"type":{"const":"openIdConnect"}},"required":["type"]},"then":{"properties":{"openIdConnectUrl":{"$ref":"#/$defs/uri"}},"required":["openIdConnectUrl"]}}}},"security-scheme-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/security-scheme"}},"oauth-flows":{"type":"object","properties":{"implicit":{"$ref":"#/$defs/oauth-flows/$defs/implicit"},"password":{"$ref":"#/$defs/oauth-flows/$defs/password"},"clientCredentials":{"$ref":"#/$defs/oauth-flows/$defs/client-credentials"},"authorizationCode":{"$ref":"#/$defs/oauth-flows/$defs/authorization-code"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false,"$defs":{"implicit":{"type":"object","properties":{"authorizationUrl":{"type":"string"},"refreshUrl":{"type":"string"},"scopes":{"$ref":"#/$defs/map-of-strings"}},"required":["authorizationUrl","scopes"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"password":{"type":"object","properties":{"tokenUrl":{"type":"string"},"refreshUrl":{"type":"string"},"scopes":{"$ref":"#/$defs/map-of-strings"}},"required":["tokenUrl","scopes"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"client-credentials":{"type":"object","properties":{"tokenUrl":{"type":"string"},"refreshUrl":{"type":"string"},"scopes":{"$ref":"#/$defs/map-of-strings"}},"required":["tokenUrl","scopes"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"authorization-code":{"type":"object","properties":{"authorizationUrl":{"type":"string"},"tokenUrl":{"type":"string"},"refreshUrl":{"type":"string"},"scopes":{"$ref":"#/$defs/map-of-strings"}},"required":["authorizationUrl","tokenUrl","scopes"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false}}},"security-requirement":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},"specification-extensions":{"patternProperties":{"^x-":true}},"examples":{"properties":{"example":true,"examples":{"type":"object","additionalProperties":{"$ref":"#/$defs/example-or-reference"}}}},"uri":{"type":"string","format":"uri"},"map-of-strings":{"type":"object","additionalProperties":{"type":"string"}}}}');
-
-/***/ }),
-
-/***/ 2321:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$id":"https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#","description":"Meta-schema for $data reference (JSON AnySchema extension proposal)","type":"object","required":["$data"],"properties":{"$data":{"type":"string","anyOf":[{"format":"relative-json-pointer"},{"format":"json-pointer"}]}},"additionalProperties":false}');
-
-/***/ }),
-
-/***/ 6071:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/applicator","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/applicator":true},"$dynamicAnchor":"meta","title":"Applicator vocabulary meta-schema","type":["object","boolean"],"properties":{"prefixItems":{"$ref":"#/$defs/schemaArray"},"items":{"$dynamicRef":"#meta"},"contains":{"$dynamicRef":"#meta"},"additionalProperties":{"$dynamicRef":"#meta"},"properties":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"},"default":{}},"patternProperties":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"},"propertyNames":{"format":"regex"},"default":{}},"dependentSchemas":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"},"default":{}},"propertyNames":{"$dynamicRef":"#meta"},"if":{"$dynamicRef":"#meta"},"then":{"$dynamicRef":"#meta"},"else":{"$dynamicRef":"#meta"},"allOf":{"$ref":"#/$defs/schemaArray"},"anyOf":{"$ref":"#/$defs/schemaArray"},"oneOf":{"$ref":"#/$defs/schemaArray"},"not":{"$dynamicRef":"#meta"}},"$defs":{"schemaArray":{"type":"array","minItems":1,"items":{"$dynamicRef":"#meta"}}}}');
-
-/***/ }),
-
-/***/ 3180:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/content","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/content":true},"$dynamicAnchor":"meta","title":"Content vocabulary meta-schema","type":["object","boolean"],"properties":{"contentEncoding":{"type":"string"},"contentMediaType":{"type":"string"},"contentSchema":{"$dynamicRef":"#meta"}}}');
-
-/***/ }),
-
-/***/ 3040:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/core","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/core":true},"$dynamicAnchor":"meta","title":"Core vocabulary meta-schema","type":["object","boolean"],"properties":{"$id":{"$ref":"#/$defs/uriReferenceString","$comment":"Non-empty fragments not allowed.","pattern":"^[^#]*#?$"},"$schema":{"$ref":"#/$defs/uriString"},"$ref":{"$ref":"#/$defs/uriReferenceString"},"$anchor":{"$ref":"#/$defs/anchorString"},"$dynamicRef":{"$ref":"#/$defs/uriReferenceString"},"$dynamicAnchor":{"$ref":"#/$defs/anchorString"},"$vocabulary":{"type":"object","propertyNames":{"$ref":"#/$defs/uriString"},"additionalProperties":{"type":"boolean"}},"$comment":{"type":"string"},"$defs":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"}}},"$defs":{"anchorString":{"type":"string","pattern":"^[A-Za-z_][-A-Za-z0-9._]*$"},"uriString":{"type":"string","format":"uri"},"uriReferenceString":{"type":"string","format":"uri-reference"}}}');
-
-/***/ }),
-
-/***/ 7691:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/format-annotation","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/format-annotation":true},"$dynamicAnchor":"meta","title":"Format vocabulary meta-schema for annotation results","type":["object","boolean"],"properties":{"format":{"type":"string"}}}');
-
-/***/ }),
-
-/***/ 8944:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/meta-data","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/meta-data":true},"$dynamicAnchor":"meta","title":"Meta-data vocabulary meta-schema","type":["object","boolean"],"properties":{"title":{"type":"string"},"description":{"type":"string"},"default":true,"deprecated":{"type":"boolean","default":false},"readOnly":{"type":"boolean","default":false},"writeOnly":{"type":"boolean","default":false},"examples":{"type":"array","items":true}}}');
-
-/***/ }),
-
-/***/ 7346:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/unevaluated","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/unevaluated":true},"$dynamicAnchor":"meta","title":"Unevaluated applicator vocabulary meta-schema","type":["object","boolean"],"properties":{"unevaluatedItems":{"$dynamicRef":"#meta"},"unevaluatedProperties":{"$dynamicRef":"#meta"}}}');
-
-/***/ }),
-
-/***/ 6076:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/validation","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/validation":true},"$dynamicAnchor":"meta","title":"Validation vocabulary meta-schema","type":["object","boolean"],"properties":{"type":{"anyOf":[{"$ref":"#/$defs/simpleTypes"},{"type":"array","items":{"$ref":"#/$defs/simpleTypes"},"minItems":1,"uniqueItems":true}]},"const":true,"enum":{"type":"array","items":true},"multipleOf":{"type":"number","exclusiveMinimum":0},"maximum":{"type":"number"},"exclusiveMaximum":{"type":"number"},"minimum":{"type":"number"},"exclusiveMinimum":{"type":"number"},"maxLength":{"$ref":"#/$defs/nonNegativeInteger"},"minLength":{"$ref":"#/$defs/nonNegativeIntegerDefault0"},"pattern":{"type":"string","format":"regex"},"maxItems":{"$ref":"#/$defs/nonNegativeInteger"},"minItems":{"$ref":"#/$defs/nonNegativeIntegerDefault0"},"uniqueItems":{"type":"boolean","default":false},"maxContains":{"$ref":"#/$defs/nonNegativeInteger"},"minContains":{"$ref":"#/$defs/nonNegativeInteger","default":1},"maxProperties":{"$ref":"#/$defs/nonNegativeInteger"},"minProperties":{"$ref":"#/$defs/nonNegativeIntegerDefault0"},"required":{"$ref":"#/$defs/stringArray"},"dependentRequired":{"type":"object","additionalProperties":{"$ref":"#/$defs/stringArray"}}},"$defs":{"nonNegativeInteger":{"type":"integer","minimum":0},"nonNegativeIntegerDefault0":{"$ref":"#/$defs/nonNegativeInteger","default":0},"simpleTypes":{"enum":["array","boolean","integer","null","number","object","string"]},"stringArray":{"type":"array","items":{"type":"string"},"uniqueItems":true,"default":[]}}}');
-
-/***/ }),
-
-/***/ 5559:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/schema","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/core":true,"https://json-schema.org/draft/2020-12/vocab/applicator":true,"https://json-schema.org/draft/2020-12/vocab/unevaluated":true,"https://json-schema.org/draft/2020-12/vocab/validation":true,"https://json-schema.org/draft/2020-12/vocab/meta-data":true,"https://json-schema.org/draft/2020-12/vocab/format-annotation":true,"https://json-schema.org/draft/2020-12/vocab/content":true},"$dynamicAnchor":"meta","title":"Core and Validation specifications meta-schema","allOf":[{"$ref":"meta/core"},{"$ref":"meta/applicator"},{"$ref":"meta/unevaluated"},{"$ref":"meta/validation"},{"$ref":"meta/meta-data"},{"$ref":"meta/format-annotation"},{"$ref":"meta/content"}],"type":["object","boolean"],"$comment":"This meta-schema also defines keywords that have appeared in previous drafts in order to prevent incompatible extensions as they remain in common use.","properties":{"definitions":{"$comment":"\\"definitions\\" has been replaced by \\"$defs\\".","type":"object","additionalProperties":{"$dynamicRef":"#meta"},"deprecated":true,"default":{}},"dependencies":{"$comment":"\\"dependencies\\" has been split and replaced by \\"dependentSchemas\\" and \\"dependentRequired\\" in order to serve their differing semantics.","type":"object","additionalProperties":{"anyOf":[{"$dynamicRef":"#meta"},{"$ref":"meta/validation#/$defs/stringArray"}]},"deprecated":true,"default":{}},"$recursiveAnchor":{"$comment":"\\"$recursiveAnchor\\" has been replaced by \\"$dynamicAnchor\\".","$ref":"meta/core#/$defs/anchorString","deprecated":true},"$recursiveRef":{"$comment":"\\"$recursiveRef\\" has been replaced by \\"$dynamicRef\\".","$ref":"meta/core#/$defs/uriReferenceString","deprecated":true}}}');
-
-/***/ }),
-
-/***/ 8978:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"id":"http://json-schema.org/draft-04/schema#","$schema":"http://json-schema.org/draft-04/schema#","description":"Core schema meta-schema","definitions":{"schemaArray":{"type":"array","minItems":1,"items":{"$ref":"#"}},"positiveInteger":{"type":"integer","minimum":0},"positiveIntegerDefault0":{"allOf":[{"$ref":"#/definitions/positiveInteger"},{"default":0}]},"simpleTypes":{"enum":["array","boolean","integer","null","number","object","string"]},"stringArray":{"type":"array","items":{"type":"string"},"minItems":1,"uniqueItems":true}},"type":"object","properties":{"id":{"type":"string","format":"uri"},"$schema":{"type":"string","format":"uri"},"title":{"type":"string"},"description":{"type":"string"},"default":{},"multipleOf":{"type":"number","minimum":0,"exclusiveMinimum":true},"maximum":{"type":"number"},"exclusiveMaximum":{"type":"boolean","default":false},"minimum":{"type":"number"},"exclusiveMinimum":{"type":"boolean","default":false},"maxLength":{"$ref":"#/definitions/positiveInteger"},"minLength":{"$ref":"#/definitions/positiveIntegerDefault0"},"pattern":{"type":"string","format":"regex"},"additionalItems":{"anyOf":[{"type":"boolean"},{"$ref":"#"}],"default":{}},"items":{"anyOf":[{"$ref":"#"},{"$ref":"#/definitions/schemaArray"}],"default":{}},"maxItems":{"$ref":"#/definitions/positiveInteger"},"minItems":{"$ref":"#/definitions/positiveIntegerDefault0"},"uniqueItems":{"type":"boolean","default":false},"maxProperties":{"$ref":"#/definitions/positiveInteger"},"minProperties":{"$ref":"#/definitions/positiveIntegerDefault0"},"required":{"$ref":"#/definitions/stringArray"},"additionalProperties":{"anyOf":[{"type":"boolean"},{"$ref":"#"}],"default":{}},"definitions":{"type":"object","additionalProperties":{"$ref":"#"},"default":{}},"properties":{"type":"object","additionalProperties":{"$ref":"#"},"default":{}},"patternProperties":{"type":"object","additionalProperties":{"$ref":"#"},"default":{}},"dependencies":{"type":"object","additionalProperties":{"anyOf":[{"$ref":"#"},{"$ref":"#/definitions/stringArray"}]}},"enum":{"type":"array","minItems":1,"uniqueItems":true},"type":{"anyOf":[{"$ref":"#/definitions/simpleTypes"},{"type":"array","items":{"$ref":"#/definitions/simpleTypes"},"minItems":1,"uniqueItems":true}]},"allOf":{"$ref":"#/definitions/schemaArray"},"anyOf":{"$ref":"#/definitions/schemaArray"},"oneOf":{"$ref":"#/definitions/schemaArray"},"not":{"$ref":"#"}},"dependencies":{"exclusiveMaximum":["maximum"],"exclusiveMinimum":["minimum"]},"default":{}}');
-
-/***/ }),
-
-/***/ 4775:
-/***/ ((module) => {
-
-module.exports = JSON.parse('{"$id":"https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#","description":"Meta-schema for $data reference (JSON AnySchema extension proposal)","type":"object","required":["$data"],"properties":{"$data":{"type":"string","anyOf":[{"format":"relative-json-pointer"},{"format":"json-pointer"}]}},"additionalProperties":false}');
-
-/***/ }),
-
-/***/ 4109:
-/***/ ((module) => {
-
-module.exports = {"i8":"7.0.8"};
-
-/***/ })
-
-/******/ });
-/************************************************************************/
-/******/ // The module cache
-/******/ var __webpack_module_cache__ = {};
-/******/ 
-/******/ // The require function
-/******/ function __nccwpck_require__(moduleId) {
-/******/ 	// Check if module is in cache
-/******/ 	var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 	if (cachedModule !== undefined) {
-/******/ 		return cachedModule.exports;
-/******/ 	}
-/******/ 	// Create a new module (and put it into the cache)
-/******/ 	var module = __webpack_module_cache__[moduleId] = {
-/******/ 		// no module.id needed
-/******/ 		// no module.loaded needed
-/******/ 		exports: {}
-/******/ 	};
-/******/ 
-/******/ 	// Execute the module function
-/******/ 	var threw = true;
-/******/ 	try {
-/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nccwpck_require__);
-/******/ 		threw = false;
-/******/ 	} finally {
-/******/ 		if(threw) delete __webpack_module_cache__[moduleId];
-/******/ 	}
-/******/ 
-/******/ 	// Return the exports of the module
-/******/ 	return module.exports;
-/******/ }
-/******/ 
-/************************************************************************/
-/******/ /* webpack/runtime/compat get default export */
-/******/ (() => {
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__nccwpck_require__.n = (module) => {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			() => (module['default']) :
-/******/ 			() => (module);
-/******/ 		__nccwpck_require__.d(getter, { a: getter });
-/******/ 		return getter;
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/define property getters */
-/******/ (() => {
-/******/ 	// define getter functions for harmony exports
-/******/ 	__nccwpck_require__.d = (exports, definition) => {
-/******/ 		for(var key in definition) {
-/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
-/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
-/******/ 			}
-/******/ 		}
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/hasOwnProperty shorthand */
-/******/ (() => {
-/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/make namespace object */
-/******/ (() => {
-/******/ 	// define __esModule on exports
-/******/ 	__nccwpck_require__.r = (exports) => {
-/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
-/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
-/******/ 		}
-/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
-/******/ 	};
-/******/ })();
-/******/ 
-/******/ /* webpack/runtime/compat */
-/******/ 
-/******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
-/******/ 
-/************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
 
 // NAMESPACE OBJECT: ./node_modules/micromark/lib/constructs.js
 var constructs_namespaceObject = {};
@@ -72869,8 +64265,8 @@ const formatOutput = (failOutput, options) => {
                         ];
                         const oasMismatchedParam = oasFullPath.flatMap(p => p.type === 'parameter' ? [p.name] : [])[i.parameterIndex];
                         const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
-                        external_assert_default()(oasMismatchedParam);
-                        external_assert_default()(docMismatchedParam);
+                        external_assert_default()(oasMismatchedParam, `No path parameter with index ${i.parameterIndex} in oas path`);
+                        external_assert_default()(docMismatchedParam, `No path parameter with index ${i.parameterIndex} in doc path`);
                         return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
                     case 'host-mismatch':
                         throw new Error('Host mismatch not implemented');
@@ -73061,14 +64457,21 @@ const getGroups = (oasIndexToDocIndices, docIndexToOasIndices) => {
 };
 const evaluateConfiguration = (config, isOasIndexFirst, inconsistencyMap) => {
     let totalInconsistencies = 0;
+    let everyHasMethodMismatch = true;
     for (const [i1, i2] of config) {
         if (i1 === void 0 || i2 === void 0)
             continue;
         const key = makeKey(isOasIndexFirst ? [i1, i2] : [i2, i1]);
         const inconsistencies = inconsistencyMap.get(key) || [];
+        if (everyHasMethodMismatch &&
+            !inconsistencies.find(i => i.type === 'method-mismatch')) {
+            everyHasMethodMismatch = false;
+        }
         totalInconsistencies += inconsistencies.length;
     }
-    return totalInconsistencies;
+    return config.length > 1 && everyHasMethodMismatch
+        ? Infinity
+        : totalInconsistencies;
 };
 const permute = (arr) => {
     if (arr.length <= 1)
@@ -73086,12 +64489,14 @@ const getBestMatches = (oasGroup, docGroup, inconsistencyMap) => {
     const areMoreInOas = oasGroup.length > docGroup.length;
     const perms = permute(areMoreInOas ? oasGroup : docGroup);
     let minTotalInconsistencies = Infinity;
-    let bestConfiguration = [];
+    let bestConfiguration = null;
     for (const perm of perms) {
         const currentConfig = lodash_es_zip(perm, areMoreInOas ? docGroup : oasGroup);
         const totalInconsistencies = evaluateConfiguration(currentConfig, areMoreInOas, inconsistencyMap);
-        if (totalInconsistencies >= minTotalInconsistencies)
+        if (!Number.isFinite(totalInconsistencies) ||
+            totalInconsistencies >= minTotalInconsistencies) {
             continue;
+        }
         minTotalInconsistencies = totalInconsistencies;
         bestConfiguration = areMoreInOas
             ? currentConfig
@@ -73100,23 +64505,67 @@ const getBestMatches = (oasGroup, docGroup, inconsistencyMap) => {
     return bestConfiguration;
 };
 const matchEndpoints = (groups, inconsistencyMap) => {
-    const matches = [];
+    const res = {
+        bestMatchesOasToDoc: [],
+        unmatchedOas: [],
+        unmatchedDoc: [],
+    };
+    const unmatchedOas = new Set(groups.flatMap(([oas]) => oas));
+    const unmatchedDoc = new Set(groups.flatMap(([, doc]) => doc));
     for (const [oasGroup, docGroup] of groups) {
         if (oasGroup.length === 1 && docGroup.length === 1) {
-            external_assert_default()(oasGroup[0] !== void 0);
-            external_assert_default()(docGroup[0] !== void 0);
-            matches.push([oasGroup[0], docGroup[0]]);
+            const oas = oasGroup[0];
+            const doc = docGroup[0];
+            external_assert_default()(oas !== void 0 && unmatchedOas.has(oas), `Oas endpoint with index ${oas} should be defined and unmatched`);
+            external_assert_default()(doc !== void 0 && unmatchedDoc.has(doc), `Doc endpoint with index ${doc} should be defined and unmatched`);
+            res.bestMatchesOasToDoc.push([oas, doc]);
+            unmatchedOas.delete(oas);
+            unmatchedDoc.delete(doc);
+            continue;
         }
-        else {
-            const bestMatches = getBestMatches(oasGroup, docGroup, inconsistencyMap);
-            for (const [i1, i2] of bestMatches) {
-                if (i1 === void 0 || i2 === void 0)
-                    continue;
-                matches.push([i1, i2]);
-            }
+        // if (oasGroup.length === 1 || docGroup.length === 1) {
+        //   const isOasSingle = oasGroup.length === 1;
+        //   const [[i], multiGroup] = isOasSingle
+        //     ? [oasGroup, docGroup]
+        //     : [docGroup, oasGroup];
+        //   assert(
+        //     i !== void 0,
+        //     `${isOasSingle ? 'Oas' : 'Doc'} endpoint with index ${i} should be defined`,
+        //   );
+        //   const noMethodMatches = multiGroup.every(j => {
+        //     const key = makeKey(isOasSingle ? [i, j] : [j, i]);
+        //     const inconsistencies = inconsistencyMap.get(key) || [];
+        //     return inconsistencies.some(i => i.type === 'method-mismatch');
+        //   });
+        //   if (noMethodMatches) {
+        //     res.unmatchedOas.push(...oasGroup);
+        //     res.unmatchedDoc.push(...docGroup);
+        //     continue;
+        //   }
+        // }
+        const bestMatches = getBestMatches(oasGroup, docGroup, inconsistencyMap);
+        if (!bestMatches) {
+            res.unmatchedOas.push(...oasGroup);
+            res.unmatchedDoc.push(...docGroup);
+            continue;
+        }
+        for (const [i1, i2] of bestMatches) {
+            if (i1 === void 0 || i2 === void 0)
+                continue;
+            external_assert_default()(unmatchedOas.has(i1), `Oas endpoint with index ${i1} should be unmatched`);
+            external_assert_default()(unmatchedDoc.has(i2), `Doc endpoint with index ${i2} should be unmatched`);
+            res.bestMatchesOasToDoc.push([i1, i2]);
+            unmatchedOas.delete(i1);
+            unmatchedDoc.delete(i2);
         }
     }
-    return matches;
+    res.unmatchedOas = [...unmatchedOas];
+    res.unmatchedDoc = [...unmatchedDoc];
+    external_assert_default()(groups.reduce((acc, g) => acc + g[0].length + g[1].length, 0) ===
+        res.bestMatchesOasToDoc.length * 2 +
+            res.unmatchedOas.length +
+            res.unmatchedDoc.length, 'Number of indices stay the same');
+    return res;
 };
 const findBestMatches = (oasIndexToDocIndices, docIndexToOasIndices, inconsistenciesMap) => {
     const groups = getGroups(oasIndexToDocIndices, docIndexToOasIndices);
@@ -99776,7 +91225,7 @@ const run = async () => {
                     if (docIdToUnmatchedEndpoint.has(id))
                         return;
                     const { position } = node;
-                    external_assert_default()(position);
+                    external_assert_default()(position, 'All nodes should have a position');
                     const endpoint = docCreateEndpoint(method, path, position.start.line);
                     docIdToUnmatchedEndpoint.set(id, endpoint);
                 });
@@ -99804,7 +91253,7 @@ const run = async () => {
                     if (docIdToUnmatchedEndpoint.has(id))
                         continue;
                     const { position } = sibling;
-                    external_assert_default()(position);
+                    external_assert_default()(position, 'All nodes should have a position');
                     const endpoint = docCreateEndpoint(method, path, position.start.line);
                     docIdToUnmatchedEndpoint.set(id, endpoint);
                 }
@@ -100033,11 +91482,23 @@ const run = async () => {
             }
         }
         const bestMatches = findBestMatches(oasIndexToDocIndicesInconsistencyMatches, docIndexToOasIndicesInconsistencyMatches, inconsistenciesMap);
-        for (const [i, j] of bestMatches) {
+        for (const i of bestMatches.unmatchedOas) {
+            const endpoint = unmatchedOasEndpoints[i];
+            external_assert_default()(endpoint, `No unmatched oas endpoint with index ${i}`);
+            failOutput.push({ type: 'only-in-oas', endpoint });
+        }
+        for (const i of bestMatches.unmatchedDoc) {
+            const endpoint = unmatchedDocEndpoints[i];
+            external_assert_default()(endpoint, `No unmatched doc endpoint with index ${i}`);
+            failOutput.push({ type: 'only-in-doc', endpoint });
+        }
+        for (const [i, j] of bestMatches.bestMatchesOasToDoc) {
             const oasEndpoint = unmatchedOasEndpoints[i];
+            external_assert_default()(oasEndpoint, `No unmatched oas endpoint with index ${i}`);
             const docEndpoint = unmatchedDocEndpoints[j];
+            external_assert_default()(docEndpoint, `No unmatched doc endpoint with index ${i}`);
             const inconsistencies = inconsistenciesMap.get(makeKey([i, j]));
-            external_assert_default()(oasEndpoint && docEndpoint && inconsistencies);
+            external_assert_default()(inconsistencies, `No inconsistencies for [${i}, ${j}]`);
             failOutput.push({
                 type: 'match-with-inconsistenties',
                 oasEndpoint,
@@ -100086,12 +91547,8707 @@ const run = async () => {
     }
 };
 
-;// CONCATENATED MODULE: ./src/index.ts
+
+/***/ }),
+
+/***/ 2877:
+/***/ ((module) => {
+
+module.exports = eval("require")("encoding");
+
+
+/***/ }),
+
+/***/ 9491:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("assert");
+
+/***/ }),
+
+/***/ 852:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("async_hooks");
+
+/***/ }),
+
+/***/ 4300:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("buffer");
+
+/***/ }),
+
+/***/ 6206:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("console");
+
+/***/ }),
+
+/***/ 6113:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("crypto");
+
+/***/ }),
+
+/***/ 7643:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("diagnostics_channel");
+
+/***/ }),
+
+/***/ 2361:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("events");
+
+/***/ }),
+
+/***/ 7147:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("fs");
+
+/***/ }),
+
+/***/ 3685:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("http");
+
+/***/ }),
+
+/***/ 5158:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("http2");
+
+/***/ }),
+
+/***/ 5687:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("https");
+
+/***/ }),
+
+/***/ 1808:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("net");
+
+/***/ }),
+
+/***/ 5673:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:events");
+
+/***/ }),
+
+/***/ 4492:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:stream");
+
+/***/ }),
+
+/***/ 7261:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("node:util");
+
+/***/ }),
+
+/***/ 2037:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("os");
+
+/***/ }),
+
+/***/ 1017:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("path");
+
+/***/ }),
+
+/***/ 4074:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("perf_hooks");
+
+/***/ }),
+
+/***/ 3477:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("querystring");
+
+/***/ }),
+
+/***/ 2781:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("stream");
+
+/***/ }),
+
+/***/ 5356:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("stream/web");
+
+/***/ }),
+
+/***/ 1576:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("string_decoder");
+
+/***/ }),
+
+/***/ 4404:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("tls");
+
+/***/ }),
+
+/***/ 7310:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("url");
+
+/***/ }),
+
+/***/ 3837:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util");
+
+/***/ }),
+
+/***/ 9830:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("util/types");
+
+/***/ }),
+
+/***/ 1267:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("worker_threads");
+
+/***/ }),
+
+/***/ 9796:
+/***/ ((module) => {
+
+module.exports = __WEBPACK_EXTERNAL_createRequire(import.meta.url)("zlib");
+
+/***/ }),
+
+/***/ 2960:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+
+
+const WritableStream = (__nccwpck_require__(4492).Writable)
+const inherits = (__nccwpck_require__(7261).inherits)
+
+const StreamSearch = __nccwpck_require__(1142)
+
+const PartStream = __nccwpck_require__(1620)
+const HeaderParser = __nccwpck_require__(2032)
+
+const DASH = 45
+const B_ONEDASH = Buffer.from('-')
+const B_CRLF = Buffer.from('\r\n')
+const EMPTY_FN = function () {}
+
+function Dicer (cfg) {
+  if (!(this instanceof Dicer)) { return new Dicer(cfg) }
+  WritableStream.call(this, cfg)
+
+  if (!cfg || (!cfg.headerFirst && typeof cfg.boundary !== 'string')) { throw new TypeError('Boundary required') }
+
+  if (typeof cfg.boundary === 'string') { this.setBoundary(cfg.boundary) } else { this._bparser = undefined }
+
+  this._headerFirst = cfg.headerFirst
+
+  this._dashes = 0
+  this._parts = 0
+  this._finished = false
+  this._realFinish = false
+  this._isPreamble = true
+  this._justMatched = false
+  this._firstWrite = true
+  this._inHeader = true
+  this._part = undefined
+  this._cb = undefined
+  this._ignoreData = false
+  this._partOpts = { highWaterMark: cfg.partHwm }
+  this._pause = false
+
+  const self = this
+  this._hparser = new HeaderParser(cfg)
+  this._hparser.on('header', function (header) {
+    self._inHeader = false
+    self._part.emit('header', header)
+  })
+}
+inherits(Dicer, WritableStream)
+
+Dicer.prototype.emit = function (ev) {
+  if (ev === 'finish' && !this._realFinish) {
+    if (!this._finished) {
+      const self = this
+      process.nextTick(function () {
+        self.emit('error', new Error('Unexpected end of multipart data'))
+        if (self._part && !self._ignoreData) {
+          const type = (self._isPreamble ? 'Preamble' : 'Part')
+          self._part.emit('error', new Error(type + ' terminated early due to unexpected end of multipart data'))
+          self._part.push(null)
+          process.nextTick(function () {
+            self._realFinish = true
+            self.emit('finish')
+            self._realFinish = false
+          })
+          return
+        }
+        self._realFinish = true
+        self.emit('finish')
+        self._realFinish = false
+      })
+    }
+  } else { WritableStream.prototype.emit.apply(this, arguments) }
+}
+
+Dicer.prototype._write = function (data, encoding, cb) {
+  // ignore unexpected data (e.g. extra trailer data after finished)
+  if (!this._hparser && !this._bparser) { return cb() }
+
+  if (this._headerFirst && this._isPreamble) {
+    if (!this._part) {
+      this._part = new PartStream(this._partOpts)
+      if (this._events.preamble) { this.emit('preamble', this._part) } else { this._ignore() }
+    }
+    const r = this._hparser.push(data)
+    if (!this._inHeader && r !== undefined && r < data.length) { data = data.slice(r) } else { return cb() }
+  }
+
+  // allows for "easier" testing
+  if (this._firstWrite) {
+    this._bparser.push(B_CRLF)
+    this._firstWrite = false
+  }
+
+  this._bparser.push(data)
+
+  if (this._pause) { this._cb = cb } else { cb() }
+}
+
+Dicer.prototype.reset = function () {
+  this._part = undefined
+  this._bparser = undefined
+  this._hparser = undefined
+}
+
+Dicer.prototype.setBoundary = function (boundary) {
+  const self = this
+  this._bparser = new StreamSearch('\r\n--' + boundary)
+  this._bparser.on('info', function (isMatch, data, start, end) {
+    self._oninfo(isMatch, data, start, end)
+  })
+}
+
+Dicer.prototype._ignore = function () {
+  if (this._part && !this._ignoreData) {
+    this._ignoreData = true
+    this._part.on('error', EMPTY_FN)
+    // we must perform some kind of read on the stream even though we are
+    // ignoring the data, otherwise node's Readable stream will not emit 'end'
+    // after pushing null to the stream
+    this._part.resume()
+  }
+}
+
+Dicer.prototype._oninfo = function (isMatch, data, start, end) {
+  let buf; const self = this; let i = 0; let r; let shouldWriteMore = true
+
+  if (!this._part && this._justMatched && data) {
+    while (this._dashes < 2 && (start + i) < end) {
+      if (data[start + i] === DASH) {
+        ++i
+        ++this._dashes
+      } else {
+        if (this._dashes) { buf = B_ONEDASH }
+        this._dashes = 0
+        break
+      }
+    }
+    if (this._dashes === 2) {
+      if ((start + i) < end && this._events.trailer) { this.emit('trailer', data.slice(start + i, end)) }
+      this.reset()
+      this._finished = true
+      // no more parts will be added
+      if (self._parts === 0) {
+        self._realFinish = true
+        self.emit('finish')
+        self._realFinish = false
+      }
+    }
+    if (this._dashes) { return }
+  }
+  if (this._justMatched) { this._justMatched = false }
+  if (!this._part) {
+    this._part = new PartStream(this._partOpts)
+    this._part._read = function (n) {
+      self._unpause()
+    }
+    if (this._isPreamble && this._events.preamble) { this.emit('preamble', this._part) } else if (this._isPreamble !== true && this._events.part) { this.emit('part', this._part) } else { this._ignore() }
+    if (!this._isPreamble) { this._inHeader = true }
+  }
+  if (data && start < end && !this._ignoreData) {
+    if (this._isPreamble || !this._inHeader) {
+      if (buf) { shouldWriteMore = this._part.push(buf) }
+      shouldWriteMore = this._part.push(data.slice(start, end))
+      if (!shouldWriteMore) { this._pause = true }
+    } else if (!this._isPreamble && this._inHeader) {
+      if (buf) { this._hparser.push(buf) }
+      r = this._hparser.push(data.slice(start, end))
+      if (!this._inHeader && r !== undefined && r < end) { this._oninfo(false, data, start + r, end) }
+    }
+  }
+  if (isMatch) {
+    this._hparser.reset()
+    if (this._isPreamble) { this._isPreamble = false } else {
+      if (start !== end) {
+        ++this._parts
+        this._part.on('end', function () {
+          if (--self._parts === 0) {
+            if (self._finished) {
+              self._realFinish = true
+              self.emit('finish')
+              self._realFinish = false
+            } else {
+              self._unpause()
+            }
+          }
+        })
+      }
+    }
+    this._part.push(null)
+    this._part = undefined
+    this._ignoreData = false
+    this._justMatched = true
+    this._dashes = 0
+  }
+}
+
+Dicer.prototype._unpause = function () {
+  if (!this._pause) { return }
+
+  this._pause = false
+  if (this._cb) {
+    const cb = this._cb
+    this._cb = undefined
+    cb()
+  }
+}
+
+module.exports = Dicer
+
+
+/***/ }),
+
+/***/ 2032:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+
+
+const EventEmitter = (__nccwpck_require__(5673).EventEmitter)
+const inherits = (__nccwpck_require__(7261).inherits)
+const getLimit = __nccwpck_require__(1467)
+
+const StreamSearch = __nccwpck_require__(1142)
+
+const B_DCRLF = Buffer.from('\r\n\r\n')
+const RE_CRLF = /\r\n/g
+const RE_HDR = /^([^:]+):[ \t]?([\x00-\xFF]+)?$/ // eslint-disable-line no-control-regex
+
+function HeaderParser (cfg) {
+  EventEmitter.call(this)
+
+  cfg = cfg || {}
+  const self = this
+  this.nread = 0
+  this.maxed = false
+  this.npairs = 0
+  this.maxHeaderPairs = getLimit(cfg, 'maxHeaderPairs', 2000)
+  this.maxHeaderSize = getLimit(cfg, 'maxHeaderSize', 80 * 1024)
+  this.buffer = ''
+  this.header = {}
+  this.finished = false
+  this.ss = new StreamSearch(B_DCRLF)
+  this.ss.on('info', function (isMatch, data, start, end) {
+    if (data && !self.maxed) {
+      if (self.nread + end - start >= self.maxHeaderSize) {
+        end = self.maxHeaderSize - self.nread + start
+        self.nread = self.maxHeaderSize
+        self.maxed = true
+      } else { self.nread += (end - start) }
+
+      self.buffer += data.toString('binary', start, end)
+    }
+    if (isMatch) { self._finish() }
+  })
+}
+inherits(HeaderParser, EventEmitter)
+
+HeaderParser.prototype.push = function (data) {
+  const r = this.ss.push(data)
+  if (this.finished) { return r }
+}
+
+HeaderParser.prototype.reset = function () {
+  this.finished = false
+  this.buffer = ''
+  this.header = {}
+  this.ss.reset()
+}
+
+HeaderParser.prototype._finish = function () {
+  if (this.buffer) { this._parseHeader() }
+  this.ss.matches = this.ss.maxMatches
+  const header = this.header
+  this.header = {}
+  this.buffer = ''
+  this.finished = true
+  this.nread = this.npairs = 0
+  this.maxed = false
+  this.emit('header', header)
+}
+
+HeaderParser.prototype._parseHeader = function () {
+  if (this.npairs === this.maxHeaderPairs) { return }
+
+  const lines = this.buffer.split(RE_CRLF)
+  const len = lines.length
+  let m, h
+
+  for (var i = 0; i < len; ++i) { // eslint-disable-line no-var
+    if (lines[i].length === 0) { continue }
+    if (lines[i][0] === '\t' || lines[i][0] === ' ') {
+      // folded header content
+      // RFC2822 says to just remove the CRLF and not the whitespace following
+      // it, so we follow the RFC and include the leading whitespace ...
+      if (h) {
+        this.header[h][this.header[h].length - 1] += lines[i]
+        continue
+      }
+    }
+
+    const posColon = lines[i].indexOf(':')
+    if (
+      posColon === -1 ||
+      posColon === 0
+    ) {
+      return
+    }
+    m = RE_HDR.exec(lines[i])
+    h = m[1].toLowerCase()
+    this.header[h] = this.header[h] || []
+    this.header[h].push((m[2] || ''))
+    if (++this.npairs === this.maxHeaderPairs) { break }
+  }
+}
+
+module.exports = HeaderParser
+
+
+/***/ }),
+
+/***/ 1620:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+
+
+const inherits = (__nccwpck_require__(7261).inherits)
+const ReadableStream = (__nccwpck_require__(4492).Readable)
+
+function PartStream (opts) {
+  ReadableStream.call(this, opts)
+}
+inherits(PartStream, ReadableStream)
+
+PartStream.prototype._read = function (n) {}
+
+module.exports = PartStream
+
+
+/***/ }),
+
+/***/ 1142:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+
+
 /**
- * The entrypoint for the action.
+ * Copyright Brian White. All rights reserved.
+ *
+ * @see https://github.com/mscdex/streamsearch
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ *
+ * Based heavily on the Streaming Boyer-Moore-Horspool C++ implementation
+ * by Hongli Lai at: https://github.com/FooBarWidget/boyer-moore-horspool
+ */
+const EventEmitter = (__nccwpck_require__(5673).EventEmitter)
+const inherits = (__nccwpck_require__(7261).inherits)
+
+function SBMH (needle) {
+  if (typeof needle === 'string') {
+    needle = Buffer.from(needle)
+  }
+
+  if (!Buffer.isBuffer(needle)) {
+    throw new TypeError('The needle has to be a String or a Buffer.')
+  }
+
+  const needleLength = needle.length
+
+  if (needleLength === 0) {
+    throw new Error('The needle cannot be an empty String/Buffer.')
+  }
+
+  if (needleLength > 256) {
+    throw new Error('The needle cannot have a length bigger than 256.')
+  }
+
+  this.maxMatches = Infinity
+  this.matches = 0
+
+  this._occ = new Array(256)
+    .fill(needleLength) // Initialize occurrence table.
+  this._lookbehind_size = 0
+  this._needle = needle
+  this._bufpos = 0
+
+  this._lookbehind = Buffer.alloc(needleLength)
+
+  // Populate occurrence table with analysis of the needle,
+  // ignoring last letter.
+  for (var i = 0; i < needleLength - 1; ++i) { // eslint-disable-line no-var
+    this._occ[needle[i]] = needleLength - 1 - i
+  }
+}
+inherits(SBMH, EventEmitter)
+
+SBMH.prototype.reset = function () {
+  this._lookbehind_size = 0
+  this.matches = 0
+  this._bufpos = 0
+}
+
+SBMH.prototype.push = function (chunk, pos) {
+  if (!Buffer.isBuffer(chunk)) {
+    chunk = Buffer.from(chunk, 'binary')
+  }
+  const chlen = chunk.length
+  this._bufpos = pos || 0
+  let r
+  while (r !== chlen && this.matches < this.maxMatches) { r = this._sbmh_feed(chunk) }
+  return r
+}
+
+SBMH.prototype._sbmh_feed = function (data) {
+  const len = data.length
+  const needle = this._needle
+  const needleLength = needle.length
+  const lastNeedleChar = needle[needleLength - 1]
+
+  // Positive: points to a position in `data`
+  //           pos == 3 points to data[3]
+  // Negative: points to a position in the lookbehind buffer
+  //           pos == -2 points to lookbehind[lookbehind_size - 2]
+  let pos = -this._lookbehind_size
+  let ch
+
+  if (pos < 0) {
+    // Lookbehind buffer is not empty. Perform Boyer-Moore-Horspool
+    // search with character lookup code that considers both the
+    // lookbehind buffer and the current round's haystack data.
+    //
+    // Loop until
+    //   there is a match.
+    // or until
+    //   we've moved past the position that requires the
+    //   lookbehind buffer. In this case we switch to the
+    //   optimized loop.
+    // or until
+    //   the character to look at lies outside the haystack.
+    while (pos < 0 && pos <= len - needleLength) {
+      ch = this._sbmh_lookup_char(data, pos + needleLength - 1)
+
+      if (
+        ch === lastNeedleChar &&
+        this._sbmh_memcmp(data, pos, needleLength - 1)
+      ) {
+        this._lookbehind_size = 0
+        ++this.matches
+        this.emit('info', true)
+
+        return (this._bufpos = pos + needleLength)
+      }
+      pos += this._occ[ch]
+    }
+
+    // No match.
+
+    if (pos < 0) {
+      // There's too few data for Boyer-Moore-Horspool to run,
+      // so let's use a different algorithm to skip as much as
+      // we can.
+      // Forward pos until
+      //   the trailing part of lookbehind + data
+      //   looks like the beginning of the needle
+      // or until
+      //   pos == 0
+      while (pos < 0 && !this._sbmh_memcmp(data, pos, len - pos)) { ++pos }
+    }
+
+    if (pos >= 0) {
+      // Discard lookbehind buffer.
+      this.emit('info', false, this._lookbehind, 0, this._lookbehind_size)
+      this._lookbehind_size = 0
+    } else {
+      // Cut off part of the lookbehind buffer that has
+      // been processed and append the entire haystack
+      // into it.
+      const bytesToCutOff = this._lookbehind_size + pos
+      if (bytesToCutOff > 0) {
+        // The cut off data is guaranteed not to contain the needle.
+        this.emit('info', false, this._lookbehind, 0, bytesToCutOff)
+      }
+
+      this._lookbehind.copy(this._lookbehind, 0, bytesToCutOff,
+        this._lookbehind_size - bytesToCutOff)
+      this._lookbehind_size -= bytesToCutOff
+
+      data.copy(this._lookbehind, this._lookbehind_size)
+      this._lookbehind_size += len
+
+      this._bufpos = len
+      return len
+    }
+  }
+
+  pos += (pos >= 0) * this._bufpos
+
+  // Lookbehind buffer is now empty. We only need to check if the
+  // needle is in the haystack.
+  if (data.indexOf(needle, pos) !== -1) {
+    pos = data.indexOf(needle, pos)
+    ++this.matches
+    if (pos > 0) { this.emit('info', true, data, this._bufpos, pos) } else { this.emit('info', true) }
+
+    return (this._bufpos = pos + needleLength)
+  } else {
+    pos = len - needleLength
+  }
+
+  // There was no match. If there's trailing haystack data that we cannot
+  // match yet using the Boyer-Moore-Horspool algorithm (because the trailing
+  // data is less than the needle size) then match using a modified
+  // algorithm that starts matching from the beginning instead of the end.
+  // Whatever trailing data is left after running this algorithm is added to
+  // the lookbehind buffer.
+  while (
+    pos < len &&
+    (
+      data[pos] !== needle[0] ||
+      (
+        (Buffer.compare(
+          data.subarray(pos, pos + len - pos),
+          needle.subarray(0, len - pos)
+        ) !== 0)
+      )
+    )
+  ) {
+    ++pos
+  }
+  if (pos < len) {
+    data.copy(this._lookbehind, 0, pos, pos + (len - pos))
+    this._lookbehind_size = len - pos
+  }
+
+  // Everything until pos is guaranteed not to contain needle data.
+  if (pos > 0) { this.emit('info', false, data, this._bufpos, pos < len ? pos : len) }
+
+  this._bufpos = len
+  return len
+}
+
+SBMH.prototype._sbmh_lookup_char = function (data, pos) {
+  return (pos < 0)
+    ? this._lookbehind[this._lookbehind_size + pos]
+    : data[pos]
+}
+
+SBMH.prototype._sbmh_memcmp = function (data, pos, len) {
+  for (var i = 0; i < len; ++i) { // eslint-disable-line no-var
+    if (this._sbmh_lookup_char(data, pos + i) !== this._needle[i]) { return false }
+  }
+  return true
+}
+
+module.exports = SBMH
+
+
+/***/ }),
+
+/***/ 727:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+
+
+const WritableStream = (__nccwpck_require__(4492).Writable)
+const { inherits } = __nccwpck_require__(7261)
+const Dicer = __nccwpck_require__(2960)
+
+const MultipartParser = __nccwpck_require__(2183)
+const UrlencodedParser = __nccwpck_require__(8306)
+const parseParams = __nccwpck_require__(1854)
+
+function Busboy (opts) {
+  if (!(this instanceof Busboy)) { return new Busboy(opts) }
+
+  if (typeof opts !== 'object') {
+    throw new TypeError('Busboy expected an options-Object.')
+  }
+  if (typeof opts.headers !== 'object') {
+    throw new TypeError('Busboy expected an options-Object with headers-attribute.')
+  }
+  if (typeof opts.headers['content-type'] !== 'string') {
+    throw new TypeError('Missing Content-Type-header.')
+  }
+
+  const {
+    headers,
+    ...streamOptions
+  } = opts
+
+  this.opts = {
+    autoDestroy: false,
+    ...streamOptions
+  }
+  WritableStream.call(this, this.opts)
+
+  this._done = false
+  this._parser = this.getParserByHeaders(headers)
+  this._finished = false
+}
+inherits(Busboy, WritableStream)
+
+Busboy.prototype.emit = function (ev) {
+  if (ev === 'finish') {
+    if (!this._done) {
+      this._parser?.end()
+      return
+    } else if (this._finished) {
+      return
+    }
+    this._finished = true
+  }
+  WritableStream.prototype.emit.apply(this, arguments)
+}
+
+Busboy.prototype.getParserByHeaders = function (headers) {
+  const parsed = parseParams(headers['content-type'])
+
+  const cfg = {
+    defCharset: this.opts.defCharset,
+    fileHwm: this.opts.fileHwm,
+    headers,
+    highWaterMark: this.opts.highWaterMark,
+    isPartAFile: this.opts.isPartAFile,
+    limits: this.opts.limits,
+    parsedConType: parsed,
+    preservePath: this.opts.preservePath
+  }
+
+  if (MultipartParser.detect.test(parsed[0])) {
+    return new MultipartParser(this, cfg)
+  }
+  if (UrlencodedParser.detect.test(parsed[0])) {
+    return new UrlencodedParser(this, cfg)
+  }
+  throw new Error('Unsupported Content-Type.')
+}
+
+Busboy.prototype._write = function (chunk, encoding, cb) {
+  this._parser.write(chunk, cb)
+}
+
+module.exports = Busboy
+module.exports["default"] = Busboy
+module.exports.Busboy = Busboy
+
+module.exports.Dicer = Dicer
+
+
+/***/ }),
+
+/***/ 2183:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+
+
+// TODO:
+//  * support 1 nested multipart level
+//    (see second multipart example here:
+//     http://www.w3.org/TR/html401/interact/forms.html#didx-multipartform-data)
+//  * support limits.fieldNameSize
+//     -- this will require modifications to utils.parseParams
+
+const { Readable } = __nccwpck_require__(4492)
+const { inherits } = __nccwpck_require__(7261)
+
+const Dicer = __nccwpck_require__(2960)
+
+const parseParams = __nccwpck_require__(1854)
+const decodeText = __nccwpck_require__(4619)
+const basename = __nccwpck_require__(8647)
+const getLimit = __nccwpck_require__(1467)
+
+const RE_BOUNDARY = /^boundary$/i
+const RE_FIELD = /^form-data$/i
+const RE_CHARSET = /^charset$/i
+const RE_FILENAME = /^filename$/i
+const RE_NAME = /^name$/i
+
+Multipart.detect = /^multipart\/form-data/i
+function Multipart (boy, cfg) {
+  let i
+  let len
+  const self = this
+  let boundary
+  const limits = cfg.limits
+  const isPartAFile = cfg.isPartAFile || ((fieldName, contentType, fileName) => (contentType === 'application/octet-stream' || fileName !== undefined))
+  const parsedConType = cfg.parsedConType || []
+  const defCharset = cfg.defCharset || 'utf8'
+  const preservePath = cfg.preservePath
+  const fileOpts = { highWaterMark: cfg.fileHwm }
+
+  for (i = 0, len = parsedConType.length; i < len; ++i) {
+    if (Array.isArray(parsedConType[i]) &&
+      RE_BOUNDARY.test(parsedConType[i][0])) {
+      boundary = parsedConType[i][1]
+      break
+    }
+  }
+
+  function checkFinished () {
+    if (nends === 0 && finished && !boy._done) {
+      finished = false
+      self.end()
+    }
+  }
+
+  if (typeof boundary !== 'string') { throw new Error('Multipart: Boundary not found') }
+
+  const fieldSizeLimit = getLimit(limits, 'fieldSize', 1 * 1024 * 1024)
+  const fileSizeLimit = getLimit(limits, 'fileSize', Infinity)
+  const filesLimit = getLimit(limits, 'files', Infinity)
+  const fieldsLimit = getLimit(limits, 'fields', Infinity)
+  const partsLimit = getLimit(limits, 'parts', Infinity)
+  const headerPairsLimit = getLimit(limits, 'headerPairs', 2000)
+  const headerSizeLimit = getLimit(limits, 'headerSize', 80 * 1024)
+
+  let nfiles = 0
+  let nfields = 0
+  let nends = 0
+  let curFile
+  let curField
+  let finished = false
+
+  this._needDrain = false
+  this._pause = false
+  this._cb = undefined
+  this._nparts = 0
+  this._boy = boy
+
+  const parserCfg = {
+    boundary,
+    maxHeaderPairs: headerPairsLimit,
+    maxHeaderSize: headerSizeLimit,
+    partHwm: fileOpts.highWaterMark,
+    highWaterMark: cfg.highWaterMark
+  }
+
+  this.parser = new Dicer(parserCfg)
+  this.parser.on('drain', function () {
+    self._needDrain = false
+    if (self._cb && !self._pause) {
+      const cb = self._cb
+      self._cb = undefined
+      cb()
+    }
+  }).on('part', function onPart (part) {
+    if (++self._nparts > partsLimit) {
+      self.parser.removeListener('part', onPart)
+      self.parser.on('part', skipPart)
+      boy.hitPartsLimit = true
+      boy.emit('partsLimit')
+      return skipPart(part)
+    }
+
+    // hack because streams2 _always_ doesn't emit 'end' until nextTick, so let
+    // us emit 'end' early since we know the part has ended if we are already
+    // seeing the next part
+    if (curField) {
+      const field = curField
+      field.emit('end')
+      field.removeAllListeners('end')
+    }
+
+    part.on('header', function (header) {
+      let contype
+      let fieldname
+      let parsed
+      let charset
+      let encoding
+      let filename
+      let nsize = 0
+
+      if (header['content-type']) {
+        parsed = parseParams(header['content-type'][0])
+        if (parsed[0]) {
+          contype = parsed[0].toLowerCase()
+          for (i = 0, len = parsed.length; i < len; ++i) {
+            if (RE_CHARSET.test(parsed[i][0])) {
+              charset = parsed[i][1].toLowerCase()
+              break
+            }
+          }
+        }
+      }
+
+      if (contype === undefined) { contype = 'text/plain' }
+      if (charset === undefined) { charset = defCharset }
+
+      if (header['content-disposition']) {
+        parsed = parseParams(header['content-disposition'][0])
+        if (!RE_FIELD.test(parsed[0])) { return skipPart(part) }
+        for (i = 0, len = parsed.length; i < len; ++i) {
+          if (RE_NAME.test(parsed[i][0])) {
+            fieldname = parsed[i][1]
+          } else if (RE_FILENAME.test(parsed[i][0])) {
+            filename = parsed[i][1]
+            if (!preservePath) { filename = basename(filename) }
+          }
+        }
+      } else { return skipPart(part) }
+
+      if (header['content-transfer-encoding']) { encoding = header['content-transfer-encoding'][0].toLowerCase() } else { encoding = '7bit' }
+
+      let onData,
+        onEnd
+
+      if (isPartAFile(fieldname, contype, filename)) {
+        // file/binary field
+        if (nfiles === filesLimit) {
+          if (!boy.hitFilesLimit) {
+            boy.hitFilesLimit = true
+            boy.emit('filesLimit')
+          }
+          return skipPart(part)
+        }
+
+        ++nfiles
+
+        if (!boy._events.file) {
+          self.parser._ignore()
+          return
+        }
+
+        ++nends
+        const file = new FileStream(fileOpts)
+        curFile = file
+        file.on('end', function () {
+          --nends
+          self._pause = false
+          checkFinished()
+          if (self._cb && !self._needDrain) {
+            const cb = self._cb
+            self._cb = undefined
+            cb()
+          }
+        })
+        file._read = function (n) {
+          if (!self._pause) { return }
+          self._pause = false
+          if (self._cb && !self._needDrain) {
+            const cb = self._cb
+            self._cb = undefined
+            cb()
+          }
+        }
+        boy.emit('file', fieldname, file, filename, encoding, contype)
+
+        onData = function (data) {
+          if ((nsize += data.length) > fileSizeLimit) {
+            const extralen = fileSizeLimit - nsize + data.length
+            if (extralen > 0) { file.push(data.slice(0, extralen)) }
+            file.truncated = true
+            file.bytesRead = fileSizeLimit
+            part.removeAllListeners('data')
+            file.emit('limit')
+            return
+          } else if (!file.push(data)) { self._pause = true }
+
+          file.bytesRead = nsize
+        }
+
+        onEnd = function () {
+          curFile = undefined
+          file.push(null)
+        }
+      } else {
+        // non-file field
+        if (nfields === fieldsLimit) {
+          if (!boy.hitFieldsLimit) {
+            boy.hitFieldsLimit = true
+            boy.emit('fieldsLimit')
+          }
+          return skipPart(part)
+        }
+
+        ++nfields
+        ++nends
+        let buffer = ''
+        let truncated = false
+        curField = part
+
+        onData = function (data) {
+          if ((nsize += data.length) > fieldSizeLimit) {
+            const extralen = (fieldSizeLimit - (nsize - data.length))
+            buffer += data.toString('binary', 0, extralen)
+            truncated = true
+            part.removeAllListeners('data')
+          } else { buffer += data.toString('binary') }
+        }
+
+        onEnd = function () {
+          curField = undefined
+          if (buffer.length) { buffer = decodeText(buffer, 'binary', charset) }
+          boy.emit('field', fieldname, buffer, false, truncated, encoding, contype)
+          --nends
+          checkFinished()
+        }
+      }
+
+      /* As of node@2efe4ab761666 (v0.10.29+/v0.11.14+), busboy had become
+         broken. Streams2/streams3 is a huge black box of confusion, but
+         somehow overriding the sync state seems to fix things again (and still
+         seems to work for previous node versions).
+      */
+      part._readableState.sync = false
+
+      part.on('data', onData)
+      part.on('end', onEnd)
+    }).on('error', function (err) {
+      if (curFile) { curFile.emit('error', err) }
+    })
+  }).on('error', function (err) {
+    boy.emit('error', err)
+  }).on('finish', function () {
+    finished = true
+    checkFinished()
+  })
+}
+
+Multipart.prototype.write = function (chunk, cb) {
+  const r = this.parser.write(chunk)
+  if (r && !this._pause) {
+    cb()
+  } else {
+    this._needDrain = !r
+    this._cb = cb
+  }
+}
+
+Multipart.prototype.end = function () {
+  const self = this
+
+  if (self.parser.writable) {
+    self.parser.end()
+  } else if (!self._boy._done) {
+    process.nextTick(function () {
+      self._boy._done = true
+      self._boy.emit('finish')
+    })
+  }
+}
+
+function skipPart (part) {
+  part.resume()
+}
+
+function FileStream (opts) {
+  Readable.call(this, opts)
+
+  this.bytesRead = 0
+
+  this.truncated = false
+}
+
+inherits(FileStream, Readable)
+
+FileStream.prototype._read = function (n) {}
+
+module.exports = Multipart
+
+
+/***/ }),
+
+/***/ 8306:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+
+
+const Decoder = __nccwpck_require__(7100)
+const decodeText = __nccwpck_require__(4619)
+const getLimit = __nccwpck_require__(1467)
+
+const RE_CHARSET = /^charset$/i
+
+UrlEncoded.detect = /^application\/x-www-form-urlencoded/i
+function UrlEncoded (boy, cfg) {
+  const limits = cfg.limits
+  const parsedConType = cfg.parsedConType
+  this.boy = boy
+
+  this.fieldSizeLimit = getLimit(limits, 'fieldSize', 1 * 1024 * 1024)
+  this.fieldNameSizeLimit = getLimit(limits, 'fieldNameSize', 100)
+  this.fieldsLimit = getLimit(limits, 'fields', Infinity)
+
+  let charset
+  for (var i = 0, len = parsedConType.length; i < len; ++i) { // eslint-disable-line no-var
+    if (Array.isArray(parsedConType[i]) &&
+        RE_CHARSET.test(parsedConType[i][0])) {
+      charset = parsedConType[i][1].toLowerCase()
+      break
+    }
+  }
+
+  if (charset === undefined) { charset = cfg.defCharset || 'utf8' }
+
+  this.decoder = new Decoder()
+  this.charset = charset
+  this._fields = 0
+  this._state = 'key'
+  this._checkingBytes = true
+  this._bytesKey = 0
+  this._bytesVal = 0
+  this._key = ''
+  this._val = ''
+  this._keyTrunc = false
+  this._valTrunc = false
+  this._hitLimit = false
+}
+
+UrlEncoded.prototype.write = function (data, cb) {
+  if (this._fields === this.fieldsLimit) {
+    if (!this.boy.hitFieldsLimit) {
+      this.boy.hitFieldsLimit = true
+      this.boy.emit('fieldsLimit')
+    }
+    return cb()
+  }
+
+  let idxeq; let idxamp; let i; let p = 0; const len = data.length
+
+  while (p < len) {
+    if (this._state === 'key') {
+      idxeq = idxamp = undefined
+      for (i = p; i < len; ++i) {
+        if (!this._checkingBytes) { ++p }
+        if (data[i] === 0x3D/* = */) {
+          idxeq = i
+          break
+        } else if (data[i] === 0x26/* & */) {
+          idxamp = i
+          break
+        }
+        if (this._checkingBytes && this._bytesKey === this.fieldNameSizeLimit) {
+          this._hitLimit = true
+          break
+        } else if (this._checkingBytes) { ++this._bytesKey }
+      }
+
+      if (idxeq !== undefined) {
+        // key with assignment
+        if (idxeq > p) { this._key += this.decoder.write(data.toString('binary', p, idxeq)) }
+        this._state = 'val'
+
+        this._hitLimit = false
+        this._checkingBytes = true
+        this._val = ''
+        this._bytesVal = 0
+        this._valTrunc = false
+        this.decoder.reset()
+
+        p = idxeq + 1
+      } else if (idxamp !== undefined) {
+        // key with no assignment
+        ++this._fields
+        let key; const keyTrunc = this._keyTrunc
+        if (idxamp > p) { key = (this._key += this.decoder.write(data.toString('binary', p, idxamp))) } else { key = this._key }
+
+        this._hitLimit = false
+        this._checkingBytes = true
+        this._key = ''
+        this._bytesKey = 0
+        this._keyTrunc = false
+        this.decoder.reset()
+
+        if (key.length) {
+          this.boy.emit('field', decodeText(key, 'binary', this.charset),
+            '',
+            keyTrunc,
+            false)
+        }
+
+        p = idxamp + 1
+        if (this._fields === this.fieldsLimit) { return cb() }
+      } else if (this._hitLimit) {
+        // we may not have hit the actual limit if there are encoded bytes...
+        if (i > p) { this._key += this.decoder.write(data.toString('binary', p, i)) }
+        p = i
+        if ((this._bytesKey = this._key.length) === this.fieldNameSizeLimit) {
+          // yep, we actually did hit the limit
+          this._checkingBytes = false
+          this._keyTrunc = true
+        }
+      } else {
+        if (p < len) { this._key += this.decoder.write(data.toString('binary', p)) }
+        p = len
+      }
+    } else {
+      idxamp = undefined
+      for (i = p; i < len; ++i) {
+        if (!this._checkingBytes) { ++p }
+        if (data[i] === 0x26/* & */) {
+          idxamp = i
+          break
+        }
+        if (this._checkingBytes && this._bytesVal === this.fieldSizeLimit) {
+          this._hitLimit = true
+          break
+        } else if (this._checkingBytes) { ++this._bytesVal }
+      }
+
+      if (idxamp !== undefined) {
+        ++this._fields
+        if (idxamp > p) { this._val += this.decoder.write(data.toString('binary', p, idxamp)) }
+        this.boy.emit('field', decodeText(this._key, 'binary', this.charset),
+          decodeText(this._val, 'binary', this.charset),
+          this._keyTrunc,
+          this._valTrunc)
+        this._state = 'key'
+
+        this._hitLimit = false
+        this._checkingBytes = true
+        this._key = ''
+        this._bytesKey = 0
+        this._keyTrunc = false
+        this.decoder.reset()
+
+        p = idxamp + 1
+        if (this._fields === this.fieldsLimit) { return cb() }
+      } else if (this._hitLimit) {
+        // we may not have hit the actual limit if there are encoded bytes...
+        if (i > p) { this._val += this.decoder.write(data.toString('binary', p, i)) }
+        p = i
+        if ((this._val === '' && this.fieldSizeLimit === 0) ||
+            (this._bytesVal = this._val.length) === this.fieldSizeLimit) {
+          // yep, we actually did hit the limit
+          this._checkingBytes = false
+          this._valTrunc = true
+        }
+      } else {
+        if (p < len) { this._val += this.decoder.write(data.toString('binary', p)) }
+        p = len
+      }
+    }
+  }
+  cb()
+}
+
+UrlEncoded.prototype.end = function () {
+  if (this.boy._done) { return }
+
+  if (this._state === 'key' && this._key.length > 0) {
+    this.boy.emit('field', decodeText(this._key, 'binary', this.charset),
+      '',
+      this._keyTrunc,
+      false)
+  } else if (this._state === 'val') {
+    this.boy.emit('field', decodeText(this._key, 'binary', this.charset),
+      decodeText(this._val, 'binary', this.charset),
+      this._keyTrunc,
+      this._valTrunc)
+  }
+  this.boy._done = true
+  this.boy.emit('finish')
+}
+
+module.exports = UrlEncoded
+
+
+/***/ }),
+
+/***/ 7100:
+/***/ ((module) => {
+
+
+
+const RE_PLUS = /\+/g
+
+const HEX = [
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+]
+
+function Decoder () {
+  this.buffer = undefined
+}
+Decoder.prototype.write = function (str) {
+  // Replace '+' with ' ' before decoding
+  str = str.replace(RE_PLUS, ' ')
+  let res = ''
+  let i = 0; let p = 0; const len = str.length
+  for (; i < len; ++i) {
+    if (this.buffer !== undefined) {
+      if (!HEX[str.charCodeAt(i)]) {
+        res += '%' + this.buffer
+        this.buffer = undefined
+        --i // retry character
+      } else {
+        this.buffer += str[i]
+        ++p
+        if (this.buffer.length === 2) {
+          res += String.fromCharCode(parseInt(this.buffer, 16))
+          this.buffer = undefined
+        }
+      }
+    } else if (str[i] === '%') {
+      if (i > p) {
+        res += str.substring(p, i)
+        p = i
+      }
+      this.buffer = ''
+      ++p
+    }
+  }
+  if (p < len && this.buffer === undefined) { res += str.substring(p) }
+  return res
+}
+Decoder.prototype.reset = function () {
+  this.buffer = undefined
+}
+
+module.exports = Decoder
+
+
+/***/ }),
+
+/***/ 8647:
+/***/ ((module) => {
+
+
+
+module.exports = function basename (path) {
+  if (typeof path !== 'string') { return '' }
+  for (var i = path.length - 1; i >= 0; --i) { // eslint-disable-line no-var
+    switch (path.charCodeAt(i)) {
+      case 0x2F: // '/'
+      case 0x5C: // '\'
+        path = path.slice(i + 1)
+        return (path === '..' || path === '.' ? '' : path)
+    }
+  }
+  return (path === '..' || path === '.' ? '' : path)
+}
+
+
+/***/ }),
+
+/***/ 4619:
+/***/ (function(module) {
+
+
+
+// Node has always utf-8
+const utf8Decoder = new TextDecoder('utf-8')
+const textDecoders = new Map([
+  ['utf-8', utf8Decoder],
+  ['utf8', utf8Decoder]
+])
+
+function getDecoder (charset) {
+  let lc
+  while (true) {
+    switch (charset) {
+      case 'utf-8':
+      case 'utf8':
+        return decoders.utf8
+      case 'latin1':
+      case 'ascii': // TODO: Make these a separate, strict decoder?
+      case 'us-ascii':
+      case 'iso-8859-1':
+      case 'iso8859-1':
+      case 'iso88591':
+      case 'iso_8859-1':
+      case 'windows-1252':
+      case 'iso_8859-1:1987':
+      case 'cp1252':
+      case 'x-cp1252':
+        return decoders.latin1
+      case 'utf16le':
+      case 'utf-16le':
+      case 'ucs2':
+      case 'ucs-2':
+        return decoders.utf16le
+      case 'base64':
+        return decoders.base64
+      default:
+        if (lc === undefined) {
+          lc = true
+          charset = charset.toLowerCase()
+          continue
+        }
+        return decoders.other.bind(charset)
+    }
+  }
+}
+
+const decoders = {
+  utf8: (data, sourceEncoding) => {
+    if (data.length === 0) {
+      return ''
+    }
+    if (typeof data === 'string') {
+      data = Buffer.from(data, sourceEncoding)
+    }
+    return data.utf8Slice(0, data.length)
+  },
+
+  latin1: (data, sourceEncoding) => {
+    if (data.length === 0) {
+      return ''
+    }
+    if (typeof data === 'string') {
+      return data
+    }
+    return data.latin1Slice(0, data.length)
+  },
+
+  utf16le: (data, sourceEncoding) => {
+    if (data.length === 0) {
+      return ''
+    }
+    if (typeof data === 'string') {
+      data = Buffer.from(data, sourceEncoding)
+    }
+    return data.ucs2Slice(0, data.length)
+  },
+
+  base64: (data, sourceEncoding) => {
+    if (data.length === 0) {
+      return ''
+    }
+    if (typeof data === 'string') {
+      data = Buffer.from(data, sourceEncoding)
+    }
+    return data.base64Slice(0, data.length)
+  },
+
+  other: (data, sourceEncoding) => {
+    if (data.length === 0) {
+      return ''
+    }
+    if (typeof data === 'string') {
+      data = Buffer.from(data, sourceEncoding)
+    }
+
+    if (textDecoders.has(this.toString())) {
+      try {
+        return textDecoders.get(this).decode(data)
+      } catch (e) { }
+    }
+    return typeof data === 'string'
+      ? data
+      : data.toString()
+  }
+}
+
+function decodeText (text, sourceEncoding, destEncoding) {
+  if (text) {
+    return getDecoder(destEncoding)(text, sourceEncoding)
+  }
+  return text
+}
+
+module.exports = decodeText
+
+
+/***/ }),
+
+/***/ 1467:
+/***/ ((module) => {
+
+
+
+module.exports = function getLimit (limits, name, defaultLimit) {
+  if (
+    !limits ||
+    limits[name] === undefined ||
+    limits[name] === null
+  ) { return defaultLimit }
+
+  if (
+    typeof limits[name] !== 'number' ||
+    isNaN(limits[name])
+  ) { throw new TypeError('Limit ' + name + ' is not a valid number') }
+
+  return limits[name]
+}
+
+
+/***/ }),
+
+/***/ 1854:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+/* eslint-disable object-property-newline */
+
+
+const decodeText = __nccwpck_require__(4619)
+
+const RE_ENCODED = /%[a-fA-F0-9][a-fA-F0-9]/g
+
+const EncodedLookup = {
+  '%00': '\x00', '%01': '\x01', '%02': '\x02', '%03': '\x03', '%04': '\x04',
+  '%05': '\x05', '%06': '\x06', '%07': '\x07', '%08': '\x08', '%09': '\x09',
+  '%0a': '\x0a', '%0A': '\x0a', '%0b': '\x0b', '%0B': '\x0b', '%0c': '\x0c',
+  '%0C': '\x0c', '%0d': '\x0d', '%0D': '\x0d', '%0e': '\x0e', '%0E': '\x0e',
+  '%0f': '\x0f', '%0F': '\x0f', '%10': '\x10', '%11': '\x11', '%12': '\x12',
+  '%13': '\x13', '%14': '\x14', '%15': '\x15', '%16': '\x16', '%17': '\x17',
+  '%18': '\x18', '%19': '\x19', '%1a': '\x1a', '%1A': '\x1a', '%1b': '\x1b',
+  '%1B': '\x1b', '%1c': '\x1c', '%1C': '\x1c', '%1d': '\x1d', '%1D': '\x1d',
+  '%1e': '\x1e', '%1E': '\x1e', '%1f': '\x1f', '%1F': '\x1f', '%20': '\x20',
+  '%21': '\x21', '%22': '\x22', '%23': '\x23', '%24': '\x24', '%25': '\x25',
+  '%26': '\x26', '%27': '\x27', '%28': '\x28', '%29': '\x29', '%2a': '\x2a',
+  '%2A': '\x2a', '%2b': '\x2b', '%2B': '\x2b', '%2c': '\x2c', '%2C': '\x2c',
+  '%2d': '\x2d', '%2D': '\x2d', '%2e': '\x2e', '%2E': '\x2e', '%2f': '\x2f',
+  '%2F': '\x2f', '%30': '\x30', '%31': '\x31', '%32': '\x32', '%33': '\x33',
+  '%34': '\x34', '%35': '\x35', '%36': '\x36', '%37': '\x37', '%38': '\x38',
+  '%39': '\x39', '%3a': '\x3a', '%3A': '\x3a', '%3b': '\x3b', '%3B': '\x3b',
+  '%3c': '\x3c', '%3C': '\x3c', '%3d': '\x3d', '%3D': '\x3d', '%3e': '\x3e',
+  '%3E': '\x3e', '%3f': '\x3f', '%3F': '\x3f', '%40': '\x40', '%41': '\x41',
+  '%42': '\x42', '%43': '\x43', '%44': '\x44', '%45': '\x45', '%46': '\x46',
+  '%47': '\x47', '%48': '\x48', '%49': '\x49', '%4a': '\x4a', '%4A': '\x4a',
+  '%4b': '\x4b', '%4B': '\x4b', '%4c': '\x4c', '%4C': '\x4c', '%4d': '\x4d',
+  '%4D': '\x4d', '%4e': '\x4e', '%4E': '\x4e', '%4f': '\x4f', '%4F': '\x4f',
+  '%50': '\x50', '%51': '\x51', '%52': '\x52', '%53': '\x53', '%54': '\x54',
+  '%55': '\x55', '%56': '\x56', '%57': '\x57', '%58': '\x58', '%59': '\x59',
+  '%5a': '\x5a', '%5A': '\x5a', '%5b': '\x5b', '%5B': '\x5b', '%5c': '\x5c',
+  '%5C': '\x5c', '%5d': '\x5d', '%5D': '\x5d', '%5e': '\x5e', '%5E': '\x5e',
+  '%5f': '\x5f', '%5F': '\x5f', '%60': '\x60', '%61': '\x61', '%62': '\x62',
+  '%63': '\x63', '%64': '\x64', '%65': '\x65', '%66': '\x66', '%67': '\x67',
+  '%68': '\x68', '%69': '\x69', '%6a': '\x6a', '%6A': '\x6a', '%6b': '\x6b',
+  '%6B': '\x6b', '%6c': '\x6c', '%6C': '\x6c', '%6d': '\x6d', '%6D': '\x6d',
+  '%6e': '\x6e', '%6E': '\x6e', '%6f': '\x6f', '%6F': '\x6f', '%70': '\x70',
+  '%71': '\x71', '%72': '\x72', '%73': '\x73', '%74': '\x74', '%75': '\x75',
+  '%76': '\x76', '%77': '\x77', '%78': '\x78', '%79': '\x79', '%7a': '\x7a',
+  '%7A': '\x7a', '%7b': '\x7b', '%7B': '\x7b', '%7c': '\x7c', '%7C': '\x7c',
+  '%7d': '\x7d', '%7D': '\x7d', '%7e': '\x7e', '%7E': '\x7e', '%7f': '\x7f',
+  '%7F': '\x7f', '%80': '\x80', '%81': '\x81', '%82': '\x82', '%83': '\x83',
+  '%84': '\x84', '%85': '\x85', '%86': '\x86', '%87': '\x87', '%88': '\x88',
+  '%89': '\x89', '%8a': '\x8a', '%8A': '\x8a', '%8b': '\x8b', '%8B': '\x8b',
+  '%8c': '\x8c', '%8C': '\x8c', '%8d': '\x8d', '%8D': '\x8d', '%8e': '\x8e',
+  '%8E': '\x8e', '%8f': '\x8f', '%8F': '\x8f', '%90': '\x90', '%91': '\x91',
+  '%92': '\x92', '%93': '\x93', '%94': '\x94', '%95': '\x95', '%96': '\x96',
+  '%97': '\x97', '%98': '\x98', '%99': '\x99', '%9a': '\x9a', '%9A': '\x9a',
+  '%9b': '\x9b', '%9B': '\x9b', '%9c': '\x9c', '%9C': '\x9c', '%9d': '\x9d',
+  '%9D': '\x9d', '%9e': '\x9e', '%9E': '\x9e', '%9f': '\x9f', '%9F': '\x9f',
+  '%a0': '\xa0', '%A0': '\xa0', '%a1': '\xa1', '%A1': '\xa1', '%a2': '\xa2',
+  '%A2': '\xa2', '%a3': '\xa3', '%A3': '\xa3', '%a4': '\xa4', '%A4': '\xa4',
+  '%a5': '\xa5', '%A5': '\xa5', '%a6': '\xa6', '%A6': '\xa6', '%a7': '\xa7',
+  '%A7': '\xa7', '%a8': '\xa8', '%A8': '\xa8', '%a9': '\xa9', '%A9': '\xa9',
+  '%aa': '\xaa', '%Aa': '\xaa', '%aA': '\xaa', '%AA': '\xaa', '%ab': '\xab',
+  '%Ab': '\xab', '%aB': '\xab', '%AB': '\xab', '%ac': '\xac', '%Ac': '\xac',
+  '%aC': '\xac', '%AC': '\xac', '%ad': '\xad', '%Ad': '\xad', '%aD': '\xad',
+  '%AD': '\xad', '%ae': '\xae', '%Ae': '\xae', '%aE': '\xae', '%AE': '\xae',
+  '%af': '\xaf', '%Af': '\xaf', '%aF': '\xaf', '%AF': '\xaf', '%b0': '\xb0',
+  '%B0': '\xb0', '%b1': '\xb1', '%B1': '\xb1', '%b2': '\xb2', '%B2': '\xb2',
+  '%b3': '\xb3', '%B3': '\xb3', '%b4': '\xb4', '%B4': '\xb4', '%b5': '\xb5',
+  '%B5': '\xb5', '%b6': '\xb6', '%B6': '\xb6', '%b7': '\xb7', '%B7': '\xb7',
+  '%b8': '\xb8', '%B8': '\xb8', '%b9': '\xb9', '%B9': '\xb9', '%ba': '\xba',
+  '%Ba': '\xba', '%bA': '\xba', '%BA': '\xba', '%bb': '\xbb', '%Bb': '\xbb',
+  '%bB': '\xbb', '%BB': '\xbb', '%bc': '\xbc', '%Bc': '\xbc', '%bC': '\xbc',
+  '%BC': '\xbc', '%bd': '\xbd', '%Bd': '\xbd', '%bD': '\xbd', '%BD': '\xbd',
+  '%be': '\xbe', '%Be': '\xbe', '%bE': '\xbe', '%BE': '\xbe', '%bf': '\xbf',
+  '%Bf': '\xbf', '%bF': '\xbf', '%BF': '\xbf', '%c0': '\xc0', '%C0': '\xc0',
+  '%c1': '\xc1', '%C1': '\xc1', '%c2': '\xc2', '%C2': '\xc2', '%c3': '\xc3',
+  '%C3': '\xc3', '%c4': '\xc4', '%C4': '\xc4', '%c5': '\xc5', '%C5': '\xc5',
+  '%c6': '\xc6', '%C6': '\xc6', '%c7': '\xc7', '%C7': '\xc7', '%c8': '\xc8',
+  '%C8': '\xc8', '%c9': '\xc9', '%C9': '\xc9', '%ca': '\xca', '%Ca': '\xca',
+  '%cA': '\xca', '%CA': '\xca', '%cb': '\xcb', '%Cb': '\xcb', '%cB': '\xcb',
+  '%CB': '\xcb', '%cc': '\xcc', '%Cc': '\xcc', '%cC': '\xcc', '%CC': '\xcc',
+  '%cd': '\xcd', '%Cd': '\xcd', '%cD': '\xcd', '%CD': '\xcd', '%ce': '\xce',
+  '%Ce': '\xce', '%cE': '\xce', '%CE': '\xce', '%cf': '\xcf', '%Cf': '\xcf',
+  '%cF': '\xcf', '%CF': '\xcf', '%d0': '\xd0', '%D0': '\xd0', '%d1': '\xd1',
+  '%D1': '\xd1', '%d2': '\xd2', '%D2': '\xd2', '%d3': '\xd3', '%D3': '\xd3',
+  '%d4': '\xd4', '%D4': '\xd4', '%d5': '\xd5', '%D5': '\xd5', '%d6': '\xd6',
+  '%D6': '\xd6', '%d7': '\xd7', '%D7': '\xd7', '%d8': '\xd8', '%D8': '\xd8',
+  '%d9': '\xd9', '%D9': '\xd9', '%da': '\xda', '%Da': '\xda', '%dA': '\xda',
+  '%DA': '\xda', '%db': '\xdb', '%Db': '\xdb', '%dB': '\xdb', '%DB': '\xdb',
+  '%dc': '\xdc', '%Dc': '\xdc', '%dC': '\xdc', '%DC': '\xdc', '%dd': '\xdd',
+  '%Dd': '\xdd', '%dD': '\xdd', '%DD': '\xdd', '%de': '\xde', '%De': '\xde',
+  '%dE': '\xde', '%DE': '\xde', '%df': '\xdf', '%Df': '\xdf', '%dF': '\xdf',
+  '%DF': '\xdf', '%e0': '\xe0', '%E0': '\xe0', '%e1': '\xe1', '%E1': '\xe1',
+  '%e2': '\xe2', '%E2': '\xe2', '%e3': '\xe3', '%E3': '\xe3', '%e4': '\xe4',
+  '%E4': '\xe4', '%e5': '\xe5', '%E5': '\xe5', '%e6': '\xe6', '%E6': '\xe6',
+  '%e7': '\xe7', '%E7': '\xe7', '%e8': '\xe8', '%E8': '\xe8', '%e9': '\xe9',
+  '%E9': '\xe9', '%ea': '\xea', '%Ea': '\xea', '%eA': '\xea', '%EA': '\xea',
+  '%eb': '\xeb', '%Eb': '\xeb', '%eB': '\xeb', '%EB': '\xeb', '%ec': '\xec',
+  '%Ec': '\xec', '%eC': '\xec', '%EC': '\xec', '%ed': '\xed', '%Ed': '\xed',
+  '%eD': '\xed', '%ED': '\xed', '%ee': '\xee', '%Ee': '\xee', '%eE': '\xee',
+  '%EE': '\xee', '%ef': '\xef', '%Ef': '\xef', '%eF': '\xef', '%EF': '\xef',
+  '%f0': '\xf0', '%F0': '\xf0', '%f1': '\xf1', '%F1': '\xf1', '%f2': '\xf2',
+  '%F2': '\xf2', '%f3': '\xf3', '%F3': '\xf3', '%f4': '\xf4', '%F4': '\xf4',
+  '%f5': '\xf5', '%F5': '\xf5', '%f6': '\xf6', '%F6': '\xf6', '%f7': '\xf7',
+  '%F7': '\xf7', '%f8': '\xf8', '%F8': '\xf8', '%f9': '\xf9', '%F9': '\xf9',
+  '%fa': '\xfa', '%Fa': '\xfa', '%fA': '\xfa', '%FA': '\xfa', '%fb': '\xfb',
+  '%Fb': '\xfb', '%fB': '\xfb', '%FB': '\xfb', '%fc': '\xfc', '%Fc': '\xfc',
+  '%fC': '\xfc', '%FC': '\xfc', '%fd': '\xfd', '%Fd': '\xfd', '%fD': '\xfd',
+  '%FD': '\xfd', '%fe': '\xfe', '%Fe': '\xfe', '%fE': '\xfe', '%FE': '\xfe',
+  '%ff': '\xff', '%Ff': '\xff', '%fF': '\xff', '%FF': '\xff'
+}
+
+function encodedReplacer (match) {
+  return EncodedLookup[match]
+}
+
+const STATE_KEY = 0
+const STATE_VALUE = 1
+const STATE_CHARSET = 2
+const STATE_LANG = 3
+
+function parseParams (str) {
+  const res = []
+  let state = STATE_KEY
+  let charset = ''
+  let inquote = false
+  let escaping = false
+  let p = 0
+  let tmp = ''
+  const len = str.length
+
+  for (var i = 0; i < len; ++i) { // eslint-disable-line no-var
+    const char = str[i]
+    if (char === '\\' && inquote) {
+      if (escaping) { escaping = false } else {
+        escaping = true
+        continue
+      }
+    } else if (char === '"') {
+      if (!escaping) {
+        if (inquote) {
+          inquote = false
+          state = STATE_KEY
+        } else { inquote = true }
+        continue
+      } else { escaping = false }
+    } else {
+      if (escaping && inquote) { tmp += '\\' }
+      escaping = false
+      if ((state === STATE_CHARSET || state === STATE_LANG) && char === "'") {
+        if (state === STATE_CHARSET) {
+          state = STATE_LANG
+          charset = tmp.substring(1)
+        } else { state = STATE_VALUE }
+        tmp = ''
+        continue
+      } else if (state === STATE_KEY &&
+        (char === '*' || char === '=') &&
+        res.length) {
+        state = char === '*'
+          ? STATE_CHARSET
+          : STATE_VALUE
+        res[p] = [tmp, undefined]
+        tmp = ''
+        continue
+      } else if (!inquote && char === ';') {
+        state = STATE_KEY
+        if (charset) {
+          if (tmp.length) {
+            tmp = decodeText(tmp.replace(RE_ENCODED, encodedReplacer),
+              'binary',
+              charset)
+          }
+          charset = ''
+        } else if (tmp.length) {
+          tmp = decodeText(tmp, 'binary', 'utf8')
+        }
+        if (res[p] === undefined) { res[p] = tmp } else { res[p][1] = tmp }
+        tmp = ''
+        ++p
+        continue
+      } else if (!inquote && (char === ' ' || char === '\t')) { continue }
+    }
+    tmp += char
+  }
+  if (charset && tmp.length) {
+    tmp = decodeText(tmp.replace(RE_ENCODED, encodedReplacer),
+      'binary',
+      charset)
+  } else if (tmp) {
+    tmp = decodeText(tmp, 'binary', 'utf8')
+  }
+
+  if (res[p] === undefined) {
+    if (tmp) { res[p] = tmp }
+  } else { res[p][1] = tmp }
+
+  return res
+}
+
+module.exports = parseParams
+
+
+/***/ }),
+
+/***/ 8082:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+
+
+var PlainValue = __nccwpck_require__(4941);
+var resolveSeq = __nccwpck_require__(9914);
+var Schema = __nccwpck_require__(1387);
+
+const defaultOptions = {
+  anchorPrefix: 'a',
+  customTags: null,
+  indent: 2,
+  indentSeq: true,
+  keepCstNodes: false,
+  keepNodeTypes: true,
+  keepBlobsInJSON: true,
+  mapAsMap: false,
+  maxAliasCount: 100,
+  prettyErrors: false,
+  // TODO Set true in v2
+  simpleKeys: false,
+  version: '1.2'
+};
+const scalarOptions = {
+  get binary() {
+    return resolveSeq.binaryOptions;
+  },
+
+  set binary(opt) {
+    Object.assign(resolveSeq.binaryOptions, opt);
+  },
+
+  get bool() {
+    return resolveSeq.boolOptions;
+  },
+
+  set bool(opt) {
+    Object.assign(resolveSeq.boolOptions, opt);
+  },
+
+  get int() {
+    return resolveSeq.intOptions;
+  },
+
+  set int(opt) {
+    Object.assign(resolveSeq.intOptions, opt);
+  },
+
+  get null() {
+    return resolveSeq.nullOptions;
+  },
+
+  set null(opt) {
+    Object.assign(resolveSeq.nullOptions, opt);
+  },
+
+  get str() {
+    return resolveSeq.strOptions;
+  },
+
+  set str(opt) {
+    Object.assign(resolveSeq.strOptions, opt);
+  }
+
+};
+const documentOptions = {
+  '1.0': {
+    schema: 'yaml-1.1',
+    merge: true,
+    tagPrefixes: [{
+      handle: '!',
+      prefix: PlainValue.defaultTagPrefix
+    }, {
+      handle: '!!',
+      prefix: 'tag:private.yaml.org,2002:'
+    }]
+  },
+  1.1: {
+    schema: 'yaml-1.1',
+    merge: true,
+    tagPrefixes: [{
+      handle: '!',
+      prefix: '!'
+    }, {
+      handle: '!!',
+      prefix: PlainValue.defaultTagPrefix
+    }]
+  },
+  1.2: {
+    schema: 'core',
+    merge: false,
+    tagPrefixes: [{
+      handle: '!',
+      prefix: '!'
+    }, {
+      handle: '!!',
+      prefix: PlainValue.defaultTagPrefix
+    }]
+  }
+};
+
+function stringifyTag(doc, tag) {
+  if ((doc.version || doc.options.version) === '1.0') {
+    const priv = tag.match(/^tag:private\.yaml\.org,2002:([^:/]+)$/);
+    if (priv) return '!' + priv[1];
+    const vocab = tag.match(/^tag:([a-zA-Z0-9-]+)\.yaml\.org,2002:(.*)/);
+    return vocab ? `!${vocab[1]}/${vocab[2]}` : `!${tag.replace(/^tag:/, '')}`;
+  }
+
+  let p = doc.tagPrefixes.find(p => tag.indexOf(p.prefix) === 0);
+
+  if (!p) {
+    const dtp = doc.getDefaults().tagPrefixes;
+    p = dtp && dtp.find(p => tag.indexOf(p.prefix) === 0);
+  }
+
+  if (!p) return tag[0] === '!' ? tag : `!<${tag}>`;
+  const suffix = tag.substr(p.prefix.length).replace(/[!,[\]{}]/g, ch => ({
+    '!': '%21',
+    ',': '%2C',
+    '[': '%5B',
+    ']': '%5D',
+    '{': '%7B',
+    '}': '%7D'
+  })[ch]);
+  return p.handle + suffix;
+}
+
+function getTagObject(tags, item) {
+  if (item instanceof resolveSeq.Alias) return resolveSeq.Alias;
+
+  if (item.tag) {
+    const match = tags.filter(t => t.tag === item.tag);
+    if (match.length > 0) return match.find(t => t.format === item.format) || match[0];
+  }
+
+  let tagObj, obj;
+
+  if (item instanceof resolveSeq.Scalar) {
+    obj = item.value; // TODO: deprecate/remove class check
+
+    const match = tags.filter(t => t.identify && t.identify(obj) || t.class && obj instanceof t.class);
+    tagObj = match.find(t => t.format === item.format) || match.find(t => !t.format);
+  } else {
+    obj = item;
+    tagObj = tags.find(t => t.nodeClass && obj instanceof t.nodeClass);
+  }
+
+  if (!tagObj) {
+    const name = obj && obj.constructor ? obj.constructor.name : typeof obj;
+    throw new Error(`Tag not resolved for ${name} value`);
+  }
+
+  return tagObj;
+} // needs to be called before value stringifier to allow for circular anchor refs
+
+
+function stringifyProps(node, tagObj, {
+  anchors,
+  doc
+}) {
+  const props = [];
+  const anchor = doc.anchors.getName(node);
+
+  if (anchor) {
+    anchors[anchor] = node;
+    props.push(`&${anchor}`);
+  }
+
+  if (node.tag) {
+    props.push(stringifyTag(doc, node.tag));
+  } else if (!tagObj.default) {
+    props.push(stringifyTag(doc, tagObj.tag));
+  }
+
+  return props.join(' ');
+}
+
+function stringify(item, ctx, onComment, onChompKeep) {
+  const {
+    anchors,
+    schema
+  } = ctx.doc;
+  let tagObj;
+
+  if (!(item instanceof resolveSeq.Node)) {
+    const createCtx = {
+      aliasNodes: [],
+      onTagObj: o => tagObj = o,
+      prevObjects: new Map()
+    };
+    item = schema.createNode(item, true, null, createCtx);
+
+    for (const alias of createCtx.aliasNodes) {
+      alias.source = alias.source.node;
+      let name = anchors.getName(alias.source);
+
+      if (!name) {
+        name = anchors.newName();
+        anchors.map[name] = alias.source;
+      }
+    }
+  }
+
+  if (item instanceof resolveSeq.Pair) return item.toString(ctx, onComment, onChompKeep);
+  if (!tagObj) tagObj = getTagObject(schema.tags, item);
+  const props = stringifyProps(item, tagObj, ctx);
+  if (props.length > 0) ctx.indentAtStart = (ctx.indentAtStart || 0) + props.length + 1;
+  const str = typeof tagObj.stringify === 'function' ? tagObj.stringify(item, ctx, onComment, onChompKeep) : item instanceof resolveSeq.Scalar ? resolveSeq.stringifyString(item, ctx, onComment, onChompKeep) : item.toString(ctx, onComment, onChompKeep);
+  if (!props) return str;
+  return item instanceof resolveSeq.Scalar || str[0] === '{' || str[0] === '[' ? `${props} ${str}` : `${props}\n${ctx.indent}${str}`;
+}
+
+class Anchors {
+  static validAnchorNode(node) {
+    return node instanceof resolveSeq.Scalar || node instanceof resolveSeq.YAMLSeq || node instanceof resolveSeq.YAMLMap;
+  }
+
+  constructor(prefix) {
+    PlainValue._defineProperty(this, "map", Object.create(null));
+
+    this.prefix = prefix;
+  }
+
+  createAlias(node, name) {
+    this.setAnchor(node, name);
+    return new resolveSeq.Alias(node);
+  }
+
+  createMergePair(...sources) {
+    const merge = new resolveSeq.Merge();
+    merge.value.items = sources.map(s => {
+      if (s instanceof resolveSeq.Alias) {
+        if (s.source instanceof resolveSeq.YAMLMap) return s;
+      } else if (s instanceof resolveSeq.YAMLMap) {
+        return this.createAlias(s);
+      }
+
+      throw new Error('Merge sources must be Map nodes or their Aliases');
+    });
+    return merge;
+  }
+
+  getName(node) {
+    const {
+      map
+    } = this;
+    return Object.keys(map).find(a => map[a] === node);
+  }
+
+  getNames() {
+    return Object.keys(this.map);
+  }
+
+  getNode(name) {
+    return this.map[name];
+  }
+
+  newName(prefix) {
+    if (!prefix) prefix = this.prefix;
+    const names = Object.keys(this.map);
+
+    for (let i = 1; true; ++i) {
+      const name = `${prefix}${i}`;
+      if (!names.includes(name)) return name;
+    }
+  } // During parsing, map & aliases contain CST nodes
+
+
+  resolveNodes() {
+    const {
+      map,
+      _cstAliases
+    } = this;
+    Object.keys(map).forEach(a => {
+      map[a] = map[a].resolved;
+    });
+
+    _cstAliases.forEach(a => {
+      a.source = a.source.resolved;
+    });
+
+    delete this._cstAliases;
+  }
+
+  setAnchor(node, name) {
+    if (node != null && !Anchors.validAnchorNode(node)) {
+      throw new Error('Anchors may only be set for Scalar, Seq and Map nodes');
+    }
+
+    if (name && /[\x00-\x19\s,[\]{}]/.test(name)) {
+      throw new Error('Anchor names must not contain whitespace or control characters');
+    }
+
+    const {
+      map
+    } = this;
+    const prev = node && Object.keys(map).find(a => map[a] === node);
+
+    if (prev) {
+      if (!name) {
+        return prev;
+      } else if (prev !== name) {
+        delete map[prev];
+        map[name] = node;
+      }
+    } else {
+      if (!name) {
+        if (!node) return null;
+        name = this.newName();
+      }
+
+      map[name] = node;
+    }
+
+    return name;
+  }
+
+}
+
+const visit = (node, tags) => {
+  if (node && typeof node === 'object') {
+    const {
+      tag
+    } = node;
+
+    if (node instanceof resolveSeq.Collection) {
+      if (tag) tags[tag] = true;
+      node.items.forEach(n => visit(n, tags));
+    } else if (node instanceof resolveSeq.Pair) {
+      visit(node.key, tags);
+      visit(node.value, tags);
+    } else if (node instanceof resolveSeq.Scalar) {
+      if (tag) tags[tag] = true;
+    }
+  }
+
+  return tags;
+};
+
+const listTagNames = node => Object.keys(visit(node, {}));
+
+function parseContents(doc, contents) {
+  const comments = {
+    before: [],
+    after: []
+  };
+  let body = undefined;
+  let spaceBefore = false;
+
+  for (const node of contents) {
+    if (node.valueRange) {
+      if (body !== undefined) {
+        const msg = 'Document contains trailing content not separated by a ... or --- line';
+        doc.errors.push(new PlainValue.YAMLSyntaxError(node, msg));
+        break;
+      }
+
+      const res = resolveSeq.resolveNode(doc, node);
+
+      if (spaceBefore) {
+        res.spaceBefore = true;
+        spaceBefore = false;
+      }
+
+      body = res;
+    } else if (node.comment !== null) {
+      const cc = body === undefined ? comments.before : comments.after;
+      cc.push(node.comment);
+    } else if (node.type === PlainValue.Type.BLANK_LINE) {
+      spaceBefore = true;
+
+      if (body === undefined && comments.before.length > 0 && !doc.commentBefore) {
+        // space-separated comments at start are parsed as document comments
+        doc.commentBefore = comments.before.join('\n');
+        comments.before = [];
+      }
+    }
+  }
+
+  doc.contents = body || null;
+
+  if (!body) {
+    doc.comment = comments.before.concat(comments.after).join('\n') || null;
+  } else {
+    const cb = comments.before.join('\n');
+
+    if (cb) {
+      const cbNode = body instanceof resolveSeq.Collection && body.items[0] ? body.items[0] : body;
+      cbNode.commentBefore = cbNode.commentBefore ? `${cb}\n${cbNode.commentBefore}` : cb;
+    }
+
+    doc.comment = comments.after.join('\n') || null;
+  }
+}
+
+function resolveTagDirective({
+  tagPrefixes
+}, directive) {
+  const [handle, prefix] = directive.parameters;
+
+  if (!handle || !prefix) {
+    const msg = 'Insufficient parameters given for %TAG directive';
+    throw new PlainValue.YAMLSemanticError(directive, msg);
+  }
+
+  if (tagPrefixes.some(p => p.handle === handle)) {
+    const msg = 'The %TAG directive must only be given at most once per handle in the same document.';
+    throw new PlainValue.YAMLSemanticError(directive, msg);
+  }
+
+  return {
+    handle,
+    prefix
+  };
+}
+
+function resolveYamlDirective(doc, directive) {
+  let [version] = directive.parameters;
+  if (directive.name === 'YAML:1.0') version = '1.0';
+
+  if (!version) {
+    const msg = 'Insufficient parameters given for %YAML directive';
+    throw new PlainValue.YAMLSemanticError(directive, msg);
+  }
+
+  if (!documentOptions[version]) {
+    const v0 = doc.version || doc.options.version;
+    const msg = `Document will be parsed as YAML ${v0} rather than YAML ${version}`;
+    doc.warnings.push(new PlainValue.YAMLWarning(directive, msg));
+  }
+
+  return version;
+}
+
+function parseDirectives(doc, directives, prevDoc) {
+  const directiveComments = [];
+  let hasDirectives = false;
+
+  for (const directive of directives) {
+    const {
+      comment,
+      name
+    } = directive;
+
+    switch (name) {
+      case 'TAG':
+        try {
+          doc.tagPrefixes.push(resolveTagDirective(doc, directive));
+        } catch (error) {
+          doc.errors.push(error);
+        }
+
+        hasDirectives = true;
+        break;
+
+      case 'YAML':
+      case 'YAML:1.0':
+        if (doc.version) {
+          const msg = 'The %YAML directive must only be given at most once per document.';
+          doc.errors.push(new PlainValue.YAMLSemanticError(directive, msg));
+        }
+
+        try {
+          doc.version = resolveYamlDirective(doc, directive);
+        } catch (error) {
+          doc.errors.push(error);
+        }
+
+        hasDirectives = true;
+        break;
+
+      default:
+        if (name) {
+          const msg = `YAML only supports %TAG and %YAML directives, and not %${name}`;
+          doc.warnings.push(new PlainValue.YAMLWarning(directive, msg));
+        }
+
+    }
+
+    if (comment) directiveComments.push(comment);
+  }
+
+  if (prevDoc && !hasDirectives && '1.1' === (doc.version || prevDoc.version || doc.options.version)) {
+    const copyTagPrefix = ({
+      handle,
+      prefix
+    }) => ({
+      handle,
+      prefix
+    });
+
+    doc.tagPrefixes = prevDoc.tagPrefixes.map(copyTagPrefix);
+    doc.version = prevDoc.version;
+  }
+
+  doc.commentBefore = directiveComments.join('\n') || null;
+}
+
+function assertCollection(contents) {
+  if (contents instanceof resolveSeq.Collection) return true;
+  throw new Error('Expected a YAML collection as document contents');
+}
+
+class Document {
+  constructor(options) {
+    this.anchors = new Anchors(options.anchorPrefix);
+    this.commentBefore = null;
+    this.comment = null;
+    this.contents = null;
+    this.directivesEndMarker = null;
+    this.errors = [];
+    this.options = options;
+    this.schema = null;
+    this.tagPrefixes = [];
+    this.version = null;
+    this.warnings = [];
+  }
+
+  add(value) {
+    assertCollection(this.contents);
+    return this.contents.add(value);
+  }
+
+  addIn(path, value) {
+    assertCollection(this.contents);
+    this.contents.addIn(path, value);
+  }
+
+  delete(key) {
+    assertCollection(this.contents);
+    return this.contents.delete(key);
+  }
+
+  deleteIn(path) {
+    if (resolveSeq.isEmptyPath(path)) {
+      if (this.contents == null) return false;
+      this.contents = null;
+      return true;
+    }
+
+    assertCollection(this.contents);
+    return this.contents.deleteIn(path);
+  }
+
+  getDefaults() {
+    return Document.defaults[this.version] || Document.defaults[this.options.version] || {};
+  }
+
+  get(key, keepScalar) {
+    return this.contents instanceof resolveSeq.Collection ? this.contents.get(key, keepScalar) : undefined;
+  }
+
+  getIn(path, keepScalar) {
+    if (resolveSeq.isEmptyPath(path)) return !keepScalar && this.contents instanceof resolveSeq.Scalar ? this.contents.value : this.contents;
+    return this.contents instanceof resolveSeq.Collection ? this.contents.getIn(path, keepScalar) : undefined;
+  }
+
+  has(key) {
+    return this.contents instanceof resolveSeq.Collection ? this.contents.has(key) : false;
+  }
+
+  hasIn(path) {
+    if (resolveSeq.isEmptyPath(path)) return this.contents !== undefined;
+    return this.contents instanceof resolveSeq.Collection ? this.contents.hasIn(path) : false;
+  }
+
+  set(key, value) {
+    assertCollection(this.contents);
+    this.contents.set(key, value);
+  }
+
+  setIn(path, value) {
+    if (resolveSeq.isEmptyPath(path)) this.contents = value;else {
+      assertCollection(this.contents);
+      this.contents.setIn(path, value);
+    }
+  }
+
+  setSchema(id, customTags) {
+    if (!id && !customTags && this.schema) return;
+    if (typeof id === 'number') id = id.toFixed(1);
+
+    if (id === '1.0' || id === '1.1' || id === '1.2') {
+      if (this.version) this.version = id;else this.options.version = id;
+      delete this.options.schema;
+    } else if (id && typeof id === 'string') {
+      this.options.schema = id;
+    }
+
+    if (Array.isArray(customTags)) this.options.customTags = customTags;
+    const opt = Object.assign({}, this.getDefaults(), this.options);
+    this.schema = new Schema.Schema(opt);
+  }
+
+  parse(node, prevDoc) {
+    if (this.options.keepCstNodes) this.cstNode = node;
+    if (this.options.keepNodeTypes) this.type = 'DOCUMENT';
+    const {
+      directives = [],
+      contents = [],
+      directivesEndMarker,
+      error,
+      valueRange
+    } = node;
+
+    if (error) {
+      if (!error.source) error.source = this;
+      this.errors.push(error);
+    }
+
+    parseDirectives(this, directives, prevDoc);
+    if (directivesEndMarker) this.directivesEndMarker = true;
+    this.range = valueRange ? [valueRange.start, valueRange.end] : null;
+    this.setSchema();
+    this.anchors._cstAliases = [];
+    parseContents(this, contents);
+    this.anchors.resolveNodes();
+
+    if (this.options.prettyErrors) {
+      for (const error of this.errors) if (error instanceof PlainValue.YAMLError) error.makePretty();
+
+      for (const warn of this.warnings) if (warn instanceof PlainValue.YAMLError) warn.makePretty();
+    }
+
+    return this;
+  }
+
+  listNonDefaultTags() {
+    return listTagNames(this.contents).filter(t => t.indexOf(Schema.Schema.defaultPrefix) !== 0);
+  }
+
+  setTagPrefix(handle, prefix) {
+    if (handle[0] !== '!' || handle[handle.length - 1] !== '!') throw new Error('Handle must start and end with !');
+
+    if (prefix) {
+      const prev = this.tagPrefixes.find(p => p.handle === handle);
+      if (prev) prev.prefix = prefix;else this.tagPrefixes.push({
+        handle,
+        prefix
+      });
+    } else {
+      this.tagPrefixes = this.tagPrefixes.filter(p => p.handle !== handle);
+    }
+  }
+
+  toJSON(arg, onAnchor) {
+    const {
+      keepBlobsInJSON,
+      mapAsMap,
+      maxAliasCount
+    } = this.options;
+    const keep = keepBlobsInJSON && (typeof arg !== 'string' || !(this.contents instanceof resolveSeq.Scalar));
+    const ctx = {
+      doc: this,
+      indentStep: '  ',
+      keep,
+      mapAsMap: keep && !!mapAsMap,
+      maxAliasCount,
+      stringify // Requiring directly in Pair would create circular dependencies
+
+    };
+    const anchorNames = Object.keys(this.anchors.map);
+    if (anchorNames.length > 0) ctx.anchors = new Map(anchorNames.map(name => [this.anchors.map[name], {
+      alias: [],
+      aliasCount: 0,
+      count: 1
+    }]));
+    const res = resolveSeq.toJSON(this.contents, arg, ctx);
+    if (typeof onAnchor === 'function' && ctx.anchors) for (const {
+      count,
+      res
+    } of ctx.anchors.values()) onAnchor(res, count);
+    return res;
+  }
+
+  toString() {
+    if (this.errors.length > 0) throw new Error('Document with errors cannot be stringified');
+    const indentSize = this.options.indent;
+
+    if (!Number.isInteger(indentSize) || indentSize <= 0) {
+      const s = JSON.stringify(indentSize);
+      throw new Error(`"indent" option must be a positive integer, not ${s}`);
+    }
+
+    this.setSchema();
+    const lines = [];
+    let hasDirectives = false;
+
+    if (this.version) {
+      let vd = '%YAML 1.2';
+
+      if (this.schema.name === 'yaml-1.1') {
+        if (this.version === '1.0') vd = '%YAML:1.0';else if (this.version === '1.1') vd = '%YAML 1.1';
+      }
+
+      lines.push(vd);
+      hasDirectives = true;
+    }
+
+    const tagNames = this.listNonDefaultTags();
+    this.tagPrefixes.forEach(({
+      handle,
+      prefix
+    }) => {
+      if (tagNames.some(t => t.indexOf(prefix) === 0)) {
+        lines.push(`%TAG ${handle} ${prefix}`);
+        hasDirectives = true;
+      }
+    });
+    if (hasDirectives || this.directivesEndMarker) lines.push('---');
+
+    if (this.commentBefore) {
+      if (hasDirectives || !this.directivesEndMarker) lines.unshift('');
+      lines.unshift(this.commentBefore.replace(/^/gm, '#'));
+    }
+
+    const ctx = {
+      anchors: Object.create(null),
+      doc: this,
+      indent: '',
+      indentStep: ' '.repeat(indentSize),
+      stringify // Requiring directly in nodes would create circular dependencies
+
+    };
+    let chompKeep = false;
+    let contentComment = null;
+
+    if (this.contents) {
+      if (this.contents instanceof resolveSeq.Node) {
+        if (this.contents.spaceBefore && (hasDirectives || this.directivesEndMarker)) lines.push('');
+        if (this.contents.commentBefore) lines.push(this.contents.commentBefore.replace(/^/gm, '#')); // top-level block scalars need to be indented if followed by a comment
+
+        ctx.forceBlockIndent = !!this.comment;
+        contentComment = this.contents.comment;
+      }
+
+      const onChompKeep = contentComment ? null : () => chompKeep = true;
+      const body = stringify(this.contents, ctx, () => contentComment = null, onChompKeep);
+      lines.push(resolveSeq.addComment(body, '', contentComment));
+    } else if (this.contents !== undefined) {
+      lines.push(stringify(this.contents, ctx));
+    }
+
+    if (this.comment) {
+      if ((!chompKeep || contentComment) && lines[lines.length - 1] !== '') lines.push('');
+      lines.push(this.comment.replace(/^/gm, '#'));
+    }
+
+    return lines.join('\n') + '\n';
+  }
+
+}
+
+PlainValue._defineProperty(Document, "defaults", documentOptions);
+
+exports.Document = Document;
+exports.defaultOptions = defaultOptions;
+exports.scalarOptions = scalarOptions;
+
+
+/***/ }),
+
+/***/ 4941:
+/***/ ((__unused_webpack_module, exports) => {
+
+
+
+const Char = {
+  ANCHOR: '&',
+  COMMENT: '#',
+  TAG: '!',
+  DIRECTIVES_END: '-',
+  DOCUMENT_END: '.'
+};
+const Type = {
+  ALIAS: 'ALIAS',
+  BLANK_LINE: 'BLANK_LINE',
+  BLOCK_FOLDED: 'BLOCK_FOLDED',
+  BLOCK_LITERAL: 'BLOCK_LITERAL',
+  COMMENT: 'COMMENT',
+  DIRECTIVE: 'DIRECTIVE',
+  DOCUMENT: 'DOCUMENT',
+  FLOW_MAP: 'FLOW_MAP',
+  FLOW_SEQ: 'FLOW_SEQ',
+  MAP: 'MAP',
+  MAP_KEY: 'MAP_KEY',
+  MAP_VALUE: 'MAP_VALUE',
+  PLAIN: 'PLAIN',
+  QUOTE_DOUBLE: 'QUOTE_DOUBLE',
+  QUOTE_SINGLE: 'QUOTE_SINGLE',
+  SEQ: 'SEQ',
+  SEQ_ITEM: 'SEQ_ITEM'
+};
+const defaultTagPrefix = 'tag:yaml.org,2002:';
+const defaultTags = {
+  MAP: 'tag:yaml.org,2002:map',
+  SEQ: 'tag:yaml.org,2002:seq',
+  STR: 'tag:yaml.org,2002:str'
+};
+
+function findLineStarts(src) {
+  const ls = [0];
+  let offset = src.indexOf('\n');
+
+  while (offset !== -1) {
+    offset += 1;
+    ls.push(offset);
+    offset = src.indexOf('\n', offset);
+  }
+
+  return ls;
+}
+
+function getSrcInfo(cst) {
+  let lineStarts, src;
+
+  if (typeof cst === 'string') {
+    lineStarts = findLineStarts(cst);
+    src = cst;
+  } else {
+    if (Array.isArray(cst)) cst = cst[0];
+
+    if (cst && cst.context) {
+      if (!cst.lineStarts) cst.lineStarts = findLineStarts(cst.context.src);
+      lineStarts = cst.lineStarts;
+      src = cst.context.src;
+    }
+  }
+
+  return {
+    lineStarts,
+    src
+  };
+}
+/**
+ * @typedef {Object} LinePos - One-indexed position in the source
+ * @property {number} line
+ * @property {number} col
  */
 
-run();
+/**
+ * Determine the line/col position matching a character offset.
+ *
+ * Accepts a source string or a CST document as the second parameter. With
+ * the latter, starting indices for lines are cached in the document as
+ * `lineStarts: number[]`.
+ *
+ * Returns a one-indexed `{ line, col }` location if found, or
+ * `undefined` otherwise.
+ *
+ * @param {number} offset
+ * @param {string|Document|Document[]} cst
+ * @returns {?LinePos}
+ */
 
-})();
 
+function getLinePos(offset, cst) {
+  if (typeof offset !== 'number' || offset < 0) return null;
+  const {
+    lineStarts,
+    src
+  } = getSrcInfo(cst);
+  if (!lineStarts || !src || offset > src.length) return null;
+
+  for (let i = 0; i < lineStarts.length; ++i) {
+    const start = lineStarts[i];
+
+    if (offset < start) {
+      return {
+        line: i,
+        col: offset - lineStarts[i - 1] + 1
+      };
+    }
+
+    if (offset === start) return {
+      line: i + 1,
+      col: 1
+    };
+  }
+
+  const line = lineStarts.length;
+  return {
+    line,
+    col: offset - lineStarts[line - 1] + 1
+  };
+}
+/**
+ * Get a specified line from the source.
+ *
+ * Accepts a source string or a CST document as the second parameter. With
+ * the latter, starting indices for lines are cached in the document as
+ * `lineStarts: number[]`.
+ *
+ * Returns the line as a string if found, or `null` otherwise.
+ *
+ * @param {number} line One-indexed line number
+ * @param {string|Document|Document[]} cst
+ * @returns {?string}
+ */
+
+function getLine(line, cst) {
+  const {
+    lineStarts,
+    src
+  } = getSrcInfo(cst);
+  if (!lineStarts || !(line >= 1) || line > lineStarts.length) return null;
+  const start = lineStarts[line - 1];
+  let end = lineStarts[line]; // undefined for last line; that's ok for slice()
+
+  while (end && end > start && src[end - 1] === '\n') --end;
+
+  return src.slice(start, end);
+}
+/**
+ * Pretty-print the starting line from the source indicated by the range `pos`
+ *
+ * Trims output to `maxWidth` chars while keeping the starting column visible,
+ * using `…` at either end to indicate dropped characters.
+ *
+ * Returns a two-line string (or `null`) with `\n` as separator; the second line
+ * will hold appropriately indented `^` marks indicating the column range.
+ *
+ * @param {Object} pos
+ * @param {LinePos} pos.start
+ * @param {LinePos} [pos.end]
+ * @param {string|Document|Document[]*} cst
+ * @param {number} [maxWidth=80]
+ * @returns {?string}
+ */
+
+function getPrettyContext({
+  start,
+  end
+}, cst, maxWidth = 80) {
+  let src = getLine(start.line, cst);
+  if (!src) return null;
+  let {
+    col
+  } = start;
+
+  if (src.length > maxWidth) {
+    if (col <= maxWidth - 10) {
+      src = src.substr(0, maxWidth - 1) + '…';
+    } else {
+      const halfWidth = Math.round(maxWidth / 2);
+      if (src.length > col + halfWidth) src = src.substr(0, col + halfWidth - 1) + '…';
+      col -= src.length - maxWidth;
+      src = '…' + src.substr(1 - maxWidth);
+    }
+  }
+
+  let errLen = 1;
+  let errEnd = '';
+
+  if (end) {
+    if (end.line === start.line && col + (end.col - start.col) <= maxWidth + 1) {
+      errLen = end.col - start.col;
+    } else {
+      errLen = Math.min(src.length + 1, maxWidth) - col;
+      errEnd = '…';
+    }
+  }
+
+  const offset = col > 1 ? ' '.repeat(col - 1) : '';
+  const err = '^'.repeat(errLen);
+  return `${src}\n${offset}${err}${errEnd}`;
+}
+
+class Range {
+  static copy(orig) {
+    return new Range(orig.start, orig.end);
+  }
+
+  constructor(start, end) {
+    this.start = start;
+    this.end = end || start;
+  }
+
+  isEmpty() {
+    return typeof this.start !== 'number' || !this.end || this.end <= this.start;
+  }
+  /**
+   * Set `origStart` and `origEnd` to point to the original source range for
+   * this node, which may differ due to dropped CR characters.
+   *
+   * @param {number[]} cr - Positions of dropped CR characters
+   * @param {number} offset - Starting index of `cr` from the last call
+   * @returns {number} - The next offset, matching the one found for `origStart`
+   */
+
+
+  setOrigRange(cr, offset) {
+    const {
+      start,
+      end
+    } = this;
+
+    if (cr.length === 0 || end <= cr[0]) {
+      this.origStart = start;
+      this.origEnd = end;
+      return offset;
+    }
+
+    let i = offset;
+
+    while (i < cr.length) {
+      if (cr[i] > start) break;else ++i;
+    }
+
+    this.origStart = start + i;
+    const nextOffset = i;
+
+    while (i < cr.length) {
+      // if end was at \n, it should now be at \r
+      if (cr[i] >= end) break;else ++i;
+    }
+
+    this.origEnd = end + i;
+    return nextOffset;
+  }
+
+}
+
+/** Root class of all nodes */
+
+class Node {
+  static addStringTerminator(src, offset, str) {
+    if (str[str.length - 1] === '\n') return str;
+    const next = Node.endOfWhiteSpace(src, offset);
+    return next >= src.length || src[next] === '\n' ? str + '\n' : str;
+  } // ^(---|...)
+
+
+  static atDocumentBoundary(src, offset, sep) {
+    const ch0 = src[offset];
+    if (!ch0) return true;
+    const prev = src[offset - 1];
+    if (prev && prev !== '\n') return false;
+
+    if (sep) {
+      if (ch0 !== sep) return false;
+    } else {
+      if (ch0 !== Char.DIRECTIVES_END && ch0 !== Char.DOCUMENT_END) return false;
+    }
+
+    const ch1 = src[offset + 1];
+    const ch2 = src[offset + 2];
+    if (ch1 !== ch0 || ch2 !== ch0) return false;
+    const ch3 = src[offset + 3];
+    return !ch3 || ch3 === '\n' || ch3 === '\t' || ch3 === ' ';
+  }
+
+  static endOfIdentifier(src, offset) {
+    let ch = src[offset];
+    const isVerbatim = ch === '<';
+    const notOk = isVerbatim ? ['\n', '\t', ' ', '>'] : ['\n', '\t', ' ', '[', ']', '{', '}', ','];
+
+    while (ch && notOk.indexOf(ch) === -1) ch = src[offset += 1];
+
+    if (isVerbatim && ch === '>') offset += 1;
+    return offset;
+  }
+
+  static endOfIndent(src, offset) {
+    let ch = src[offset];
+
+    while (ch === ' ') ch = src[offset += 1];
+
+    return offset;
+  }
+
+  static endOfLine(src, offset) {
+    let ch = src[offset];
+
+    while (ch && ch !== '\n') ch = src[offset += 1];
+
+    return offset;
+  }
+
+  static endOfWhiteSpace(src, offset) {
+    let ch = src[offset];
+
+    while (ch === '\t' || ch === ' ') ch = src[offset += 1];
+
+    return offset;
+  }
+
+  static startOfLine(src, offset) {
+    let ch = src[offset - 1];
+    if (ch === '\n') return offset;
+
+    while (ch && ch !== '\n') ch = src[offset -= 1];
+
+    return offset + 1;
+  }
+  /**
+   * End of indentation, or null if the line's indent level is not more
+   * than `indent`
+   *
+   * @param {string} src
+   * @param {number} indent
+   * @param {number} lineStart
+   * @returns {?number}
+   */
+
+
+  static endOfBlockIndent(src, indent, lineStart) {
+    const inEnd = Node.endOfIndent(src, lineStart);
+
+    if (inEnd > lineStart + indent) {
+      return inEnd;
+    } else {
+      const wsEnd = Node.endOfWhiteSpace(src, inEnd);
+      const ch = src[wsEnd];
+      if (!ch || ch === '\n') return wsEnd;
+    }
+
+    return null;
+  }
+
+  static atBlank(src, offset, endAsBlank) {
+    const ch = src[offset];
+    return ch === '\n' || ch === '\t' || ch === ' ' || endAsBlank && !ch;
+  }
+
+  static nextNodeIsIndented(ch, indentDiff, indicatorAsIndent) {
+    if (!ch || indentDiff < 0) return false;
+    if (indentDiff > 0) return true;
+    return indicatorAsIndent && ch === '-';
+  } // should be at line or string end, or at next non-whitespace char
+
+
+  static normalizeOffset(src, offset) {
+    const ch = src[offset];
+    return !ch ? offset : ch !== '\n' && src[offset - 1] === '\n' ? offset - 1 : Node.endOfWhiteSpace(src, offset);
+  } // fold single newline into space, multiple newlines to N - 1 newlines
+  // presumes src[offset] === '\n'
+
+
+  static foldNewline(src, offset, indent) {
+    let inCount = 0;
+    let error = false;
+    let fold = '';
+    let ch = src[offset + 1];
+
+    while (ch === ' ' || ch === '\t' || ch === '\n') {
+      switch (ch) {
+        case '\n':
+          inCount = 0;
+          offset += 1;
+          fold += '\n';
+          break;
+
+        case '\t':
+          if (inCount <= indent) error = true;
+          offset = Node.endOfWhiteSpace(src, offset + 2) - 1;
+          break;
+
+        case ' ':
+          inCount += 1;
+          offset += 1;
+          break;
+      }
+
+      ch = src[offset + 1];
+    }
+
+    if (!fold) fold = ' ';
+    if (ch && inCount <= indent) error = true;
+    return {
+      fold,
+      offset,
+      error
+    };
+  }
+
+  constructor(type, props, context) {
+    Object.defineProperty(this, 'context', {
+      value: context || null,
+      writable: true
+    });
+    this.error = null;
+    this.range = null;
+    this.valueRange = null;
+    this.props = props || [];
+    this.type = type;
+    this.value = null;
+  }
+
+  getPropValue(idx, key, skipKey) {
+    if (!this.context) return null;
+    const {
+      src
+    } = this.context;
+    const prop = this.props[idx];
+    return prop && src[prop.start] === key ? src.slice(prop.start + (skipKey ? 1 : 0), prop.end) : null;
+  }
+
+  get anchor() {
+    for (let i = 0; i < this.props.length; ++i) {
+      const anchor = this.getPropValue(i, Char.ANCHOR, true);
+      if (anchor != null) return anchor;
+    }
+
+    return null;
+  }
+
+  get comment() {
+    const comments = [];
+
+    for (let i = 0; i < this.props.length; ++i) {
+      const comment = this.getPropValue(i, Char.COMMENT, true);
+      if (comment != null) comments.push(comment);
+    }
+
+    return comments.length > 0 ? comments.join('\n') : null;
+  }
+
+  commentHasRequiredWhitespace(start) {
+    const {
+      src
+    } = this.context;
+    if (this.header && start === this.header.end) return false;
+    if (!this.valueRange) return false;
+    const {
+      end
+    } = this.valueRange;
+    return start !== end || Node.atBlank(src, end - 1);
+  }
+
+  get hasComment() {
+    if (this.context) {
+      const {
+        src
+      } = this.context;
+
+      for (let i = 0; i < this.props.length; ++i) {
+        if (src[this.props[i].start] === Char.COMMENT) return true;
+      }
+    }
+
+    return false;
+  }
+
+  get hasProps() {
+    if (this.context) {
+      const {
+        src
+      } = this.context;
+
+      for (let i = 0; i < this.props.length; ++i) {
+        if (src[this.props[i].start] !== Char.COMMENT) return true;
+      }
+    }
+
+    return false;
+  }
+
+  get includesTrailingLines() {
+    return false;
+  }
+
+  get jsonLike() {
+    const jsonLikeTypes = [Type.FLOW_MAP, Type.FLOW_SEQ, Type.QUOTE_DOUBLE, Type.QUOTE_SINGLE];
+    return jsonLikeTypes.indexOf(this.type) !== -1;
+  }
+
+  get rangeAsLinePos() {
+    if (!this.range || !this.context) return undefined;
+    const start = getLinePos(this.range.start, this.context.root);
+    if (!start) return undefined;
+    const end = getLinePos(this.range.end, this.context.root);
+    return {
+      start,
+      end
+    };
+  }
+
+  get rawValue() {
+    if (!this.valueRange || !this.context) return null;
+    const {
+      start,
+      end
+    } = this.valueRange;
+    return this.context.src.slice(start, end);
+  }
+
+  get tag() {
+    for (let i = 0; i < this.props.length; ++i) {
+      const tag = this.getPropValue(i, Char.TAG, false);
+
+      if (tag != null) {
+        if (tag[1] === '<') {
+          return {
+            verbatim: tag.slice(2, -1)
+          };
+        } else {
+          // eslint-disable-next-line no-unused-vars
+          const [_, handle, suffix] = tag.match(/^(.*!)([^!]*)$/);
+          return {
+            handle,
+            suffix
+          };
+        }
+      }
+    }
+
+    return null;
+  }
+
+  get valueRangeContainsNewline() {
+    if (!this.valueRange || !this.context) return false;
+    const {
+      start,
+      end
+    } = this.valueRange;
+    const {
+      src
+    } = this.context;
+
+    for (let i = start; i < end; ++i) {
+      if (src[i] === '\n') return true;
+    }
+
+    return false;
+  }
+
+  parseComment(start) {
+    const {
+      src
+    } = this.context;
+
+    if (src[start] === Char.COMMENT) {
+      const end = Node.endOfLine(src, start + 1);
+      const commentRange = new Range(start, end);
+      this.props.push(commentRange);
+      return end;
+    }
+
+    return start;
+  }
+  /**
+   * Populates the `origStart` and `origEnd` values of all ranges for this
+   * node. Extended by child classes to handle descendant nodes.
+   *
+   * @param {number[]} cr - Positions of dropped CR characters
+   * @param {number} offset - Starting index of `cr` from the last call
+   * @returns {number} - The next offset, matching the one found for `origStart`
+   */
+
+
+  setOrigRanges(cr, offset) {
+    if (this.range) offset = this.range.setOrigRange(cr, offset);
+    if (this.valueRange) this.valueRange.setOrigRange(cr, offset);
+    this.props.forEach(prop => prop.setOrigRange(cr, offset));
+    return offset;
+  }
+
+  toString() {
+    const {
+      context: {
+        src
+      },
+      range,
+      value
+    } = this;
+    if (value != null) return value;
+    const str = src.slice(range.start, range.end);
+    return Node.addStringTerminator(src, range.end, str);
+  }
+
+}
+
+class YAMLError extends Error {
+  constructor(name, source, message) {
+    if (!message || !(source instanceof Node)) throw new Error(`Invalid arguments for new ${name}`);
+    super();
+    this.name = name;
+    this.message = message;
+    this.source = source;
+  }
+
+  makePretty() {
+    if (!this.source) return;
+    this.nodeType = this.source.type;
+    const cst = this.source.context && this.source.context.root;
+
+    if (typeof this.offset === 'number') {
+      this.range = new Range(this.offset, this.offset + 1);
+      const start = cst && getLinePos(this.offset, cst);
+
+      if (start) {
+        const end = {
+          line: start.line,
+          col: start.col + 1
+        };
+        this.linePos = {
+          start,
+          end
+        };
+      }
+
+      delete this.offset;
+    } else {
+      this.range = this.source.range;
+      this.linePos = this.source.rangeAsLinePos;
+    }
+
+    if (this.linePos) {
+      const {
+        line,
+        col
+      } = this.linePos.start;
+      this.message += ` at line ${line}, column ${col}`;
+      const ctx = cst && getPrettyContext(this.linePos, cst);
+      if (ctx) this.message += `:\n\n${ctx}\n`;
+    }
+
+    delete this.source;
+  }
+
+}
+class YAMLReferenceError extends YAMLError {
+  constructor(source, message) {
+    super('YAMLReferenceError', source, message);
+  }
+
+}
+class YAMLSemanticError extends YAMLError {
+  constructor(source, message) {
+    super('YAMLSemanticError', source, message);
+  }
+
+}
+class YAMLSyntaxError extends YAMLError {
+  constructor(source, message) {
+    super('YAMLSyntaxError', source, message);
+  }
+
+}
+class YAMLWarning extends YAMLError {
+  constructor(source, message) {
+    super('YAMLWarning', source, message);
+  }
+
+}
+
+function _defineProperty(obj, key, value) {
+  if (key in obj) {
+    Object.defineProperty(obj, key, {
+      value: value,
+      enumerable: true,
+      configurable: true,
+      writable: true
+    });
+  } else {
+    obj[key] = value;
+  }
+
+  return obj;
+}
+
+class PlainValue extends Node {
+  static endOfLine(src, start, inFlow) {
+    let ch = src[start];
+    let offset = start;
+
+    while (ch && ch !== '\n') {
+      if (inFlow && (ch === '[' || ch === ']' || ch === '{' || ch === '}' || ch === ',')) break;
+      const next = src[offset + 1];
+      if (ch === ':' && (!next || next === '\n' || next === '\t' || next === ' ' || inFlow && next === ',')) break;
+      if ((ch === ' ' || ch === '\t') && next === '#') break;
+      offset += 1;
+      ch = next;
+    }
+
+    return offset;
+  }
+
+  get strValue() {
+    if (!this.valueRange || !this.context) return null;
+    let {
+      start,
+      end
+    } = this.valueRange;
+    const {
+      src
+    } = this.context;
+    let ch = src[end - 1];
+
+    while (start < end && (ch === '\n' || ch === '\t' || ch === ' ')) ch = src[--end - 1];
+
+    let str = '';
+
+    for (let i = start; i < end; ++i) {
+      const ch = src[i];
+
+      if (ch === '\n') {
+        const {
+          fold,
+          offset
+        } = Node.foldNewline(src, i, -1);
+        str += fold;
+        i = offset;
+      } else if (ch === ' ' || ch === '\t') {
+        // trim trailing whitespace
+        const wsStart = i;
+        let next = src[i + 1];
+
+        while (i < end && (next === ' ' || next === '\t')) {
+          i += 1;
+          next = src[i + 1];
+        }
+
+        if (next !== '\n') str += i > wsStart ? src.slice(wsStart, i + 1) : ch;
+      } else {
+        str += ch;
+      }
+    }
+
+    const ch0 = src[start];
+
+    switch (ch0) {
+      case '\t':
+        {
+          const msg = 'Plain value cannot start with a tab character';
+          const errors = [new YAMLSemanticError(this, msg)];
+          return {
+            errors,
+            str
+          };
+        }
+
+      case '@':
+      case '`':
+        {
+          const msg = `Plain value cannot start with reserved character ${ch0}`;
+          const errors = [new YAMLSemanticError(this, msg)];
+          return {
+            errors,
+            str
+          };
+        }
+
+      default:
+        return str;
+    }
+  }
+
+  parseBlockValue(start) {
+    const {
+      indent,
+      inFlow,
+      src
+    } = this.context;
+    let offset = start;
+    let valueEnd = start;
+
+    for (let ch = src[offset]; ch === '\n'; ch = src[offset]) {
+      if (Node.atDocumentBoundary(src, offset + 1)) break;
+      const end = Node.endOfBlockIndent(src, indent, offset + 1);
+      if (end === null || src[end] === '#') break;
+
+      if (src[end] === '\n') {
+        offset = end;
+      } else {
+        valueEnd = PlainValue.endOfLine(src, end, inFlow);
+        offset = valueEnd;
+      }
+    }
+
+    if (this.valueRange.isEmpty()) this.valueRange.start = start;
+    this.valueRange.end = valueEnd;
+    return valueEnd;
+  }
+  /**
+   * Parses a plain value from the source
+   *
+   * Accepted forms are:
+   * ```
+   * #comment
+   *
+   * first line
+   *
+   * first line #comment
+   *
+   * first line
+   * block
+   * lines
+   *
+   * #comment
+   * block
+   * lines
+   * ```
+   * where block lines are empty or have an indent level greater than `indent`.
+   *
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this scalar, may be `\n`
+   */
+
+
+  parse(context, start) {
+    this.context = context;
+    const {
+      inFlow,
+      src
+    } = context;
+    let offset = start;
+    const ch = src[offset];
+
+    if (ch && ch !== '#' && ch !== '\n') {
+      offset = PlainValue.endOfLine(src, start, inFlow);
+    }
+
+    this.valueRange = new Range(start, offset);
+    offset = Node.endOfWhiteSpace(src, offset);
+    offset = this.parseComment(offset);
+
+    if (!this.hasComment || this.valueRange.isEmpty()) {
+      offset = this.parseBlockValue(offset);
+    }
+
+    return offset;
+  }
+
+}
+
+exports.Char = Char;
+exports.Node = Node;
+exports.PlainValue = PlainValue;
+exports.Range = Range;
+exports.Type = Type;
+exports.YAMLError = YAMLError;
+exports.YAMLReferenceError = YAMLReferenceError;
+exports.YAMLSemanticError = YAMLSemanticError;
+exports.YAMLSyntaxError = YAMLSyntaxError;
+exports.YAMLWarning = YAMLWarning;
+exports._defineProperty = _defineProperty;
+exports.defaultTagPrefix = defaultTagPrefix;
+exports.defaultTags = defaultTags;
+
+
+/***/ }),
+
+/***/ 1387:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+
+
+var PlainValue = __nccwpck_require__(4941);
+var resolveSeq = __nccwpck_require__(9914);
+var warnings = __nccwpck_require__(5130);
+
+function createMap(schema, obj, ctx) {
+  const map = new resolveSeq.YAMLMap(schema);
+
+  if (obj instanceof Map) {
+    for (const [key, value] of obj) map.items.push(schema.createPair(key, value, ctx));
+  } else if (obj && typeof obj === 'object') {
+    for (const key of Object.keys(obj)) map.items.push(schema.createPair(key, obj[key], ctx));
+  }
+
+  if (typeof schema.sortMapEntries === 'function') {
+    map.items.sort(schema.sortMapEntries);
+  }
+
+  return map;
+}
+
+const map = {
+  createNode: createMap,
+  default: true,
+  nodeClass: resolveSeq.YAMLMap,
+  tag: 'tag:yaml.org,2002:map',
+  resolve: resolveSeq.resolveMap
+};
+
+function createSeq(schema, obj, ctx) {
+  const seq = new resolveSeq.YAMLSeq(schema);
+
+  if (obj && obj[Symbol.iterator]) {
+    for (const it of obj) {
+      const v = schema.createNode(it, ctx.wrapScalars, null, ctx);
+      seq.items.push(v);
+    }
+  }
+
+  return seq;
+}
+
+const seq = {
+  createNode: createSeq,
+  default: true,
+  nodeClass: resolveSeq.YAMLSeq,
+  tag: 'tag:yaml.org,2002:seq',
+  resolve: resolveSeq.resolveSeq
+};
+
+const string = {
+  identify: value => typeof value === 'string',
+  default: true,
+  tag: 'tag:yaml.org,2002:str',
+  resolve: resolveSeq.resolveString,
+
+  stringify(item, ctx, onComment, onChompKeep) {
+    ctx = Object.assign({
+      actualString: true
+    }, ctx);
+    return resolveSeq.stringifyString(item, ctx, onComment, onChompKeep);
+  },
+
+  options: resolveSeq.strOptions
+};
+
+const failsafe = [map, seq, string];
+
+/* global BigInt */
+
+const intIdentify$2 = value => typeof value === 'bigint' || Number.isInteger(value);
+
+const intResolve$1 = (src, part, radix) => resolveSeq.intOptions.asBigInt ? BigInt(src) : parseInt(part, radix);
+
+function intStringify$1(node, radix, prefix) {
+  const {
+    value
+  } = node;
+  if (intIdentify$2(value) && value >= 0) return prefix + value.toString(radix);
+  return resolveSeq.stringifyNumber(node);
+}
+
+const nullObj = {
+  identify: value => value == null,
+  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq.Scalar(null) : null,
+  default: true,
+  tag: 'tag:yaml.org,2002:null',
+  test: /^(?:~|[Nn]ull|NULL)?$/,
+  resolve: () => null,
+  options: resolveSeq.nullOptions,
+  stringify: () => resolveSeq.nullOptions.nullStr
+};
+const boolObj = {
+  identify: value => typeof value === 'boolean',
+  default: true,
+  tag: 'tag:yaml.org,2002:bool',
+  test: /^(?:[Tt]rue|TRUE|[Ff]alse|FALSE)$/,
+  resolve: str => str[0] === 't' || str[0] === 'T',
+  options: resolveSeq.boolOptions,
+  stringify: ({
+    value
+  }) => value ? resolveSeq.boolOptions.trueStr : resolveSeq.boolOptions.falseStr
+};
+const octObj = {
+  identify: value => intIdentify$2(value) && value >= 0,
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'OCT',
+  test: /^0o([0-7]+)$/,
+  resolve: (str, oct) => intResolve$1(str, oct, 8),
+  options: resolveSeq.intOptions,
+  stringify: node => intStringify$1(node, 8, '0o')
+};
+const intObj = {
+  identify: intIdentify$2,
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  test: /^[-+]?[0-9]+$/,
+  resolve: str => intResolve$1(str, str, 10),
+  options: resolveSeq.intOptions,
+  stringify: resolveSeq.stringifyNumber
+};
+const hexObj = {
+  identify: value => intIdentify$2(value) && value >= 0,
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'HEX',
+  test: /^0x([0-9a-fA-F]+)$/,
+  resolve: (str, hex) => intResolve$1(str, hex, 16),
+  options: resolveSeq.intOptions,
+  stringify: node => intStringify$1(node, 16, '0x')
+};
+const nanObj = {
+  identify: value => typeof value === 'number',
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^(?:[-+]?\.inf|(\.nan))$/i,
+  resolve: (str, nan) => nan ? NaN : str[0] === '-' ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
+  stringify: resolveSeq.stringifyNumber
+};
+const expObj = {
+  identify: value => typeof value === 'number',
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  format: 'EXP',
+  test: /^[-+]?(?:\.[0-9]+|[0-9]+(?:\.[0-9]*)?)[eE][-+]?[0-9]+$/,
+  resolve: str => parseFloat(str),
+  stringify: ({
+    value
+  }) => Number(value).toExponential()
+};
+const floatObj = {
+  identify: value => typeof value === 'number',
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^[-+]?(?:\.([0-9]+)|[0-9]+\.([0-9]*))$/,
+
+  resolve(str, frac1, frac2) {
+    const frac = frac1 || frac2;
+    const node = new resolveSeq.Scalar(parseFloat(str));
+    if (frac && frac[frac.length - 1] === '0') node.minFractionDigits = frac.length;
+    return node;
+  },
+
+  stringify: resolveSeq.stringifyNumber
+};
+const core = failsafe.concat([nullObj, boolObj, octObj, intObj, hexObj, nanObj, expObj, floatObj]);
+
+/* global BigInt */
+
+const intIdentify$1 = value => typeof value === 'bigint' || Number.isInteger(value);
+
+const stringifyJSON = ({
+  value
+}) => JSON.stringify(value);
+
+const json = [map, seq, {
+  identify: value => typeof value === 'string',
+  default: true,
+  tag: 'tag:yaml.org,2002:str',
+  resolve: resolveSeq.resolveString,
+  stringify: stringifyJSON
+}, {
+  identify: value => value == null,
+  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq.Scalar(null) : null,
+  default: true,
+  tag: 'tag:yaml.org,2002:null',
+  test: /^null$/,
+  resolve: () => null,
+  stringify: stringifyJSON
+}, {
+  identify: value => typeof value === 'boolean',
+  default: true,
+  tag: 'tag:yaml.org,2002:bool',
+  test: /^true|false$/,
+  resolve: str => str === 'true',
+  stringify: stringifyJSON
+}, {
+  identify: intIdentify$1,
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  test: /^-?(?:0|[1-9][0-9]*)$/,
+  resolve: str => resolveSeq.intOptions.asBigInt ? BigInt(str) : parseInt(str, 10),
+  stringify: ({
+    value
+  }) => intIdentify$1(value) ? value.toString() : JSON.stringify(value)
+}, {
+  identify: value => typeof value === 'number',
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^-?(?:0|[1-9][0-9]*)(?:\.[0-9]*)?(?:[eE][-+]?[0-9]+)?$/,
+  resolve: str => parseFloat(str),
+  stringify: stringifyJSON
+}];
+
+json.scalarFallback = str => {
+  throw new SyntaxError(`Unresolved plain scalar ${JSON.stringify(str)}`);
+};
+
+/* global BigInt */
+
+const boolStringify = ({
+  value
+}) => value ? resolveSeq.boolOptions.trueStr : resolveSeq.boolOptions.falseStr;
+
+const intIdentify = value => typeof value === 'bigint' || Number.isInteger(value);
+
+function intResolve(sign, src, radix) {
+  let str = src.replace(/_/g, '');
+
+  if (resolveSeq.intOptions.asBigInt) {
+    switch (radix) {
+      case 2:
+        str = `0b${str}`;
+        break;
+
+      case 8:
+        str = `0o${str}`;
+        break;
+
+      case 16:
+        str = `0x${str}`;
+        break;
+    }
+
+    const n = BigInt(str);
+    return sign === '-' ? BigInt(-1) * n : n;
+  }
+
+  const n = parseInt(str, radix);
+  return sign === '-' ? -1 * n : n;
+}
+
+function intStringify(node, radix, prefix) {
+  const {
+    value
+  } = node;
+
+  if (intIdentify(value)) {
+    const str = value.toString(radix);
+    return value < 0 ? '-' + prefix + str.substr(1) : prefix + str;
+  }
+
+  return resolveSeq.stringifyNumber(node);
+}
+
+const yaml11 = failsafe.concat([{
+  identify: value => value == null,
+  createNode: (schema, value, ctx) => ctx.wrapScalars ? new resolveSeq.Scalar(null) : null,
+  default: true,
+  tag: 'tag:yaml.org,2002:null',
+  test: /^(?:~|[Nn]ull|NULL)?$/,
+  resolve: () => null,
+  options: resolveSeq.nullOptions,
+  stringify: () => resolveSeq.nullOptions.nullStr
+}, {
+  identify: value => typeof value === 'boolean',
+  default: true,
+  tag: 'tag:yaml.org,2002:bool',
+  test: /^(?:Y|y|[Yy]es|YES|[Tt]rue|TRUE|[Oo]n|ON)$/,
+  resolve: () => true,
+  options: resolveSeq.boolOptions,
+  stringify: boolStringify
+}, {
+  identify: value => typeof value === 'boolean',
+  default: true,
+  tag: 'tag:yaml.org,2002:bool',
+  test: /^(?:N|n|[Nn]o|NO|[Ff]alse|FALSE|[Oo]ff|OFF)$/i,
+  resolve: () => false,
+  options: resolveSeq.boolOptions,
+  stringify: boolStringify
+}, {
+  identify: intIdentify,
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'BIN',
+  test: /^([-+]?)0b([0-1_]+)$/,
+  resolve: (str, sign, bin) => intResolve(sign, bin, 2),
+  stringify: node => intStringify(node, 2, '0b')
+}, {
+  identify: intIdentify,
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'OCT',
+  test: /^([-+]?)0([0-7_]+)$/,
+  resolve: (str, sign, oct) => intResolve(sign, oct, 8),
+  stringify: node => intStringify(node, 8, '0')
+}, {
+  identify: intIdentify,
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  test: /^([-+]?)([0-9][0-9_]*)$/,
+  resolve: (str, sign, abs) => intResolve(sign, abs, 10),
+  stringify: resolveSeq.stringifyNumber
+}, {
+  identify: intIdentify,
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'HEX',
+  test: /^([-+]?)0x([0-9a-fA-F_]+)$/,
+  resolve: (str, sign, hex) => intResolve(sign, hex, 16),
+  stringify: node => intStringify(node, 16, '0x')
+}, {
+  identify: value => typeof value === 'number',
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^(?:[-+]?\.inf|(\.nan))$/i,
+  resolve: (str, nan) => nan ? NaN : str[0] === '-' ? Number.NEGATIVE_INFINITY : Number.POSITIVE_INFINITY,
+  stringify: resolveSeq.stringifyNumber
+}, {
+  identify: value => typeof value === 'number',
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  format: 'EXP',
+  test: /^[-+]?([0-9][0-9_]*)?(\.[0-9_]*)?[eE][-+]?[0-9]+$/,
+  resolve: str => parseFloat(str.replace(/_/g, '')),
+  stringify: ({
+    value
+  }) => Number(value).toExponential()
+}, {
+  identify: value => typeof value === 'number',
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  test: /^[-+]?(?:[0-9][0-9_]*)?\.([0-9_]*)$/,
+
+  resolve(str, frac) {
+    const node = new resolveSeq.Scalar(parseFloat(str.replace(/_/g, '')));
+
+    if (frac) {
+      const f = frac.replace(/_/g, '');
+      if (f[f.length - 1] === '0') node.minFractionDigits = f.length;
+    }
+
+    return node;
+  },
+
+  stringify: resolveSeq.stringifyNumber
+}], warnings.binary, warnings.omap, warnings.pairs, warnings.set, warnings.intTime, warnings.floatTime, warnings.timestamp);
+
+const schemas = {
+  core,
+  failsafe,
+  json,
+  yaml11
+};
+const tags = {
+  binary: warnings.binary,
+  bool: boolObj,
+  float: floatObj,
+  floatExp: expObj,
+  floatNaN: nanObj,
+  floatTime: warnings.floatTime,
+  int: intObj,
+  intHex: hexObj,
+  intOct: octObj,
+  intTime: warnings.intTime,
+  map,
+  null: nullObj,
+  omap: warnings.omap,
+  pairs: warnings.pairs,
+  seq,
+  set: warnings.set,
+  timestamp: warnings.timestamp
+};
+
+function findTagObject(value, tagName, tags) {
+  if (tagName) {
+    const match = tags.filter(t => t.tag === tagName);
+    const tagObj = match.find(t => !t.format) || match[0];
+    if (!tagObj) throw new Error(`Tag ${tagName} not found`);
+    return tagObj;
+  } // TODO: deprecate/remove class check
+
+
+  return tags.find(t => (t.identify && t.identify(value) || t.class && value instanceof t.class) && !t.format);
+}
+
+function createNode(value, tagName, ctx) {
+  if (value instanceof resolveSeq.Node) return value;
+  const {
+    defaultPrefix,
+    onTagObj,
+    prevObjects,
+    schema,
+    wrapScalars
+  } = ctx;
+  if (tagName && tagName.startsWith('!!')) tagName = defaultPrefix + tagName.slice(2);
+  let tagObj = findTagObject(value, tagName, schema.tags);
+
+  if (!tagObj) {
+    if (typeof value.toJSON === 'function') value = value.toJSON();
+    if (!value || typeof value !== 'object') return wrapScalars ? new resolveSeq.Scalar(value) : value;
+    tagObj = value instanceof Map ? map : value[Symbol.iterator] ? seq : map;
+  }
+
+  if (onTagObj) {
+    onTagObj(tagObj);
+    delete ctx.onTagObj;
+  } // Detect duplicate references to the same object & use Alias nodes for all
+  // after first. The `obj` wrapper allows for circular references to resolve.
+
+
+  const obj = {
+    value: undefined,
+    node: undefined
+  };
+
+  if (value && typeof value === 'object' && prevObjects) {
+    const prev = prevObjects.get(value);
+
+    if (prev) {
+      const alias = new resolveSeq.Alias(prev); // leaves source dirty; must be cleaned by caller
+
+      ctx.aliasNodes.push(alias); // defined along with prevObjects
+
+      return alias;
+    }
+
+    obj.value = value;
+    prevObjects.set(value, obj);
+  }
+
+  obj.node = tagObj.createNode ? tagObj.createNode(ctx.schema, value, ctx) : wrapScalars ? new resolveSeq.Scalar(value) : value;
+  if (tagName && obj.node instanceof resolveSeq.Node) obj.node.tag = tagName;
+  return obj.node;
+}
+
+function getSchemaTags(schemas, knownTags, customTags, schemaId) {
+  let tags = schemas[schemaId.replace(/\W/g, '')]; // 'yaml-1.1' -> 'yaml11'
+
+  if (!tags) {
+    const keys = Object.keys(schemas).map(key => JSON.stringify(key)).join(', ');
+    throw new Error(`Unknown schema "${schemaId}"; use one of ${keys}`);
+  }
+
+  if (Array.isArray(customTags)) {
+    for (const tag of customTags) tags = tags.concat(tag);
+  } else if (typeof customTags === 'function') {
+    tags = customTags(tags.slice());
+  }
+
+  for (let i = 0; i < tags.length; ++i) {
+    const tag = tags[i];
+
+    if (typeof tag === 'string') {
+      const tagObj = knownTags[tag];
+
+      if (!tagObj) {
+        const keys = Object.keys(knownTags).map(key => JSON.stringify(key)).join(', ');
+        throw new Error(`Unknown custom tag "${tag}"; use one of ${keys}`);
+      }
+
+      tags[i] = tagObj;
+    }
+  }
+
+  return tags;
+}
+
+const sortMapEntriesByKey = (a, b) => a.key < b.key ? -1 : a.key > b.key ? 1 : 0;
+
+class Schema {
+  // TODO: remove in v2
+  // TODO: remove in v2
+  constructor({
+    customTags,
+    merge,
+    schema,
+    sortMapEntries,
+    tags: deprecatedCustomTags
+  }) {
+    this.merge = !!merge;
+    this.name = schema;
+    this.sortMapEntries = sortMapEntries === true ? sortMapEntriesByKey : sortMapEntries || null;
+    if (!customTags && deprecatedCustomTags) warnings.warnOptionDeprecation('tags', 'customTags');
+    this.tags = getSchemaTags(schemas, tags, customTags || deprecatedCustomTags, schema);
+  }
+
+  createNode(value, wrapScalars, tagName, ctx) {
+    const baseCtx = {
+      defaultPrefix: Schema.defaultPrefix,
+      schema: this,
+      wrapScalars
+    };
+    const createCtx = ctx ? Object.assign(ctx, baseCtx) : baseCtx;
+    return createNode(value, tagName, createCtx);
+  }
+
+  createPair(key, value, ctx) {
+    if (!ctx) ctx = {
+      wrapScalars: true
+    };
+    const k = this.createNode(key, ctx.wrapScalars, null, ctx);
+    const v = this.createNode(value, ctx.wrapScalars, null, ctx);
+    return new resolveSeq.Pair(k, v);
+  }
+
+}
+
+PlainValue._defineProperty(Schema, "defaultPrefix", PlainValue.defaultTagPrefix);
+
+PlainValue._defineProperty(Schema, "defaultTags", PlainValue.defaultTags);
+
+exports.Schema = Schema;
+
+
+/***/ }),
+
+/***/ 4083:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+
+
+var parseCst = __nccwpck_require__(8232);
+var Document$1 = __nccwpck_require__(8082);
+var Schema = __nccwpck_require__(1387);
+var PlainValue = __nccwpck_require__(4941);
+var warnings = __nccwpck_require__(5130);
+__nccwpck_require__(9914);
+
+function createNode(value, wrapScalars = true, tag) {
+  if (tag === undefined && typeof wrapScalars === 'string') {
+    tag = wrapScalars;
+    wrapScalars = true;
+  }
+
+  const options = Object.assign({}, Document$1.Document.defaults[Document$1.defaultOptions.version], Document$1.defaultOptions);
+  const schema = new Schema.Schema(options);
+  return schema.createNode(value, wrapScalars, tag);
+}
+
+class Document extends Document$1.Document {
+  constructor(options) {
+    super(Object.assign({}, Document$1.defaultOptions, options));
+  }
+
+}
+
+function parseAllDocuments(src, options) {
+  const stream = [];
+  let prev;
+
+  for (const cstDoc of parseCst.parse(src)) {
+    const doc = new Document(options);
+    doc.parse(cstDoc, prev);
+    stream.push(doc);
+    prev = doc;
+  }
+
+  return stream;
+}
+
+function parseDocument(src, options) {
+  const cst = parseCst.parse(src);
+  const doc = new Document(options).parse(cst[0]);
+
+  if (cst.length > 1) {
+    const errMsg = 'Source contains multiple documents; please use YAML.parseAllDocuments()';
+    doc.errors.unshift(new PlainValue.YAMLSemanticError(cst[1], errMsg));
+  }
+
+  return doc;
+}
+
+function parse(src, options) {
+  const doc = parseDocument(src, options);
+  doc.warnings.forEach(warning => warnings.warn(warning));
+  if (doc.errors.length > 0) throw doc.errors[0];
+  return doc.toJSON();
+}
+
+function stringify(value, options) {
+  const doc = new Document(options);
+  doc.contents = value;
+  return String(doc);
+}
+
+const YAML = {
+  createNode,
+  defaultOptions: Document$1.defaultOptions,
+  Document,
+  parse,
+  parseAllDocuments,
+  parseCST: parseCst.parse,
+  parseDocument,
+  scalarOptions: Document$1.scalarOptions,
+  stringify
+};
+
+exports.YAML = YAML;
+
+
+/***/ }),
+
+/***/ 8232:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+
+
+var PlainValue = __nccwpck_require__(4941);
+
+class BlankLine extends PlainValue.Node {
+  constructor() {
+    super(PlainValue.Type.BLANK_LINE);
+  }
+  /* istanbul ignore next */
+
+
+  get includesTrailingLines() {
+    // This is never called from anywhere, but if it were,
+    // this is the value it should return.
+    return true;
+  }
+  /**
+   * Parses a blank line from the source
+   *
+   * @param {ParseContext} context
+   * @param {number} start - Index of first \n character
+   * @returns {number} - Index of the character after this
+   */
+
+
+  parse(context, start) {
+    this.context = context;
+    this.range = new PlainValue.Range(start, start + 1);
+    return start + 1;
+  }
+
+}
+
+class CollectionItem extends PlainValue.Node {
+  constructor(type, props) {
+    super(type, props);
+    this.node = null;
+  }
+
+  get includesTrailingLines() {
+    return !!this.node && this.node.includesTrailingLines;
+  }
+  /**
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this
+   */
+
+
+  parse(context, start) {
+    this.context = context;
+    const {
+      parseNode,
+      src
+    } = context;
+    let {
+      atLineStart,
+      lineStart
+    } = context;
+    if (!atLineStart && this.type === PlainValue.Type.SEQ_ITEM) this.error = new PlainValue.YAMLSemanticError(this, 'Sequence items must not have preceding content on the same line');
+    const indent = atLineStart ? start - lineStart : context.indent;
+    let offset = PlainValue.Node.endOfWhiteSpace(src, start + 1);
+    let ch = src[offset];
+    const inlineComment = ch === '#';
+    const comments = [];
+    let blankLine = null;
+
+    while (ch === '\n' || ch === '#') {
+      if (ch === '#') {
+        const end = PlainValue.Node.endOfLine(src, offset + 1);
+        comments.push(new PlainValue.Range(offset, end));
+        offset = end;
+      } else {
+        atLineStart = true;
+        lineStart = offset + 1;
+        const wsEnd = PlainValue.Node.endOfWhiteSpace(src, lineStart);
+
+        if (src[wsEnd] === '\n' && comments.length === 0) {
+          blankLine = new BlankLine();
+          lineStart = blankLine.parse({
+            src
+          }, lineStart);
+        }
+
+        offset = PlainValue.Node.endOfIndent(src, lineStart);
+      }
+
+      ch = src[offset];
+    }
+
+    if (PlainValue.Node.nextNodeIsIndented(ch, offset - (lineStart + indent), this.type !== PlainValue.Type.SEQ_ITEM)) {
+      this.node = parseNode({
+        atLineStart,
+        inCollection: false,
+        indent,
+        lineStart,
+        parent: this
+      }, offset);
+    } else if (ch && lineStart > start + 1) {
+      offset = lineStart - 1;
+    }
+
+    if (this.node) {
+      if (blankLine) {
+        // Only blank lines preceding non-empty nodes are captured. Note that
+        // this means that collection item range start indices do not always
+        // increase monotonically. -- eemeli/yaml#126
+        const items = context.parent.items || context.parent.contents;
+        if (items) items.push(blankLine);
+      }
+
+      if (comments.length) Array.prototype.push.apply(this.props, comments);
+      offset = this.node.range.end;
+    } else {
+      if (inlineComment) {
+        const c = comments[0];
+        this.props.push(c);
+        offset = c.end;
+      } else {
+        offset = PlainValue.Node.endOfLine(src, start + 1);
+      }
+    }
+
+    const end = this.node ? this.node.valueRange.end : offset;
+    this.valueRange = new PlainValue.Range(start, end);
+    return offset;
+  }
+
+  setOrigRanges(cr, offset) {
+    offset = super.setOrigRanges(cr, offset);
+    return this.node ? this.node.setOrigRanges(cr, offset) : offset;
+  }
+
+  toString() {
+    const {
+      context: {
+        src
+      },
+      node,
+      range,
+      value
+    } = this;
+    if (value != null) return value;
+    const str = node ? src.slice(range.start, node.range.start) + String(node) : src.slice(range.start, range.end);
+    return PlainValue.Node.addStringTerminator(src, range.end, str);
+  }
+
+}
+
+class Comment extends PlainValue.Node {
+  constructor() {
+    super(PlainValue.Type.COMMENT);
+  }
+  /**
+   * Parses a comment line from the source
+   *
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this scalar
+   */
+
+
+  parse(context, start) {
+    this.context = context;
+    const offset = this.parseComment(start);
+    this.range = new PlainValue.Range(start, offset);
+    return offset;
+  }
+
+}
+
+function grabCollectionEndComments(node) {
+  let cnode = node;
+
+  while (cnode instanceof CollectionItem) cnode = cnode.node;
+
+  if (!(cnode instanceof Collection)) return null;
+  const len = cnode.items.length;
+  let ci = -1;
+
+  for (let i = len - 1; i >= 0; --i) {
+    const n = cnode.items[i];
+
+    if (n.type === PlainValue.Type.COMMENT) {
+      // Keep sufficiently indented comments with preceding node
+      const {
+        indent,
+        lineStart
+      } = n.context;
+      if (indent > 0 && n.range.start >= lineStart + indent) break;
+      ci = i;
+    } else if (n.type === PlainValue.Type.BLANK_LINE) ci = i;else break;
+  }
+
+  if (ci === -1) return null;
+  const ca = cnode.items.splice(ci, len - ci);
+  const prevEnd = ca[0].range.start;
+
+  while (true) {
+    cnode.range.end = prevEnd;
+    if (cnode.valueRange && cnode.valueRange.end > prevEnd) cnode.valueRange.end = prevEnd;
+    if (cnode === node) break;
+    cnode = cnode.context.parent;
+  }
+
+  return ca;
+}
+class Collection extends PlainValue.Node {
+  static nextContentHasIndent(src, offset, indent) {
+    const lineStart = PlainValue.Node.endOfLine(src, offset) + 1;
+    offset = PlainValue.Node.endOfWhiteSpace(src, lineStart);
+    const ch = src[offset];
+    if (!ch) return false;
+    if (offset >= lineStart + indent) return true;
+    if (ch !== '#' && ch !== '\n') return false;
+    return Collection.nextContentHasIndent(src, offset, indent);
+  }
+
+  constructor(firstItem) {
+    super(firstItem.type === PlainValue.Type.SEQ_ITEM ? PlainValue.Type.SEQ : PlainValue.Type.MAP);
+
+    for (let i = firstItem.props.length - 1; i >= 0; --i) {
+      if (firstItem.props[i].start < firstItem.context.lineStart) {
+        // props on previous line are assumed by the collection
+        this.props = firstItem.props.slice(0, i + 1);
+        firstItem.props = firstItem.props.slice(i + 1);
+        const itemRange = firstItem.props[0] || firstItem.valueRange;
+        firstItem.range.start = itemRange.start;
+        break;
+      }
+    }
+
+    this.items = [firstItem];
+    const ec = grabCollectionEndComments(firstItem);
+    if (ec) Array.prototype.push.apply(this.items, ec);
+  }
+
+  get includesTrailingLines() {
+    return this.items.length > 0;
+  }
+  /**
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this
+   */
+
+
+  parse(context, start) {
+    this.context = context;
+    const {
+      parseNode,
+      src
+    } = context; // It's easier to recalculate lineStart here rather than tracking down the
+    // last context from which to read it -- eemeli/yaml#2
+
+    let lineStart = PlainValue.Node.startOfLine(src, start);
+    const firstItem = this.items[0]; // First-item context needs to be correct for later comment handling
+    // -- eemeli/yaml#17
+
+    firstItem.context.parent = this;
+    this.valueRange = PlainValue.Range.copy(firstItem.valueRange);
+    const indent = firstItem.range.start - firstItem.context.lineStart;
+    let offset = start;
+    offset = PlainValue.Node.normalizeOffset(src, offset);
+    let ch = src[offset];
+    let atLineStart = PlainValue.Node.endOfWhiteSpace(src, lineStart) === offset;
+    let prevIncludesTrailingLines = false;
+
+    while (ch) {
+      while (ch === '\n' || ch === '#') {
+        if (atLineStart && ch === '\n' && !prevIncludesTrailingLines) {
+          const blankLine = new BlankLine();
+          offset = blankLine.parse({
+            src
+          }, offset);
+          this.valueRange.end = offset;
+
+          if (offset >= src.length) {
+            ch = null;
+            break;
+          }
+
+          this.items.push(blankLine);
+          offset -= 1; // blankLine.parse() consumes terminal newline
+        } else if (ch === '#') {
+          if (offset < lineStart + indent && !Collection.nextContentHasIndent(src, offset, indent)) {
+            return offset;
+          }
+
+          const comment = new Comment();
+          offset = comment.parse({
+            indent,
+            lineStart,
+            src
+          }, offset);
+          this.items.push(comment);
+          this.valueRange.end = offset;
+
+          if (offset >= src.length) {
+            ch = null;
+            break;
+          }
+        }
+
+        lineStart = offset + 1;
+        offset = PlainValue.Node.endOfIndent(src, lineStart);
+
+        if (PlainValue.Node.atBlank(src, offset)) {
+          const wsEnd = PlainValue.Node.endOfWhiteSpace(src, offset);
+          const next = src[wsEnd];
+
+          if (!next || next === '\n' || next === '#') {
+            offset = wsEnd;
+          }
+        }
+
+        ch = src[offset];
+        atLineStart = true;
+      }
+
+      if (!ch) {
+        break;
+      }
+
+      if (offset !== lineStart + indent && (atLineStart || ch !== ':')) {
+        if (offset < lineStart + indent) {
+          if (lineStart > start) offset = lineStart;
+          break;
+        } else if (!this.error) {
+          const msg = 'All collection items must start at the same column';
+          this.error = new PlainValue.YAMLSyntaxError(this, msg);
+        }
+      }
+
+      if (firstItem.type === PlainValue.Type.SEQ_ITEM) {
+        if (ch !== '-') {
+          if (lineStart > start) offset = lineStart;
+          break;
+        }
+      } else if (ch === '-' && !this.error) {
+        // map key may start with -, as long as it's followed by a non-whitespace char
+        const next = src[offset + 1];
+
+        if (!next || next === '\n' || next === '\t' || next === ' ') {
+          const msg = 'A collection cannot be both a mapping and a sequence';
+          this.error = new PlainValue.YAMLSyntaxError(this, msg);
+        }
+      }
+
+      const node = parseNode({
+        atLineStart,
+        inCollection: true,
+        indent,
+        lineStart,
+        parent: this
+      }, offset);
+      if (!node) return offset; // at next document start
+
+      this.items.push(node);
+      this.valueRange.end = node.valueRange.end;
+      offset = PlainValue.Node.normalizeOffset(src, node.range.end);
+      ch = src[offset];
+      atLineStart = false;
+      prevIncludesTrailingLines = node.includesTrailingLines; // Need to reset lineStart and atLineStart here if preceding node's range
+      // has advanced to check the current line's indentation level
+      // -- eemeli/yaml#10 & eemeli/yaml#38
+
+      if (ch) {
+        let ls = offset - 1;
+        let prev = src[ls];
+
+        while (prev === ' ' || prev === '\t') prev = src[--ls];
+
+        if (prev === '\n') {
+          lineStart = ls + 1;
+          atLineStart = true;
+        }
+      }
+
+      const ec = grabCollectionEndComments(node);
+      if (ec) Array.prototype.push.apply(this.items, ec);
+    }
+
+    return offset;
+  }
+
+  setOrigRanges(cr, offset) {
+    offset = super.setOrigRanges(cr, offset);
+    this.items.forEach(node => {
+      offset = node.setOrigRanges(cr, offset);
+    });
+    return offset;
+  }
+
+  toString() {
+    const {
+      context: {
+        src
+      },
+      items,
+      range,
+      value
+    } = this;
+    if (value != null) return value;
+    let str = src.slice(range.start, items[0].range.start) + String(items[0]);
+
+    for (let i = 1; i < items.length; ++i) {
+      const item = items[i];
+      const {
+        atLineStart,
+        indent
+      } = item.context;
+      if (atLineStart) for (let i = 0; i < indent; ++i) str += ' ';
+      str += String(item);
+    }
+
+    return PlainValue.Node.addStringTerminator(src, range.end, str);
+  }
+
+}
+
+class Directive extends PlainValue.Node {
+  constructor() {
+    super(PlainValue.Type.DIRECTIVE);
+    this.name = null;
+  }
+
+  get parameters() {
+    const raw = this.rawValue;
+    return raw ? raw.trim().split(/[ \t]+/) : [];
+  }
+
+  parseName(start) {
+    const {
+      src
+    } = this.context;
+    let offset = start;
+    let ch = src[offset];
+
+    while (ch && ch !== '\n' && ch !== '\t' && ch !== ' ') ch = src[offset += 1];
+
+    this.name = src.slice(start, offset);
+    return offset;
+  }
+
+  parseParameters(start) {
+    const {
+      src
+    } = this.context;
+    let offset = start;
+    let ch = src[offset];
+
+    while (ch && ch !== '\n' && ch !== '#') ch = src[offset += 1];
+
+    this.valueRange = new PlainValue.Range(start, offset);
+    return offset;
+  }
+
+  parse(context, start) {
+    this.context = context;
+    let offset = this.parseName(start + 1);
+    offset = this.parseParameters(offset);
+    offset = this.parseComment(offset);
+    this.range = new PlainValue.Range(start, offset);
+    return offset;
+  }
+
+}
+
+class Document extends PlainValue.Node {
+  static startCommentOrEndBlankLine(src, start) {
+    const offset = PlainValue.Node.endOfWhiteSpace(src, start);
+    const ch = src[offset];
+    return ch === '#' || ch === '\n' ? offset : start;
+  }
+
+  constructor() {
+    super(PlainValue.Type.DOCUMENT);
+    this.directives = null;
+    this.contents = null;
+    this.directivesEndMarker = null;
+    this.documentEndMarker = null;
+  }
+
+  parseDirectives(start) {
+    const {
+      src
+    } = this.context;
+    this.directives = [];
+    let atLineStart = true;
+    let hasDirectives = false;
+    let offset = start;
+
+    while (!PlainValue.Node.atDocumentBoundary(src, offset, PlainValue.Char.DIRECTIVES_END)) {
+      offset = Document.startCommentOrEndBlankLine(src, offset);
+
+      switch (src[offset]) {
+        case '\n':
+          if (atLineStart) {
+            const blankLine = new BlankLine();
+            offset = blankLine.parse({
+              src
+            }, offset);
+
+            if (offset < src.length) {
+              this.directives.push(blankLine);
+            }
+          } else {
+            offset += 1;
+            atLineStart = true;
+          }
+
+          break;
+
+        case '#':
+          {
+            const comment = new Comment();
+            offset = comment.parse({
+              src
+            }, offset);
+            this.directives.push(comment);
+            atLineStart = false;
+          }
+          break;
+
+        case '%':
+          {
+            const directive = new Directive();
+            offset = directive.parse({
+              parent: this,
+              src
+            }, offset);
+            this.directives.push(directive);
+            hasDirectives = true;
+            atLineStart = false;
+          }
+          break;
+
+        default:
+          if (hasDirectives) {
+            this.error = new PlainValue.YAMLSemanticError(this, 'Missing directives-end indicator line');
+          } else if (this.directives.length > 0) {
+            this.contents = this.directives;
+            this.directives = [];
+          }
+
+          return offset;
+      }
+    }
+
+    if (src[offset]) {
+      this.directivesEndMarker = new PlainValue.Range(offset, offset + 3);
+      return offset + 3;
+    }
+
+    if (hasDirectives) {
+      this.error = new PlainValue.YAMLSemanticError(this, 'Missing directives-end indicator line');
+    } else if (this.directives.length > 0) {
+      this.contents = this.directives;
+      this.directives = [];
+    }
+
+    return offset;
+  }
+
+  parseContents(start) {
+    const {
+      parseNode,
+      src
+    } = this.context;
+    if (!this.contents) this.contents = [];
+    let lineStart = start;
+
+    while (src[lineStart - 1] === '-') lineStart -= 1;
+
+    let offset = PlainValue.Node.endOfWhiteSpace(src, start);
+    let atLineStart = lineStart === start;
+    this.valueRange = new PlainValue.Range(offset);
+
+    while (!PlainValue.Node.atDocumentBoundary(src, offset, PlainValue.Char.DOCUMENT_END)) {
+      switch (src[offset]) {
+        case '\n':
+          if (atLineStart) {
+            const blankLine = new BlankLine();
+            offset = blankLine.parse({
+              src
+            }, offset);
+
+            if (offset < src.length) {
+              this.contents.push(blankLine);
+            }
+          } else {
+            offset += 1;
+            atLineStart = true;
+          }
+
+          lineStart = offset;
+          break;
+
+        case '#':
+          {
+            const comment = new Comment();
+            offset = comment.parse({
+              src
+            }, offset);
+            this.contents.push(comment);
+            atLineStart = false;
+          }
+          break;
+
+        default:
+          {
+            const iEnd = PlainValue.Node.endOfIndent(src, offset);
+            const context = {
+              atLineStart,
+              indent: -1,
+              inFlow: false,
+              inCollection: false,
+              lineStart,
+              parent: this
+            };
+            const node = parseNode(context, iEnd);
+            if (!node) return this.valueRange.end = iEnd; // at next document start
+
+            this.contents.push(node);
+            offset = node.range.end;
+            atLineStart = false;
+            const ec = grabCollectionEndComments(node);
+            if (ec) Array.prototype.push.apply(this.contents, ec);
+          }
+      }
+
+      offset = Document.startCommentOrEndBlankLine(src, offset);
+    }
+
+    this.valueRange.end = offset;
+
+    if (src[offset]) {
+      this.documentEndMarker = new PlainValue.Range(offset, offset + 3);
+      offset += 3;
+
+      if (src[offset]) {
+        offset = PlainValue.Node.endOfWhiteSpace(src, offset);
+
+        if (src[offset] === '#') {
+          const comment = new Comment();
+          offset = comment.parse({
+            src
+          }, offset);
+          this.contents.push(comment);
+        }
+
+        switch (src[offset]) {
+          case '\n':
+            offset += 1;
+            break;
+
+          case undefined:
+            break;
+
+          default:
+            this.error = new PlainValue.YAMLSyntaxError(this, 'Document end marker line cannot have a non-comment suffix');
+        }
+      }
+    }
+
+    return offset;
+  }
+  /**
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this
+   */
+
+
+  parse(context, start) {
+    context.root = this;
+    this.context = context;
+    const {
+      src
+    } = context;
+    let offset = src.charCodeAt(start) === 0xfeff ? start + 1 : start; // skip BOM
+
+    offset = this.parseDirectives(offset);
+    offset = this.parseContents(offset);
+    return offset;
+  }
+
+  setOrigRanges(cr, offset) {
+    offset = super.setOrigRanges(cr, offset);
+    this.directives.forEach(node => {
+      offset = node.setOrigRanges(cr, offset);
+    });
+    if (this.directivesEndMarker) offset = this.directivesEndMarker.setOrigRange(cr, offset);
+    this.contents.forEach(node => {
+      offset = node.setOrigRanges(cr, offset);
+    });
+    if (this.documentEndMarker) offset = this.documentEndMarker.setOrigRange(cr, offset);
+    return offset;
+  }
+
+  toString() {
+    const {
+      contents,
+      directives,
+      value
+    } = this;
+    if (value != null) return value;
+    let str = directives.join('');
+
+    if (contents.length > 0) {
+      if (directives.length > 0 || contents[0].type === PlainValue.Type.COMMENT) str += '---\n';
+      str += contents.join('');
+    }
+
+    if (str[str.length - 1] !== '\n') str += '\n';
+    return str;
+  }
+
+}
+
+class Alias extends PlainValue.Node {
+  /**
+   * Parses an *alias from the source
+   *
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this scalar
+   */
+  parse(context, start) {
+    this.context = context;
+    const {
+      src
+    } = context;
+    let offset = PlainValue.Node.endOfIdentifier(src, start + 1);
+    this.valueRange = new PlainValue.Range(start + 1, offset);
+    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
+    offset = this.parseComment(offset);
+    return offset;
+  }
+
+}
+
+const Chomp = {
+  CLIP: 'CLIP',
+  KEEP: 'KEEP',
+  STRIP: 'STRIP'
+};
+class BlockValue extends PlainValue.Node {
+  constructor(type, props) {
+    super(type, props);
+    this.blockIndent = null;
+    this.chomping = Chomp.CLIP;
+    this.header = null;
+  }
+
+  get includesTrailingLines() {
+    return this.chomping === Chomp.KEEP;
+  }
+
+  get strValue() {
+    if (!this.valueRange || !this.context) return null;
+    let {
+      start,
+      end
+    } = this.valueRange;
+    const {
+      indent,
+      src
+    } = this.context;
+    if (this.valueRange.isEmpty()) return '';
+    let lastNewLine = null;
+    let ch = src[end - 1];
+
+    while (ch === '\n' || ch === '\t' || ch === ' ') {
+      end -= 1;
+
+      if (end <= start) {
+        if (this.chomping === Chomp.KEEP) break;else return ''; // probably never happens
+      }
+
+      if (ch === '\n') lastNewLine = end;
+      ch = src[end - 1];
+    }
+
+    let keepStart = end + 1;
+
+    if (lastNewLine) {
+      if (this.chomping === Chomp.KEEP) {
+        keepStart = lastNewLine;
+        end = this.valueRange.end;
+      } else {
+        end = lastNewLine;
+      }
+    }
+
+    const bi = indent + this.blockIndent;
+    const folded = this.type === PlainValue.Type.BLOCK_FOLDED;
+    let atStart = true;
+    let str = '';
+    let sep = '';
+    let prevMoreIndented = false;
+
+    for (let i = start; i < end; ++i) {
+      for (let j = 0; j < bi; ++j) {
+        if (src[i] !== ' ') break;
+        i += 1;
+      }
+
+      const ch = src[i];
+
+      if (ch === '\n') {
+        if (sep === '\n') str += '\n';else sep = '\n';
+      } else {
+        const lineEnd = PlainValue.Node.endOfLine(src, i);
+        const line = src.slice(i, lineEnd);
+        i = lineEnd;
+
+        if (folded && (ch === ' ' || ch === '\t') && i < keepStart) {
+          if (sep === ' ') sep = '\n';else if (!prevMoreIndented && !atStart && sep === '\n') sep = '\n\n';
+          str += sep + line; //+ ((lineEnd < end && src[lineEnd]) || '')
+
+          sep = lineEnd < end && src[lineEnd] || '';
+          prevMoreIndented = true;
+        } else {
+          str += sep + line;
+          sep = folded && i < keepStart ? ' ' : '\n';
+          prevMoreIndented = false;
+        }
+
+        if (atStart && line !== '') atStart = false;
+      }
+    }
+
+    return this.chomping === Chomp.STRIP ? str : str + '\n';
+  }
+
+  parseBlockHeader(start) {
+    const {
+      src
+    } = this.context;
+    let offset = start + 1;
+    let bi = '';
+
+    while (true) {
+      const ch = src[offset];
+
+      switch (ch) {
+        case '-':
+          this.chomping = Chomp.STRIP;
+          break;
+
+        case '+':
+          this.chomping = Chomp.KEEP;
+          break;
+
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+        case '8':
+        case '9':
+          bi += ch;
+          break;
+
+        default:
+          this.blockIndent = Number(bi) || null;
+          this.header = new PlainValue.Range(start, offset);
+          return offset;
+      }
+
+      offset += 1;
+    }
+  }
+
+  parseBlockValue(start) {
+    const {
+      indent,
+      src
+    } = this.context;
+    const explicit = !!this.blockIndent;
+    let offset = start;
+    let valueEnd = start;
+    let minBlockIndent = 1;
+
+    for (let ch = src[offset]; ch === '\n'; ch = src[offset]) {
+      offset += 1;
+      if (PlainValue.Node.atDocumentBoundary(src, offset)) break;
+      const end = PlainValue.Node.endOfBlockIndent(src, indent, offset); // should not include tab?
+
+      if (end === null) break;
+      const ch = src[end];
+      const lineIndent = end - (offset + indent);
+
+      if (!this.blockIndent) {
+        // no explicit block indent, none yet detected
+        if (src[end] !== '\n') {
+          // first line with non-whitespace content
+          if (lineIndent < minBlockIndent) {
+            const msg = 'Block scalars with more-indented leading empty lines must use an explicit indentation indicator';
+            this.error = new PlainValue.YAMLSemanticError(this, msg);
+          }
+
+          this.blockIndent = lineIndent;
+        } else if (lineIndent > minBlockIndent) {
+          // empty line with more whitespace
+          minBlockIndent = lineIndent;
+        }
+      } else if (ch && ch !== '\n' && lineIndent < this.blockIndent) {
+        if (src[end] === '#') break;
+
+        if (!this.error) {
+          const src = explicit ? 'explicit indentation indicator' : 'first line';
+          const msg = `Block scalars must not be less indented than their ${src}`;
+          this.error = new PlainValue.YAMLSemanticError(this, msg);
+        }
+      }
+
+      if (src[end] === '\n') {
+        offset = end;
+      } else {
+        offset = valueEnd = PlainValue.Node.endOfLine(src, end);
+      }
+    }
+
+    if (this.chomping !== Chomp.KEEP) {
+      offset = src[valueEnd] ? valueEnd + 1 : valueEnd;
+    }
+
+    this.valueRange = new PlainValue.Range(start + 1, offset);
+    return offset;
+  }
+  /**
+   * Parses a block value from the source
+   *
+   * Accepted forms are:
+   * ```
+   * BS
+   * block
+   * lines
+   *
+   * BS #comment
+   * block
+   * lines
+   * ```
+   * where the block style BS matches the regexp `[|>][-+1-9]*` and block lines
+   * are empty or have an indent level greater than `indent`.
+   *
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this block
+   */
+
+
+  parse(context, start) {
+    this.context = context;
+    const {
+      src
+    } = context;
+    let offset = this.parseBlockHeader(start);
+    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
+    offset = this.parseComment(offset);
+    offset = this.parseBlockValue(offset);
+    return offset;
+  }
+
+  setOrigRanges(cr, offset) {
+    offset = super.setOrigRanges(cr, offset);
+    return this.header ? this.header.setOrigRange(cr, offset) : offset;
+  }
+
+}
+
+class FlowCollection extends PlainValue.Node {
+  constructor(type, props) {
+    super(type, props);
+    this.items = null;
+  }
+
+  prevNodeIsJsonLike(idx = this.items.length) {
+    const node = this.items[idx - 1];
+    return !!node && (node.jsonLike || node.type === PlainValue.Type.COMMENT && this.prevNodeIsJsonLike(idx - 1));
+  }
+  /**
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this
+   */
+
+
+  parse(context, start) {
+    this.context = context;
+    const {
+      parseNode,
+      src
+    } = context;
+    let {
+      indent,
+      lineStart
+    } = context;
+    let char = src[start]; // { or [
+
+    this.items = [{
+      char,
+      offset: start
+    }];
+    let offset = PlainValue.Node.endOfWhiteSpace(src, start + 1);
+    char = src[offset];
+
+    while (char && char !== ']' && char !== '}') {
+      switch (char) {
+        case '\n':
+          {
+            lineStart = offset + 1;
+            const wsEnd = PlainValue.Node.endOfWhiteSpace(src, lineStart);
+
+            if (src[wsEnd] === '\n') {
+              const blankLine = new BlankLine();
+              lineStart = blankLine.parse({
+                src
+              }, lineStart);
+              this.items.push(blankLine);
+            }
+
+            offset = PlainValue.Node.endOfIndent(src, lineStart);
+
+            if (offset <= lineStart + indent) {
+              char = src[offset];
+
+              if (offset < lineStart + indent || char !== ']' && char !== '}') {
+                const msg = 'Insufficient indentation in flow collection';
+                this.error = new PlainValue.YAMLSemanticError(this, msg);
+              }
+            }
+          }
+          break;
+
+        case ',':
+          {
+            this.items.push({
+              char,
+              offset
+            });
+            offset += 1;
+          }
+          break;
+
+        case '#':
+          {
+            const comment = new Comment();
+            offset = comment.parse({
+              src
+            }, offset);
+            this.items.push(comment);
+          }
+          break;
+
+        case '?':
+        case ':':
+          {
+            const next = src[offset + 1];
+
+            if (next === '\n' || next === '\t' || next === ' ' || next === ',' || // in-flow : after JSON-like key does not need to be followed by whitespace
+            char === ':' && this.prevNodeIsJsonLike()) {
+              this.items.push({
+                char,
+                offset
+              });
+              offset += 1;
+              break;
+            }
+          }
+        // fallthrough
+
+        default:
+          {
+            const node = parseNode({
+              atLineStart: false,
+              inCollection: false,
+              inFlow: true,
+              indent: -1,
+              lineStart,
+              parent: this
+            }, offset);
+
+            if (!node) {
+              // at next document start
+              this.valueRange = new PlainValue.Range(start, offset);
+              return offset;
+            }
+
+            this.items.push(node);
+            offset = PlainValue.Node.normalizeOffset(src, node.range.end);
+          }
+      }
+
+      offset = PlainValue.Node.endOfWhiteSpace(src, offset);
+      char = src[offset];
+    }
+
+    this.valueRange = new PlainValue.Range(start, offset + 1);
+
+    if (char) {
+      this.items.push({
+        char,
+        offset
+      });
+      offset = PlainValue.Node.endOfWhiteSpace(src, offset + 1);
+      offset = this.parseComment(offset);
+    }
+
+    return offset;
+  }
+
+  setOrigRanges(cr, offset) {
+    offset = super.setOrigRanges(cr, offset);
+    this.items.forEach(node => {
+      if (node instanceof PlainValue.Node) {
+        offset = node.setOrigRanges(cr, offset);
+      } else if (cr.length === 0) {
+        node.origOffset = node.offset;
+      } else {
+        let i = offset;
+
+        while (i < cr.length) {
+          if (cr[i] > node.offset) break;else ++i;
+        }
+
+        node.origOffset = node.offset + i;
+        offset = i;
+      }
+    });
+    return offset;
+  }
+
+  toString() {
+    const {
+      context: {
+        src
+      },
+      items,
+      range,
+      value
+    } = this;
+    if (value != null) return value;
+    const nodes = items.filter(item => item instanceof PlainValue.Node);
+    let str = '';
+    let prevEnd = range.start;
+    nodes.forEach(node => {
+      const prefix = src.slice(prevEnd, node.range.start);
+      prevEnd = node.range.end;
+      str += prefix + String(node);
+
+      if (str[str.length - 1] === '\n' && src[prevEnd - 1] !== '\n' && src[prevEnd] === '\n') {
+        // Comment range does not include the terminal newline, but its
+        // stringified value does. Without this fix, newlines at comment ends
+        // get duplicated.
+        prevEnd += 1;
+      }
+    });
+    str += src.slice(prevEnd, range.end);
+    return PlainValue.Node.addStringTerminator(src, range.end, str);
+  }
+
+}
+
+class QuoteDouble extends PlainValue.Node {
+  static endOfQuote(src, offset) {
+    let ch = src[offset];
+
+    while (ch && ch !== '"') {
+      offset += ch === '\\' ? 2 : 1;
+      ch = src[offset];
+    }
+
+    return offset + 1;
+  }
+  /**
+   * @returns {string | { str: string, errors: YAMLSyntaxError[] }}
+   */
+
+
+  get strValue() {
+    if (!this.valueRange || !this.context) return null;
+    const errors = [];
+    const {
+      start,
+      end
+    } = this.valueRange;
+    const {
+      indent,
+      src
+    } = this.context;
+    if (src[end - 1] !== '"') errors.push(new PlainValue.YAMLSyntaxError(this, 'Missing closing "quote')); // Using String#replace is too painful with escaped newlines preceded by
+    // escaped backslashes; also, this should be faster.
+
+    let str = '';
+
+    for (let i = start + 1; i < end - 1; ++i) {
+      const ch = src[i];
+
+      if (ch === '\n') {
+        if (PlainValue.Node.atDocumentBoundary(src, i + 1)) errors.push(new PlainValue.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
+        const {
+          fold,
+          offset,
+          error
+        } = PlainValue.Node.foldNewline(src, i, indent);
+        str += fold;
+        i = offset;
+        if (error) errors.push(new PlainValue.YAMLSemanticError(this, 'Multi-line double-quoted string needs to be sufficiently indented'));
+      } else if (ch === '\\') {
+        i += 1;
+
+        switch (src[i]) {
+          case '0':
+            str += '\0';
+            break;
+          // null character
+
+          case 'a':
+            str += '\x07';
+            break;
+          // bell character
+
+          case 'b':
+            str += '\b';
+            break;
+          // backspace
+
+          case 'e':
+            str += '\x1b';
+            break;
+          // escape character
+
+          case 'f':
+            str += '\f';
+            break;
+          // form feed
+
+          case 'n':
+            str += '\n';
+            break;
+          // line feed
+
+          case 'r':
+            str += '\r';
+            break;
+          // carriage return
+
+          case 't':
+            str += '\t';
+            break;
+          // horizontal tab
+
+          case 'v':
+            str += '\v';
+            break;
+          // vertical tab
+
+          case 'N':
+            str += '\u0085';
+            break;
+          // Unicode next line
+
+          case '_':
+            str += '\u00a0';
+            break;
+          // Unicode non-breaking space
+
+          case 'L':
+            str += '\u2028';
+            break;
+          // Unicode line separator
+
+          case 'P':
+            str += '\u2029';
+            break;
+          // Unicode paragraph separator
+
+          case ' ':
+            str += ' ';
+            break;
+
+          case '"':
+            str += '"';
+            break;
+
+          case '/':
+            str += '/';
+            break;
+
+          case '\\':
+            str += '\\';
+            break;
+
+          case '\t':
+            str += '\t';
+            break;
+
+          case 'x':
+            str += this.parseCharCode(i + 1, 2, errors);
+            i += 2;
+            break;
+
+          case 'u':
+            str += this.parseCharCode(i + 1, 4, errors);
+            i += 4;
+            break;
+
+          case 'U':
+            str += this.parseCharCode(i + 1, 8, errors);
+            i += 8;
+            break;
+
+          case '\n':
+            // skip escaped newlines, but still trim the following line
+            while (src[i + 1] === ' ' || src[i + 1] === '\t') i += 1;
+
+            break;
+
+          default:
+            errors.push(new PlainValue.YAMLSyntaxError(this, `Invalid escape sequence ${src.substr(i - 1, 2)}`));
+            str += '\\' + src[i];
+        }
+      } else if (ch === ' ' || ch === '\t') {
+        // trim trailing whitespace
+        const wsStart = i;
+        let next = src[i + 1];
+
+        while (next === ' ' || next === '\t') {
+          i += 1;
+          next = src[i + 1];
+        }
+
+        if (next !== '\n') str += i > wsStart ? src.slice(wsStart, i + 1) : ch;
+      } else {
+        str += ch;
+      }
+    }
+
+    return errors.length > 0 ? {
+      errors,
+      str
+    } : str;
+  }
+
+  parseCharCode(offset, length, errors) {
+    const {
+      src
+    } = this.context;
+    const cc = src.substr(offset, length);
+    const ok = cc.length === length && /^[0-9a-fA-F]+$/.test(cc);
+    const code = ok ? parseInt(cc, 16) : NaN;
+
+    if (isNaN(code)) {
+      errors.push(new PlainValue.YAMLSyntaxError(this, `Invalid escape sequence ${src.substr(offset - 2, length + 2)}`));
+      return src.substr(offset - 2, length + 2);
+    }
+
+    return String.fromCodePoint(code);
+  }
+  /**
+   * Parses a "double quoted" value from the source
+   *
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this scalar
+   */
+
+
+  parse(context, start) {
+    this.context = context;
+    const {
+      src
+    } = context;
+    let offset = QuoteDouble.endOfQuote(src, start + 1);
+    this.valueRange = new PlainValue.Range(start, offset);
+    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
+    offset = this.parseComment(offset);
+    return offset;
+  }
+
+}
+
+class QuoteSingle extends PlainValue.Node {
+  static endOfQuote(src, offset) {
+    let ch = src[offset];
+
+    while (ch) {
+      if (ch === "'") {
+        if (src[offset + 1] !== "'") break;
+        ch = src[offset += 2];
+      } else {
+        ch = src[offset += 1];
+      }
+    }
+
+    return offset + 1;
+  }
+  /**
+   * @returns {string | { str: string, errors: YAMLSyntaxError[] }}
+   */
+
+
+  get strValue() {
+    if (!this.valueRange || !this.context) return null;
+    const errors = [];
+    const {
+      start,
+      end
+    } = this.valueRange;
+    const {
+      indent,
+      src
+    } = this.context;
+    if (src[end - 1] !== "'") errors.push(new PlainValue.YAMLSyntaxError(this, "Missing closing 'quote"));
+    let str = '';
+
+    for (let i = start + 1; i < end - 1; ++i) {
+      const ch = src[i];
+
+      if (ch === '\n') {
+        if (PlainValue.Node.atDocumentBoundary(src, i + 1)) errors.push(new PlainValue.YAMLSemanticError(this, 'Document boundary indicators are not allowed within string values'));
+        const {
+          fold,
+          offset,
+          error
+        } = PlainValue.Node.foldNewline(src, i, indent);
+        str += fold;
+        i = offset;
+        if (error) errors.push(new PlainValue.YAMLSemanticError(this, 'Multi-line single-quoted string needs to be sufficiently indented'));
+      } else if (ch === "'") {
+        str += ch;
+        i += 1;
+        if (src[i] !== "'") errors.push(new PlainValue.YAMLSyntaxError(this, 'Unescaped single quote? This should not happen.'));
+      } else if (ch === ' ' || ch === '\t') {
+        // trim trailing whitespace
+        const wsStart = i;
+        let next = src[i + 1];
+
+        while (next === ' ' || next === '\t') {
+          i += 1;
+          next = src[i + 1];
+        }
+
+        if (next !== '\n') str += i > wsStart ? src.slice(wsStart, i + 1) : ch;
+      } else {
+        str += ch;
+      }
+    }
+
+    return errors.length > 0 ? {
+      errors,
+      str
+    } : str;
+  }
+  /**
+   * Parses a 'single quoted' value from the source
+   *
+   * @param {ParseContext} context
+   * @param {number} start - Index of first character
+   * @returns {number} - Index of the character after this scalar
+   */
+
+
+  parse(context, start) {
+    this.context = context;
+    const {
+      src
+    } = context;
+    let offset = QuoteSingle.endOfQuote(src, start + 1);
+    this.valueRange = new PlainValue.Range(start, offset);
+    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
+    offset = this.parseComment(offset);
+    return offset;
+  }
+
+}
+
+function createNewNode(type, props) {
+  switch (type) {
+    case PlainValue.Type.ALIAS:
+      return new Alias(type, props);
+
+    case PlainValue.Type.BLOCK_FOLDED:
+    case PlainValue.Type.BLOCK_LITERAL:
+      return new BlockValue(type, props);
+
+    case PlainValue.Type.FLOW_MAP:
+    case PlainValue.Type.FLOW_SEQ:
+      return new FlowCollection(type, props);
+
+    case PlainValue.Type.MAP_KEY:
+    case PlainValue.Type.MAP_VALUE:
+    case PlainValue.Type.SEQ_ITEM:
+      return new CollectionItem(type, props);
+
+    case PlainValue.Type.COMMENT:
+    case PlainValue.Type.PLAIN:
+      return new PlainValue.PlainValue(type, props);
+
+    case PlainValue.Type.QUOTE_DOUBLE:
+      return new QuoteDouble(type, props);
+
+    case PlainValue.Type.QUOTE_SINGLE:
+      return new QuoteSingle(type, props);
+
+    /* istanbul ignore next */
+
+    default:
+      return null;
+    // should never happen
+  }
+}
+/**
+ * @param {boolean} atLineStart - Node starts at beginning of line
+ * @param {boolean} inFlow - true if currently in a flow context
+ * @param {boolean} inCollection - true if currently in a collection context
+ * @param {number} indent - Current level of indentation
+ * @param {number} lineStart - Start of the current line
+ * @param {Node} parent - The parent of the node
+ * @param {string} src - Source of the YAML document
+ */
+
+
+class ParseContext {
+  static parseType(src, offset, inFlow) {
+    switch (src[offset]) {
+      case '*':
+        return PlainValue.Type.ALIAS;
+
+      case '>':
+        return PlainValue.Type.BLOCK_FOLDED;
+
+      case '|':
+        return PlainValue.Type.BLOCK_LITERAL;
+
+      case '{':
+        return PlainValue.Type.FLOW_MAP;
+
+      case '[':
+        return PlainValue.Type.FLOW_SEQ;
+
+      case '?':
+        return !inFlow && PlainValue.Node.atBlank(src, offset + 1, true) ? PlainValue.Type.MAP_KEY : PlainValue.Type.PLAIN;
+
+      case ':':
+        return !inFlow && PlainValue.Node.atBlank(src, offset + 1, true) ? PlainValue.Type.MAP_VALUE : PlainValue.Type.PLAIN;
+
+      case '-':
+        return !inFlow && PlainValue.Node.atBlank(src, offset + 1, true) ? PlainValue.Type.SEQ_ITEM : PlainValue.Type.PLAIN;
+
+      case '"':
+        return PlainValue.Type.QUOTE_DOUBLE;
+
+      case "'":
+        return PlainValue.Type.QUOTE_SINGLE;
+
+      default:
+        return PlainValue.Type.PLAIN;
+    }
+  }
+
+  constructor(orig = {}, {
+    atLineStart,
+    inCollection,
+    inFlow,
+    indent,
+    lineStart,
+    parent
+  } = {}) {
+    PlainValue._defineProperty(this, "parseNode", (overlay, start) => {
+      if (PlainValue.Node.atDocumentBoundary(this.src, start)) return null;
+      const context = new ParseContext(this, overlay);
+      const {
+        props,
+        type,
+        valueStart
+      } = context.parseProps(start);
+      const node = createNewNode(type, props);
+      let offset = node.parse(context, valueStart);
+      node.range = new PlainValue.Range(start, offset);
+      /* istanbul ignore if */
+
+      if (offset <= start) {
+        // This should never happen, but if it does, let's make sure to at least
+        // step one character forward to avoid a busy loop.
+        node.error = new Error(`Node#parse consumed no characters`);
+        node.error.parseEnd = offset;
+        node.error.source = node;
+        node.range.end = start + 1;
+      }
+
+      if (context.nodeStartsCollection(node)) {
+        if (!node.error && !context.atLineStart && context.parent.type === PlainValue.Type.DOCUMENT) {
+          node.error = new PlainValue.YAMLSyntaxError(node, 'Block collection must not have preceding content here (e.g. directives-end indicator)');
+        }
+
+        const collection = new Collection(node);
+        offset = collection.parse(new ParseContext(context), offset);
+        collection.range = new PlainValue.Range(start, offset);
+        return collection;
+      }
+
+      return node;
+    });
+
+    this.atLineStart = atLineStart != null ? atLineStart : orig.atLineStart || false;
+    this.inCollection = inCollection != null ? inCollection : orig.inCollection || false;
+    this.inFlow = inFlow != null ? inFlow : orig.inFlow || false;
+    this.indent = indent != null ? indent : orig.indent;
+    this.lineStart = lineStart != null ? lineStart : orig.lineStart;
+    this.parent = parent != null ? parent : orig.parent || {};
+    this.root = orig.root;
+    this.src = orig.src;
+  }
+
+  nodeStartsCollection(node) {
+    const {
+      inCollection,
+      inFlow,
+      src
+    } = this;
+    if (inCollection || inFlow) return false;
+    if (node instanceof CollectionItem) return true; // check for implicit key
+
+    let offset = node.range.end;
+    if (src[offset] === '\n' || src[offset - 1] === '\n') return false;
+    offset = PlainValue.Node.endOfWhiteSpace(src, offset);
+    return src[offset] === ':';
+  } // Anchor and tag are before type, which determines the node implementation
+  // class; hence this intermediate step.
+
+
+  parseProps(offset) {
+    const {
+      inFlow,
+      parent,
+      src
+    } = this;
+    const props = [];
+    let lineHasProps = false;
+    offset = this.atLineStart ? PlainValue.Node.endOfIndent(src, offset) : PlainValue.Node.endOfWhiteSpace(src, offset);
+    let ch = src[offset];
+
+    while (ch === PlainValue.Char.ANCHOR || ch === PlainValue.Char.COMMENT || ch === PlainValue.Char.TAG || ch === '\n') {
+      if (ch === '\n') {
+        let inEnd = offset;
+        let lineStart;
+
+        do {
+          lineStart = inEnd + 1;
+          inEnd = PlainValue.Node.endOfIndent(src, lineStart);
+        } while (src[inEnd] === '\n');
+
+        const indentDiff = inEnd - (lineStart + this.indent);
+        const noIndicatorAsIndent = parent.type === PlainValue.Type.SEQ_ITEM && parent.context.atLineStart;
+        if (src[inEnd] !== '#' && !PlainValue.Node.nextNodeIsIndented(src[inEnd], indentDiff, !noIndicatorAsIndent)) break;
+        this.atLineStart = true;
+        this.lineStart = lineStart;
+        lineHasProps = false;
+        offset = inEnd;
+      } else if (ch === PlainValue.Char.COMMENT) {
+        const end = PlainValue.Node.endOfLine(src, offset + 1);
+        props.push(new PlainValue.Range(offset, end));
+        offset = end;
+      } else {
+        let end = PlainValue.Node.endOfIdentifier(src, offset + 1);
+
+        if (ch === PlainValue.Char.TAG && src[end] === ',' && /^[a-zA-Z0-9-]+\.[a-zA-Z0-9-]+,\d\d\d\d(-\d\d){0,2}\/\S/.test(src.slice(offset + 1, end + 13))) {
+          // Let's presume we're dealing with a YAML 1.0 domain tag here, rather
+          // than an empty but 'foo.bar' private-tagged node in a flow collection
+          // followed without whitespace by a plain string starting with a year
+          // or date divided by something.
+          end = PlainValue.Node.endOfIdentifier(src, end + 5);
+        }
+
+        props.push(new PlainValue.Range(offset, end));
+        lineHasProps = true;
+        offset = PlainValue.Node.endOfWhiteSpace(src, end);
+      }
+
+      ch = src[offset];
+    } // '- &a : b' has an anchor on an empty node
+
+
+    if (lineHasProps && ch === ':' && PlainValue.Node.atBlank(src, offset + 1, true)) offset -= 1;
+    const type = ParseContext.parseType(src, offset, inFlow);
+    return {
+      props,
+      type,
+      valueStart: offset
+    };
+  }
+  /**
+   * Parses a node from the source
+   * @param {ParseContext} overlay
+   * @param {number} start - Index of first non-whitespace character for the node
+   * @returns {?Node} - null if at a document boundary
+   */
+
+
+}
+
+// Published as 'yaml/parse-cst'
+function parse(src) {
+  const cr = [];
+
+  if (src.indexOf('\r') !== -1) {
+    src = src.replace(/\r\n?/g, (match, offset) => {
+      if (match.length > 1) cr.push(offset);
+      return '\n';
+    });
+  }
+
+  const documents = [];
+  let offset = 0;
+
+  do {
+    const doc = new Document();
+    const context = new ParseContext({
+      src
+    });
+    offset = doc.parse(context, offset);
+    documents.push(doc);
+  } while (offset < src.length);
+
+  documents.setOrigRanges = () => {
+    if (cr.length === 0) return false;
+
+    for (let i = 1; i < cr.length; ++i) cr[i] -= i;
+
+    let crOffset = 0;
+
+    for (let i = 0; i < documents.length; ++i) {
+      crOffset = documents[i].setOrigRanges(cr, crOffset);
+    }
+
+    cr.splice(0, cr.length);
+    return true;
+  };
+
+  documents.toString = () => documents.join('...\n');
+
+  return documents;
+}
+
+exports.parse = parse;
+
+
+/***/ }),
+
+/***/ 9914:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+
+
+var PlainValue = __nccwpck_require__(4941);
+
+function addCommentBefore(str, indent, comment) {
+  if (!comment) return str;
+  const cc = comment.replace(/[\s\S]^/gm, `$&${indent}#`);
+  return `#${cc}\n${indent}${str}`;
+}
+function addComment(str, indent, comment) {
+  return !comment ? str : comment.indexOf('\n') === -1 ? `${str} #${comment}` : `${str}\n` + comment.replace(/^/gm, `${indent || ''}#`);
+}
+
+class Node {}
+
+function toJSON(value, arg, ctx) {
+  if (Array.isArray(value)) return value.map((v, i) => toJSON(v, String(i), ctx));
+
+  if (value && typeof value.toJSON === 'function') {
+    const anchor = ctx && ctx.anchors && ctx.anchors.get(value);
+    if (anchor) ctx.onCreate = res => {
+      anchor.res = res;
+      delete ctx.onCreate;
+    };
+    const res = value.toJSON(arg, ctx);
+    if (anchor && ctx.onCreate) ctx.onCreate(res);
+    return res;
+  }
+
+  if ((!ctx || !ctx.keep) && typeof value === 'bigint') return Number(value);
+  return value;
+}
+
+class Scalar extends Node {
+  constructor(value) {
+    super();
+    this.value = value;
+  }
+
+  toJSON(arg, ctx) {
+    return ctx && ctx.keep ? this.value : toJSON(this.value, arg, ctx);
+  }
+
+  toString() {
+    return String(this.value);
+  }
+
+}
+
+function collectionFromPath(schema, path, value) {
+  let v = value;
+
+  for (let i = path.length - 1; i >= 0; --i) {
+    const k = path[i];
+
+    if (Number.isInteger(k) && k >= 0) {
+      const a = [];
+      a[k] = v;
+      v = a;
+    } else {
+      const o = {};
+      Object.defineProperty(o, k, {
+        value: v,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });
+      v = o;
+    }
+  }
+
+  return schema.createNode(v, false);
+} // null, undefined, or an empty non-string iterable (e.g. [])
+
+
+const isEmptyPath = path => path == null || typeof path === 'object' && path[Symbol.iterator]().next().done;
+class Collection extends Node {
+  constructor(schema) {
+    super();
+
+    PlainValue._defineProperty(this, "items", []);
+
+    this.schema = schema;
+  }
+
+  addIn(path, value) {
+    if (isEmptyPath(path)) this.add(value);else {
+      const [key, ...rest] = path;
+      const node = this.get(key, true);
+      if (node instanceof Collection) node.addIn(rest, value);else if (node === undefined && this.schema) this.set(key, collectionFromPath(this.schema, rest, value));else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
+    }
+  }
+
+  deleteIn([key, ...rest]) {
+    if (rest.length === 0) return this.delete(key);
+    const node = this.get(key, true);
+    if (node instanceof Collection) return node.deleteIn(rest);else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
+  }
+
+  getIn([key, ...rest], keepScalar) {
+    const node = this.get(key, true);
+    if (rest.length === 0) return !keepScalar && node instanceof Scalar ? node.value : node;else return node instanceof Collection ? node.getIn(rest, keepScalar) : undefined;
+  }
+
+  hasAllNullValues() {
+    return this.items.every(node => {
+      if (!node || node.type !== 'PAIR') return false;
+      const n = node.value;
+      return n == null || n instanceof Scalar && n.value == null && !n.commentBefore && !n.comment && !n.tag;
+    });
+  }
+
+  hasIn([key, ...rest]) {
+    if (rest.length === 0) return this.has(key);
+    const node = this.get(key, true);
+    return node instanceof Collection ? node.hasIn(rest) : false;
+  }
+
+  setIn([key, ...rest], value) {
+    if (rest.length === 0) {
+      this.set(key, value);
+    } else {
+      const node = this.get(key, true);
+      if (node instanceof Collection) node.setIn(rest, value);else if (node === undefined && this.schema) this.set(key, collectionFromPath(this.schema, rest, value));else throw new Error(`Expected YAML collection at ${key}. Remaining path: ${rest}`);
+    }
+  } // overridden in implementations
+
+  /* istanbul ignore next */
+
+
+  toJSON() {
+    return null;
+  }
+
+  toString(ctx, {
+    blockItem,
+    flowChars,
+    isMap,
+    itemIndent
+  }, onComment, onChompKeep) {
+    const {
+      indent,
+      indentStep,
+      stringify
+    } = ctx;
+    const inFlow = this.type === PlainValue.Type.FLOW_MAP || this.type === PlainValue.Type.FLOW_SEQ || ctx.inFlow;
+    if (inFlow) itemIndent += indentStep;
+    const allNullValues = isMap && this.hasAllNullValues();
+    ctx = Object.assign({}, ctx, {
+      allNullValues,
+      indent: itemIndent,
+      inFlow,
+      type: null
+    });
+    let chompKeep = false;
+    let hasItemWithNewLine = false;
+    const nodes = this.items.reduce((nodes, item, i) => {
+      let comment;
+
+      if (item) {
+        if (!chompKeep && item.spaceBefore) nodes.push({
+          type: 'comment',
+          str: ''
+        });
+        if (item.commentBefore) item.commentBefore.match(/^.*$/gm).forEach(line => {
+          nodes.push({
+            type: 'comment',
+            str: `#${line}`
+          });
+        });
+        if (item.comment) comment = item.comment;
+        if (inFlow && (!chompKeep && item.spaceBefore || item.commentBefore || item.comment || item.key && (item.key.commentBefore || item.key.comment) || item.value && (item.value.commentBefore || item.value.comment))) hasItemWithNewLine = true;
+      }
+
+      chompKeep = false;
+      let str = stringify(item, ctx, () => comment = null, () => chompKeep = true);
+      if (inFlow && !hasItemWithNewLine && str.includes('\n')) hasItemWithNewLine = true;
+      if (inFlow && i < this.items.length - 1) str += ',';
+      str = addComment(str, itemIndent, comment);
+      if (chompKeep && (comment || inFlow)) chompKeep = false;
+      nodes.push({
+        type: 'item',
+        str
+      });
+      return nodes;
+    }, []);
+    let str;
+
+    if (nodes.length === 0) {
+      str = flowChars.start + flowChars.end;
+    } else if (inFlow) {
+      const {
+        start,
+        end
+      } = flowChars;
+      const strings = nodes.map(n => n.str);
+
+      if (hasItemWithNewLine || strings.reduce((sum, str) => sum + str.length + 2, 2) > Collection.maxFlowStringSingleLineLength) {
+        str = start;
+
+        for (const s of strings) {
+          str += s ? `\n${indentStep}${indent}${s}` : '\n';
+        }
+
+        str += `\n${indent}${end}`;
+      } else {
+        str = `${start} ${strings.join(' ')} ${end}`;
+      }
+    } else {
+      const strings = nodes.map(blockItem);
+      str = strings.shift();
+
+      for (const s of strings) str += s ? `\n${indent}${s}` : '\n';
+    }
+
+    if (this.comment) {
+      str += '\n' + this.comment.replace(/^/gm, `${indent}#`);
+      if (onComment) onComment();
+    } else if (chompKeep && onChompKeep) onChompKeep();
+
+    return str;
+  }
+
+}
+
+PlainValue._defineProperty(Collection, "maxFlowStringSingleLineLength", 60);
+
+function asItemIndex(key) {
+  let idx = key instanceof Scalar ? key.value : key;
+  if (idx && typeof idx === 'string') idx = Number(idx);
+  return Number.isInteger(idx) && idx >= 0 ? idx : null;
+}
+
+class YAMLSeq extends Collection {
+  add(value) {
+    this.items.push(value);
+  }
+
+  delete(key) {
+    const idx = asItemIndex(key);
+    if (typeof idx !== 'number') return false;
+    const del = this.items.splice(idx, 1);
+    return del.length > 0;
+  }
+
+  get(key, keepScalar) {
+    const idx = asItemIndex(key);
+    if (typeof idx !== 'number') return undefined;
+    const it = this.items[idx];
+    return !keepScalar && it instanceof Scalar ? it.value : it;
+  }
+
+  has(key) {
+    const idx = asItemIndex(key);
+    return typeof idx === 'number' && idx < this.items.length;
+  }
+
+  set(key, value) {
+    const idx = asItemIndex(key);
+    if (typeof idx !== 'number') throw new Error(`Expected a valid index, not ${key}.`);
+    this.items[idx] = value;
+  }
+
+  toJSON(_, ctx) {
+    const seq = [];
+    if (ctx && ctx.onCreate) ctx.onCreate(seq);
+    let i = 0;
+
+    for (const item of this.items) seq.push(toJSON(item, String(i++), ctx));
+
+    return seq;
+  }
+
+  toString(ctx, onComment, onChompKeep) {
+    if (!ctx) return JSON.stringify(this);
+    return super.toString(ctx, {
+      blockItem: n => n.type === 'comment' ? n.str : `- ${n.str}`,
+      flowChars: {
+        start: '[',
+        end: ']'
+      },
+      isMap: false,
+      itemIndent: (ctx.indent || '') + '  '
+    }, onComment, onChompKeep);
+  }
+
+}
+
+const stringifyKey = (key, jsKey, ctx) => {
+  if (jsKey === null) return '';
+  if (typeof jsKey !== 'object') return String(jsKey);
+  if (key instanceof Node && ctx && ctx.doc) return key.toString({
+    anchors: Object.create(null),
+    doc: ctx.doc,
+    indent: '',
+    indentStep: ctx.indentStep,
+    inFlow: true,
+    inStringifyKey: true,
+    stringify: ctx.stringify
+  });
+  return JSON.stringify(jsKey);
+};
+
+class Pair extends Node {
+  constructor(key, value = null) {
+    super();
+    this.key = key;
+    this.value = value;
+    this.type = Pair.Type.PAIR;
+  }
+
+  get commentBefore() {
+    return this.key instanceof Node ? this.key.commentBefore : undefined;
+  }
+
+  set commentBefore(cb) {
+    if (this.key == null) this.key = new Scalar(null);
+    if (this.key instanceof Node) this.key.commentBefore = cb;else {
+      const msg = 'Pair.commentBefore is an alias for Pair.key.commentBefore. To set it, the key must be a Node.';
+      throw new Error(msg);
+    }
+  }
+
+  addToJSMap(ctx, map) {
+    const key = toJSON(this.key, '', ctx);
+
+    if (map instanceof Map) {
+      const value = toJSON(this.value, key, ctx);
+      map.set(key, value);
+    } else if (map instanceof Set) {
+      map.add(key);
+    } else {
+      const stringKey = stringifyKey(this.key, key, ctx);
+      const value = toJSON(this.value, stringKey, ctx);
+      if (stringKey in map) Object.defineProperty(map, stringKey, {
+        value,
+        writable: true,
+        enumerable: true,
+        configurable: true
+      });else map[stringKey] = value;
+    }
+
+    return map;
+  }
+
+  toJSON(_, ctx) {
+    const pair = ctx && ctx.mapAsMap ? new Map() : {};
+    return this.addToJSMap(ctx, pair);
+  }
+
+  toString(ctx, onComment, onChompKeep) {
+    if (!ctx || !ctx.doc) return JSON.stringify(this);
+    const {
+      indent: indentSize,
+      indentSeq,
+      simpleKeys
+    } = ctx.doc.options;
+    let {
+      key,
+      value
+    } = this;
+    let keyComment = key instanceof Node && key.comment;
+
+    if (simpleKeys) {
+      if (keyComment) {
+        throw new Error('With simple keys, key nodes cannot have comments');
+      }
+
+      if (key instanceof Collection) {
+        const msg = 'With simple keys, collection cannot be used as a key value';
+        throw new Error(msg);
+      }
+    }
+
+    let explicitKey = !simpleKeys && (!key || keyComment || (key instanceof Node ? key instanceof Collection || key.type === PlainValue.Type.BLOCK_FOLDED || key.type === PlainValue.Type.BLOCK_LITERAL : typeof key === 'object'));
+    const {
+      doc,
+      indent,
+      indentStep,
+      stringify
+    } = ctx;
+    ctx = Object.assign({}, ctx, {
+      implicitKey: !explicitKey,
+      indent: indent + indentStep
+    });
+    let chompKeep = false;
+    let str = stringify(key, ctx, () => keyComment = null, () => chompKeep = true);
+    str = addComment(str, ctx.indent, keyComment);
+
+    if (!explicitKey && str.length > 1024) {
+      if (simpleKeys) throw new Error('With simple keys, single line scalar must not span more than 1024 characters');
+      explicitKey = true;
+    }
+
+    if (ctx.allNullValues && !simpleKeys) {
+      if (this.comment) {
+        str = addComment(str, ctx.indent, this.comment);
+        if (onComment) onComment();
+      } else if (chompKeep && !keyComment && onChompKeep) onChompKeep();
+
+      return ctx.inFlow && !explicitKey ? str : `? ${str}`;
+    }
+
+    str = explicitKey ? `? ${str}\n${indent}:` : `${str}:`;
+
+    if (this.comment) {
+      // expected (but not strictly required) to be a single-line comment
+      str = addComment(str, ctx.indent, this.comment);
+      if (onComment) onComment();
+    }
+
+    let vcb = '';
+    let valueComment = null;
+
+    if (value instanceof Node) {
+      if (value.spaceBefore) vcb = '\n';
+
+      if (value.commentBefore) {
+        const cs = value.commentBefore.replace(/^/gm, `${ctx.indent}#`);
+        vcb += `\n${cs}`;
+      }
+
+      valueComment = value.comment;
+    } else if (value && typeof value === 'object') {
+      value = doc.schema.createNode(value, true);
+    }
+
+    ctx.implicitKey = false;
+    if (!explicitKey && !this.comment && value instanceof Scalar) ctx.indentAtStart = str.length + 1;
+    chompKeep = false;
+
+    if (!indentSeq && indentSize >= 2 && !ctx.inFlow && !explicitKey && value instanceof YAMLSeq && value.type !== PlainValue.Type.FLOW_SEQ && !value.tag && !doc.anchors.getName(value)) {
+      // If indentSeq === false, consider '- ' as part of indentation where possible
+      ctx.indent = ctx.indent.substr(2);
+    }
+
+    const valueStr = stringify(value, ctx, () => valueComment = null, () => chompKeep = true);
+    let ws = ' ';
+
+    if (vcb || this.comment) {
+      ws = `${vcb}\n${ctx.indent}`;
+    } else if (!explicitKey && value instanceof Collection) {
+      const flow = valueStr[0] === '[' || valueStr[0] === '{';
+      if (!flow || valueStr.includes('\n')) ws = `\n${ctx.indent}`;
+    } else if (valueStr[0] === '\n') ws = '';
+
+    if (chompKeep && !valueComment && onChompKeep) onChompKeep();
+    return addComment(str + ws + valueStr, ctx.indent, valueComment);
+  }
+
+}
+
+PlainValue._defineProperty(Pair, "Type", {
+  PAIR: 'PAIR',
+  MERGE_PAIR: 'MERGE_PAIR'
+});
+
+const getAliasCount = (node, anchors) => {
+  if (node instanceof Alias) {
+    const anchor = anchors.get(node.source);
+    return anchor.count * anchor.aliasCount;
+  } else if (node instanceof Collection) {
+    let count = 0;
+
+    for (const item of node.items) {
+      const c = getAliasCount(item, anchors);
+      if (c > count) count = c;
+    }
+
+    return count;
+  } else if (node instanceof Pair) {
+    const kc = getAliasCount(node.key, anchors);
+    const vc = getAliasCount(node.value, anchors);
+    return Math.max(kc, vc);
+  }
+
+  return 1;
+};
+
+class Alias extends Node {
+  static stringify({
+    range,
+    source
+  }, {
+    anchors,
+    doc,
+    implicitKey,
+    inStringifyKey
+  }) {
+    let anchor = Object.keys(anchors).find(a => anchors[a] === source);
+    if (!anchor && inStringifyKey) anchor = doc.anchors.getName(source) || doc.anchors.newName();
+    if (anchor) return `*${anchor}${implicitKey ? ' ' : ''}`;
+    const msg = doc.anchors.getName(source) ? 'Alias node must be after source node' : 'Source node not found for alias node';
+    throw new Error(`${msg} [${range}]`);
+  }
+
+  constructor(source) {
+    super();
+    this.source = source;
+    this.type = PlainValue.Type.ALIAS;
+  }
+
+  set tag(t) {
+    throw new Error('Alias nodes cannot have tags');
+  }
+
+  toJSON(arg, ctx) {
+    if (!ctx) return toJSON(this.source, arg, ctx);
+    const {
+      anchors,
+      maxAliasCount
+    } = ctx;
+    const anchor = anchors.get(this.source);
+    /* istanbul ignore if */
+
+    if (!anchor || anchor.res === undefined) {
+      const msg = 'This should not happen: Alias anchor was not resolved?';
+      if (this.cstNode) throw new PlainValue.YAMLReferenceError(this.cstNode, msg);else throw new ReferenceError(msg);
+    }
+
+    if (maxAliasCount >= 0) {
+      anchor.count += 1;
+      if (anchor.aliasCount === 0) anchor.aliasCount = getAliasCount(this.source, anchors);
+
+      if (anchor.count * anchor.aliasCount > maxAliasCount) {
+        const msg = 'Excessive alias count indicates a resource exhaustion attack';
+        if (this.cstNode) throw new PlainValue.YAMLReferenceError(this.cstNode, msg);else throw new ReferenceError(msg);
+      }
+    }
+
+    return anchor.res;
+  } // Only called when stringifying an alias mapping key while constructing
+  // Object output.
+
+
+  toString(ctx) {
+    return Alias.stringify(this, ctx);
+  }
+
+}
+
+PlainValue._defineProperty(Alias, "default", true);
+
+function findPair(items, key) {
+  const k = key instanceof Scalar ? key.value : key;
+
+  for (const it of items) {
+    if (it instanceof Pair) {
+      if (it.key === key || it.key === k) return it;
+      if (it.key && it.key.value === k) return it;
+    }
+  }
+
+  return undefined;
+}
+class YAMLMap extends Collection {
+  add(pair, overwrite) {
+    if (!pair) pair = new Pair(pair);else if (!(pair instanceof Pair)) pair = new Pair(pair.key || pair, pair.value);
+    const prev = findPair(this.items, pair.key);
+    const sortEntries = this.schema && this.schema.sortMapEntries;
+
+    if (prev) {
+      if (overwrite) prev.value = pair.value;else throw new Error(`Key ${pair.key} already set`);
+    } else if (sortEntries) {
+      const i = this.items.findIndex(item => sortEntries(pair, item) < 0);
+      if (i === -1) this.items.push(pair);else this.items.splice(i, 0, pair);
+    } else {
+      this.items.push(pair);
+    }
+  }
+
+  delete(key) {
+    const it = findPair(this.items, key);
+    if (!it) return false;
+    const del = this.items.splice(this.items.indexOf(it), 1);
+    return del.length > 0;
+  }
+
+  get(key, keepScalar) {
+    const it = findPair(this.items, key);
+    const node = it && it.value;
+    return !keepScalar && node instanceof Scalar ? node.value : node;
+  }
+
+  has(key) {
+    return !!findPair(this.items, key);
+  }
+
+  set(key, value) {
+    this.add(new Pair(key, value), true);
+  }
+  /**
+   * @param {*} arg ignored
+   * @param {*} ctx Conversion context, originally set in Document#toJSON()
+   * @param {Class} Type If set, forces the returned collection type
+   * @returns {*} Instance of Type, Map, or Object
+   */
+
+
+  toJSON(_, ctx, Type) {
+    const map = Type ? new Type() : ctx && ctx.mapAsMap ? new Map() : {};
+    if (ctx && ctx.onCreate) ctx.onCreate(map);
+
+    for (const item of this.items) item.addToJSMap(ctx, map);
+
+    return map;
+  }
+
+  toString(ctx, onComment, onChompKeep) {
+    if (!ctx) return JSON.stringify(this);
+
+    for (const item of this.items) {
+      if (!(item instanceof Pair)) throw new Error(`Map items must all be pairs; found ${JSON.stringify(item)} instead`);
+    }
+
+    return super.toString(ctx, {
+      blockItem: n => n.str,
+      flowChars: {
+        start: '{',
+        end: '}'
+      },
+      isMap: true,
+      itemIndent: ctx.indent || ''
+    }, onComment, onChompKeep);
+  }
+
+}
+
+const MERGE_KEY = '<<';
+class Merge extends Pair {
+  constructor(pair) {
+    if (pair instanceof Pair) {
+      let seq = pair.value;
+
+      if (!(seq instanceof YAMLSeq)) {
+        seq = new YAMLSeq();
+        seq.items.push(pair.value);
+        seq.range = pair.value.range;
+      }
+
+      super(pair.key, seq);
+      this.range = pair.range;
+    } else {
+      super(new Scalar(MERGE_KEY), new YAMLSeq());
+    }
+
+    this.type = Pair.Type.MERGE_PAIR;
+  } // If the value associated with a merge key is a single mapping node, each of
+  // its key/value pairs is inserted into the current mapping, unless the key
+  // already exists in it. If the value associated with the merge key is a
+  // sequence, then this sequence is expected to contain mapping nodes and each
+  // of these nodes is merged in turn according to its order in the sequence.
+  // Keys in mapping nodes earlier in the sequence override keys specified in
+  // later mapping nodes. -- http://yaml.org/type/merge.html
+
+
+  addToJSMap(ctx, map) {
+    for (const {
+      source
+    } of this.value.items) {
+      if (!(source instanceof YAMLMap)) throw new Error('Merge sources must be maps');
+      const srcMap = source.toJSON(null, ctx, Map);
+
+      for (const [key, value] of srcMap) {
+        if (map instanceof Map) {
+          if (!map.has(key)) map.set(key, value);
+        } else if (map instanceof Set) {
+          map.add(key);
+        } else if (!Object.prototype.hasOwnProperty.call(map, key)) {
+          Object.defineProperty(map, key, {
+            value,
+            writable: true,
+            enumerable: true,
+            configurable: true
+          });
+        }
+      }
+    }
+
+    return map;
+  }
+
+  toString(ctx, onComment) {
+    const seq = this.value;
+    if (seq.items.length > 1) return super.toString(ctx, onComment);
+    this.value = seq.items[0];
+    const str = super.toString(ctx, onComment);
+    this.value = seq;
+    return str;
+  }
+
+}
+
+const binaryOptions = {
+  defaultType: PlainValue.Type.BLOCK_LITERAL,
+  lineWidth: 76
+};
+const boolOptions = {
+  trueStr: 'true',
+  falseStr: 'false'
+};
+const intOptions = {
+  asBigInt: false
+};
+const nullOptions = {
+  nullStr: 'null'
+};
+const strOptions = {
+  defaultType: PlainValue.Type.PLAIN,
+  doubleQuoted: {
+    jsonEncoding: false,
+    minMultiLineLength: 40
+  },
+  fold: {
+    lineWidth: 80,
+    minContentWidth: 20
+  }
+};
+
+function resolveScalar(str, tags, scalarFallback) {
+  for (const {
+    format,
+    test,
+    resolve
+  } of tags) {
+    if (test) {
+      const match = str.match(test);
+
+      if (match) {
+        let res = resolve.apply(null, match);
+        if (!(res instanceof Scalar)) res = new Scalar(res);
+        if (format) res.format = format;
+        return res;
+      }
+    }
+  }
+
+  if (scalarFallback) str = scalarFallback(str);
+  return new Scalar(str);
+}
+
+const FOLD_FLOW = 'flow';
+const FOLD_BLOCK = 'block';
+const FOLD_QUOTED = 'quoted'; // presumes i+1 is at the start of a line
+// returns index of last newline in more-indented block
+
+const consumeMoreIndentedLines = (text, i) => {
+  let ch = text[i + 1];
+
+  while (ch === ' ' || ch === '\t') {
+    do {
+      ch = text[i += 1];
+    } while (ch && ch !== '\n');
+
+    ch = text[i + 1];
+  }
+
+  return i;
+};
+/**
+ * Tries to keep input at up to `lineWidth` characters, splitting only on spaces
+ * not followed by newlines or spaces unless `mode` is `'quoted'`. Lines are
+ * terminated with `\n` and started with `indent`.
+ *
+ * @param {string} text
+ * @param {string} indent
+ * @param {string} [mode='flow'] `'block'` prevents more-indented lines
+ *   from being folded; `'quoted'` allows for `\` escapes, including escaped
+ *   newlines
+ * @param {Object} options
+ * @param {number} [options.indentAtStart] Accounts for leading contents on
+ *   the first line, defaulting to `indent.length`
+ * @param {number} [options.lineWidth=80]
+ * @param {number} [options.minContentWidth=20] Allow highly indented lines to
+ *   stretch the line width or indent content from the start
+ * @param {function} options.onFold Called once if the text is folded
+ * @param {function} options.onFold Called once if any line of text exceeds
+ *   lineWidth characters
+ */
+
+
+function foldFlowLines(text, indent, mode, {
+  indentAtStart,
+  lineWidth = 80,
+  minContentWidth = 20,
+  onFold,
+  onOverflow
+}) {
+  if (!lineWidth || lineWidth < 0) return text;
+  const endStep = Math.max(1 + minContentWidth, 1 + lineWidth - indent.length);
+  if (text.length <= endStep) return text;
+  const folds = [];
+  const escapedFolds = {};
+  let end = lineWidth - indent.length;
+
+  if (typeof indentAtStart === 'number') {
+    if (indentAtStart > lineWidth - Math.max(2, minContentWidth)) folds.push(0);else end = lineWidth - indentAtStart;
+  }
+
+  let split = undefined;
+  let prev = undefined;
+  let overflow = false;
+  let i = -1;
+  let escStart = -1;
+  let escEnd = -1;
+
+  if (mode === FOLD_BLOCK) {
+    i = consumeMoreIndentedLines(text, i);
+    if (i !== -1) end = i + endStep;
+  }
+
+  for (let ch; ch = text[i += 1];) {
+    if (mode === FOLD_QUOTED && ch === '\\') {
+      escStart = i;
+
+      switch (text[i + 1]) {
+        case 'x':
+          i += 3;
+          break;
+
+        case 'u':
+          i += 5;
+          break;
+
+        case 'U':
+          i += 9;
+          break;
+
+        default:
+          i += 1;
+      }
+
+      escEnd = i;
+    }
+
+    if (ch === '\n') {
+      if (mode === FOLD_BLOCK) i = consumeMoreIndentedLines(text, i);
+      end = i + endStep;
+      split = undefined;
+    } else {
+      if (ch === ' ' && prev && prev !== ' ' && prev !== '\n' && prev !== '\t') {
+        // space surrounded by non-space can be replaced with newline + indent
+        const next = text[i + 1];
+        if (next && next !== ' ' && next !== '\n' && next !== '\t') split = i;
+      }
+
+      if (i >= end) {
+        if (split) {
+          folds.push(split);
+          end = split + endStep;
+          split = undefined;
+        } else if (mode === FOLD_QUOTED) {
+          // white-space collected at end may stretch past lineWidth
+          while (prev === ' ' || prev === '\t') {
+            prev = ch;
+            ch = text[i += 1];
+            overflow = true;
+          } // Account for newline escape, but don't break preceding escape
+
+
+          const j = i > escEnd + 1 ? i - 2 : escStart - 1; // Bail out if lineWidth & minContentWidth are shorter than an escape string
+
+          if (escapedFolds[j]) return text;
+          folds.push(j);
+          escapedFolds[j] = true;
+          end = j + endStep;
+          split = undefined;
+        } else {
+          overflow = true;
+        }
+      }
+    }
+
+    prev = ch;
+  }
+
+  if (overflow && onOverflow) onOverflow();
+  if (folds.length === 0) return text;
+  if (onFold) onFold();
+  let res = text.slice(0, folds[0]);
+
+  for (let i = 0; i < folds.length; ++i) {
+    const fold = folds[i];
+    const end = folds[i + 1] || text.length;
+    if (fold === 0) res = `\n${indent}${text.slice(0, end)}`;else {
+      if (mode === FOLD_QUOTED && escapedFolds[fold]) res += `${text[fold]}\\`;
+      res += `\n${indent}${text.slice(fold + 1, end)}`;
+    }
+  }
+
+  return res;
+}
+
+const getFoldOptions = ({
+  indentAtStart
+}) => indentAtStart ? Object.assign({
+  indentAtStart
+}, strOptions.fold) : strOptions.fold; // Also checks for lines starting with %, as parsing the output as YAML 1.1 will
+// presume that's starting a new document.
+
+
+const containsDocumentMarker = str => /^(%|---|\.\.\.)/m.test(str);
+
+function lineLengthOverLimit(str, lineWidth, indentLength) {
+  if (!lineWidth || lineWidth < 0) return false;
+  const limit = lineWidth - indentLength;
+  const strLen = str.length;
+  if (strLen <= limit) return false;
+
+  for (let i = 0, start = 0; i < strLen; ++i) {
+    if (str[i] === '\n') {
+      if (i - start > limit) return true;
+      start = i + 1;
+      if (strLen - start <= limit) return false;
+    }
+  }
+
+  return true;
+}
+
+function doubleQuotedString(value, ctx) {
+  const {
+    implicitKey
+  } = ctx;
+  const {
+    jsonEncoding,
+    minMultiLineLength
+  } = strOptions.doubleQuoted;
+  const json = JSON.stringify(value);
+  if (jsonEncoding) return json;
+  const indent = ctx.indent || (containsDocumentMarker(value) ? '  ' : '');
+  let str = '';
+  let start = 0;
+
+  for (let i = 0, ch = json[i]; ch; ch = json[++i]) {
+    if (ch === ' ' && json[i + 1] === '\\' && json[i + 2] === 'n') {
+      // space before newline needs to be escaped to not be folded
+      str += json.slice(start, i) + '\\ ';
+      i += 1;
+      start = i;
+      ch = '\\';
+    }
+
+    if (ch === '\\') switch (json[i + 1]) {
+      case 'u':
+        {
+          str += json.slice(start, i);
+          const code = json.substr(i + 2, 4);
+
+          switch (code) {
+            case '0000':
+              str += '\\0';
+              break;
+
+            case '0007':
+              str += '\\a';
+              break;
+
+            case '000b':
+              str += '\\v';
+              break;
+
+            case '001b':
+              str += '\\e';
+              break;
+
+            case '0085':
+              str += '\\N';
+              break;
+
+            case '00a0':
+              str += '\\_';
+              break;
+
+            case '2028':
+              str += '\\L';
+              break;
+
+            case '2029':
+              str += '\\P';
+              break;
+
+            default:
+              if (code.substr(0, 2) === '00') str += '\\x' + code.substr(2);else str += json.substr(i, 6);
+          }
+
+          i += 5;
+          start = i + 1;
+        }
+        break;
+
+      case 'n':
+        if (implicitKey || json[i + 2] === '"' || json.length < minMultiLineLength) {
+          i += 1;
+        } else {
+          // folding will eat first newline
+          str += json.slice(start, i) + '\n\n';
+
+          while (json[i + 2] === '\\' && json[i + 3] === 'n' && json[i + 4] !== '"') {
+            str += '\n';
+            i += 2;
+          }
+
+          str += indent; // space after newline needs to be escaped to not be folded
+
+          if (json[i + 2] === ' ') str += '\\';
+          i += 1;
+          start = i + 1;
+        }
+
+        break;
+
+      default:
+        i += 1;
+    }
+  }
+
+  str = start ? str + json.slice(start) : json;
+  return implicitKey ? str : foldFlowLines(str, indent, FOLD_QUOTED, getFoldOptions(ctx));
+}
+
+function singleQuotedString(value, ctx) {
+  if (ctx.implicitKey) {
+    if (/\n/.test(value)) return doubleQuotedString(value, ctx);
+  } else {
+    // single quoted string can't have leading or trailing whitespace around newline
+    if (/[ \t]\n|\n[ \t]/.test(value)) return doubleQuotedString(value, ctx);
+  }
+
+  const indent = ctx.indent || (containsDocumentMarker(value) ? '  ' : '');
+  const res = "'" + value.replace(/'/g, "''").replace(/\n+/g, `$&\n${indent}`) + "'";
+  return ctx.implicitKey ? res : foldFlowLines(res, indent, FOLD_FLOW, getFoldOptions(ctx));
+}
+
+function blockString({
+  comment,
+  type,
+  value
+}, ctx, onComment, onChompKeep) {
+  // 1. Block can't end in whitespace unless the last line is non-empty.
+  // 2. Strings consisting of only whitespace are best rendered explicitly.
+  if (/\n[\t ]+$/.test(value) || /^\s*$/.test(value)) {
+    return doubleQuotedString(value, ctx);
+  }
+
+  const indent = ctx.indent || (ctx.forceBlockIndent || containsDocumentMarker(value) ? '  ' : '');
+  const indentSize = indent ? '2' : '1'; // root is at -1
+
+  const literal = type === PlainValue.Type.BLOCK_FOLDED ? false : type === PlainValue.Type.BLOCK_LITERAL ? true : !lineLengthOverLimit(value, strOptions.fold.lineWidth, indent.length);
+  let header = literal ? '|' : '>';
+  if (!value) return header + '\n';
+  let wsStart = '';
+  let wsEnd = '';
+  value = value.replace(/[\n\t ]*$/, ws => {
+    const n = ws.indexOf('\n');
+
+    if (n === -1) {
+      header += '-'; // strip
+    } else if (value === ws || n !== ws.length - 1) {
+      header += '+'; // keep
+
+      if (onChompKeep) onChompKeep();
+    }
+
+    wsEnd = ws.replace(/\n$/, '');
+    return '';
+  }).replace(/^[\n ]*/, ws => {
+    if (ws.indexOf(' ') !== -1) header += indentSize;
+    const m = ws.match(/ +$/);
+
+    if (m) {
+      wsStart = ws.slice(0, -m[0].length);
+      return m[0];
+    } else {
+      wsStart = ws;
+      return '';
+    }
+  });
+  if (wsEnd) wsEnd = wsEnd.replace(/\n+(?!\n|$)/g, `$&${indent}`);
+  if (wsStart) wsStart = wsStart.replace(/\n+/g, `$&${indent}`);
+
+  if (comment) {
+    header += ' #' + comment.replace(/ ?[\r\n]+/g, ' ');
+    if (onComment) onComment();
+  }
+
+  if (!value) return `${header}${indentSize}\n${indent}${wsEnd}`;
+
+  if (literal) {
+    value = value.replace(/\n+/g, `$&${indent}`);
+    return `${header}\n${indent}${wsStart}${value}${wsEnd}`;
+  }
+
+  value = value.replace(/\n+/g, '\n$&').replace(/(?:^|\n)([\t ].*)(?:([\n\t ]*)\n(?![\n\t ]))?/g, '$1$2') // more-indented lines aren't folded
+  //         ^ ind.line  ^ empty     ^ capture next empty lines only at end of indent
+  .replace(/\n+/g, `$&${indent}`);
+  const body = foldFlowLines(`${wsStart}${value}${wsEnd}`, indent, FOLD_BLOCK, strOptions.fold);
+  return `${header}\n${indent}${body}`;
+}
+
+function plainString(item, ctx, onComment, onChompKeep) {
+  const {
+    comment,
+    type,
+    value
+  } = item;
+  const {
+    actualString,
+    implicitKey,
+    indent,
+    inFlow
+  } = ctx;
+
+  if (implicitKey && /[\n[\]{},]/.test(value) || inFlow && /[[\]{},]/.test(value)) {
+    return doubleQuotedString(value, ctx);
+  }
+
+  if (!value || /^[\n\t ,[\]{}#&*!|>'"%@`]|^[?-]$|^[?-][ \t]|[\n:][ \t]|[ \t]\n|[\n\t ]#|[\n\t :]$/.test(value)) {
+    // not allowed:
+    // - empty string, '-' or '?'
+    // - start with an indicator character (except [?:-]) or /[?-] /
+    // - '\n ', ': ' or ' \n' anywhere
+    // - '#' not preceded by a non-space char
+    // - end with ' ' or ':'
+    return implicitKey || inFlow || value.indexOf('\n') === -1 ? value.indexOf('"') !== -1 && value.indexOf("'") === -1 ? singleQuotedString(value, ctx) : doubleQuotedString(value, ctx) : blockString(item, ctx, onComment, onChompKeep);
+  }
+
+  if (!implicitKey && !inFlow && type !== PlainValue.Type.PLAIN && value.indexOf('\n') !== -1) {
+    // Where allowed & type not set explicitly, prefer block style for multiline strings
+    return blockString(item, ctx, onComment, onChompKeep);
+  }
+
+  if (indent === '' && containsDocumentMarker(value)) {
+    ctx.forceBlockIndent = true;
+    return blockString(item, ctx, onComment, onChompKeep);
+  }
+
+  const str = value.replace(/\n+/g, `$&\n${indent}`); // Verify that output will be parsed as a string, as e.g. plain numbers and
+  // booleans get parsed with those types in v1.2 (e.g. '42', 'true' & '0.9e-3'),
+  // and others in v1.1.
+
+  if (actualString) {
+    const {
+      tags
+    } = ctx.doc.schema;
+    const resolved = resolveScalar(str, tags, tags.scalarFallback).value;
+    if (typeof resolved !== 'string') return doubleQuotedString(value, ctx);
+  }
+
+  const body = implicitKey ? str : foldFlowLines(str, indent, FOLD_FLOW, getFoldOptions(ctx));
+
+  if (comment && !inFlow && (body.indexOf('\n') !== -1 || comment.indexOf('\n') !== -1)) {
+    if (onComment) onComment();
+    return addCommentBefore(body, indent, comment);
+  }
+
+  return body;
+}
+
+function stringifyString(item, ctx, onComment, onChompKeep) {
+  const {
+    defaultType
+  } = strOptions;
+  const {
+    implicitKey,
+    inFlow
+  } = ctx;
+  let {
+    type,
+    value
+  } = item;
+
+  if (typeof value !== 'string') {
+    value = String(value);
+    item = Object.assign({}, item, {
+      value
+    });
+  }
+
+  const _stringify = _type => {
+    switch (_type) {
+      case PlainValue.Type.BLOCK_FOLDED:
+      case PlainValue.Type.BLOCK_LITERAL:
+        return blockString(item, ctx, onComment, onChompKeep);
+
+      case PlainValue.Type.QUOTE_DOUBLE:
+        return doubleQuotedString(value, ctx);
+
+      case PlainValue.Type.QUOTE_SINGLE:
+        return singleQuotedString(value, ctx);
+
+      case PlainValue.Type.PLAIN:
+        return plainString(item, ctx, onComment, onChompKeep);
+
+      default:
+        return null;
+    }
+  };
+
+  if (type !== PlainValue.Type.QUOTE_DOUBLE && /[\x00-\x08\x0b-\x1f\x7f-\x9f]/.test(value)) {
+    // force double quotes on control characters
+    type = PlainValue.Type.QUOTE_DOUBLE;
+  } else if ((implicitKey || inFlow) && (type === PlainValue.Type.BLOCK_FOLDED || type === PlainValue.Type.BLOCK_LITERAL)) {
+    // should not happen; blocks are not valid inside flow containers
+    type = PlainValue.Type.QUOTE_DOUBLE;
+  }
+
+  let res = _stringify(type);
+
+  if (res === null) {
+    res = _stringify(defaultType);
+    if (res === null) throw new Error(`Unsupported default string type ${defaultType}`);
+  }
+
+  return res;
+}
+
+function stringifyNumber({
+  format,
+  minFractionDigits,
+  tag,
+  value
+}) {
+  if (typeof value === 'bigint') return String(value);
+  if (!isFinite(value)) return isNaN(value) ? '.nan' : value < 0 ? '-.inf' : '.inf';
+  let n = JSON.stringify(value);
+
+  if (!format && minFractionDigits && (!tag || tag === 'tag:yaml.org,2002:float') && /^\d/.test(n)) {
+    let i = n.indexOf('.');
+
+    if (i < 0) {
+      i = n.length;
+      n += '.';
+    }
+
+    let d = minFractionDigits - (n.length - i - 1);
+
+    while (d-- > 0) n += '0';
+  }
+
+  return n;
+}
+
+function checkFlowCollectionEnd(errors, cst) {
+  let char, name;
+
+  switch (cst.type) {
+    case PlainValue.Type.FLOW_MAP:
+      char = '}';
+      name = 'flow map';
+      break;
+
+    case PlainValue.Type.FLOW_SEQ:
+      char = ']';
+      name = 'flow sequence';
+      break;
+
+    default:
+      errors.push(new PlainValue.YAMLSemanticError(cst, 'Not a flow collection!?'));
+      return;
+  }
+
+  let lastItem;
+
+  for (let i = cst.items.length - 1; i >= 0; --i) {
+    const item = cst.items[i];
+
+    if (!item || item.type !== PlainValue.Type.COMMENT) {
+      lastItem = item;
+      break;
+    }
+  }
+
+  if (lastItem && lastItem.char !== char) {
+    const msg = `Expected ${name} to end with ${char}`;
+    let err;
+
+    if (typeof lastItem.offset === 'number') {
+      err = new PlainValue.YAMLSemanticError(cst, msg);
+      err.offset = lastItem.offset + 1;
+    } else {
+      err = new PlainValue.YAMLSemanticError(lastItem, msg);
+      if (lastItem.range && lastItem.range.end) err.offset = lastItem.range.end - lastItem.range.start;
+    }
+
+    errors.push(err);
+  }
+}
+function checkFlowCommentSpace(errors, comment) {
+  const prev = comment.context.src[comment.range.start - 1];
+
+  if (prev !== '\n' && prev !== '\t' && prev !== ' ') {
+    const msg = 'Comments must be separated from other tokens by white space characters';
+    errors.push(new PlainValue.YAMLSemanticError(comment, msg));
+  }
+}
+function getLongKeyError(source, key) {
+  const sk = String(key);
+  const k = sk.substr(0, 8) + '...' + sk.substr(-8);
+  return new PlainValue.YAMLSemanticError(source, `The "${k}" key is too long`);
+}
+function resolveComments(collection, comments) {
+  for (const {
+    afterKey,
+    before,
+    comment
+  } of comments) {
+    let item = collection.items[before];
+
+    if (!item) {
+      if (comment !== undefined) {
+        if (collection.comment) collection.comment += '\n' + comment;else collection.comment = comment;
+      }
+    } else {
+      if (afterKey && item.value) item = item.value;
+
+      if (comment === undefined) {
+        if (afterKey || !item.commentBefore) item.spaceBefore = true;
+      } else {
+        if (item.commentBefore) item.commentBefore += '\n' + comment;else item.commentBefore = comment;
+      }
+    }
+  }
+}
+
+// on error, will return { str: string, errors: Error[] }
+function resolveString(doc, node) {
+  const res = node.strValue;
+  if (!res) return '';
+  if (typeof res === 'string') return res;
+  res.errors.forEach(error => {
+    if (!error.source) error.source = node;
+    doc.errors.push(error);
+  });
+  return res.str;
+}
+
+function resolveTagHandle(doc, node) {
+  const {
+    handle,
+    suffix
+  } = node.tag;
+  let prefix = doc.tagPrefixes.find(p => p.handle === handle);
+
+  if (!prefix) {
+    const dtp = doc.getDefaults().tagPrefixes;
+    if (dtp) prefix = dtp.find(p => p.handle === handle);
+    if (!prefix) throw new PlainValue.YAMLSemanticError(node, `The ${handle} tag handle is non-default and was not declared.`);
+  }
+
+  if (!suffix) throw new PlainValue.YAMLSemanticError(node, `The ${handle} tag has no suffix.`);
+
+  if (handle === '!' && (doc.version || doc.options.version) === '1.0') {
+    if (suffix[0] === '^') {
+      doc.warnings.push(new PlainValue.YAMLWarning(node, 'YAML 1.0 ^ tag expansion is not supported'));
+      return suffix;
+    }
+
+    if (/[:/]/.test(suffix)) {
+      // word/foo -> tag:word.yaml.org,2002:foo
+      const vocab = suffix.match(/^([a-z0-9-]+)\/(.*)/i);
+      return vocab ? `tag:${vocab[1]}.yaml.org,2002:${vocab[2]}` : `tag:${suffix}`;
+    }
+  }
+
+  return prefix.prefix + decodeURIComponent(suffix);
+}
+
+function resolveTagName(doc, node) {
+  const {
+    tag,
+    type
+  } = node;
+  let nonSpecific = false;
+
+  if (tag) {
+    const {
+      handle,
+      suffix,
+      verbatim
+    } = tag;
+
+    if (verbatim) {
+      if (verbatim !== '!' && verbatim !== '!!') return verbatim;
+      const msg = `Verbatim tags aren't resolved, so ${verbatim} is invalid.`;
+      doc.errors.push(new PlainValue.YAMLSemanticError(node, msg));
+    } else if (handle === '!' && !suffix) {
+      nonSpecific = true;
+    } else {
+      try {
+        return resolveTagHandle(doc, node);
+      } catch (error) {
+        doc.errors.push(error);
+      }
+    }
+  }
+
+  switch (type) {
+    case PlainValue.Type.BLOCK_FOLDED:
+    case PlainValue.Type.BLOCK_LITERAL:
+    case PlainValue.Type.QUOTE_DOUBLE:
+    case PlainValue.Type.QUOTE_SINGLE:
+      return PlainValue.defaultTags.STR;
+
+    case PlainValue.Type.FLOW_MAP:
+    case PlainValue.Type.MAP:
+      return PlainValue.defaultTags.MAP;
+
+    case PlainValue.Type.FLOW_SEQ:
+    case PlainValue.Type.SEQ:
+      return PlainValue.defaultTags.SEQ;
+
+    case PlainValue.Type.PLAIN:
+      return nonSpecific ? PlainValue.defaultTags.STR : null;
+
+    default:
+      return null;
+  }
+}
+
+function resolveByTagName(doc, node, tagName) {
+  const {
+    tags
+  } = doc.schema;
+  const matchWithTest = [];
+
+  for (const tag of tags) {
+    if (tag.tag === tagName) {
+      if (tag.test) matchWithTest.push(tag);else {
+        const res = tag.resolve(doc, node);
+        return res instanceof Collection ? res : new Scalar(res);
+      }
+    }
+  }
+
+  const str = resolveString(doc, node);
+  if (typeof str === 'string' && matchWithTest.length > 0) return resolveScalar(str, matchWithTest, tags.scalarFallback);
+  return null;
+}
+
+function getFallbackTagName({
+  type
+}) {
+  switch (type) {
+    case PlainValue.Type.FLOW_MAP:
+    case PlainValue.Type.MAP:
+      return PlainValue.defaultTags.MAP;
+
+    case PlainValue.Type.FLOW_SEQ:
+    case PlainValue.Type.SEQ:
+      return PlainValue.defaultTags.SEQ;
+
+    default:
+      return PlainValue.defaultTags.STR;
+  }
+}
+
+function resolveTag(doc, node, tagName) {
+  try {
+    const res = resolveByTagName(doc, node, tagName);
+
+    if (res) {
+      if (tagName && node.tag) res.tag = tagName;
+      return res;
+    }
+  } catch (error) {
+    /* istanbul ignore if */
+    if (!error.source) error.source = node;
+    doc.errors.push(error);
+    return null;
+  }
+
+  try {
+    const fallback = getFallbackTagName(node);
+    if (!fallback) throw new Error(`The tag ${tagName} is unavailable`);
+    const msg = `The tag ${tagName} is unavailable, falling back to ${fallback}`;
+    doc.warnings.push(new PlainValue.YAMLWarning(node, msg));
+    const res = resolveByTagName(doc, node, fallback);
+    res.tag = tagName;
+    return res;
+  } catch (error) {
+    const refError = new PlainValue.YAMLReferenceError(node, error.message);
+    refError.stack = error.stack;
+    doc.errors.push(refError);
+    return null;
+  }
+}
+
+const isCollectionItem = node => {
+  if (!node) return false;
+  const {
+    type
+  } = node;
+  return type === PlainValue.Type.MAP_KEY || type === PlainValue.Type.MAP_VALUE || type === PlainValue.Type.SEQ_ITEM;
+};
+
+function resolveNodeProps(errors, node) {
+  const comments = {
+    before: [],
+    after: []
+  };
+  let hasAnchor = false;
+  let hasTag = false;
+  const props = isCollectionItem(node.context.parent) ? node.context.parent.props.concat(node.props) : node.props;
+
+  for (const {
+    start,
+    end
+  } of props) {
+    switch (node.context.src[start]) {
+      case PlainValue.Char.COMMENT:
+        {
+          if (!node.commentHasRequiredWhitespace(start)) {
+            const msg = 'Comments must be separated from other tokens by white space characters';
+            errors.push(new PlainValue.YAMLSemanticError(node, msg));
+          }
+
+          const {
+            header,
+            valueRange
+          } = node;
+          const cc = valueRange && (start > valueRange.start || header && start > header.start) ? comments.after : comments.before;
+          cc.push(node.context.src.slice(start + 1, end));
+          break;
+        }
+      // Actual anchor & tag resolution is handled by schema, here we just complain
+
+      case PlainValue.Char.ANCHOR:
+        if (hasAnchor) {
+          const msg = 'A node can have at most one anchor';
+          errors.push(new PlainValue.YAMLSemanticError(node, msg));
+        }
+
+        hasAnchor = true;
+        break;
+
+      case PlainValue.Char.TAG:
+        if (hasTag) {
+          const msg = 'A node can have at most one tag';
+          errors.push(new PlainValue.YAMLSemanticError(node, msg));
+        }
+
+        hasTag = true;
+        break;
+    }
+  }
+
+  return {
+    comments,
+    hasAnchor,
+    hasTag
+  };
+}
+
+function resolveNodeValue(doc, node) {
+  const {
+    anchors,
+    errors,
+    schema
+  } = doc;
+
+  if (node.type === PlainValue.Type.ALIAS) {
+    const name = node.rawValue;
+    const src = anchors.getNode(name);
+
+    if (!src) {
+      const msg = `Aliased anchor not found: ${name}`;
+      errors.push(new PlainValue.YAMLReferenceError(node, msg));
+      return null;
+    } // Lazy resolution for circular references
+
+
+    const res = new Alias(src);
+
+    anchors._cstAliases.push(res);
+
+    return res;
+  }
+
+  const tagName = resolveTagName(doc, node);
+  if (tagName) return resolveTag(doc, node, tagName);
+
+  if (node.type !== PlainValue.Type.PLAIN) {
+    const msg = `Failed to resolve ${node.type} node here`;
+    errors.push(new PlainValue.YAMLSyntaxError(node, msg));
+    return null;
+  }
+
+  try {
+    const str = resolveString(doc, node);
+    return resolveScalar(str, schema.tags, schema.tags.scalarFallback);
+  } catch (error) {
+    if (!error.source) error.source = node;
+    errors.push(error);
+    return null;
+  }
+} // sets node.resolved on success
+
+
+function resolveNode(doc, node) {
+  if (!node) return null;
+  if (node.error) doc.errors.push(node.error);
+  const {
+    comments,
+    hasAnchor,
+    hasTag
+  } = resolveNodeProps(doc.errors, node);
+
+  if (hasAnchor) {
+    const {
+      anchors
+    } = doc;
+    const name = node.anchor;
+    const prev = anchors.getNode(name); // At this point, aliases for any preceding node with the same anchor
+    // name have already been resolved, so it may safely be renamed.
+
+    if (prev) anchors.map[anchors.newName(name)] = prev; // During parsing, we need to store the CST node in anchors.map as
+    // anchors need to be available during resolution to allow for
+    // circular references.
+
+    anchors.map[name] = node;
+  }
+
+  if (node.type === PlainValue.Type.ALIAS && (hasAnchor || hasTag)) {
+    const msg = 'An alias node must not specify any properties';
+    doc.errors.push(new PlainValue.YAMLSemanticError(node, msg));
+  }
+
+  const res = resolveNodeValue(doc, node);
+
+  if (res) {
+    res.range = [node.range.start, node.range.end];
+    if (doc.options.keepCstNodes) res.cstNode = node;
+    if (doc.options.keepNodeTypes) res.type = node.type;
+    const cb = comments.before.join('\n');
+
+    if (cb) {
+      res.commentBefore = res.commentBefore ? `${res.commentBefore}\n${cb}` : cb;
+    }
+
+    const ca = comments.after.join('\n');
+    if (ca) res.comment = res.comment ? `${res.comment}\n${ca}` : ca;
+  }
+
+  return node.resolved = res;
+}
+
+function resolveMap(doc, cst) {
+  if (cst.type !== PlainValue.Type.MAP && cst.type !== PlainValue.Type.FLOW_MAP) {
+    const msg = `A ${cst.type} node cannot be resolved as a mapping`;
+    doc.errors.push(new PlainValue.YAMLSyntaxError(cst, msg));
+    return null;
+  }
+
+  const {
+    comments,
+    items
+  } = cst.type === PlainValue.Type.FLOW_MAP ? resolveFlowMapItems(doc, cst) : resolveBlockMapItems(doc, cst);
+  const map = new YAMLMap();
+  map.items = items;
+  resolveComments(map, comments);
+  let hasCollectionKey = false;
+
+  for (let i = 0; i < items.length; ++i) {
+    const {
+      key: iKey
+    } = items[i];
+    if (iKey instanceof Collection) hasCollectionKey = true;
+
+    if (doc.schema.merge && iKey && iKey.value === MERGE_KEY) {
+      items[i] = new Merge(items[i]);
+      const sources = items[i].value.items;
+      let error = null;
+      sources.some(node => {
+        if (node instanceof Alias) {
+          // During parsing, alias sources are CST nodes; to account for
+          // circular references their resolved values can't be used here.
+          const {
+            type
+          } = node.source;
+          if (type === PlainValue.Type.MAP || type === PlainValue.Type.FLOW_MAP) return false;
+          return error = 'Merge nodes aliases can only point to maps';
+        }
+
+        return error = 'Merge nodes can only have Alias nodes as values';
+      });
+      if (error) doc.errors.push(new PlainValue.YAMLSemanticError(cst, error));
+    } else {
+      for (let j = i + 1; j < items.length; ++j) {
+        const {
+          key: jKey
+        } = items[j];
+
+        if (iKey === jKey || iKey && jKey && Object.prototype.hasOwnProperty.call(iKey, 'value') && iKey.value === jKey.value) {
+          const msg = `Map keys must be unique; "${iKey}" is repeated`;
+          doc.errors.push(new PlainValue.YAMLSemanticError(cst, msg));
+          break;
+        }
+      }
+    }
+  }
+
+  if (hasCollectionKey && !doc.options.mapAsMap) {
+    const warn = 'Keys with collection values will be stringified as YAML due to JS Object restrictions. Use mapAsMap: true to avoid this.';
+    doc.warnings.push(new PlainValue.YAMLWarning(cst, warn));
+  }
+
+  cst.resolved = map;
+  return map;
+}
+
+const valueHasPairComment = ({
+  context: {
+    lineStart,
+    node,
+    src
+  },
+  props
+}) => {
+  if (props.length === 0) return false;
+  const {
+    start
+  } = props[0];
+  if (node && start > node.valueRange.start) return false;
+  if (src[start] !== PlainValue.Char.COMMENT) return false;
+
+  for (let i = lineStart; i < start; ++i) if (src[i] === '\n') return false;
+
+  return true;
+};
+
+function resolvePairComment(item, pair) {
+  if (!valueHasPairComment(item)) return;
+  const comment = item.getPropValue(0, PlainValue.Char.COMMENT, true);
+  let found = false;
+  const cb = pair.value.commentBefore;
+
+  if (cb && cb.startsWith(comment)) {
+    pair.value.commentBefore = cb.substr(comment.length + 1);
+    found = true;
+  } else {
+    const cc = pair.value.comment;
+
+    if (!item.node && cc && cc.startsWith(comment)) {
+      pair.value.comment = cc.substr(comment.length + 1);
+      found = true;
+    }
+  }
+
+  if (found) pair.comment = comment;
+}
+
+function resolveBlockMapItems(doc, cst) {
+  const comments = [];
+  const items = [];
+  let key = undefined;
+  let keyStart = null;
+
+  for (let i = 0; i < cst.items.length; ++i) {
+    const item = cst.items[i];
+
+    switch (item.type) {
+      case PlainValue.Type.BLANK_LINE:
+        comments.push({
+          afterKey: !!key,
+          before: items.length
+        });
+        break;
+
+      case PlainValue.Type.COMMENT:
+        comments.push({
+          afterKey: !!key,
+          before: items.length,
+          comment: item.comment
+        });
+        break;
+
+      case PlainValue.Type.MAP_KEY:
+        if (key !== undefined) items.push(new Pair(key));
+        if (item.error) doc.errors.push(item.error);
+        key = resolveNode(doc, item.node);
+        keyStart = null;
+        break;
+
+      case PlainValue.Type.MAP_VALUE:
+        {
+          if (key === undefined) key = null;
+          if (item.error) doc.errors.push(item.error);
+
+          if (!item.context.atLineStart && item.node && item.node.type === PlainValue.Type.MAP && !item.node.context.atLineStart) {
+            const msg = 'Nested mappings are not allowed in compact mappings';
+            doc.errors.push(new PlainValue.YAMLSemanticError(item.node, msg));
+          }
+
+          let valueNode = item.node;
+
+          if (!valueNode && item.props.length > 0) {
+            // Comments on an empty mapping value need to be preserved, so we
+            // need to construct a minimal empty node here to use instead of the
+            // missing `item.node`. -- eemeli/yaml#19
+            valueNode = new PlainValue.PlainValue(PlainValue.Type.PLAIN, []);
+            valueNode.context = {
+              parent: item,
+              src: item.context.src
+            };
+            const pos = item.range.start + 1;
+            valueNode.range = {
+              start: pos,
+              end: pos
+            };
+            valueNode.valueRange = {
+              start: pos,
+              end: pos
+            };
+
+            if (typeof item.range.origStart === 'number') {
+              const origPos = item.range.origStart + 1;
+              valueNode.range.origStart = valueNode.range.origEnd = origPos;
+              valueNode.valueRange.origStart = valueNode.valueRange.origEnd = origPos;
+            }
+          }
+
+          const pair = new Pair(key, resolveNode(doc, valueNode));
+          resolvePairComment(item, pair);
+          items.push(pair);
+
+          if (key && typeof keyStart === 'number') {
+            if (item.range.start > keyStart + 1024) doc.errors.push(getLongKeyError(cst, key));
+          }
+
+          key = undefined;
+          keyStart = null;
+        }
+        break;
+
+      default:
+        if (key !== undefined) items.push(new Pair(key));
+        key = resolveNode(doc, item);
+        keyStart = item.range.start;
+        if (item.error) doc.errors.push(item.error);
+
+        next: for (let j = i + 1;; ++j) {
+          const nextItem = cst.items[j];
+
+          switch (nextItem && nextItem.type) {
+            case PlainValue.Type.BLANK_LINE:
+            case PlainValue.Type.COMMENT:
+              continue next;
+
+            case PlainValue.Type.MAP_VALUE:
+              break next;
+
+            default:
+              {
+                const msg = 'Implicit map keys need to be followed by map values';
+                doc.errors.push(new PlainValue.YAMLSemanticError(item, msg));
+                break next;
+              }
+          }
+        }
+
+        if (item.valueRangeContainsNewline) {
+          const msg = 'Implicit map keys need to be on a single line';
+          doc.errors.push(new PlainValue.YAMLSemanticError(item, msg));
+        }
+
+    }
+  }
+
+  if (key !== undefined) items.push(new Pair(key));
+  return {
+    comments,
+    items
+  };
+}
+
+function resolveFlowMapItems(doc, cst) {
+  const comments = [];
+  const items = [];
+  let key = undefined;
+  let explicitKey = false;
+  let next = '{';
+
+  for (let i = 0; i < cst.items.length; ++i) {
+    const item = cst.items[i];
+
+    if (typeof item.char === 'string') {
+      const {
+        char,
+        offset
+      } = item;
+
+      if (char === '?' && key === undefined && !explicitKey) {
+        explicitKey = true;
+        next = ':';
+        continue;
+      }
+
+      if (char === ':') {
+        if (key === undefined) key = null;
+
+        if (next === ':') {
+          next = ',';
+          continue;
+        }
+      } else {
+        if (explicitKey) {
+          if (key === undefined && char !== ',') key = null;
+          explicitKey = false;
+        }
+
+        if (key !== undefined) {
+          items.push(new Pair(key));
+          key = undefined;
+
+          if (char === ',') {
+            next = ':';
+            continue;
+          }
+        }
+      }
+
+      if (char === '}') {
+        if (i === cst.items.length - 1) continue;
+      } else if (char === next) {
+        next = ':';
+        continue;
+      }
+
+      const msg = `Flow map contains an unexpected ${char}`;
+      const err = new PlainValue.YAMLSyntaxError(cst, msg);
+      err.offset = offset;
+      doc.errors.push(err);
+    } else if (item.type === PlainValue.Type.BLANK_LINE) {
+      comments.push({
+        afterKey: !!key,
+        before: items.length
+      });
+    } else if (item.type === PlainValue.Type.COMMENT) {
+      checkFlowCommentSpace(doc.errors, item);
+      comments.push({
+        afterKey: !!key,
+        before: items.length,
+        comment: item.comment
+      });
+    } else if (key === undefined) {
+      if (next === ',') doc.errors.push(new PlainValue.YAMLSemanticError(item, 'Separator , missing in flow map'));
+      key = resolveNode(doc, item);
+    } else {
+      if (next !== ',') doc.errors.push(new PlainValue.YAMLSemanticError(item, 'Indicator : missing in flow map entry'));
+      items.push(new Pair(key, resolveNode(doc, item)));
+      key = undefined;
+      explicitKey = false;
+    }
+  }
+
+  checkFlowCollectionEnd(doc.errors, cst);
+  if (key !== undefined) items.push(new Pair(key));
+  return {
+    comments,
+    items
+  };
+}
+
+function resolveSeq(doc, cst) {
+  if (cst.type !== PlainValue.Type.SEQ && cst.type !== PlainValue.Type.FLOW_SEQ) {
+    const msg = `A ${cst.type} node cannot be resolved as a sequence`;
+    doc.errors.push(new PlainValue.YAMLSyntaxError(cst, msg));
+    return null;
+  }
+
+  const {
+    comments,
+    items
+  } = cst.type === PlainValue.Type.FLOW_SEQ ? resolveFlowSeqItems(doc, cst) : resolveBlockSeqItems(doc, cst);
+  const seq = new YAMLSeq();
+  seq.items = items;
+  resolveComments(seq, comments);
+
+  if (!doc.options.mapAsMap && items.some(it => it instanceof Pair && it.key instanceof Collection)) {
+    const warn = 'Keys with collection values will be stringified as YAML due to JS Object restrictions. Use mapAsMap: true to avoid this.';
+    doc.warnings.push(new PlainValue.YAMLWarning(cst, warn));
+  }
+
+  cst.resolved = seq;
+  return seq;
+}
+
+function resolveBlockSeqItems(doc, cst) {
+  const comments = [];
+  const items = [];
+
+  for (let i = 0; i < cst.items.length; ++i) {
+    const item = cst.items[i];
+
+    switch (item.type) {
+      case PlainValue.Type.BLANK_LINE:
+        comments.push({
+          before: items.length
+        });
+        break;
+
+      case PlainValue.Type.COMMENT:
+        comments.push({
+          comment: item.comment,
+          before: items.length
+        });
+        break;
+
+      case PlainValue.Type.SEQ_ITEM:
+        if (item.error) doc.errors.push(item.error);
+        items.push(resolveNode(doc, item.node));
+
+        if (item.hasProps) {
+          const msg = 'Sequence items cannot have tags or anchors before the - indicator';
+          doc.errors.push(new PlainValue.YAMLSemanticError(item, msg));
+        }
+
+        break;
+
+      default:
+        if (item.error) doc.errors.push(item.error);
+        doc.errors.push(new PlainValue.YAMLSyntaxError(item, `Unexpected ${item.type} node in sequence`));
+    }
+  }
+
+  return {
+    comments,
+    items
+  };
+}
+
+function resolveFlowSeqItems(doc, cst) {
+  const comments = [];
+  const items = [];
+  let explicitKey = false;
+  let key = undefined;
+  let keyStart = null;
+  let next = '[';
+  let prevItem = null;
+
+  for (let i = 0; i < cst.items.length; ++i) {
+    const item = cst.items[i];
+
+    if (typeof item.char === 'string') {
+      const {
+        char,
+        offset
+      } = item;
+
+      if (char !== ':' && (explicitKey || key !== undefined)) {
+        if (explicitKey && key === undefined) key = next ? items.pop() : null;
+        items.push(new Pair(key));
+        explicitKey = false;
+        key = undefined;
+        keyStart = null;
+      }
+
+      if (char === next) {
+        next = null;
+      } else if (!next && char === '?') {
+        explicitKey = true;
+      } else if (next !== '[' && char === ':' && key === undefined) {
+        if (next === ',') {
+          key = items.pop();
+
+          if (key instanceof Pair) {
+            const msg = 'Chaining flow sequence pairs is invalid';
+            const err = new PlainValue.YAMLSemanticError(cst, msg);
+            err.offset = offset;
+            doc.errors.push(err);
+          }
+
+          if (!explicitKey && typeof keyStart === 'number') {
+            const keyEnd = item.range ? item.range.start : item.offset;
+            if (keyEnd > keyStart + 1024) doc.errors.push(getLongKeyError(cst, key));
+            const {
+              src
+            } = prevItem.context;
+
+            for (let i = keyStart; i < keyEnd; ++i) if (src[i] === '\n') {
+              const msg = 'Implicit keys of flow sequence pairs need to be on a single line';
+              doc.errors.push(new PlainValue.YAMLSemanticError(prevItem, msg));
+              break;
+            }
+          }
+        } else {
+          key = null;
+        }
+
+        keyStart = null;
+        explicitKey = false;
+        next = null;
+      } else if (next === '[' || char !== ']' || i < cst.items.length - 1) {
+        const msg = `Flow sequence contains an unexpected ${char}`;
+        const err = new PlainValue.YAMLSyntaxError(cst, msg);
+        err.offset = offset;
+        doc.errors.push(err);
+      }
+    } else if (item.type === PlainValue.Type.BLANK_LINE) {
+      comments.push({
+        before: items.length
+      });
+    } else if (item.type === PlainValue.Type.COMMENT) {
+      checkFlowCommentSpace(doc.errors, item);
+      comments.push({
+        comment: item.comment,
+        before: items.length
+      });
+    } else {
+      if (next) {
+        const msg = `Expected a ${next} in flow sequence`;
+        doc.errors.push(new PlainValue.YAMLSemanticError(item, msg));
+      }
+
+      const value = resolveNode(doc, item);
+
+      if (key === undefined) {
+        items.push(value);
+        prevItem = item;
+      } else {
+        items.push(new Pair(key, value));
+        key = undefined;
+      }
+
+      keyStart = item.range.start;
+      next = ',';
+    }
+  }
+
+  checkFlowCollectionEnd(doc.errors, cst);
+  if (key !== undefined) items.push(new Pair(key));
+  return {
+    comments,
+    items
+  };
+}
+
+exports.Alias = Alias;
+exports.Collection = Collection;
+exports.Merge = Merge;
+exports.Node = Node;
+exports.Pair = Pair;
+exports.Scalar = Scalar;
+exports.YAMLMap = YAMLMap;
+exports.YAMLSeq = YAMLSeq;
+exports.addComment = addComment;
+exports.binaryOptions = binaryOptions;
+exports.boolOptions = boolOptions;
+exports.findPair = findPair;
+exports.intOptions = intOptions;
+exports.isEmptyPath = isEmptyPath;
+exports.nullOptions = nullOptions;
+exports.resolveMap = resolveMap;
+exports.resolveNode = resolveNode;
+exports.resolveSeq = resolveSeq;
+exports.resolveString = resolveString;
+exports.strOptions = strOptions;
+exports.stringifyNumber = stringifyNumber;
+exports.stringifyString = stringifyString;
+exports.toJSON = toJSON;
+
+
+/***/ }),
+
+/***/ 5130:
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
+
+
+
+var PlainValue = __nccwpck_require__(4941);
+var resolveSeq = __nccwpck_require__(9914);
+
+/* global atob, btoa, Buffer */
+const binary = {
+  identify: value => value instanceof Uint8Array,
+  // Buffer inherits from Uint8Array
+  default: false,
+  tag: 'tag:yaml.org,2002:binary',
+
+  /**
+   * Returns a Buffer in node and an Uint8Array in browsers
+   *
+   * To use the resulting buffer as an image, you'll want to do something like:
+   *
+   *   const blob = new Blob([buffer], { type: 'image/jpeg' })
+   *   document.querySelector('#photo').src = URL.createObjectURL(blob)
+   */
+  resolve: (doc, node) => {
+    const src = resolveSeq.resolveString(doc, node);
+
+    if (typeof Buffer === 'function') {
+      return Buffer.from(src, 'base64');
+    } else if (typeof atob === 'function') {
+      // On IE 11, atob() can't handle newlines
+      const str = atob(src.replace(/[\n\r]/g, ''));
+      const buffer = new Uint8Array(str.length);
+
+      for (let i = 0; i < str.length; ++i) buffer[i] = str.charCodeAt(i);
+
+      return buffer;
+    } else {
+      const msg = 'This environment does not support reading binary tags; either Buffer or atob is required';
+      doc.errors.push(new PlainValue.YAMLReferenceError(node, msg));
+      return null;
+    }
+  },
+  options: resolveSeq.binaryOptions,
+  stringify: ({
+    comment,
+    type,
+    value
+  }, ctx, onComment, onChompKeep) => {
+    let src;
+
+    if (typeof Buffer === 'function') {
+      src = value instanceof Buffer ? value.toString('base64') : Buffer.from(value.buffer).toString('base64');
+    } else if (typeof btoa === 'function') {
+      let s = '';
+
+      for (let i = 0; i < value.length; ++i) s += String.fromCharCode(value[i]);
+
+      src = btoa(s);
+    } else {
+      throw new Error('This environment does not support writing binary tags; either Buffer or btoa is required');
+    }
+
+    if (!type) type = resolveSeq.binaryOptions.defaultType;
+
+    if (type === PlainValue.Type.QUOTE_DOUBLE) {
+      value = src;
+    } else {
+      const {
+        lineWidth
+      } = resolveSeq.binaryOptions;
+      const n = Math.ceil(src.length / lineWidth);
+      const lines = new Array(n);
+
+      for (let i = 0, o = 0; i < n; ++i, o += lineWidth) {
+        lines[i] = src.substr(o, lineWidth);
+      }
+
+      value = lines.join(type === PlainValue.Type.BLOCK_LITERAL ? '\n' : ' ');
+    }
+
+    return resolveSeq.stringifyString({
+      comment,
+      type,
+      value
+    }, ctx, onComment, onChompKeep);
+  }
+};
+
+function parsePairs(doc, cst) {
+  const seq = resolveSeq.resolveSeq(doc, cst);
+
+  for (let i = 0; i < seq.items.length; ++i) {
+    let item = seq.items[i];
+    if (item instanceof resolveSeq.Pair) continue;else if (item instanceof resolveSeq.YAMLMap) {
+      if (item.items.length > 1) {
+        const msg = 'Each pair must have its own sequence indicator';
+        throw new PlainValue.YAMLSemanticError(cst, msg);
+      }
+
+      const pair = item.items[0] || new resolveSeq.Pair();
+      if (item.commentBefore) pair.commentBefore = pair.commentBefore ? `${item.commentBefore}\n${pair.commentBefore}` : item.commentBefore;
+      if (item.comment) pair.comment = pair.comment ? `${item.comment}\n${pair.comment}` : item.comment;
+      item = pair;
+    }
+    seq.items[i] = item instanceof resolveSeq.Pair ? item : new resolveSeq.Pair(item);
+  }
+
+  return seq;
+}
+function createPairs(schema, iterable, ctx) {
+  const pairs = new resolveSeq.YAMLSeq(schema);
+  pairs.tag = 'tag:yaml.org,2002:pairs';
+
+  for (const it of iterable) {
+    let key, value;
+
+    if (Array.isArray(it)) {
+      if (it.length === 2) {
+        key = it[0];
+        value = it[1];
+      } else throw new TypeError(`Expected [key, value] tuple: ${it}`);
+    } else if (it && it instanceof Object) {
+      const keys = Object.keys(it);
+
+      if (keys.length === 1) {
+        key = keys[0];
+        value = it[key];
+      } else throw new TypeError(`Expected { key: value } tuple: ${it}`);
+    } else {
+      key = it;
+    }
+
+    const pair = schema.createPair(key, value, ctx);
+    pairs.items.push(pair);
+  }
+
+  return pairs;
+}
+const pairs = {
+  default: false,
+  tag: 'tag:yaml.org,2002:pairs',
+  resolve: parsePairs,
+  createNode: createPairs
+};
+
+class YAMLOMap extends resolveSeq.YAMLSeq {
+  constructor() {
+    super();
+
+    PlainValue._defineProperty(this, "add", resolveSeq.YAMLMap.prototype.add.bind(this));
+
+    PlainValue._defineProperty(this, "delete", resolveSeq.YAMLMap.prototype.delete.bind(this));
+
+    PlainValue._defineProperty(this, "get", resolveSeq.YAMLMap.prototype.get.bind(this));
+
+    PlainValue._defineProperty(this, "has", resolveSeq.YAMLMap.prototype.has.bind(this));
+
+    PlainValue._defineProperty(this, "set", resolveSeq.YAMLMap.prototype.set.bind(this));
+
+    this.tag = YAMLOMap.tag;
+  }
+
+  toJSON(_, ctx) {
+    const map = new Map();
+    if (ctx && ctx.onCreate) ctx.onCreate(map);
+
+    for (const pair of this.items) {
+      let key, value;
+
+      if (pair instanceof resolveSeq.Pair) {
+        key = resolveSeq.toJSON(pair.key, '', ctx);
+        value = resolveSeq.toJSON(pair.value, key, ctx);
+      } else {
+        key = resolveSeq.toJSON(pair, '', ctx);
+      }
+
+      if (map.has(key)) throw new Error('Ordered maps must not include duplicate keys');
+      map.set(key, value);
+    }
+
+    return map;
+  }
+
+}
+
+PlainValue._defineProperty(YAMLOMap, "tag", 'tag:yaml.org,2002:omap');
+
+function parseOMap(doc, cst) {
+  const pairs = parsePairs(doc, cst);
+  const seenKeys = [];
+
+  for (const {
+    key
+  } of pairs.items) {
+    if (key instanceof resolveSeq.Scalar) {
+      if (seenKeys.includes(key.value)) {
+        const msg = 'Ordered maps must not include duplicate keys';
+        throw new PlainValue.YAMLSemanticError(cst, msg);
+      } else {
+        seenKeys.push(key.value);
+      }
+    }
+  }
+
+  return Object.assign(new YAMLOMap(), pairs);
+}
+
+function createOMap(schema, iterable, ctx) {
+  const pairs = createPairs(schema, iterable, ctx);
+  const omap = new YAMLOMap();
+  omap.items = pairs.items;
+  return omap;
+}
+
+const omap = {
+  identify: value => value instanceof Map,
+  nodeClass: YAMLOMap,
+  default: false,
+  tag: 'tag:yaml.org,2002:omap',
+  resolve: parseOMap,
+  createNode: createOMap
+};
+
+class YAMLSet extends resolveSeq.YAMLMap {
+  constructor() {
+    super();
+    this.tag = YAMLSet.tag;
+  }
+
+  add(key) {
+    const pair = key instanceof resolveSeq.Pair ? key : new resolveSeq.Pair(key);
+    const prev = resolveSeq.findPair(this.items, pair.key);
+    if (!prev) this.items.push(pair);
+  }
+
+  get(key, keepPair) {
+    const pair = resolveSeq.findPair(this.items, key);
+    return !keepPair && pair instanceof resolveSeq.Pair ? pair.key instanceof resolveSeq.Scalar ? pair.key.value : pair.key : pair;
+  }
+
+  set(key, value) {
+    if (typeof value !== 'boolean') throw new Error(`Expected boolean value for set(key, value) in a YAML set, not ${typeof value}`);
+    const prev = resolveSeq.findPair(this.items, key);
+
+    if (prev && !value) {
+      this.items.splice(this.items.indexOf(prev), 1);
+    } else if (!prev && value) {
+      this.items.push(new resolveSeq.Pair(key));
+    }
+  }
+
+  toJSON(_, ctx) {
+    return super.toJSON(_, ctx, Set);
+  }
+
+  toString(ctx, onComment, onChompKeep) {
+    if (!ctx) return JSON.stringify(this);
+    if (this.hasAllNullValues()) return super.toString(ctx, onComment, onChompKeep);else throw new Error('Set items must all have null values');
+  }
+
+}
+
+PlainValue._defineProperty(YAMLSet, "tag", 'tag:yaml.org,2002:set');
+
+function parseSet(doc, cst) {
+  const map = resolveSeq.resolveMap(doc, cst);
+  if (!map.hasAllNullValues()) throw new PlainValue.YAMLSemanticError(cst, 'Set items must all have null values');
+  return Object.assign(new YAMLSet(), map);
+}
+
+function createSet(schema, iterable, ctx) {
+  const set = new YAMLSet();
+
+  for (const value of iterable) set.items.push(schema.createPair(value, null, ctx));
+
+  return set;
+}
+
+const set = {
+  identify: value => value instanceof Set,
+  nodeClass: YAMLSet,
+  default: false,
+  tag: 'tag:yaml.org,2002:set',
+  resolve: parseSet,
+  createNode: createSet
+};
+
+const parseSexagesimal = (sign, parts) => {
+  const n = parts.split(':').reduce((n, p) => n * 60 + Number(p), 0);
+  return sign === '-' ? -n : n;
+}; // hhhh:mm:ss.sss
+
+
+const stringifySexagesimal = ({
+  value
+}) => {
+  if (isNaN(value) || !isFinite(value)) return resolveSeq.stringifyNumber(value);
+  let sign = '';
+
+  if (value < 0) {
+    sign = '-';
+    value = Math.abs(value);
+  }
+
+  const parts = [value % 60]; // seconds, including ms
+
+  if (value < 60) {
+    parts.unshift(0); // at least one : is required
+  } else {
+    value = Math.round((value - parts[0]) / 60);
+    parts.unshift(value % 60); // minutes
+
+    if (value >= 60) {
+      value = Math.round((value - parts[0]) / 60);
+      parts.unshift(value); // hours
+    }
+  }
+
+  return sign + parts.map(n => n < 10 ? '0' + String(n) : String(n)).join(':').replace(/000000\d*$/, '') // % 60 may introduce error
+  ;
+};
+
+const intTime = {
+  identify: value => typeof value === 'number',
+  default: true,
+  tag: 'tag:yaml.org,2002:int',
+  format: 'TIME',
+  test: /^([-+]?)([0-9][0-9_]*(?::[0-5]?[0-9])+)$/,
+  resolve: (str, sign, parts) => parseSexagesimal(sign, parts.replace(/_/g, '')),
+  stringify: stringifySexagesimal
+};
+const floatTime = {
+  identify: value => typeof value === 'number',
+  default: true,
+  tag: 'tag:yaml.org,2002:float',
+  format: 'TIME',
+  test: /^([-+]?)([0-9][0-9_]*(?::[0-5]?[0-9])+\.[0-9_]*)$/,
+  resolve: (str, sign, parts) => parseSexagesimal(sign, parts.replace(/_/g, '')),
+  stringify: stringifySexagesimal
+};
+const timestamp = {
+  identify: value => value instanceof Date,
+  default: true,
+  tag: 'tag:yaml.org,2002:timestamp',
+  // If the time zone is omitted, the timestamp is assumed to be specified in UTC. The time part
+  // may be omitted altogether, resulting in a date format. In such a case, the time part is
+  // assumed to be 00:00:00Z (start of day, UTC).
+  test: RegExp('^(?:' + '([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})' + // YYYY-Mm-Dd
+  '(?:(?:t|T|[ \\t]+)' + // t | T | whitespace
+  '([0-9]{1,2}):([0-9]{1,2}):([0-9]{1,2}(\\.[0-9]+)?)' + // Hh:Mm:Ss(.ss)?
+  '(?:[ \\t]*(Z|[-+][012]?[0-9](?::[0-9]{2})?))?' + // Z | +5 | -03:30
+  ')?' + ')$'),
+  resolve: (str, year, month, day, hour, minute, second, millisec, tz) => {
+    if (millisec) millisec = (millisec + '00').substr(1, 3);
+    let date = Date.UTC(year, month - 1, day, hour || 0, minute || 0, second || 0, millisec || 0);
+
+    if (tz && tz !== 'Z') {
+      let d = parseSexagesimal(tz[0], tz.slice(1));
+      if (Math.abs(d) < 30) d *= 60;
+      date -= 60000 * d;
+    }
+
+    return new Date(date);
+  },
+  stringify: ({
+    value
+  }) => value.toISOString().replace(/((T00:00)?:00)?\.000Z$/, '')
+};
+
+/* global console, process, YAML_SILENCE_DEPRECATION_WARNINGS, YAML_SILENCE_WARNINGS */
+function shouldWarn(deprecation) {
+  const env = typeof process !== 'undefined' && process.env || {};
+
+  if (deprecation) {
+    if (typeof YAML_SILENCE_DEPRECATION_WARNINGS !== 'undefined') return !YAML_SILENCE_DEPRECATION_WARNINGS;
+    return !env.YAML_SILENCE_DEPRECATION_WARNINGS;
+  }
+
+  if (typeof YAML_SILENCE_WARNINGS !== 'undefined') return !YAML_SILENCE_WARNINGS;
+  return !env.YAML_SILENCE_WARNINGS;
+}
+
+function warn(warning, type) {
+  if (shouldWarn(false)) {
+    const emit = typeof process !== 'undefined' && process.emitWarning; // This will throw in Jest if `warning` is an Error instance due to
+    // https://github.com/facebook/jest/issues/2549
+
+    if (emit) emit(warning, type);else {
+      // eslint-disable-next-line no-console
+      console.warn(type ? `${type}: ${warning}` : warning);
+    }
+  }
+}
+function warnFileDeprecation(filename) {
+  if (shouldWarn(true)) {
+    const path = filename.replace(/.*yaml[/\\]/i, '').replace(/\.js$/, '').replace(/\\/g, '/');
+    warn(`The endpoint 'yaml/${path}' will be removed in a future release.`, 'DeprecationWarning');
+  }
+}
+const warned = {};
+function warnOptionDeprecation(name, alternative) {
+  if (!warned[name] && shouldWarn(true)) {
+    warned[name] = true;
+    let msg = `The option '${name}' will be removed in a future release`;
+    msg += alternative ? `, use '${alternative}' instead.` : '.';
+    warn(msg, 'DeprecationWarning');
+  }
+}
+
+exports.binary = binary;
+exports.floatTime = floatTime;
+exports.intTime = intTime;
+exports.omap = omap;
+exports.pairs = pairs;
+exports.set = set;
+exports.timestamp = timestamp;
+exports.warn = warn;
+exports.warnFileDeprecation = warnFileDeprecation;
+exports.warnOptionDeprecation = warnOptionDeprecation;
+
+
+/***/ }),
+
+/***/ 4603:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+module.exports = __nccwpck_require__(4083).YAML
+
+
+/***/ }),
+
+/***/ 8479:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"id":"https://raw.githubusercontent.com/OAI/OpenAPI-Specification/master/schemas/v1.2/apiDeclaration.json#","$schema":"http://json-schema.org/draft-04/schema#","type":"object","required":["swaggerVersion","basePath","apis"],"properties":{"swaggerVersion":{"enum":["1.2"]},"apiVersion":{"type":"string"},"basePath":{"type":"string","format":"uri","pattern":"^https?://"},"resourcePath":{"type":"string","format":"uri","pattern":"^/"},"apis":{"type":"array","items":{"$ref":"#/definitions/apiObject"}},"models":{"type":"object","additionalProperties":{"$ref":"modelsObject.json#"}},"produces":{"$ref":"#/definitions/mimeTypeArray"},"consumes":{"$ref":"#/definitions/mimeTypeArray"},"authorizations":{"$ref":"authorizationObject.json#"}},"additionalProperties":false,"definitions":{"apiObject":{"type":"object","required":["path","operations"],"properties":{"path":{"type":"string","format":"uri-template","pattern":"^/"},"description":{"type":"string"},"operations":{"type":"array","items":{"$ref":"operationObject.json#"}}},"additionalProperties":false},"mimeTypeArray":{"type":"array","items":{"type":"string","format":"mime-type"},"uniqueItems":true}}}');
+
+/***/ }),
+
+/***/ 499:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"title":"A JSON Schema for Swagger 2.0 API.","id":"http://swagger.io/v2/schema.json#","$schema":"http://json-schema.org/draft-04/schema#","type":"object","required":["swagger","info","paths"],"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"swagger":{"type":"string","enum":["2.0"],"description":"The Swagger version of this document."},"info":{"$ref":"#/definitions/info"},"host":{"type":"string","pattern":"^[^{}/ :\\\\\\\\]+(?::\\\\d+)?$","description":"The host (name or ip) of the API. Example: \'swagger.io\'"},"basePath":{"type":"string","pattern":"^/","description":"The base path to the API. Example: \'/api\'."},"schemes":{"$ref":"#/definitions/schemesList"},"consumes":{"description":"A list of MIME types accepted by the API.","allOf":[{"$ref":"#/definitions/mediaTypeList"}]},"produces":{"description":"A list of MIME types the API can produce.","allOf":[{"$ref":"#/definitions/mediaTypeList"}]},"paths":{"$ref":"#/definitions/paths"},"definitions":{"$ref":"#/definitions/definitions"},"parameters":{"$ref":"#/definitions/parameterDefinitions"},"responses":{"$ref":"#/definitions/responseDefinitions"},"security":{"$ref":"#/definitions/security"},"securityDefinitions":{"$ref":"#/definitions/securityDefinitions"},"tags":{"type":"array","items":{"$ref":"#/definitions/tag"},"uniqueItems":true},"externalDocs":{"$ref":"#/definitions/externalDocs"}},"definitions":{"info":{"type":"object","description":"General information about the API.","required":["version","title"],"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"title":{"type":"string","description":"A unique and precise title of the API."},"version":{"type":"string","description":"A semantic version number of the API."},"description":{"type":"string","description":"A longer description of the API. Should be different from the title.  GitHub Flavored Markdown is allowed."},"termsOfService":{"type":"string","description":"The terms of service for the API."},"contact":{"$ref":"#/definitions/contact"},"license":{"$ref":"#/definitions/license"}}},"contact":{"type":"object","description":"Contact information for the owners of the API.","additionalProperties":false,"properties":{"name":{"type":"string","description":"The identifying name of the contact person/organization."},"url":{"type":"string","description":"The URL pointing to the contact information.","format":"uri"},"email":{"type":"string","description":"The email address of the contact person/organization.","format":"email"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"license":{"type":"object","required":["name"],"additionalProperties":false,"properties":{"name":{"type":"string","description":"The name of the license type. It\'s encouraged to use an OSI compatible license."},"url":{"type":"string","description":"The URL pointing to the license.","format":"uri"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"paths":{"type":"object","description":"Relative paths to the individual endpoints. They must be relative to the \'basePath\'.","patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"},"^/":{"$ref":"#/definitions/pathItem"}},"additionalProperties":false},"definitions":{"type":"object","additionalProperties":{"$ref":"#/definitions/schema"},"description":"One or more JSON objects describing the schemas being consumed and produced by the API."},"parameterDefinitions":{"type":"object","additionalProperties":{"$ref":"#/definitions/parameter"},"description":"One or more JSON representations for parameters"},"responseDefinitions":{"type":"object","additionalProperties":{"$ref":"#/definitions/response"},"description":"One or more JSON representations for responses"},"externalDocs":{"type":"object","additionalProperties":false,"description":"information about external documentation","required":["url"],"properties":{"description":{"type":"string"},"url":{"type":"string","format":"uri"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"examples":{"type":"object","additionalProperties":true},"mimeType":{"type":"string","description":"The MIME type of the HTTP message."},"operation":{"type":"object","required":["responses"],"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"tags":{"type":"array","items":{"type":"string"},"uniqueItems":true},"summary":{"type":"string","description":"A brief summary of the operation."},"description":{"type":"string","description":"A longer description of the operation, GitHub Flavored Markdown is allowed."},"externalDocs":{"$ref":"#/definitions/externalDocs"},"operationId":{"type":"string","description":"A unique identifier of the operation."},"produces":{"description":"A list of MIME types the API can produce.","allOf":[{"$ref":"#/definitions/mediaTypeList"}]},"consumes":{"description":"A list of MIME types the API can consume.","allOf":[{"$ref":"#/definitions/mediaTypeList"}]},"parameters":{"$ref":"#/definitions/parametersList"},"responses":{"$ref":"#/definitions/responses"},"schemes":{"$ref":"#/definitions/schemesList"},"deprecated":{"type":"boolean","default":false},"security":{"$ref":"#/definitions/security"}}},"pathItem":{"type":"object","additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"$ref":{"type":"string"},"get":{"$ref":"#/definitions/operation"},"put":{"$ref":"#/definitions/operation"},"post":{"$ref":"#/definitions/operation"},"delete":{"$ref":"#/definitions/operation"},"options":{"$ref":"#/definitions/operation"},"head":{"$ref":"#/definitions/operation"},"patch":{"$ref":"#/definitions/operation"},"parameters":{"$ref":"#/definitions/parametersList"}}},"responses":{"type":"object","description":"Response objects names can either be any valid HTTP status code or \'default\'.","minProperties":1,"additionalProperties":false,"patternProperties":{"^([0-9]{3})$|^(default)$":{"$ref":"#/definitions/responseValue"},"^x-":{"$ref":"#/definitions/vendorExtension"}},"not":{"type":"object","additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}}},"responseValue":{"oneOf":[{"$ref":"#/definitions/response"},{"$ref":"#/definitions/jsonReference"}]},"response":{"type":"object","required":["description"],"properties":{"description":{"type":"string"},"schema":{"oneOf":[{"$ref":"#/definitions/schema"},{"$ref":"#/definitions/fileSchema"}]},"headers":{"$ref":"#/definitions/headers"},"examples":{"$ref":"#/definitions/examples"}},"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"headers":{"type":"object","additionalProperties":{"$ref":"#/definitions/header"}},"header":{"type":"object","additionalProperties":false,"required":["type"],"properties":{"type":{"type":"string","enum":["string","number","integer","boolean","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormat"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"vendorExtension":{"description":"Any property starting with x- is valid.","additionalProperties":true,"additionalItems":true},"bodyParameter":{"type":"object","required":["name","in","schema"],"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["body"]},"required":{"type":"boolean","description":"Determines whether or not this parameter is required or optional.","default":false},"schema":{"$ref":"#/definitions/schema"}},"additionalProperties":false},"headerParameterSubSchema":{"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"required":{"type":"boolean","description":"Determines whether or not this parameter is required or optional.","default":false},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["header"]},"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"type":{"type":"string","enum":["string","number","boolean","integer","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormat"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}}},"queryParameterSubSchema":{"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"required":{"type":"boolean","description":"Determines whether or not this parameter is required or optional.","default":false},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["query"]},"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"allowEmptyValue":{"type":"boolean","default":false,"description":"allows sending a parameter by name only or with an empty value."},"type":{"type":"string","enum":["string","number","boolean","integer","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormatWithMulti"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}}},"formDataParameterSubSchema":{"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"required":{"type":"boolean","description":"Determines whether or not this parameter is required or optional.","default":false},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["formData"]},"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"allowEmptyValue":{"type":"boolean","default":false,"description":"allows sending a parameter by name only or with an empty value."},"type":{"type":"string","enum":["string","number","boolean","integer","array","file"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormatWithMulti"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}}},"pathParameterSubSchema":{"additionalProperties":false,"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"required":["required"],"properties":{"required":{"type":"boolean","enum":[true],"description":"Determines whether or not this parameter is required or optional."},"in":{"type":"string","description":"Determines the location of the parameter.","enum":["path"]},"description":{"type":"string","description":"A brief description of the parameter. This could contain examples of use.  GitHub Flavored Markdown is allowed."},"name":{"type":"string","description":"The name of the parameter."},"type":{"type":"string","enum":["string","number","boolean","integer","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormat"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}}},"nonBodyParameter":{"type":"object","required":["name","in","type"],"oneOf":[{"$ref":"#/definitions/headerParameterSubSchema"},{"$ref":"#/definitions/formDataParameterSubSchema"},{"$ref":"#/definitions/queryParameterSubSchema"},{"$ref":"#/definitions/pathParameterSubSchema"}]},"parameter":{"oneOf":[{"$ref":"#/definitions/bodyParameter"},{"$ref":"#/definitions/nonBodyParameter"}]},"schema":{"type":"object","description":"A deterministic version of a JSON Schema object.","patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"properties":{"$ref":{"type":"string"},"format":{"type":"string"},"title":{"$ref":"http://json-schema.org/draft-04/schema#/properties/title"},"description":{"$ref":"http://json-schema.org/draft-04/schema#/properties/description"},"default":{"$ref":"http://json-schema.org/draft-04/schema#/properties/default"},"multipleOf":{"$ref":"http://json-schema.org/draft-04/schema#/properties/multipleOf"},"maximum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/maximum"},"exclusiveMaximum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/exclusiveMaximum"},"minimum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/minimum"},"exclusiveMinimum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/exclusiveMinimum"},"maxLength":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minLength":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"pattern":{"$ref":"http://json-schema.org/draft-04/schema#/properties/pattern"},"maxItems":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minItems":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"uniqueItems":{"$ref":"http://json-schema.org/draft-04/schema#/properties/uniqueItems"},"maxProperties":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minProperties":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"required":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/stringArray"},"enum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/enum"},"additionalProperties":{"anyOf":[{"$ref":"#/definitions/schema"},{"type":"boolean"}],"default":{}},"type":{"$ref":"http://json-schema.org/draft-04/schema#/properties/type"},"items":{"anyOf":[{"$ref":"#/definitions/schema"},{"type":"array","minItems":1,"items":{"$ref":"#/definitions/schema"}}],"default":{}},"allOf":{"type":"array","minItems":1,"items":{"$ref":"#/definitions/schema"}},"properties":{"type":"object","additionalProperties":{"$ref":"#/definitions/schema"},"default":{}},"discriminator":{"type":"string"},"readOnly":{"type":"boolean","default":false},"xml":{"$ref":"#/definitions/xml"},"externalDocs":{"$ref":"#/definitions/externalDocs"},"example":{}},"additionalProperties":false},"fileSchema":{"type":"object","description":"A deterministic version of a JSON Schema object.","patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}},"required":["type"],"properties":{"format":{"type":"string"},"title":{"$ref":"http://json-schema.org/draft-04/schema#/properties/title"},"description":{"$ref":"http://json-schema.org/draft-04/schema#/properties/description"},"default":{"$ref":"http://json-schema.org/draft-04/schema#/properties/default"},"required":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/stringArray"},"type":{"type":"string","enum":["file"]},"readOnly":{"type":"boolean","default":false},"externalDocs":{"$ref":"#/definitions/externalDocs"},"example":{}},"additionalProperties":false},"primitivesItems":{"type":"object","additionalProperties":false,"properties":{"type":{"type":"string","enum":["string","number","integer","boolean","array"]},"format":{"type":"string"},"items":{"$ref":"#/definitions/primitivesItems"},"collectionFormat":{"$ref":"#/definitions/collectionFormat"},"default":{"$ref":"#/definitions/default"},"maximum":{"$ref":"#/definitions/maximum"},"exclusiveMaximum":{"$ref":"#/definitions/exclusiveMaximum"},"minimum":{"$ref":"#/definitions/minimum"},"exclusiveMinimum":{"$ref":"#/definitions/exclusiveMinimum"},"maxLength":{"$ref":"#/definitions/maxLength"},"minLength":{"$ref":"#/definitions/minLength"},"pattern":{"$ref":"#/definitions/pattern"},"maxItems":{"$ref":"#/definitions/maxItems"},"minItems":{"$ref":"#/definitions/minItems"},"uniqueItems":{"$ref":"#/definitions/uniqueItems"},"enum":{"$ref":"#/definitions/enum"},"multipleOf":{"$ref":"#/definitions/multipleOf"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"security":{"type":"array","items":{"$ref":"#/definitions/securityRequirement"},"uniqueItems":true},"securityRequirement":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"},"uniqueItems":true}},"xml":{"type":"object","additionalProperties":false,"properties":{"name":{"type":"string"},"namespace":{"type":"string"},"prefix":{"type":"string"},"attribute":{"type":"boolean","default":false},"wrapped":{"type":"boolean","default":false}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"tag":{"type":"object","additionalProperties":false,"required":["name"],"properties":{"name":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/definitions/externalDocs"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"securityDefinitions":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/basicAuthenticationSecurity"},{"$ref":"#/definitions/apiKeySecurity"},{"$ref":"#/definitions/oauth2ImplicitSecurity"},{"$ref":"#/definitions/oauth2PasswordSecurity"},{"$ref":"#/definitions/oauth2ApplicationSecurity"},{"$ref":"#/definitions/oauth2AccessCodeSecurity"}]}},"basicAuthenticationSecurity":{"type":"object","additionalProperties":false,"required":["type"],"properties":{"type":{"type":"string","enum":["basic"]},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"apiKeySecurity":{"type":"object","additionalProperties":false,"required":["type","name","in"],"properties":{"type":{"type":"string","enum":["apiKey"]},"name":{"type":"string"},"in":{"type":"string","enum":["header","query"]},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2ImplicitSecurity":{"type":"object","additionalProperties":false,"required":["type","flow","authorizationUrl"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flow":{"type":"string","enum":["implicit"]},"scopes":{"$ref":"#/definitions/oauth2Scopes"},"authorizationUrl":{"type":"string","format":"uri"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2PasswordSecurity":{"type":"object","additionalProperties":false,"required":["type","flow","tokenUrl"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flow":{"type":"string","enum":["password"]},"scopes":{"$ref":"#/definitions/oauth2Scopes"},"tokenUrl":{"type":"string","format":"uri"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2ApplicationSecurity":{"type":"object","additionalProperties":false,"required":["type","flow","tokenUrl"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flow":{"type":"string","enum":["application"]},"scopes":{"$ref":"#/definitions/oauth2Scopes"},"tokenUrl":{"type":"string","format":"uri"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2AccessCodeSecurity":{"type":"object","additionalProperties":false,"required":["type","flow","authorizationUrl","tokenUrl"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flow":{"type":"string","enum":["accessCode"]},"scopes":{"$ref":"#/definitions/oauth2Scopes"},"authorizationUrl":{"type":"string","format":"uri"},"tokenUrl":{"type":"string","format":"uri"},"description":{"type":"string"}},"patternProperties":{"^x-":{"$ref":"#/definitions/vendorExtension"}}},"oauth2Scopes":{"type":"object","additionalProperties":{"type":"string"}},"mediaTypeList":{"type":"array","items":{"$ref":"#/definitions/mimeType"},"uniqueItems":true},"parametersList":{"type":"array","description":"The parameters needed to send a valid API call.","additionalItems":false,"items":{"oneOf":[{"$ref":"#/definitions/parameter"},{"$ref":"#/definitions/jsonReference"}]},"uniqueItems":true},"schemesList":{"type":"array","description":"The transfer protocol of the API.","items":{"type":"string","enum":["http","https","ws","wss"]},"uniqueItems":true},"collectionFormat":{"type":"string","enum":["csv","ssv","tsv","pipes"],"default":"csv"},"collectionFormatWithMulti":{"type":"string","enum":["csv","ssv","tsv","pipes","multi"],"default":"csv"},"title":{"$ref":"http://json-schema.org/draft-04/schema#/properties/title"},"description":{"$ref":"http://json-schema.org/draft-04/schema#/properties/description"},"default":{"$ref":"http://json-schema.org/draft-04/schema#/properties/default"},"multipleOf":{"$ref":"http://json-schema.org/draft-04/schema#/properties/multipleOf"},"maximum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/maximum"},"exclusiveMaximum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/exclusiveMaximum"},"minimum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/minimum"},"exclusiveMinimum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/exclusiveMinimum"},"maxLength":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minLength":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"pattern":{"$ref":"http://json-schema.org/draft-04/schema#/properties/pattern"},"maxItems":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveInteger"},"minItems":{"$ref":"http://json-schema.org/draft-04/schema#/definitions/positiveIntegerDefault0"},"uniqueItems":{"$ref":"http://json-schema.org/draft-04/schema#/properties/uniqueItems"},"enum":{"$ref":"http://json-schema.org/draft-04/schema#/properties/enum"},"jsonReference":{"type":"object","required":["$ref"],"additionalProperties":false,"properties":{"$ref":{"type":"string"}}}}}');
+
+/***/ }),
+
+/***/ 3659:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"id":"https://spec.openapis.org/oas/3.0/schema/2019-04-02","$schema":"http://json-schema.org/draft-04/schema#","description":"Validation schema for OpenAPI Specification 3.0.X.","type":"object","required":["openapi","info","paths"],"properties":{"openapi":{"type":"string","pattern":"^3\\\\.0\\\\.\\\\d(-.+)?$"},"info":{"$ref":"#/definitions/Info"},"externalDocs":{"$ref":"#/definitions/ExternalDocumentation"},"servers":{"type":"array","items":{"$ref":"#/definitions/Server"}},"security":{"type":"array","items":{"$ref":"#/definitions/SecurityRequirement"}},"tags":{"type":"array","items":{"$ref":"#/definitions/Tag"},"uniqueItems":true},"paths":{"$ref":"#/definitions/Paths"},"components":{"$ref":"#/definitions/Components"}},"patternProperties":{"^x-":{}},"additionalProperties":false,"definitions":{"Reference":{"type":"object","required":["$ref"],"patternProperties":{"^\\\\$ref$":{"type":"string","format":"uri-reference"}}},"Info":{"type":"object","required":["title","version"],"properties":{"title":{"type":"string"},"description":{"type":"string"},"termsOfService":{"type":"string","format":"uri-reference"},"contact":{"$ref":"#/definitions/Contact"},"license":{"$ref":"#/definitions/License"},"version":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Contact":{"type":"object","properties":{"name":{"type":"string"},"url":{"type":"string","format":"uri-reference"},"email":{"type":"string","format":"email"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"License":{"type":"object","required":["name"],"properties":{"name":{"type":"string"},"url":{"type":"string","format":"uri-reference"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Server":{"type":"object","required":["url"],"properties":{"url":{"type":"string"},"description":{"type":"string"},"variables":{"type":"object","additionalProperties":{"$ref":"#/definitions/ServerVariable"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ServerVariable":{"type":"object","required":["default"],"properties":{"enum":{"type":"array","items":{"type":"string"}},"default":{"type":"string"},"description":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Components":{"type":"object","properties":{"schemas":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}}},"responses":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Response"}]}}},"parameters":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Parameter"}]}}},"examples":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Example"}]}}},"requestBodies":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/RequestBody"}]}}},"headers":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Header"}]}}},"securitySchemes":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/SecurityScheme"}]}}},"links":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Link"}]}}},"callbacks":{"type":"object","patternProperties":{"^[a-zA-Z0-9\\\\.\\\\-_]+$":{"oneOf":[{"$ref":"#/definitions/Reference"},{"$ref":"#/definitions/Callback"}]}}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Schema":{"type":"object","properties":{"title":{"type":"string"},"multipleOf":{"type":"number","minimum":0,"exclusiveMinimum":true},"maximum":{"type":"number"},"exclusiveMaximum":{"type":"boolean","default":false},"minimum":{"type":"number"},"exclusiveMinimum":{"type":"boolean","default":false},"maxLength":{"type":"integer","minimum":0},"minLength":{"type":"integer","minimum":0,"default":0},"pattern":{"type":"string","format":"regex"},"maxItems":{"type":"integer","minimum":0},"minItems":{"type":"integer","minimum":0,"default":0},"uniqueItems":{"type":"boolean","default":false},"maxProperties":{"type":"integer","minimum":0},"minProperties":{"type":"integer","minimum":0,"default":0},"required":{"type":"array","items":{"type":"string"},"minItems":1,"uniqueItems":true},"enum":{"type":"array","items":{},"minItems":1,"uniqueItems":false},"type":{"type":"string","enum":["array","boolean","integer","number","object","string"]},"not":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"allOf":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}},"oneOf":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}},"anyOf":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}},"items":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"properties":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]}},"additionalProperties":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"},{"type":"boolean"}],"default":true},"description":{"type":"string"},"format":{"type":"string"},"default":{},"nullable":{"type":"boolean","default":false},"discriminator":{"$ref":"#/definitions/Discriminator"},"readOnly":{"type":"boolean","default":false},"writeOnly":{"type":"boolean","default":false},"example":{},"externalDocs":{"$ref":"#/definitions/ExternalDocumentation"},"deprecated":{"type":"boolean","default":false},"xml":{"$ref":"#/definitions/XML"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Discriminator":{"type":"object","required":["propertyName"],"properties":{"propertyName":{"type":"string"},"mapping":{"type":"object","additionalProperties":{"type":"string"}}}},"XML":{"type":"object","properties":{"name":{"type":"string"},"namespace":{"type":"string","format":"uri"},"prefix":{"type":"string"},"attribute":{"type":"boolean","default":false},"wrapped":{"type":"boolean","default":false}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Response":{"type":"object","required":["description"],"properties":{"description":{"type":"string"},"headers":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Header"},{"$ref":"#/definitions/Reference"}]}},"content":{"type":"object","additionalProperties":{"$ref":"#/definitions/MediaType"}},"links":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Link"},{"$ref":"#/definitions/Reference"}]}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"MediaType":{"type":"object","properties":{"schema":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"example":{},"examples":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Example"},{"$ref":"#/definitions/Reference"}]}},"encoding":{"type":"object","additionalProperties":{"$ref":"#/definitions/Encoding"}}},"patternProperties":{"^x-":{}},"additionalProperties":false,"allOf":[{"$ref":"#/definitions/ExampleXORExamples"}]},"Example":{"type":"object","properties":{"summary":{"type":"string"},"description":{"type":"string"},"value":{},"externalValue":{"type":"string","format":"uri-reference"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Header":{"type":"object","properties":{"description":{"type":"string"},"required":{"type":"boolean","default":false},"deprecated":{"type":"boolean","default":false},"allowEmptyValue":{"type":"boolean","default":false},"style":{"type":"string","enum":["simple"],"default":"simple"},"explode":{"type":"boolean"},"allowReserved":{"type":"boolean","default":false},"schema":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"content":{"type":"object","additionalProperties":{"$ref":"#/definitions/MediaType"},"minProperties":1,"maxProperties":1},"example":{},"examples":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Example"},{"$ref":"#/definitions/Reference"}]}}},"patternProperties":{"^x-":{}},"additionalProperties":false,"allOf":[{"$ref":"#/definitions/ExampleXORExamples"},{"$ref":"#/definitions/SchemaXORContent"}]},"Paths":{"type":"object","patternProperties":{"^\\\\/":{"$ref":"#/definitions/PathItem"},"^x-":{}},"additionalProperties":false},"PathItem":{"type":"object","properties":{"$ref":{"type":"string"},"summary":{"type":"string"},"description":{"type":"string"},"servers":{"type":"array","items":{"$ref":"#/definitions/Server"}},"parameters":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Parameter"},{"$ref":"#/definitions/Reference"}]},"uniqueItems":true}},"patternProperties":{"^(get|put|post|delete|options|head|patch|trace)$":{"$ref":"#/definitions/Operation"},"^x-":{}},"additionalProperties":false},"Operation":{"type":"object","required":["responses"],"properties":{"tags":{"type":"array","items":{"type":"string"}},"summary":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/definitions/ExternalDocumentation"},"operationId":{"type":"string"},"parameters":{"type":"array","items":{"oneOf":[{"$ref":"#/definitions/Parameter"},{"$ref":"#/definitions/Reference"}]},"uniqueItems":true},"requestBody":{"oneOf":[{"$ref":"#/definitions/RequestBody"},{"$ref":"#/definitions/Reference"}]},"responses":{"$ref":"#/definitions/Responses"},"callbacks":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Callback"},{"$ref":"#/definitions/Reference"}]}},"deprecated":{"type":"boolean","default":false},"security":{"type":"array","items":{"$ref":"#/definitions/SecurityRequirement"}},"servers":{"type":"array","items":{"$ref":"#/definitions/Server"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Responses":{"type":"object","properties":{"default":{"oneOf":[{"$ref":"#/definitions/Response"},{"$ref":"#/definitions/Reference"}]}},"patternProperties":{"^[1-5](?:\\\\d{2}|XX)$":{"oneOf":[{"$ref":"#/definitions/Response"},{"$ref":"#/definitions/Reference"}]},"^x-":{}},"minProperties":1,"additionalProperties":false},"SecurityRequirement":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},"Tag":{"type":"object","required":["name"],"properties":{"name":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/definitions/ExternalDocumentation"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ExternalDocumentation":{"type":"object","required":["url"],"properties":{"description":{"type":"string"},"url":{"type":"string","format":"uri-reference"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ExampleXORExamples":{"description":"Example and examples are mutually exclusive","not":{"required":["example","examples"]}},"SchemaXORContent":{"description":"Schema and content are mutually exclusive, at least one is required","not":{"required":["schema","content"]},"oneOf":[{"required":["schema"]},{"required":["content"],"description":"Some properties are not allowed if content is present","allOf":[{"not":{"required":["style"]}},{"not":{"required":["explode"]}},{"not":{"required":["allowReserved"]}},{"not":{"required":["example"]}},{"not":{"required":["examples"]}}]}]},"Parameter":{"type":"object","properties":{"name":{"type":"string"},"in":{"type":"string"},"description":{"type":"string"},"required":{"type":"boolean","default":false},"deprecated":{"type":"boolean","default":false},"allowEmptyValue":{"type":"boolean","default":false},"style":{"type":"string"},"explode":{"type":"boolean"},"allowReserved":{"type":"boolean","default":false},"schema":{"oneOf":[{"$ref":"#/definitions/Schema"},{"$ref":"#/definitions/Reference"}]},"content":{"type":"object","additionalProperties":{"$ref":"#/definitions/MediaType"},"minProperties":1,"maxProperties":1},"example":{},"examples":{"type":"object","additionalProperties":{"oneOf":[{"$ref":"#/definitions/Example"},{"$ref":"#/definitions/Reference"}]}}},"patternProperties":{"^x-":{}},"additionalProperties":false,"required":["name","in"],"allOf":[{"$ref":"#/definitions/ExampleXORExamples"},{"$ref":"#/definitions/SchemaXORContent"},{"$ref":"#/definitions/ParameterLocation"}]},"ParameterLocation":{"description":"Parameter location","oneOf":[{"description":"Parameter in path","required":["required"],"properties":{"in":{"enum":["path"]},"style":{"enum":["matrix","label","simple"],"default":"simple"},"required":{"enum":[true]}}},{"description":"Parameter in query","properties":{"in":{"enum":["query"]},"style":{"enum":["form","spaceDelimited","pipeDelimited","deepObject"],"default":"form"}}},{"description":"Parameter in header","properties":{"in":{"enum":["header"]},"style":{"enum":["simple"],"default":"simple"}}},{"description":"Parameter in cookie","properties":{"in":{"enum":["cookie"]},"style":{"enum":["form"],"default":"form"}}}]},"RequestBody":{"type":"object","required":["content"],"properties":{"description":{"type":"string"},"content":{"type":"object","additionalProperties":{"$ref":"#/definitions/MediaType"}},"required":{"type":"boolean","default":false}},"patternProperties":{"^x-":{}},"additionalProperties":false},"SecurityScheme":{"oneOf":[{"$ref":"#/definitions/APIKeySecurityScheme"},{"$ref":"#/definitions/HTTPSecurityScheme"},{"$ref":"#/definitions/OAuth2SecurityScheme"},{"$ref":"#/definitions/OpenIdConnectSecurityScheme"}]},"APIKeySecurityScheme":{"type":"object","required":["type","name","in"],"properties":{"type":{"type":"string","enum":["apiKey"]},"name":{"type":"string"},"in":{"type":"string","enum":["header","query","cookie"]},"description":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"HTTPSecurityScheme":{"type":"object","required":["scheme","type"],"properties":{"scheme":{"type":"string"},"bearerFormat":{"type":"string"},"description":{"type":"string"},"type":{"type":"string","enum":["http"]}},"patternProperties":{"^x-":{}},"additionalProperties":false,"oneOf":[{"description":"Bearer","properties":{"scheme":{"enum":["bearer"]}}},{"description":"Non Bearer","not":{"required":["bearerFormat"]},"properties":{"scheme":{"not":{"enum":["bearer"]}}}}]},"OAuth2SecurityScheme":{"type":"object","required":["type","flows"],"properties":{"type":{"type":"string","enum":["oauth2"]},"flows":{"$ref":"#/definitions/OAuthFlows"},"description":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"OpenIdConnectSecurityScheme":{"type":"object","required":["type","openIdConnectUrl"],"properties":{"type":{"type":"string","enum":["openIdConnect"]},"openIdConnectUrl":{"type":"string","format":"uri-reference"},"description":{"type":"string"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"OAuthFlows":{"type":"object","properties":{"implicit":{"$ref":"#/definitions/ImplicitOAuthFlow"},"password":{"$ref":"#/definitions/PasswordOAuthFlow"},"clientCredentials":{"$ref":"#/definitions/ClientCredentialsFlow"},"authorizationCode":{"$ref":"#/definitions/AuthorizationCodeOAuthFlow"}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ImplicitOAuthFlow":{"type":"object","required":["authorizationUrl","scopes"],"properties":{"authorizationUrl":{"type":"string","format":"uri-reference"},"refreshUrl":{"type":"string","format":"uri-reference"},"scopes":{"type":"object","additionalProperties":{"type":"string"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"PasswordOAuthFlow":{"type":"object","required":["tokenUrl"],"properties":{"tokenUrl":{"type":"string","format":"uri-reference"},"refreshUrl":{"type":"string","format":"uri-reference"},"scopes":{"type":"object","additionalProperties":{"type":"string"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"ClientCredentialsFlow":{"type":"object","required":["tokenUrl"],"properties":{"tokenUrl":{"type":"string","format":"uri-reference"},"refreshUrl":{"type":"string","format":"uri-reference"},"scopes":{"type":"object","additionalProperties":{"type":"string"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"AuthorizationCodeOAuthFlow":{"type":"object","required":["authorizationUrl","tokenUrl"],"properties":{"authorizationUrl":{"type":"string","format":"uri-reference"},"tokenUrl":{"type":"string","format":"uri-reference"},"refreshUrl":{"type":"string","format":"uri-reference"},"scopes":{"type":"object","additionalProperties":{"type":"string"}}},"patternProperties":{"^x-":{}},"additionalProperties":false},"Link":{"type":"object","properties":{"operationId":{"type":"string"},"operationRef":{"type":"string","format":"uri-reference"},"parameters":{"type":"object","additionalProperties":{}},"requestBody":{},"description":{"type":"string"},"server":{"$ref":"#/definitions/Server"}},"patternProperties":{"^x-":{}},"additionalProperties":false,"not":{"description":"Operation Id and Operation Ref are mutually exclusive","required":["operationId","operationRef"]}},"Callback":{"type":"object","additionalProperties":{"$ref":"#/definitions/PathItem"},"patternProperties":{"^x-":{}}},"Encoding":{"type":"object","properties":{"contentType":{"type":"string"},"headers":{"type":"object","additionalProperties":{"$ref":"#/definitions/Header"}},"style":{"type":"string","enum":["form","spaceDelimited","pipeDelimited","deepObject"]},"explode":{"type":"boolean"},"allowReserved":{"type":"boolean","default":false}},"additionalProperties":false}}}');
+
+/***/ }),
+
+/***/ 1201:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$id":"https://spec.openapis.org/oas/3.1/schema/2021-04-15","$schema":"https://json-schema.org/draft/2020-12/schema","type":"object","properties":{"openapi":{"type":"string","pattern":"^3\\\\.1\\\\.\\\\d+(-.+)?$"},"info":{"$ref":"#/$defs/info"},"jsonSchemaDialect":{"$ref":"#/$defs/uri","default":"https://spec.openapis.org/oas/3.1/dialect/base"},"servers":{"type":"array","items":{"$ref":"#/$defs/server"}},"paths":{"$ref":"#/$defs/paths"},"webhooks":{"type":"object","additionalProperties":{"$ref":"#/$defs/path-item-or-reference"}},"components":{"$ref":"#/$defs/components"},"security":{"type":"array","items":{"$ref":"#/$defs/security-requirement"}},"tags":{"type":"array","items":{"$ref":"#/$defs/tag"}},"externalDocs":{"$ref":"#/$defs/external-documentation"}},"required":["openapi","info"],"anyOf":[{"required":["paths"]},{"required":["components"]},{"required":["webhooks"]}],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false,"$defs":{"info":{"type":"object","properties":{"title":{"type":"string"},"summary":{"type":"string"},"description":{"type":"string"},"termsOfService":{"type":"string"},"contact":{"$ref":"#/$defs/contact"},"license":{"$ref":"#/$defs/license"},"version":{"type":"string"}},"required":["title","version"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"contact":{"type":"object","properties":{"name":{"type":"string"},"url":{"type":"string"},"email":{"type":"string"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"license":{"type":"object","properties":{"name":{"type":"string"},"identifier":{"type":"string"},"url":{"$ref":"#/$defs/uri"}},"required":["name"],"oneOf":[{"required":["identifier"]},{"required":["url"]}],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"server":{"type":"object","properties":{"url":{"$ref":"#/$defs/uri"},"description":{"type":"string"},"variables":{"type":"object","additionalProperties":{"$ref":"#/$defs/server-variable"}}},"required":["url"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"server-variable":{"type":"object","properties":{"enum":{"type":"array","items":{"type":"string"},"minItems":1},"default":{"type":"string"},"descriptions":{"type":"string"}},"required":["default"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"components":{"type":"object","properties":{"schemas":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"}},"responses":{"type":"object","additionalProperties":{"$ref":"#/$defs/response-or-reference"}},"parameters":{"type":"object","additionalProperties":{"$ref":"#/$defs/parameter-or-reference"}},"examples":{"type":"object","additionalProperties":{"$ref":"#/$defs/example-or-reference"}},"requestBodies":{"type":"object","additionalProperties":{"$ref":"#/$defs/request-body-or-reference"}},"headers":{"type":"object","additionalProperties":{"$ref":"#/$defs/header-or-reference"}},"securitySchemes":{"type":"object","additionalProperties":{"$ref":"#/$defs/security-scheme-or-reference"}},"links":{"type":"object","additionalProperties":{"$ref":"#/$defs/link-or-reference"}},"callbacks":{"type":"object","additionalProperties":{"$ref":"#/$defs/callbacks-or-reference"}},"pathItems":{"type":"object","additionalProperties":{"$ref":"#/$defs/path-item-or-reference"}}},"patternProperties":{"^(schemas|responses|parameters|examples|requestBodies|headers|securitySchemes|links|callbacks|pathItems)$":{"$comment":"Enumerating all of the property names in the regex above is necessary for unevaluatedProperties to work as expected","propertyNames":{"pattern":"^[a-zA-Z0-9._-]+$"}}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"paths":{"type":"object","patternProperties":{"^/":{"$ref":"#/$defs/path-item"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"path-item":{"type":"object","properties":{"summary":{"type":"string"},"description":{"type":"string"},"servers":{"type":"array","items":{"$ref":"#/$defs/server"}},"parameters":{"type":"array","items":{"$ref":"#/$defs/parameter-or-reference"}}},"patternProperties":{"^(get|put|post|delete|options|head|patch|trace)$":{"$ref":"#/$defs/operation"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"path-item-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/path-item"}},"operation":{"type":"object","properties":{"tags":{"type":"array","items":{"type":"string"}},"summary":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/$defs/external-documentation"},"operationId":{"type":"string"},"parameters":{"type":"array","items":{"$ref":"#/$defs/parameter-or-reference"}},"requestBody":{"$ref":"#/$defs/request-body-or-reference"},"responses":{"$ref":"#/$defs/responses"},"callbacks":{"type":"object","additionalProperties":{"$ref":"#/$defs/callbacks-or-reference"}},"deprecated":{"default":false,"type":"boolean"},"security":{"type":"array","items":{"$ref":"#/$defs/security-requirement"}},"servers":{"type":"array","items":{"$ref":"#/$defs/server"}}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"external-documentation":{"type":"object","properties":{"description":{"type":"string"},"url":{"$ref":"#/$defs/uri"}},"required":["url"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"parameter":{"type":"object","properties":{"name":{"type":"string"},"in":{"enum":["query","header","path","cookie"]},"description":{"type":"string"},"required":{"default":false,"type":"boolean"},"deprecated":{"default":false,"type":"boolean"},"allowEmptyValue":{"default":false,"type":"boolean"},"schema":{"$dynamicRef":"#meta"},"content":{"$ref":"#/$defs/content"}},"required":["in"],"oneOf":[{"required":["schema"]},{"required":["content"]}],"dependentSchemas":{"schema":{"properties":{"style":{"type":"string"},"explode":{"type":"boolean"},"allowReserved":{"default":false,"type":"boolean"}},"allOf":[{"$ref":"#/$defs/examples"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-path"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-header"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-query"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-cookie"},{"$ref":"#/$defs/parameter/dependentSchemas/schema/$defs/styles-for-form"}],"$defs":{"styles-for-path":{"if":{"properties":{"in":{"const":"path"}},"required":["in"]},"then":{"properties":{"style":{"default":"simple","enum":["matrix","label","simple"]},"required":{"const":true}},"required":["required"]}},"styles-for-header":{"if":{"properties":{"in":{"const":"header"}},"required":["in"]},"then":{"properties":{"style":{"default":"simple","enum":["simple"]}}}},"styles-for-query":{"if":{"properties":{"in":{"const":"query"}},"required":["in"]},"then":{"properties":{"style":{"default":"form","enum":["form","spaceDelimited","pipeDelimited","deepObject"]}}}},"styles-for-cookie":{"if":{"properties":{"in":{"const":"cookie"}},"required":["in"]},"then":{"properties":{"style":{"default":"form","enum":["form"]}}}},"styles-for-form":{"if":{"properties":{"style":{"const":"form"}},"required":["style"]},"then":{"properties":{"explode":{"default":true}}},"else":{"properties":{"explode":{"default":false}}}}}}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"parameter-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/parameter"}},"request-body":{"type":"object","properties":{"description":{"type":"string"},"content":{"$ref":"#/$defs/content"},"required":{"default":false,"type":"boolean"}},"required":["content"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"request-body-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/request-body"}},"content":{"type":"object","additionalProperties":{"$ref":"#/$defs/media-type"},"propertyNames":{"format":"media-range"}},"media-type":{"type":"object","properties":{"schema":{"$dynamicRef":"#meta"},"encoding":{"type":"object","additionalProperties":{"$ref":"#/$defs/encoding"}}},"allOf":[{"$ref":"#/$defs/specification-extensions"},{"$ref":"#/$defs/examples"}],"unevaluatedProperties":false},"encoding":{"type":"object","properties":{"contentType":{"type":"string","format":"media-range"},"headers":{"type":"object","additionalProperties":{"$ref":"#/$defs/header-or-reference"}},"style":{"default":"form","enum":["form","spaceDelimited","pipeDelimited","deepObject"]},"explode":{"type":"boolean"},"allowReserved":{"default":false,"type":"boolean"}},"allOf":[{"$ref":"#/$defs/specification-extensions"},{"$ref":"#/$defs/encoding/$defs/explode-default"}],"unevaluatedProperties":false,"$defs":{"explode-default":{"if":{"properties":{"style":{"const":"form"}},"required":["style"]},"then":{"properties":{"explode":{"default":true}}},"else":{"properties":{"explode":{"default":false}}}}}},"responses":{"type":"object","properties":{"default":{"$ref":"#/$defs/response-or-reference"}},"patternProperties":{"^[1-5][0-9X]{2}$":{"$ref":"#/$defs/response-or-reference"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"response":{"type":"object","properties":{"description":{"type":"string"},"headers":{"type":"object","additionalProperties":{"$ref":"#/$defs/header-or-reference"}},"content":{"$ref":"#/$defs/content"},"links":{"type":"object","additionalProperties":{"$ref":"#/$defs/link-or-reference"}}},"required":["description"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"response-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/response"}},"callbacks":{"type":"object","$ref":"#/$defs/specification-extensions","additionalProperties":{"$ref":"#/$defs/path-item-or-reference"}},"callbacks-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/callbacks"}},"example":{"type":"object","properties":{"summary":{"type":"string"},"description":{"type":"string"},"value":true,"externalValue":{"$ref":"#/$defs/uri"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"example-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/example"}},"link":{"type":"object","properties":{"operationRef":{"$ref":"#/$defs/uri"},"operationId":true,"parameters":{"$ref":"#/$defs/map-of-strings"},"requestBody":true,"description":{"type":"string"},"body":{"$ref":"#/$defs/server"}},"oneOf":[{"required":["operationRef"]},{"required":["operationId"]}],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"link-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/link"}},"header":{"type":"object","properties":{"description":{"type":"string"},"required":{"default":false,"type":"boolean"},"deprecated":{"default":false,"type":"boolean"},"allowEmptyValue":{"default":false,"type":"boolean"}},"dependentSchemas":{"schema":{"properties":{"style":{"default":"simple","enum":["simple"]},"explode":{"default":false,"type":"boolean"},"allowReserved":{"default":false,"type":"boolean"},"schema":{"$dynamicRef":"#meta"}},"$ref":"#/$defs/examples"},"content":{"properties":{"content":{"$ref":"#/$defs/content"}}}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"header-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/header"}},"tag":{"type":"object","properties":{"name":{"type":"string"},"description":{"type":"string"},"externalDocs":{"$ref":"#/$defs/external-documentation"}},"required":["name"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"reference":{"type":"object","properties":{"$ref":{"$ref":"#/$defs/uri"},"summary":{"type":"string"},"description":{"type":"string"}},"unevaluatedProperties":false},"schema":{"$dynamicAnchor":"meta","type":["object","boolean"]},"security-scheme":{"type":"object","properties":{"type":{"enum":["apiKey","http","mutualTLS","oauth2","openIdConnect"]},"description":{"type":"string"}},"required":["type"],"allOf":[{"$ref":"#/$defs/specification-extensions"},{"$ref":"#/$defs/security-scheme/$defs/type-apikey"},{"$ref":"#/$defs/security-scheme/$defs/type-http"},{"$ref":"#/$defs/security-scheme/$defs/type-http-bearer"},{"$ref":"#/$defs/security-scheme/$defs/type-oauth2"},{"$ref":"#/$defs/security-scheme/$defs/type-oidc"}],"unevaluatedProperties":false,"$defs":{"type-apikey":{"if":{"properties":{"type":{"const":"apiKey"}},"required":["type"]},"then":{"properties":{"name":{"type":"string"},"in":{"enum":["query","header","cookie"]}},"required":["name","in"]}},"type-http":{"if":{"properties":{"type":{"const":"http"}},"required":["type"]},"then":{"properties":{"scheme":{"type":"string"}},"required":["scheme"]}},"type-http-bearer":{"if":{"properties":{"type":{"const":"http"},"scheme":{"const":"bearer"}},"required":["type","scheme"]},"then":{"properties":{"bearerFormat":{"type":"string"}},"required":["scheme"]}},"type-oauth2":{"if":{"properties":{"type":{"const":"oauth2"}},"required":["type"]},"then":{"properties":{"flows":{"$ref":"#/$defs/oauth-flows"}},"required":["flows"]}},"type-oidc":{"if":{"properties":{"type":{"const":"openIdConnect"}},"required":["type"]},"then":{"properties":{"openIdConnectUrl":{"$ref":"#/$defs/uri"}},"required":["openIdConnectUrl"]}}}},"security-scheme-or-reference":{"if":{"required":["$ref"]},"then":{"$ref":"#/$defs/reference"},"else":{"$ref":"#/$defs/security-scheme"}},"oauth-flows":{"type":"object","properties":{"implicit":{"$ref":"#/$defs/oauth-flows/$defs/implicit"},"password":{"$ref":"#/$defs/oauth-flows/$defs/password"},"clientCredentials":{"$ref":"#/$defs/oauth-flows/$defs/client-credentials"},"authorizationCode":{"$ref":"#/$defs/oauth-flows/$defs/authorization-code"}},"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false,"$defs":{"implicit":{"type":"object","properties":{"authorizationUrl":{"type":"string"},"refreshUrl":{"type":"string"},"scopes":{"$ref":"#/$defs/map-of-strings"}},"required":["authorizationUrl","scopes"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"password":{"type":"object","properties":{"tokenUrl":{"type":"string"},"refreshUrl":{"type":"string"},"scopes":{"$ref":"#/$defs/map-of-strings"}},"required":["tokenUrl","scopes"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"client-credentials":{"type":"object","properties":{"tokenUrl":{"type":"string"},"refreshUrl":{"type":"string"},"scopes":{"$ref":"#/$defs/map-of-strings"}},"required":["tokenUrl","scopes"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false},"authorization-code":{"type":"object","properties":{"authorizationUrl":{"type":"string"},"tokenUrl":{"type":"string"},"refreshUrl":{"type":"string"},"scopes":{"$ref":"#/$defs/map-of-strings"}},"required":["authorizationUrl","tokenUrl","scopes"],"$ref":"#/$defs/specification-extensions","unevaluatedProperties":false}}},"security-requirement":{"type":"object","additionalProperties":{"type":"array","items":{"type":"string"}}},"specification-extensions":{"patternProperties":{"^x-":true}},"examples":{"properties":{"example":true,"examples":{"type":"object","additionalProperties":{"$ref":"#/$defs/example-or-reference"}}}},"uri":{"type":"string","format":"uri"},"map-of-strings":{"type":"object","additionalProperties":{"type":"string"}}}}');
+
+/***/ }),
+
+/***/ 2321:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$id":"https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#","description":"Meta-schema for $data reference (JSON AnySchema extension proposal)","type":"object","required":["$data"],"properties":{"$data":{"type":"string","anyOf":[{"format":"relative-json-pointer"},{"format":"json-pointer"}]}},"additionalProperties":false}');
+
+/***/ }),
+
+/***/ 6071:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/applicator","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/applicator":true},"$dynamicAnchor":"meta","title":"Applicator vocabulary meta-schema","type":["object","boolean"],"properties":{"prefixItems":{"$ref":"#/$defs/schemaArray"},"items":{"$dynamicRef":"#meta"},"contains":{"$dynamicRef":"#meta"},"additionalProperties":{"$dynamicRef":"#meta"},"properties":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"},"default":{}},"patternProperties":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"},"propertyNames":{"format":"regex"},"default":{}},"dependentSchemas":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"},"default":{}},"propertyNames":{"$dynamicRef":"#meta"},"if":{"$dynamicRef":"#meta"},"then":{"$dynamicRef":"#meta"},"else":{"$dynamicRef":"#meta"},"allOf":{"$ref":"#/$defs/schemaArray"},"anyOf":{"$ref":"#/$defs/schemaArray"},"oneOf":{"$ref":"#/$defs/schemaArray"},"not":{"$dynamicRef":"#meta"}},"$defs":{"schemaArray":{"type":"array","minItems":1,"items":{"$dynamicRef":"#meta"}}}}');
+
+/***/ }),
+
+/***/ 3180:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/content","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/content":true},"$dynamicAnchor":"meta","title":"Content vocabulary meta-schema","type":["object","boolean"],"properties":{"contentEncoding":{"type":"string"},"contentMediaType":{"type":"string"},"contentSchema":{"$dynamicRef":"#meta"}}}');
+
+/***/ }),
+
+/***/ 3040:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/core","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/core":true},"$dynamicAnchor":"meta","title":"Core vocabulary meta-schema","type":["object","boolean"],"properties":{"$id":{"$ref":"#/$defs/uriReferenceString","$comment":"Non-empty fragments not allowed.","pattern":"^[^#]*#?$"},"$schema":{"$ref":"#/$defs/uriString"},"$ref":{"$ref":"#/$defs/uriReferenceString"},"$anchor":{"$ref":"#/$defs/anchorString"},"$dynamicRef":{"$ref":"#/$defs/uriReferenceString"},"$dynamicAnchor":{"$ref":"#/$defs/anchorString"},"$vocabulary":{"type":"object","propertyNames":{"$ref":"#/$defs/uriString"},"additionalProperties":{"type":"boolean"}},"$comment":{"type":"string"},"$defs":{"type":"object","additionalProperties":{"$dynamicRef":"#meta"}}},"$defs":{"anchorString":{"type":"string","pattern":"^[A-Za-z_][-A-Za-z0-9._]*$"},"uriString":{"type":"string","format":"uri"},"uriReferenceString":{"type":"string","format":"uri-reference"}}}');
+
+/***/ }),
+
+/***/ 7691:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/format-annotation","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/format-annotation":true},"$dynamicAnchor":"meta","title":"Format vocabulary meta-schema for annotation results","type":["object","boolean"],"properties":{"format":{"type":"string"}}}');
+
+/***/ }),
+
+/***/ 8944:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/meta-data","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/meta-data":true},"$dynamicAnchor":"meta","title":"Meta-data vocabulary meta-schema","type":["object","boolean"],"properties":{"title":{"type":"string"},"description":{"type":"string"},"default":true,"deprecated":{"type":"boolean","default":false},"readOnly":{"type":"boolean","default":false},"writeOnly":{"type":"boolean","default":false},"examples":{"type":"array","items":true}}}');
+
+/***/ }),
+
+/***/ 7346:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/unevaluated","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/unevaluated":true},"$dynamicAnchor":"meta","title":"Unevaluated applicator vocabulary meta-schema","type":["object","boolean"],"properties":{"unevaluatedItems":{"$dynamicRef":"#meta"},"unevaluatedProperties":{"$dynamicRef":"#meta"}}}');
+
+/***/ }),
+
+/***/ 6076:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/meta/validation","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/validation":true},"$dynamicAnchor":"meta","title":"Validation vocabulary meta-schema","type":["object","boolean"],"properties":{"type":{"anyOf":[{"$ref":"#/$defs/simpleTypes"},{"type":"array","items":{"$ref":"#/$defs/simpleTypes"},"minItems":1,"uniqueItems":true}]},"const":true,"enum":{"type":"array","items":true},"multipleOf":{"type":"number","exclusiveMinimum":0},"maximum":{"type":"number"},"exclusiveMaximum":{"type":"number"},"minimum":{"type":"number"},"exclusiveMinimum":{"type":"number"},"maxLength":{"$ref":"#/$defs/nonNegativeInteger"},"minLength":{"$ref":"#/$defs/nonNegativeIntegerDefault0"},"pattern":{"type":"string","format":"regex"},"maxItems":{"$ref":"#/$defs/nonNegativeInteger"},"minItems":{"$ref":"#/$defs/nonNegativeIntegerDefault0"},"uniqueItems":{"type":"boolean","default":false},"maxContains":{"$ref":"#/$defs/nonNegativeInteger"},"minContains":{"$ref":"#/$defs/nonNegativeInteger","default":1},"maxProperties":{"$ref":"#/$defs/nonNegativeInteger"},"minProperties":{"$ref":"#/$defs/nonNegativeIntegerDefault0"},"required":{"$ref":"#/$defs/stringArray"},"dependentRequired":{"type":"object","additionalProperties":{"$ref":"#/$defs/stringArray"}}},"$defs":{"nonNegativeInteger":{"type":"integer","minimum":0},"nonNegativeIntegerDefault0":{"$ref":"#/$defs/nonNegativeInteger","default":0},"simpleTypes":{"enum":["array","boolean","integer","null","number","object","string"]},"stringArray":{"type":"array","items":{"type":"string"},"uniqueItems":true,"default":[]}}}');
+
+/***/ }),
+
+/***/ 5559:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://json-schema.org/draft/2020-12/schema","$vocabulary":{"https://json-schema.org/draft/2020-12/vocab/core":true,"https://json-schema.org/draft/2020-12/vocab/applicator":true,"https://json-schema.org/draft/2020-12/vocab/unevaluated":true,"https://json-schema.org/draft/2020-12/vocab/validation":true,"https://json-schema.org/draft/2020-12/vocab/meta-data":true,"https://json-schema.org/draft/2020-12/vocab/format-annotation":true,"https://json-schema.org/draft/2020-12/vocab/content":true},"$dynamicAnchor":"meta","title":"Core and Validation specifications meta-schema","allOf":[{"$ref":"meta/core"},{"$ref":"meta/applicator"},{"$ref":"meta/unevaluated"},{"$ref":"meta/validation"},{"$ref":"meta/meta-data"},{"$ref":"meta/format-annotation"},{"$ref":"meta/content"}],"type":["object","boolean"],"$comment":"This meta-schema also defines keywords that have appeared in previous drafts in order to prevent incompatible extensions as they remain in common use.","properties":{"definitions":{"$comment":"\\"definitions\\" has been replaced by \\"$defs\\".","type":"object","additionalProperties":{"$dynamicRef":"#meta"},"deprecated":true,"default":{}},"dependencies":{"$comment":"\\"dependencies\\" has been split and replaced by \\"dependentSchemas\\" and \\"dependentRequired\\" in order to serve their differing semantics.","type":"object","additionalProperties":{"anyOf":[{"$dynamicRef":"#meta"},{"$ref":"meta/validation#/$defs/stringArray"}]},"deprecated":true,"default":{}},"$recursiveAnchor":{"$comment":"\\"$recursiveAnchor\\" has been replaced by \\"$dynamicAnchor\\".","$ref":"meta/core#/$defs/anchorString","deprecated":true},"$recursiveRef":{"$comment":"\\"$recursiveRef\\" has been replaced by \\"$dynamicRef\\".","$ref":"meta/core#/$defs/uriReferenceString","deprecated":true}}}');
+
+/***/ }),
+
+/***/ 8978:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"id":"http://json-schema.org/draft-04/schema#","$schema":"http://json-schema.org/draft-04/schema#","description":"Core schema meta-schema","definitions":{"schemaArray":{"type":"array","minItems":1,"items":{"$ref":"#"}},"positiveInteger":{"type":"integer","minimum":0},"positiveIntegerDefault0":{"allOf":[{"$ref":"#/definitions/positiveInteger"},{"default":0}]},"simpleTypes":{"enum":["array","boolean","integer","null","number","object","string"]},"stringArray":{"type":"array","items":{"type":"string"},"minItems":1,"uniqueItems":true}},"type":"object","properties":{"id":{"type":"string","format":"uri"},"$schema":{"type":"string","format":"uri"},"title":{"type":"string"},"description":{"type":"string"},"default":{},"multipleOf":{"type":"number","minimum":0,"exclusiveMinimum":true},"maximum":{"type":"number"},"exclusiveMaximum":{"type":"boolean","default":false},"minimum":{"type":"number"},"exclusiveMinimum":{"type":"boolean","default":false},"maxLength":{"$ref":"#/definitions/positiveInteger"},"minLength":{"$ref":"#/definitions/positiveIntegerDefault0"},"pattern":{"type":"string","format":"regex"},"additionalItems":{"anyOf":[{"type":"boolean"},{"$ref":"#"}],"default":{}},"items":{"anyOf":[{"$ref":"#"},{"$ref":"#/definitions/schemaArray"}],"default":{}},"maxItems":{"$ref":"#/definitions/positiveInteger"},"minItems":{"$ref":"#/definitions/positiveIntegerDefault0"},"uniqueItems":{"type":"boolean","default":false},"maxProperties":{"$ref":"#/definitions/positiveInteger"},"minProperties":{"$ref":"#/definitions/positiveIntegerDefault0"},"required":{"$ref":"#/definitions/stringArray"},"additionalProperties":{"anyOf":[{"type":"boolean"},{"$ref":"#"}],"default":{}},"definitions":{"type":"object","additionalProperties":{"$ref":"#"},"default":{}},"properties":{"type":"object","additionalProperties":{"$ref":"#"},"default":{}},"patternProperties":{"type":"object","additionalProperties":{"$ref":"#"},"default":{}},"dependencies":{"type":"object","additionalProperties":{"anyOf":[{"$ref":"#"},{"$ref":"#/definitions/stringArray"}]}},"enum":{"type":"array","minItems":1,"uniqueItems":true},"type":{"anyOf":[{"$ref":"#/definitions/simpleTypes"},{"type":"array","items":{"$ref":"#/definitions/simpleTypes"},"minItems":1,"uniqueItems":true}]},"allOf":{"$ref":"#/definitions/schemaArray"},"anyOf":{"$ref":"#/definitions/schemaArray"},"oneOf":{"$ref":"#/definitions/schemaArray"},"not":{"$ref":"#"}},"dependencies":{"exclusiveMaximum":["maximum"],"exclusiveMinimum":["minimum"]},"default":{}}');
+
+/***/ }),
+
+/***/ 4775:
+/***/ ((module) => {
+
+module.exports = JSON.parse('{"$id":"https://raw.githubusercontent.com/ajv-validator/ajv/master/lib/refs/data.json#","description":"Meta-schema for $data reference (JSON AnySchema extension proposal)","type":"object","required":["$data"],"properties":{"$data":{"type":"string","anyOf":[{"format":"relative-json-pointer"},{"format":"json-pointer"}]}},"additionalProperties":false}');
+
+/***/ }),
+
+/***/ 4109:
+/***/ ((module) => {
+
+module.exports = {"i8":"7.0.8"};
+
+/***/ })
+
+/******/ });
+/************************************************************************/
+/******/ // The module cache
+/******/ var __webpack_module_cache__ = {};
+/******/ 
+/******/ // The require function
+/******/ function __nccwpck_require__(moduleId) {
+/******/ 	// Check if module is in cache
+/******/ 	var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 	if (cachedModule !== undefined) {
+/******/ 		return cachedModule.exports;
+/******/ 	}
+/******/ 	// Create a new module (and put it into the cache)
+/******/ 	var module = __webpack_module_cache__[moduleId] = {
+/******/ 		// no module.id needed
+/******/ 		// no module.loaded needed
+/******/ 		exports: {}
+/******/ 	};
+/******/ 
+/******/ 	// Execute the module function
+/******/ 	var threw = true;
+/******/ 	try {
+/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __nccwpck_require__);
+/******/ 		threw = false;
+/******/ 	} finally {
+/******/ 		if(threw) delete __webpack_module_cache__[moduleId];
+/******/ 	}
+/******/ 
+/******/ 	// Return the exports of the module
+/******/ 	return module.exports;
+/******/ }
+/******/ 
+/************************************************************************/
+/******/ /* webpack/runtime/async module */
+/******/ (() => {
+/******/ 	var webpackQueues = typeof Symbol === "function" ? Symbol("webpack queues") : "__webpack_queues__";
+/******/ 	var webpackExports = typeof Symbol === "function" ? Symbol("webpack exports") : "__webpack_exports__";
+/******/ 	var webpackError = typeof Symbol === "function" ? Symbol("webpack error") : "__webpack_error__";
+/******/ 	var resolveQueue = (queue) => {
+/******/ 		if(queue && !queue.d) {
+/******/ 			queue.d = 1;
+/******/ 			queue.forEach((fn) => (fn.r--));
+/******/ 			queue.forEach((fn) => (fn.r-- ? fn.r++ : fn()));
+/******/ 		}
+/******/ 	}
+/******/ 	var wrapDeps = (deps) => (deps.map((dep) => {
+/******/ 		if(dep !== null && typeof dep === "object") {
+/******/ 			if(dep[webpackQueues]) return dep;
+/******/ 			if(dep.then) {
+/******/ 				var queue = [];
+/******/ 				queue.d = 0;
+/******/ 				dep.then((r) => {
+/******/ 					obj[webpackExports] = r;
+/******/ 					resolveQueue(queue);
+/******/ 				}, (e) => {
+/******/ 					obj[webpackError] = e;
+/******/ 					resolveQueue(queue);
+/******/ 				});
+/******/ 				var obj = {};
+/******/ 				obj[webpackQueues] = (fn) => (fn(queue));
+/******/ 				return obj;
+/******/ 			}
+/******/ 		}
+/******/ 		var ret = {};
+/******/ 		ret[webpackQueues] = x => {};
+/******/ 		ret[webpackExports] = dep;
+/******/ 		return ret;
+/******/ 	}));
+/******/ 	__nccwpck_require__.a = (module, body, hasAwait) => {
+/******/ 		var queue;
+/******/ 		hasAwait && ((queue = []).d = 1);
+/******/ 		var depQueues = new Set();
+/******/ 		var exports = module.exports;
+/******/ 		var currentDeps;
+/******/ 		var outerResolve;
+/******/ 		var reject;
+/******/ 		var promise = new Promise((resolve, rej) => {
+/******/ 			reject = rej;
+/******/ 			outerResolve = resolve;
+/******/ 		});
+/******/ 		promise[webpackExports] = exports;
+/******/ 		promise[webpackQueues] = (fn) => (queue && fn(queue), depQueues.forEach(fn), promise["catch"](x => {}));
+/******/ 		module.exports = promise;
+/******/ 		body((deps) => {
+/******/ 			currentDeps = wrapDeps(deps);
+/******/ 			var fn;
+/******/ 			var getResult = () => (currentDeps.map((d) => {
+/******/ 				if(d[webpackError]) throw d[webpackError];
+/******/ 				return d[webpackExports];
+/******/ 			}))
+/******/ 			var promise = new Promise((resolve) => {
+/******/ 				fn = () => (resolve(getResult));
+/******/ 				fn.r = 0;
+/******/ 				var fnQueue = (q) => (q !== queue && !depQueues.has(q) && (depQueues.add(q), q && !q.d && (fn.r++, q.push(fn))));
+/******/ 				currentDeps.map((dep) => (dep[webpackQueues](fnQueue)));
+/******/ 			});
+/******/ 			return fn.r ? promise : getResult();
+/******/ 		}, (err) => ((err ? reject(promise[webpackError] = err) : outerResolve(exports)), resolveQueue(queue)));
+/******/ 		queue && (queue.d = 0);
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/compat get default export */
+/******/ (() => {
+/******/ 	// getDefaultExport function for compatibility with non-harmony modules
+/******/ 	__nccwpck_require__.n = (module) => {
+/******/ 		var getter = module && module.__esModule ?
+/******/ 			() => (module['default']) :
+/******/ 			() => (module);
+/******/ 		__nccwpck_require__.d(getter, { a: getter });
+/******/ 		return getter;
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/define property getters */
+/******/ (() => {
+/******/ 	// define getter functions for harmony exports
+/******/ 	__nccwpck_require__.d = (exports, definition) => {
+/******/ 		for(var key in definition) {
+/******/ 			if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 				Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 			}
+/******/ 		}
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/hasOwnProperty shorthand */
+/******/ (() => {
+/******/ 	__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/make namespace object */
+/******/ (() => {
+/******/ 	// define __esModule on exports
+/******/ 	__nccwpck_require__.r = (exports) => {
+/******/ 		if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 			Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 		}
+/******/ 		Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 	};
+/******/ })();
+/******/ 
+/******/ /* webpack/runtime/compat */
+/******/ 
+/******/ if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = new URL('.', import.meta.url).pathname.slice(import.meta.url.match(/^file:\/\/\/\w:/) ? 1 : 0, -1) + "/";
+/******/ 
+/************************************************************************/
+/******/ 
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ // This entry module used 'module' so it can't be inlined
+/******/ var __webpack_exports__ = __nccwpck_require__(6144);
+/******/ __webpack_exports__ = await __webpack_exports__;
+/******/ 

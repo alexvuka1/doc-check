@@ -1,6 +1,6 @@
 import assert from 'assert';
 import { zip } from 'lodash-es';
-import { Inconsistency } from './parsing';
+import { Inconsistency, PathPart } from './parsing';
 import { makeKey, mapGetOrSetDefault } from './utils';
 
 const addEdges = (
@@ -252,4 +252,31 @@ export const findBestMatches = (
 ) => {
   const groups = getGroups(oasIndexToDocIndices, docIndexToOasIndices);
   return matchEndpoints(groups, inconsistenciesMap);
+};
+
+const normalizeParam = (param: string) =>
+  param
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
+    .replace(/[-_]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .toLowerCase()
+    .trim();
+
+export const areEqualParams = (param1: string, param2: string) =>
+  normalizeParam(param1) === normalizeParam(param2);
+
+export const areEqualPaths = (path1: PathPart[], path2: PathPart[]) => {
+  if (path1.length !== path2.length) return false;
+  return path1.every((p1, i) => {
+    const p2 = path2[i];
+    assert(p2 !== void 0);
+    return (
+      (p1.type === 'literal' &&
+        p2.type === 'literal' &&
+        p1.value === p2.value) ||
+      (p1.type === 'parameter' &&
+        p2.type === 'parameter' &&
+        areEqualParams(p1.name, p2.name))
+    );
+  });
 };

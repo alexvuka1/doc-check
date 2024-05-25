@@ -141,13 +141,22 @@ export const oasEndpointToDocRegex = (endpoint: OasEndpoint) => {
 };
 
 // Extracts an API path from a string.
-export const extractPath = (str: string) => {
-  const match = str.match(
-    /(?<=\s|^)((http[s]?|ws[s]?):)?(\/([\w\-]*|:\w+|\{\w+\}|<(\w)+>|\[(\w|\s)+\]))+(?=\s|$)/,
+export const extractPaths = (str: string) => {
+  const optionalParamPatern = `\\[(\\/:\\w+)\\]`;
+  const reg = new RegExp(
+    // `(?<=\\s|^)((http[s]?|ws[s]?):)?((\\/([\\w\\-]*|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\]))|${optionalParamPatern})+(?=\\s|$)`,
+    `(?<=\\s|^)(((http[s]?|ws[s]?):\\/\\/)?(\\w+\\.)+\\w+)?((\\/([\\w\\-]+|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\])|${optionalParamPatern})+\\/?|\\/)(\\?.*)?(?=\\s|$)`,
   );
-  if (!match) return null;
-  const path = match[0];
-  return path;
+  const match = reg.exec(str);
+  if (!match) return [];
+  const [path] = match;
+  if (path.includes('[/:')) {
+    const optionalParamRegex = new RegExp(optionalParamPatern);
+    const path1 = path.replace(optionalParamRegex, '');
+    const path2 = path.replace(optionalParamRegex, '$1');
+    return [path1, path2];
+  }
+  return [path];
 };
 
 export const docParse = async (docPath: string) => {

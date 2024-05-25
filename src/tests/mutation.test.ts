@@ -3,7 +3,7 @@ import SwaggerParser from '@apidevtools/swagger-parser';
 import assert from 'assert';
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
 import { mkdir, rm, writeFile } from 'fs/promises';
-import { isEqual, partition, shuffle } from 'lodash-es';
+import { isEqual, partition } from 'lodash-es';
 import { join } from 'path';
 import seedrandom from 'seedrandom';
 import * as main from '../main';
@@ -29,6 +29,14 @@ describe('action', () => {
 
     rng = seedrandom(seed);
   });
+
+  const shuffle = <T>(array: T[]) => {
+    for (let i = array.length - 1; i > 0; ) {
+      const j = Math.floor(rng.quick() * i--);
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
 
   const repoName = 'gothinkster/realworld';
   const sha = '11c81f64f04fff8cfcd60ddf4eb0064c01fa1730';
@@ -89,9 +97,10 @@ describe('action', () => {
       const scenarios = 100;
       const probRemovePath = 0.1;
       const probRemoveEndpoint = 0.2;
-      const maxAddPath = 15;
+      const maxAddPath = 10;
       const probAddPath = 0.3;
       const probAddPathMethod = 0.1;
+      const probChangeMethod = 0.1;
 
       for (let i = 1; i <= scenarios; i++) {
         const removedEndpoints: [
@@ -102,6 +111,11 @@ describe('action', () => {
           OasEndpoint['method'],
           OasEndpoint['pathParts'],
         ][] = [];
+        const methodMismatched: {
+          oldMethod: OasEndpoint['method'];
+          newMethod: OasEndpoint['method'];
+          pathParts: OasEndpoint['pathParts'];
+        }[] = [];
         const mutations: OasMutations = {
           removePaths: [],
           removeEndpoints: [],
@@ -134,11 +148,12 @@ describe('action', () => {
               methodsToRemove.push(method);
             } else if (
               nonExistingMethods.length > methodsToChange.length &&
-              x < probRemoveEndpoint + probAddPathMethod
+              x < probRemoveEndpoint + probChangeMethod
             ) {
               methodsToChange.push(method);
             }
           }
+
           if (methodsToRemove.length > 0) {
             mutations.removeEndpoints.push({
               path,
@@ -148,6 +163,7 @@ describe('action', () => {
               removedEndpoints.push([method, pathParts]);
             }
           }
+
           if (methodsToChange.length > 0) {
             const shuffledNonExistingMethods = shuffle(nonExistingMethods);
             mutations.changeMethods.push({
@@ -157,12 +173,21 @@ describe('action', () => {
                 newMethod: shuffledNonExistingMethods[i],
               })),
             });
-            for (const [i, method] of methodsToChange.entries()) {
-              removedEndpoints.push([method, pathParts]);
-              addedEndpoints.push([shuffledNonExistingMethods[i], pathParts]);
+            if (methodsToRemove.length === 0 && methodsToChange.length === 1) {
+              methodMismatched.push({
+                oldMethod: methodsToChange[0],
+                newMethod: shuffledNonExistingMethods[0],
+                pathParts,
+              });
+            } else {
+              for (const [i, method] of methodsToChange.entries()) {
+                removedEndpoints.push([method, pathParts]);
+                addedEndpoints.push([shuffledNonExistingMethods[i], pathParts]);
+              }
             }
           }
         }
+
         for (let i = 0; i < maxAddPath; i++) {
           if (rng.quick() < probAddPath) continue;
           const methodsToAdd = methods.filter(
@@ -176,6 +201,7 @@ describe('action', () => {
             addedEndpoints.push([method, pathParts]);
           }
         }
+
         const mutatedOas = oasMutate(oas, mutations);
 
         const dirPath = join(baseDirPath, `iteration_${i}`);
@@ -218,17 +244,18 @@ describe('action', () => {
 
           const matchedRemovedIndices = new Set<number>();
           const matchedAddedIndices = new Set<number>();
+          const matchedMethodMismatchedIndices = new Set<number>();
 
-          for (const i of failOutput) {
-            switch (i.type) {
+          for (const fail of failOutput) {
+            switch (fail.type) {
               case 'only-in-doc':
                 const removedEndpointIndex = removedEndpoints.findIndex(
                   ([m, pp], idx) =>
                     !matchedRemovedIndices.has(idx) &&
-                    i.endpoint.method === m &&
+                    fail.endpoint.method === m &&
                     isEqual(
-                      i.endpoint.pathParts.slice(
-                        i.endpoint.pathParts.length - pp.length,
+                      fail.endpoint.pathParts.slice(
+                        fail.endpoint.pathParts.length - pp.length,
                       ),
                       pp,
                     ),
@@ -240,22 +267,51 @@ describe('action', () => {
                 const addedEndpointIndex = addedEndpoints.findIndex(
                   ([method, pathParts], idx) =>
                     !matchedAddedIndices.has(idx) &&
-                    i.endpoint.method === method &&
-                    isEqual(i.endpoint.pathParts, pathParts),
+                    fail.endpoint.method === method &&
+                    isEqual(fail.endpoint.pathParts, pathParts),
                 );
                 if (addedEndpointIndex === -1) continue;
                 matchedAddedIndices.add(addedEndpointIndex);
                 break;
+              case 'match-with-inconsistenties':
+                for (const i of fail.inconsistencies) {
+                  switch (i.type) {
+                    case 'method-mismatch':
+                      const methodMismatchedIndex = methodMismatched.findIndex(
+                        ({ newMethod, oldMethod, pathParts }, idx) =>
+                          !matchedMethodMismatchedIndices.has(idx) &&
+                          fail.oasEndpoint.method === newMethod &&
+                          fail.docEndpoint.method === oldMethod &&
+                          isEqual(fail.oasEndpoint.pathParts, pathParts) &&
+                          isEqual(
+                            fail.docEndpoint.pathParts.slice(
+                              fail.docEndpoint.pathParts.length -
+                                pathParts.length,
+                            ),
+                            pathParts,
+                          ),
+                      );
+                      if (methodMismatchedIndex === -1) continue;
+                      matchedMethodMismatchedIndices.add(methodMismatchedIndex);
+                      break;
+                    default:
+                      throw new Error(`Unknown inconsistecy type: ${i.type}`);
+                  }
+                }
+                break;
               default:
-                throw new Error('Unknown fail output type: ' + i.type);
+                throw new Error(`Unknown type of fail: ${fail}`);
             }
           }
 
           if (
             failOutput.length ===
-              removedEndpoints.length + addedEndpoints.length &&
+              removedEndpoints.length +
+                addedEndpoints.length +
+                methodMismatched.length &&
             removedEndpoints.length === matchedRemovedIndices.size &&
-            addedEndpoints.length === matchedAddedIndices.size
+            addedEndpoints.length === matchedAddedIndices.size &&
+            methodMismatched.length === matchedMethodMismatchedIndices.size
           ) {
             correctCount++;
             await rm(dirPath, { recursive: true, force: true });

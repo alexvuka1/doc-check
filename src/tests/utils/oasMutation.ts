@@ -28,32 +28,25 @@ export const oasMutate = (oas: OasDocument, oasMutations: OasMutations) => {
     ]),
   );
 
-  return {
+  const mutatedOas = {
     ...oas,
     paths: Object.fromEntries([
       ...objectEntries(paths).flatMap(([path, pathItem]) => {
         if (!pathItem) return [];
         if (pathsToRemove.has(path)) return [];
         const methodsToRemove = pathToMethodsToRemove.get(path);
-        if (methodsToRemove) {
-          const newPathItem = structuredClone(pathItem);
-          for (const method of methodsToRemove) {
-            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete newPathItem[method];
-          }
-          return [[path, newPathItem]];
+        const newPathItem = structuredClone(pathItem);
+        for (const method of methodsToRemove ?? []) {
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete newPathItem[method];
         }
         const methodsToChange = pathToMethodsToChange.get(path);
-        if (methodsToChange) {
-          const newPathItem = structuredClone(pathItem);
-          for (const [oldMethod, newMethod] of methodsToChange) {
-            newPathItem[newMethod] = newPathItem[oldMethod];
-            // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-            delete newPathItem[oldMethod];
-          }
-          return [[path, newPathItem]];
+        for (const [oldMethod, newMethod] of methodsToChange ?? []) {
+          newPathItem[newMethod] = pathItem[oldMethod];
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete newPathItem[oldMethod];
         }
-        return [[path, pathItem]];
+        return [[path, newPathItem]];
       }),
       ...oasMutations.addEndpoints.map(({ path, methods }) => [
         path,
@@ -68,4 +61,6 @@ export const oasMutate = (oas: OasDocument, oasMutations: OasMutations) => {
       ]),
     ]),
   };
+
+  return mutatedOas;
 };

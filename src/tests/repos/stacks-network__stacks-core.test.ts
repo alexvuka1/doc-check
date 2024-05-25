@@ -235,11 +235,6 @@ describe('action', () => {
             parameterIndex: 0,
             oasServerIndex: null,
           },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 1,
-            oasServerIndex: null,
-          },
         ],
       },
       {
@@ -281,16 +276,6 @@ describe('action', () => {
             parameterIndex: 0,
             oasServerIndex: null,
           },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 1,
-            oasServerIndex: null,
-          },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 2,
-            oasServerIndex: null,
-          },
         ],
       },
       {
@@ -328,11 +313,6 @@ describe('action', () => {
             parameterIndex: 0,
             oasServerIndex: null,
           },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 1,
-            oasServerIndex: null,
-          },
         ],
       },
       {
@@ -366,52 +346,6 @@ describe('action', () => {
           ],
           queryParameters: [],
           line: 385,
-        },
-        inconsistencies: [
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 0,
-            oasServerIndex: null,
-          },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 1,
-            oasServerIndex: null,
-          },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 2,
-            oasServerIndex: null,
-          },
-        ],
-      },
-      {
-        type: 'match-with-inconsistenties',
-        oasEndpoint: {
-          method: 'get',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
-            { type: 'literal', value: 'v2' },
-            { type: 'literal', value: 'accounts' },
-            { type: 'parameter', name: 'principal' },
-          ],
-          queryParameters: [
-            { name: 'proof', required: false },
-            { name: 'tip', required: false },
-          ],
-        },
-        docEndpoint: {
-          originalPath: '/v2/accounts/[Principal]',
-          method: 'get',
-          pathParts: [
-            { type: 'literal', value: 'v2' },
-            { type: 'literal', value: 'accounts' },
-            { type: 'parameter', name: 'Principal' },
-          ],
-          queryParameters: [],
-          line: 129,
         },
         inconsistencies: [
           {
@@ -463,22 +397,7 @@ describe('action', () => {
           },
           {
             type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 1,
-            oasServerIndex: null,
-          },
-          {
-            type: 'path-path-parameter-name-mismatch',
             parameterIndex: 2,
-            oasServerIndex: null,
-          },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 3,
-            oasServerIndex: null,
-          },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 4,
             oasServerIndex: null,
           },
         ],
@@ -515,82 +434,6 @@ describe('action', () => {
         },
         inconsistencies: [
           { type: 'method-mismatch' },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 0,
-            oasServerIndex: null,
-          },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 1,
-            oasServerIndex: null,
-          },
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 2,
-            oasServerIndex: null,
-          },
-        ],
-      },
-      {
-        type: 'match-with-inconsistenties',
-        oasEndpoint: {
-          method: 'get',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
-            { type: 'literal', value: 'v3' },
-            { type: 'literal', value: 'blocks' },
-            { type: 'parameter', name: 'block_id' },
-          ],
-          queryParameters: [],
-        },
-        docEndpoint: {
-          originalPath: '/v3/blocks/[Block ID]',
-          method: 'get',
-          pathParts: [
-            { type: 'literal', value: 'v3' },
-            { type: 'literal', value: 'blocks' },
-            { type: 'parameter', name: 'Block ID' },
-          ],
-          queryParameters: [],
-          line: 499,
-        },
-        inconsistencies: [
-          {
-            type: 'path-path-parameter-name-mismatch',
-            parameterIndex: 0,
-            oasServerIndex: null,
-          },
-        ],
-      },
-      {
-        type: 'match-with-inconsistenties',
-        oasEndpoint: {
-          method: 'get',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
-            { type: 'literal', value: 'v3' },
-            { type: 'literal', value: 'tenures' },
-            { type: 'parameter', name: 'block_id' },
-          ],
-          queryParameters: [],
-        },
-        docEndpoint: {
-          originalPath: '/v3/tenures/[Block ID]',
-          method: 'get',
-          pathParts: [
-            { type: 'literal', value: 'v3' },
-            { type: 'literal', value: 'tenures' },
-            { type: 'parameter', name: 'Block ID' },
-          ],
-          queryParameters: [],
-          line: 506,
-        },
-        inconsistencies: [
           {
             type: 'path-path-parameter-name-mismatch',
             parameterIndex: 0,

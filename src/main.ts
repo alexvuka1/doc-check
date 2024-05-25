@@ -10,7 +10,7 @@ import { visit } from 'unist-util-visit';
 import { visitParents } from 'unist-util-visit-parents';
 import { codeLangsToCheck, isLiteralNode, literalsToCheck } from './ast';
 import { formatOutput } from './formatOutput';
-import { findBestMatches } from './matching';
+import { areEqualParams, areEqualPaths, findBestMatches } from './matching';
 import {
   DocEndpoint,
   FailOutput,
@@ -22,12 +22,13 @@ import {
 import {
   docCreateEndpoint,
   docParse,
-  extractPath,
+  extractPaths,
   getMethodRegex,
   oasEndpointToDocRegex,
 } from './parsing/markdown';
 import { oasParse, oasParseEndpoints } from './parsing/openapi';
 import { makeKey, mapGetOrSetDefault } from './utils';
+import { singular } from 'pluralize';
 
 export const run = async () => {
   try {
@@ -93,14 +94,19 @@ export const run = async () => {
             .exec(node.value)?.[0]
             .toLowerCase() as Method | undefined;
           if (!method) return;
-          const path = extractPath(node.value);
-          if (!path) return;
-          const id = `${method} ${path}`;
-          if (docIdToUnmatchedEndpoint.has(id)) return;
-          const { position } = node;
-          assert(position, 'All nodes should have a position');
-          const endpoint = docCreateEndpoint(method, path, position.start.line);
-          docIdToUnmatchedEndpoint.set(id, endpoint);
+          const paths = extractPaths(node.value);
+          for (const path of paths) {
+            const id = `${method} ${path}`;
+            if (docIdToUnmatchedEndpoint.has(id)) continue;
+            const { position } = node;
+            assert(position, 'All nodes should have a position');
+            const endpoint = docCreateEndpoint(
+              method,
+              path,
+              position.start.line,
+            );
+            docIdToUnmatchedEndpoint.set(id, endpoint);
+          }
         });
       }
     } else {
@@ -119,14 +125,19 @@ export const run = async () => {
             .exec(sibling.value)?.[0]
             .toLowerCase() as Method | undefined;
           if (!method) continue;
-          const path = extractPath(sibling.value);
-          if (!path) continue;
-          const id = `${method} ${path}`;
-          if (docIdToUnmatchedEndpoint.has(id)) continue;
-          const { position } = sibling;
-          assert(position, 'All nodes should have a position');
-          const endpoint = docCreateEndpoint(method, path, position.start.line);
-          docIdToUnmatchedEndpoint.set(id, endpoint);
+          const paths = extractPaths(sibling.value);
+          for (const path of paths) {
+            const id = `${method} ${path}`;
+            if (docIdToUnmatchedEndpoint.has(id)) continue;
+            const { position } = sibling;
+            assert(position, 'All nodes should have a position');
+            const endpoint = docCreateEndpoint(
+              method,
+              path,
+              position.start.line,
+            );
+            docIdToUnmatchedEndpoint.set(id, endpoint);
+          }
         }
       }
     }
@@ -163,8 +174,9 @@ export const run = async () => {
                 (s.basePath &&
                   s.basePath.length + oasEndpoint.pathParts.length ===
                     docEndpoint.pathParts.length &&
-                  s.basePath.every((part, i) =>
-                    isEqual(part, docEndpoint.pathParts[i]),
+                  areEqualPaths(
+                    s.basePath,
+                    docEndpoint.pathParts.slice(0, s.basePath.length),
                   ))),
           )
         : null;
@@ -318,10 +330,25 @@ export const run = async () => {
                   throw new Error('Expected doc path part to be defined');
                 }
                 if (isEqual(oasPart, docPart)) continue;
+                const prevOasPart = oasFullPathParts[k - 1];
+                const prevDocPart = docEndpoint.pathParts[k - 1];
                 if (
                   oasPart.type === 'parameter' &&
                   docPart.type === 'parameter' &&
-                  oasPart.name !== docPart.name
+                  !(
+                    areEqualParams(oasPart.name, docPart.name) ||
+                    (k > 1 &&
+                      ((prevOasPart?.type === 'literal' &&
+                        areEqualParams(
+                          `${singular(prevOasPart.value)} ${oasPart.name}`,
+                          docPart.name,
+                        )) ||
+                        (prevDocPart?.type === 'literal' &&
+                          areEqualParams(
+                            `${singular(prevDocPart.value)} ${docPart.name}`,
+                            oasPart.name,
+                          ))))
+                  )
                 ) {
                   serverInconsistencies.push({
                     type: 'path-path-parameter-name-mismatch',
@@ -372,15 +399,21 @@ export const run = async () => {
       if (!oasEndpointInconsistencies) {
         throw new Error('Inconsistency table is not instantiated fully');
       }
-      if (oasEndpointInconsistencies.some(i => i !== 'different-endpoints')) {
-        continue;
+      const onlyInOas = oasEndpointInconsistencies.every(
+        i => i === 'different-endpoints',
+      );
+      if (onlyInOas) {
+        failOutput.push({
+          type: 'only-in-oas',
+          endpoint: unmatchedOasEndpoint,
+        });
       }
-      failOutput.push({
-        type: 'only-in-oas',
-        endpoint: unmatchedOasEndpoint,
-      });
-      handledOasIndices.add(index);
+      const hasFullMatch = oasEndpointInconsistencies.some(
+        i => i !== 'different-endpoints' && i.length === 0,
+      );
+      if (onlyInOas || hasFullMatch) handledOasIndices.add(index);
     }
+
     for (const [
       index,
       unmatchedDocEndpoint,
@@ -392,14 +425,19 @@ export const run = async () => {
         }
         return docEnpointInconsistency;
       });
-      if (docEnpointInconsistencies.some(i => i !== 'different-endpoints')) {
-        continue;
+      const onlyInDoc = docEnpointInconsistencies.every(
+        i => i === 'different-endpoints',
+      );
+      if (onlyInDoc) {
+        failOutput.push({
+          type: 'only-in-doc',
+          endpoint: unmatchedDocEndpoint,
+        });
       }
-      failOutput.push({
-        type: 'only-in-doc',
-        endpoint: unmatchedDocEndpoint,
-      });
-      handledDocIndices.add(index);
+      const hasFullMatch = docEnpointInconsistencies.some(
+        i => i !== 'different-endpoints' && i.length === 0,
+      );
+      if (onlyInDoc || hasFullMatch) handledDocIndices.add(index);
     }
 
     const inconsistenciesMap = new Map<string, Inconsistency[]>();

@@ -44,7 +44,7 @@ export const setupInputRepo = async (
   const dirPath = join(
     import.meta.dir,
     '..',
-    `data/repos/${repoName.replace('/', '__')}`,
+    `data/repos/${repoName.replace('/', '__')}/${sha}`,
   );
 
   const [pathOasLocal, pathDocLocal] = await Promise.all([

@@ -60902,6 +60902,8 @@ function isEqual(value, other) {
 
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(1017);
+// EXTERNAL MODULE: ./node_modules/pluralize/pluralize.js
+var pluralize = __nccwpck_require__(2522);
 ;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/indexes.js
 var emptyMulticharIndex = {};
 var emptyRegularIndex = {};
@@ -64700,10 +64702,10 @@ const literalsToCheck = [
     'inlineCode',
     'text',
 ];
-const codeLangsToCheck = [
-    void 0,
-    null,
-];
+const codeLangsToCheck = [void 0, null];
+const shouldSkipLiteral = (node) => {
+    return node.type === 'code' && !codeLangsToCheck.some(l => l === node.lang);
+};
 const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
 
 ;// CONCATENATED MODULE: ./src/formatOutput.ts
@@ -64792,7 +64794,7 @@ ${matchesWithInconsistenciesSection}
 
 **About**
 
-This is part of a research project that aims to detect API documentation inconsistencies in GitHub repositories automatically. I am evaluating the validity of the approach by identifying such inconsistencies in real-world repositories. 
+This is part of the evaluation of my Master's Project at Imperial College London. It aims to detect API documentation inconsistencies in GitHub repositories automatically. I am evaluating the validity of the approach by identifying such inconsistencies in real-world repositories. 
 
 Hopefully, this is a step towards easier maintenance of API documentation. If you find this helpful, please consider updating the documentation to keep it in sync with the source code. I am also happy to assist with it, if appropriate. If this has not been useful, consider updating this issue with an explanation, so I can improve my approach. Thank you!
     `;
@@ -91503,9 +91505,9 @@ const docCreateEndpoint = (method, originalPath, line) => {
     };
 };
 const escapeRegexSpecial = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const getMethodRegex = (matchMethods) => {
+const getMethodRegex = (matchMethods, options = {}) => {
     const matchUnionStr = matchMethods
-        .flatMap(m => [m, m.toUpperCase()])
+        .flatMap(m => options.onlyUppercase ? [m.toUpperCase()] : [m, m.toUpperCase()])
         .join('|');
     return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`);
 };
@@ -91691,8 +91693,6 @@ const oasParse = async (oasPath) => {
     return oas;
 };
 
-// EXTERNAL MODULE: ./node_modules/pluralize/pluralize.js
-var pluralize = __nccwpck_require__(2522);
 ;// CONCATENATED MODULE: ./src/main.ts
 
 
@@ -91720,35 +91720,68 @@ const run = async () => {
         const oasIdToEndpoint = oasParseEndpoints(oas);
         const tree = await docParse(docPath);
         const oasIdToDocMatches = new Map([...oasIdToEndpoint.keys()].map(k => [k, []]));
-        const docSelectorToMatchedNodes = new Map();
+        const docSelectors = new Set();
+        const structuredParents = new Set();
+        const structuredParentSelectors = new Set();
+        const matchedNodes = new Set();
+        const getStructuredParent = (ancestors) => ancestors.findLast(a => (['list', 'tableRow']).some(t => t === a.type)) ?? null;
+        const getStructureMethodLiteral = (structuredParent, possibleMethods) => {
+            let methodLiteral;
+            for (const literal of literalsToCheck) {
+                if (methodLiteral)
+                    break;
+                visit(structuredParent, literal, node => {
+                    if (methodLiteral || shouldSkipLiteral(node)) {
+                        return;
+                    }
+                    const isValueMethod = possibleMethods.some(m => m.toUpperCase() === node.value);
+                    if (!isValueMethod)
+                        return;
+                    methodLiteral = node;
+                });
+            }
+            return methodLiteral ?? null;
+        };
         for (const literal of literalsToCheck) {
             visitParents(tree, literal, (node, ancestors) => {
-                if (node.type === 'code' &&
-                    !codeLangsToCheck.some(l => l === node.lang)) {
+                if (shouldSkipLiteral(node))
                     return;
-                }
+                const parentSelector = ancestors.map(a => a.type).join(' > ');
                 for (const [endpointId, endpoint] of oasIdToEndpoint.entries()) {
-                    const containsMethod = getMethodRegex([endpoint.method]).test(node.value);
-                    if (!containsMethod)
-                        continue;
                     const containsPath = oasEndpointToDocRegex(endpoint).test(node.value);
                     if (!containsPath)
                         continue;
+                    const containsMethod = getMethodRegex([endpoint.method]).test(node.value);
+                    const structuredParent = !containsMethod
+                        ? getStructuredParent(ancestors)
+                        : null;
+                    const siblingWithMethod = structuredParent
+                        ? getStructureMethodLiteral(structuredParent, [endpoint.method])
+                        : null;
+                    if (!containsMethod && !siblingWithMethod)
+                        continue;
                     const docMatches = oasIdToDocMatches.get(endpointId);
-                    if (!docMatches) {
-                        throw new Error('Map should have been initialised to have entries for all oas paths');
+                    external_assert_default()(docMatches, 'Map should have been initialised to have entries for all oas paths');
+                    docMatches.push({ node, siblingWithMethod });
+                    if (!structuredParent)
+                        docSelectors.add(parentSelector);
+                    else {
+                        structuredParents.add(structuredParent);
+                        structuredParentSelectors.add(ancestors
+                            .splice(0, ancestors.findIndex(n => n === structuredParent) + 1)
+                            .map(n => n.type)
+                            .join(' > '));
                     }
-                    const parentSelector = ancestors.map(a => a.type).join(' > ');
-                    docMatches.push({ node, parentSelector });
-                    const matchedNodes = mapGetOrSetDefault(docSelectorToMatchedNodes, parentSelector, new Set());
                     matchedNodes.add(node);
                 }
             });
         }
         const docIdToUnmatchedEndpoint = new Map();
-        if (docSelectorToMatchedNodes.size === 0) {
+        if (structuredParents.size === 0 && docSelectors.size === 0) {
             for (const literal of literalsToCheck) {
                 visit(tree, literal, node => {
+                    if (shouldSkipLiteral(node))
+                        return;
                     const method = getMethodRegex(methods)
                         .exec(node.value)?.[0]
                         .toLowerCase();
@@ -91768,22 +91801,25 @@ const run = async () => {
             }
         }
         else {
-            for (const [parentSelector, matchedNodes,] of docSelectorToMatchedNodes.entries()) {
+            for (const parentSelector of docSelectors) {
                 const siblingSelector = literalsToCheck.map(l => [parentSelector, l].join(' > '))
                     .join(', ');
                 const siblings = selectAll(siblingSelector, tree);
                 for (const sibling of siblings) {
-                    if (!isLiteralNode(sibling))
+                    if (!isLiteralNode(sibling)) {
                         throw new Error('Expected literal node');
-                    if (matchedNodes.has(sibling))
+                    }
+                    if (shouldSkipLiteral(sibling))
                         continue;
-                    const method = getMethodRegex(methods)
-                        .exec(sibling.value)?.[0]
-                        .toLowerCase();
-                    if (!method)
+                    if (matchedNodes.has(sibling))
                         continue;
                     const paths = extractPaths(sibling.value);
                     for (const path of paths) {
+                        const method = getMethodRegex(methods)
+                            .exec(sibling.value)?.[0]
+                            .toLowerCase();
+                        if (!method)
+                            continue;
                         const id = `${method} ${path}`;
                         if (docIdToUnmatchedEndpoint.has(id))
                             continue;
@@ -91791,6 +91827,33 @@ const run = async () => {
                         external_assert_default()(position, 'All nodes should have a position');
                         const endpoint = docCreateEndpoint(method, path, position.start.line);
                         docIdToUnmatchedEndpoint.set(id, endpoint);
+                    }
+                }
+            }
+            for (const structuredParentSelector of structuredParentSelectors) {
+                const structuredParentSiblings = selectAll(structuredParentSelector, tree);
+                for (const structuredParentSibling of structuredParentSiblings) {
+                    if (structuredParents.has(structuredParentSibling))
+                        continue;
+                    const methodLiteral = getStructureMethodLiteral(structuredParentSibling, methods);
+                    if (!methodLiteral)
+                        continue;
+                    const method = methodLiteral.value.toLowerCase();
+                    for (const literal of literalsToCheck) {
+                        visit(structuredParentSibling, literal, node => {
+                            if (shouldSkipLiteral(node) || node === methodLiteral)
+                                return;
+                            const paths = extractPaths(node.value);
+                            for (const path of paths) {
+                                const id = `${method} ${path}`;
+                                if (docIdToUnmatchedEndpoint.has(id))
+                                    continue;
+                                const { position } = node;
+                                external_assert_default()(position, 'All nodes should have a position');
+                                const endpoint = docCreateEndpoint(method, path, position.start.line);
+                                docIdToUnmatchedEndpoint.set(id, endpoint);
+                            }
+                        });
                     }
                 }
             }

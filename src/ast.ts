@@ -18,15 +18,16 @@ export const literalsToCheck = [
   'text',
 ] as const satisfies (typeof mdastLiterals)[number][];
 
-export const codeLangsToCheck = [
-  void 0,
-  null,
-] as const satisfies Code['lang'][];
+const codeLangsToCheck = [void 0, null] as const satisfies Code['lang'][];
 
 type LiteralNode = Matches<
   InclusiveDescendant<Root>,
   (typeof literalsToCheck)[number]
 >;
+
+export const shouldSkipLiteral = (node: LiteralNode) => {
+  return node.type === 'code' && !codeLangsToCheck.some(l => l === node.lang);
+};
 
 export const isLiteralNode = (node: Node): node is LiteralNode =>
   literalsToCheck.some(l => l === node.type);

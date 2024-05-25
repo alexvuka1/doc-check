@@ -33,7 +33,7 @@ describe('action', () => {
           const apiDirPath = join(
             import.meta.dir,
             '..',
-            `data/repos/${repoName.replace('/', '__')}/api/${apiDir}`,
+            `data/repos/${repoName.replace('/', '__')}/${sha}/api/${apiDir}`,
           );
           await mkdir(apiDirPath, { recursive: true });
           return apiDirPath;
@@ -43,7 +43,7 @@ describe('action', () => {
     const entitiesContractsDir = join(
       import.meta.dir,
       '..',
-      `data/repos/${repoName.replace('/', '__')}/entities/contracts`,
+      `data/repos/${repoName.replace('/', '__')}/${sha}/entities/contracts`,
     );
     await mkdir(entitiesContractsDir, { recursive: true });
 

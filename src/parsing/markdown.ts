@@ -87,9 +87,14 @@ export const docCreateEndpoint = (
 export const escapeRegexSpecial = (str: string) =>
   str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
-export const getMethodRegex = (matchMethods: Method[]) => {
+export const getMethodRegex = (
+  matchMethods: Method[],
+  options: Partial<{ onlyUppercase: true }> = {},
+) => {
   const matchUnionStr = matchMethods
-    .flatMap(m => [m, m.toUpperCase()])
+    .flatMap(m =>
+      options.onlyUppercase ? [m.toUpperCase()] : [m, m.toUpperCase()],
+    )
     .join('|');
   return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`);
 };

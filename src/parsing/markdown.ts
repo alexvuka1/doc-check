@@ -45,8 +45,9 @@ export const docCreateEndpoint = (
   if (params) {
     for (const param of params.split('&')) {
       const [name, value] = param.split('=');
-      if (!name || !value) throw new Error(`Invalid query parameter: ${param}`);
-      queryParameters.push({ name, value });
+      queryParameters.push(
+        name && value ? { name, value } : { name: 'raw', value: param },
+      );
     }
   }
 

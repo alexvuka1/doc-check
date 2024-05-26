@@ -16,6 +16,10 @@
     "skipLibCheck": true,
     "newLine": "lf"
   },
-  "include": ["src/**/*", "../tsup.config.ts"],
+  "include": [
+    "src/**/*",
+    "../tsup.config.ts",
+    "src/tests/repos/aldinokemal__go-whatsapp-web-multidevice.test.ts"
+  ],
   "exclude": ["./dist", "./node_modules", "src/tests"]
 }

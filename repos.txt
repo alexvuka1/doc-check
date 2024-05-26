@@ -2,15 +2,11 @@
 context:global repo:has.path((openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:api\.md$ content:Endpoints)
 context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:api\.md$ content:Endpoints|API)
 context:global repo:has.path(\W+(openapi|swagger)\.(json|yaml|yml)$) repo:has.file(path:\w+\.md$ content:RESTful)
-
-https://github.com/alextselegidis/easyappointments/blob/master/docs/rest-api.md https://github.com/alextselegidis/easyappointments/blob/master/swagger.yml
-https://github.com/apache/ambari/blob/trunk/ambari-server/docs/api/v1/index.md
+context:global repo:has.path((openapi|swagger)\.(json|yaml|yml)$) repo:has.description(API\sfor) 
 
 # maybe
-https://github.com/nginx/unit/blob/149555dbb6d68c15b4d8752e76e995ff6ba36fe6/tools/unitctl/unit-openapi/README.md
+https://github.com/mrhan1993/Fooocus-API/blob/main/docs/openapi.json https://github.com/mrhan1993/Fooocus-API/blob/main/docs/api_doc_en.md?plain=1
+https://github.com/amamenko/keanu-reeves-whoa-api/blob/4c8b912fb342d67caeaccb2bd34a70c1529539c8/openapi.yml https://github.com/amamenko/keanu-reeves-whoa-api/blob/4c8b912fb342d67caeaccb2bd34a70c1529539c8/README.md
 
 # very big one
 https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/groups.md https://github.com/gitlabhq/gitlabhq/blob/master/doc/api/openapi/openapi_v2.yaml 
-
-# docs are deprecated (but format is unusual and could be useful)
-https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/API.md https://github.com/go-shiori/shiori/blob/21c95ac70dade5c2793038ec503310605acb8b9a/docs/swagger/swagger.json

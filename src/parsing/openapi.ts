@@ -18,7 +18,7 @@ const isV2 = (openapiDoc: OpenAPI.Document): openapiDoc is OpenAPIV2.Document =>
 const oasParseServers = (servers?: OasDocument['servers']) => {
   if (!servers) return [];
   return servers.map<OasServerInfo>(s => {
-    if (s.variables) throw new Error('Server variables not supported yet');
+    // if (s.variables) throw new Error('Server variables not supported yet');
     try {
       const url = new URL(s.url);
       const protocol = url.protocol.replace(':', '');

@@ -106,7 +106,7 @@ export const formatOutput = (
       ? `- ### 🟩Found in Open API specification, 🟩Found in Documentation, 🟥Have Inconsistencies\n\t${matchesWithInconsistencies}`
       : '';
 
-  return `
+  return `\
 I have identified the following possible instances of inconsistencies between [Open API specification](${options.oasPath}) and [Documentation](${options.docPath}):
 
 ${oasOnlySection}
@@ -115,8 +115,8 @@ ${matchesWithInconsistenciesSection}
 
 **About**
 
-This is part of the evaluation of my Master's Project at Imperial College London. It aims to detect API documentation inconsistencies in GitHub repositories automatically. I am evaluating the validity of the approach by identifying such inconsistencies in real-world repositories. 
+This is part of the evaluation of my Master's Project at Imperial College London. The section above is automatically generated and aims to expose API documentation inconsistencies in real-world GitHub repositories. The end goal is for the tool to be used as part of CI/CD, namely as a GitHub action. 
 
-Hopefully, this is a step towards easier maintenance of API documentation. If you find this helpful, please consider updating the documentation to keep it in sync with the source code. I am also happy to assist with it, if appropriate. If this has not been useful, consider updating this issue with an explanation, so I can improve my approach. Thank you!
-    `;
+Hopefully, this is a step towards easier maintenance of API documentation. If you find this helpful, please consider updating the documentation to keep it in sync with the source code. I am also happy to assist with it, if appropriate. If this has not been useful, consider updating this issue with an explanation, so I can improve my approach. Thank you!\
+`;
 };

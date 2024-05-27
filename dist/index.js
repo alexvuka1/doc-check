@@ -60902,8 +60902,6 @@ function isEqual(value, other) {
 
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(1017);
-// EXTERNAL MODULE: ./node_modules/pluralize/pluralize.js
-var pluralize = __nccwpck_require__(2522);
 ;// CONCATENATED MODULE: ./node_modules/css-selector-parser/dist/mjs/indexes.js
 var emptyMulticharIndex = {};
 var emptyRegularIndex = {};
@@ -64703,9 +64701,8 @@ const literalsToCheck = [
     'text',
 ];
 const codeLangsToCheck = [void 0, null];
-const shouldSkipLiteral = (node) => {
-    return node.type === 'code' && !codeLangsToCheck.some(l => l === node.lang);
-};
+const shouldSkipLiteral = (node) => !isLiteralNode(node) ||
+    (node.type === 'code' && !codeLangsToCheck.some(l => l === node.lang));
 const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
 
 ;// CONCATENATED MODULE: ./src/formatOutput.ts
@@ -64887,6 +64884,8 @@ var zip = _baseRest(lodash_es_unzip);
 
 /* harmony default export */ const lodash_es_zip = (zip);
 
+// EXTERNAL MODULE: ./node_modules/pluralize/pluralize.js
+var pluralize = __nccwpck_require__(2522);
 ;// CONCATENATED MODULE: ./src/utils.ts
 const objectKeys = (obj) => Object.keys(obj);
 const objectEntries = (obj) => Object.entries(obj);
@@ -64900,8 +64899,17 @@ const mapGetOrSetDefault = (map, key, def) => {
     return value;
 };
 const makeKey = ([i1, i2]) => `${i1.toString()} ${i2.toString()}`;
+const shuffle = (array, random) => {
+    for (let i = array.length - 1; i > 0;) {
+        const j = Math.floor(random() * i--);
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+};
 
 ;// CONCATENATED MODULE: ./src/matching.ts
+
 
 
 
@@ -65027,26 +65035,6 @@ const matchEndpoints = (groups, inconsistencyMap) => {
             unmatchedDoc.delete(doc);
             continue;
         }
-        // if (oasGroup.length === 1 || docGroup.length === 1) {
-        //   const isOasSingle = oasGroup.length === 1;
-        //   const [[i], multiGroup] = isOasSingle
-        //     ? [oasGroup, docGroup]
-        //     : [docGroup, oasGroup];
-        //   assert(
-        //     i !== void 0,
-        //     `${isOasSingle ? 'Oas' : 'Doc'} endpoint with index ${i} should be defined`,
-        //   );
-        //   const noMethodMatches = multiGroup.every(j => {
-        //     const key = makeKey(isOasSingle ? [i, j] : [j, i]);
-        //     const inconsistencies = inconsistencyMap.get(key) || [];
-        //     return inconsistencies.some(i => i.type === 'method-mismatch');
-        //   });
-        //   if (noMethodMatches) {
-        //     res.unmatchedOas.push(...oasGroup);
-        //     res.unmatchedDoc.push(...docGroup);
-        //     continue;
-        //   }
-        // }
         const bestMatches = getBestMatches(oasGroup, docGroup, inconsistencyMap);
         if (!bestMatches) {
             res.unmatchedOas.push(...oasGroup);
@@ -65081,7 +65069,31 @@ const normalizeParam = (param) => param
     .replace(/\s+/g, ' ')
     .toLowerCase()
     .trim();
-const areEqualParams = (param1, param2) => normalizeParam(param1) === normalizeParam(param2);
+const areEqualParams = (path1, index1, path2, index2) => {
+    const param1 = path1[index1];
+    const param2 = path2[index2];
+    external_assert_default()(param1 !== void 0 && param2 !== void 0);
+    if (param1.type !== 'parameter' || param2.type !== 'parameter') {
+        return false;
+    }
+    const param1Normalized = normalizeParam(param1.name);
+    const param2Normalized = normalizeParam(param2.name);
+    const areEqualNormalized = param1Normalized === param2Normalized;
+    if (areEqualNormalized)
+        return true;
+    if (index1 === 0 || index2 === 0)
+        return false;
+    const prevPart1 = path1[index1 - 1];
+    const prevPart2 = path2[index2 - 1];
+    if (prevPart1?.type !== 'literal' ||
+        prevPart2?.type !== 'literal' ||
+        prevPart1.value !== prevPart2.value) {
+        return false;
+    }
+    const prefix = (0,pluralize.singular)(prevPart1.value);
+    return (`${prefix} ${param1Normalized}` === param2Normalized ||
+        `${prefix} ${param2Normalized}` === param1Normalized);
+};
 const areEqualPaths = (path1, path2) => {
     if (path1.length !== path2.length)
         return false;
@@ -65091,10 +65103,31 @@ const areEqualPaths = (path1, path2) => {
         return ((p1.type === 'literal' &&
             p2.type === 'literal' &&
             p1.value === p2.value) ||
-            (p1.type === 'parameter' &&
-                p2.type === 'parameter' &&
-                areEqualParams(p1.name, p2.name)));
+            areEqualParams(path1, i, path2, i));
     });
+};
+const areEqualEndpoints = (oasEndpoint, docEndpoint) => {
+    if (oasEndpoint.method !== docEndpoint.method)
+        return false;
+    const { scheme, host } = docEndpoint;
+    const docHasServer = scheme ||
+        host ||
+        oasEndpoint.pathParts.length < docEndpoint.pathParts.length;
+    const basePathStart = oasEndpoint.pathParts.length - docEndpoint.pathParts.length;
+    const server = docHasServer
+        ? oasEndpoint.servers.find(s => (!scheme || s.schemes?.includes(scheme)) &&
+            (!host || s.host?.includes(host)) &&
+            (oasEndpoint.pathParts.length === docEndpoint.pathParts.length ||
+                (s.basePath &&
+                    basePathStart < 0 &&
+                    areEqualPaths(s.basePath.slice(basePathStart), docEndpoint.pathParts.slice(0, -oasEndpoint.pathParts.length)))))
+        : null;
+    if (docHasServer && !server)
+        return false;
+    return areEqualPaths([
+        ...(server?.basePath?.slice(basePathStart) ?? []),
+        ...oasEndpoint.pathParts,
+    ], docEndpoint.pathParts);
 };
 
 // EXTERNAL MODULE: ./node_modules/openapi-types/dist/index.js
@@ -91507,7 +91540,7 @@ const getMethodRegex = (matchMethods, options = {}) => {
     const matchUnionStr = matchMethods
         .flatMap(m => options.onlyUppercase ? [m.toUpperCase()] : [m, m.toUpperCase()])
         .join('|');
-    return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`);
+    return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`, 'g');
 };
 const pathPartsToRegexStr = (pathParts) => pathParts
     .map(p => {
@@ -91547,10 +91580,8 @@ const oasEndpointToDocRegex = (endpoint) => {
 // Extracts an API path from a string.
 const extractPaths = (str) => {
     const optionalParamPatern = `\\[(\\/:\\w+)\\]`;
-    const reg = new RegExp(
-    // `(?<=\\s|^)((http[s]?|ws[s]?):)?((\\/([\\w\\-]*|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\]))|${optionalParamPatern})+(?=\\s|$)`,
-    `(?<=\\s|^)(((http[s]?|ws[s]?):\\/\\/)?(\\w+\\.)+\\w+)?((\\/([\\w\\-]+|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\])|${optionalParamPatern})+\\/?|\\/)(\\?.*)?(?=\\s|$)`);
-    const match = reg.exec(str);
+    const reg = new RegExp(`(?<=\\s|^)(((http[s]?|ws[s]?):\\/\\/)?([\\w\\-]+\\.)+\\w+)?((\\/([\\w\\-]+|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\])|${optionalParamPatern})+\\/?|\\/)(\\?.*)?(?=\\s|$)`);
+    const match = str.match(reg);
     if (!match)
         return [];
     const [path] = match;
@@ -91689,9 +91720,22 @@ const oasParse = async (oasPath) => {
     const oas = isV2(oasDoc) ? (await (0,swagger2openapi.convertFile)(oasPath, {})).openapi : oasDoc;
     return oas;
 };
+const openapi_oasPathPartsToPath = (pathParts) => {
+    let path = '';
+    for (const part of pathParts) {
+        switch (part.type) {
+            case 'parameter':
+                path += `/{${part.name}}`;
+                break;
+            case 'literal':
+                path += `/${part.value}`;
+                break;
+        }
+    }
+    return path;
+};
 
 ;// CONCATENATED MODULE: ./src/main.ts
-
 
 
 
@@ -91774,27 +91818,31 @@ const run = async () => {
             });
         }
         const docIdToUnmatchedEndpoint = new Map();
+        const handleFindDocEndpoint = (method, path, literal) => {
+            const id = `${method} ${path.split('?')[0]}`;
+            if (docIdToUnmatchedEndpoint.has(id))
+                return;
+            const { position } = literal;
+            external_assert_default()(position, 'All nodes should have a position');
+            const endpoint = docCreateEndpoint(method, path, position.start.line);
+            docIdToUnmatchedEndpoint.set(id, endpoint);
+        };
+        const searchLiteralForEndpoint = (literal) => {
+            if (shouldSkipLiteral(literal))
+                return;
+            const paths = extractPaths(literal.value);
+            const foundMethods = literal.value
+                .match(getMethodRegex(methods))
+                ?.flatMap(m => (m ? [m.toLowerCase()] : [])) ?? [];
+            for (const path of paths) {
+                for (const method of foundMethods) {
+                    handleFindDocEndpoint(method, path, literal);
+                }
+            }
+        };
         if (structuredParents.size === 0 && docSelectors.size === 0) {
             for (const literal of literalsToCheck) {
-                visit(tree, literal, node => {
-                    if (shouldSkipLiteral(node))
-                        return;
-                    const method = getMethodRegex(methods)
-                        .exec(node.value)?.[0]
-                        .toLowerCase();
-                    if (!method)
-                        return;
-                    const paths = extractPaths(node.value);
-                    for (const path of paths) {
-                        const id = `${method} ${path}`;
-                        if (docIdToUnmatchedEndpoint.has(id))
-                            continue;
-                        const { position } = node;
-                        external_assert_default()(position, 'All nodes should have a position');
-                        const endpoint = docCreateEndpoint(method, path, position.start.line);
-                        docIdToUnmatchedEndpoint.set(id, endpoint);
-                    }
-                });
+                visit(tree, literal, searchLiteralForEndpoint);
             }
         }
         else {
@@ -91806,25 +91854,7 @@ const run = async () => {
                     if (!isLiteralNode(sibling)) {
                         throw new Error('Expected literal node');
                     }
-                    if (shouldSkipLiteral(sibling))
-                        continue;
-                    if (matchedNodes.has(sibling))
-                        continue;
-                    const paths = extractPaths(sibling.value);
-                    for (const path of paths) {
-                        const method = getMethodRegex(methods)
-                            .exec(sibling.value)?.[0]
-                            .toLowerCase();
-                        if (!method)
-                            continue;
-                        const id = `${method} ${path}`;
-                        if (docIdToUnmatchedEndpoint.has(id))
-                            continue;
-                        const { position } = sibling;
-                        external_assert_default()(position, 'All nodes should have a position');
-                        const endpoint = docCreateEndpoint(method, path, position.start.line);
-                        docIdToUnmatchedEndpoint.set(id, endpoint);
-                    }
+                    searchLiteralForEndpoint(sibling);
                 }
             }
             for (const structuredParentSelector of structuredParentSelectors) {
@@ -91842,13 +91872,7 @@ const run = async () => {
                                 return;
                             const paths = extractPaths(node.value);
                             for (const path of paths) {
-                                const id = `${method} ${path}`;
-                                if (docIdToUnmatchedEndpoint.has(id))
-                                    continue;
-                                const { position } = node;
-                                external_assert_default()(position, 'All nodes should have a position');
-                                const endpoint = docCreateEndpoint(method, path, position.start.line);
-                                docIdToUnmatchedEndpoint.set(id, endpoint);
+                                handleFindDocEndpoint(method, path, node);
                             }
                         });
                     }
@@ -91864,26 +91888,6 @@ const run = async () => {
             return oasEndpoint;
         });
         let unmatchedDocEndpoints = [...docIdToUnmatchedEndpoint.values()];
-        const areEqualEndpoints = (oasEndpoint, docEndpoint) => {
-            if (oasEndpoint.method !== docEndpoint.method)
-                return false;
-            const { scheme, host } = docEndpoint;
-            const docHasServer = scheme ||
-                host ||
-                oasEndpoint.pathParts.length < docEndpoint.pathParts.length;
-            const server = docHasServer
-                ? oasEndpoint.servers.find(s => (!scheme || s.schemes?.includes(scheme)) &&
-                    (!host || s.host?.includes(host)) &&
-                    (oasEndpoint.pathParts.length === docEndpoint.pathParts.length ||
-                        (s.basePath &&
-                            s.basePath.length + oasEndpoint.pathParts.length ===
-                                docEndpoint.pathParts.length &&
-                            areEqualPaths(s.basePath, docEndpoint.pathParts.slice(0, s.basePath.length)))))
-                : null;
-            if (docHasServer && !server)
-                return false;
-            return lodash_es_isEqual([...(server?.basePath ?? []), ...oasEndpoint.pathParts], docEndpoint.pathParts);
-        };
         const matchedOasIndices = new Set();
         const matchedDocIndices = new Set();
         for (const [i, oasEndpoint] of unmatchedOasEndpoints.entries()) {
@@ -91966,7 +91970,7 @@ const run = async () => {
                         }
                         if (docEndpoint.scheme &&
                             schemes &&
-                            schemes.includes(docEndpoint.scheme)) {
+                            !schemes.includes(docEndpoint.scheme)) {
                             serverInconsistencies.push({
                                 type: 'doc-scheme-not-supported-by-oas-server',
                             });
@@ -91992,16 +91996,9 @@ const run = async () => {
                             }
                             if (lodash_es_isEqual(oasPart, docPart))
                                 continue;
-                            const prevOasPart = oasFullPathParts[k - 1];
-                            const prevDocPart = docEndpoint.pathParts[k - 1];
                             if (oasPart.type === 'parameter' &&
                                 docPart.type === 'parameter' &&
-                                !(areEqualParams(oasPart.name, docPart.name) ||
-                                    (k > 1 &&
-                                        ((prevOasPart?.type === 'literal' &&
-                                            areEqualParams(`${(0,pluralize.singular)(prevOasPart.value)} ${oasPart.name}`, docPart.name)) ||
-                                            (prevDocPart?.type === 'literal' &&
-                                                areEqualParams(`${(0,pluralize.singular)(prevDocPart.value)} ${docPart.name}`, oasPart.name)))))) {
+                                !areEqualParams(oasFullPathParts, k, docEndpoint.pathParts, k)) {
                                 serverInconsistencies.push({
                                     type: 'path-path-parameter-name-mismatch',
                                     parameterIndex,
@@ -92015,13 +92012,12 @@ const run = async () => {
                 const serverInconsistencies = serversInconsistencies.reduce((si1, si2) => {
                     const [s1, i1] = si1;
                     const [, i2] = si2;
-                    if (i1 === null || i1.length === 0)
+                    if (i1 === null)
                         return si2;
-                    if (i2 === null || i2.length === 0)
+                    if (i2 === null)
                         return si1;
-                    if (i1.length === i2.length) {
-                        return s1 === void 0 ? si1 : si2;
-                    }
+                    if (i1.length === i2.length)
+                        return s1 === void 0 ? si2 : si1;
                     return i1.length > i2.length ? si2 : si1;
                 })?.[1];
                 const oasEndpointInconsistencies = unmatchedEndpointsTable[i];

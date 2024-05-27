@@ -25,7 +25,7 @@ export const setupInput = (
   });
 };
 
-type RepoInfo = {
+export type RepoInfo = {
   repoName: string;
   sha: string;
   pathDoc: string;

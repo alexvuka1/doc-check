@@ -116,3 +116,18 @@ export const oasParse = async (oasPath: string) => {
   const oas = isV2(oasDoc) ? (await convertFile(oasPath, {})).openapi : oasDoc;
   return oas;
 };
+
+export const oasPathPartsToPath = (pathParts: OasEndpoint['pathParts']) => {
+  let path = '';
+  for (const part of pathParts) {
+    switch (part.type) {
+      case 'parameter':
+        path += `/{${part.name}}`;
+        break;
+      case 'literal':
+        path += `/${part.value}`;
+        break;
+    }
+  }
+  return path;
+};

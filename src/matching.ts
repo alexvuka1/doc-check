@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { zip } from 'lodash-es';
-import { Inconsistency, PathPart } from './parsing';
+import { singular } from 'pluralize';
+import { DocEndpoint, Inconsistency, OasEndpoint, PathPart } from './parsing';
 import { makeKey, mapGetOrSetDefault } from './utils';
 
 const addEdges = (
@@ -189,27 +190,6 @@ const matchEndpoints = (
       continue;
     }
 
-    // if (oasGroup.length === 1 || docGroup.length === 1) {
-    //   const isOasSingle = oasGroup.length === 1;
-    //   const [[i], multiGroup] = isOasSingle
-    //     ? [oasGroup, docGroup]
-    //     : [docGroup, oasGroup];
-    //   assert(
-    //     i !== void 0,
-    //     `${isOasSingle ? 'Oas' : 'Doc'} endpoint with index ${i} should be defined`,
-    //   );
-    //   const noMethodMatches = multiGroup.every(j => {
-    //     const key = makeKey(isOasSingle ? [i, j] : [j, i]);
-    //     const inconsistencies = inconsistencyMap.get(key) || [];
-    //     return inconsistencies.some(i => i.type === 'method-mismatch');
-    //   });
-    //   if (noMethodMatches) {
-    //     res.unmatchedOas.push(...oasGroup);
-    //     res.unmatchedDoc.push(...docGroup);
-    //     continue;
-    //   }
-    // }
-
     const bestMatches = getBestMatches(oasGroup, docGroup, inconsistencyMap);
     if (!bestMatches) {
       res.unmatchedOas.push(...oasGroup);
@@ -262,8 +242,38 @@ const normalizeParam = (param: string) =>
     .toLowerCase()
     .trim();
 
-export const areEqualParams = (param1: string, param2: string) =>
-  normalizeParam(param1) === normalizeParam(param2);
+export const areEqualParams = (
+  path1: PathPart[],
+  index1: number,
+  path2: PathPart[],
+  index2: number,
+) => {
+  const param1 = path1[index1];
+  const param2 = path2[index2];
+  assert(param1 !== void 0 && param2 !== void 0);
+  if (param1.type !== 'parameter' || param2.type !== 'parameter') {
+    return false;
+  }
+  const param1Normalized = normalizeParam(param1.name);
+  const param2Normalized = normalizeParam(param2.name);
+  const areEqualNormalized = param1Normalized === param2Normalized;
+  if (areEqualNormalized) return true;
+  if (index1 === 0 || index2 === 0) return false;
+  const prevPart1 = path1[index1 - 1];
+  const prevPart2 = path2[index2 - 1];
+  if (
+    prevPart1?.type !== 'literal' ||
+    prevPart2?.type !== 'literal' ||
+    prevPart1.value !== prevPart2.value
+  ) {
+    return false;
+  }
+  const prefix = singular(prevPart1.value);
+  return (
+    `${prefix} ${param1Normalized}` === param2Normalized ||
+    `${prefix} ${param2Normalized}` === param1Normalized
+  );
+};
 
 export const areEqualPaths = (path1: PathPart[], path2: PathPart[]) => {
   if (path1.length !== path2.length) return false;
@@ -274,9 +284,44 @@ export const areEqualPaths = (path1: PathPart[], path2: PathPart[]) => {
       (p1.type === 'literal' &&
         p2.type === 'literal' &&
         p1.value === p2.value) ||
-      (p1.type === 'parameter' &&
-        p2.type === 'parameter' &&
-        areEqualParams(p1.name, p2.name))
+      areEqualParams(path1, i, path2, i)
     );
   });
+};
+
+export const areEqualEndpoints = (
+  oasEndpoint: OasEndpoint,
+  docEndpoint: DocEndpoint,
+) => {
+  if (oasEndpoint.method !== docEndpoint.method) return false;
+  const { scheme, host } = docEndpoint;
+  const docHasServer =
+    scheme ||
+    host ||
+    oasEndpoint.pathParts.length < docEndpoint.pathParts.length;
+  const basePathStart =
+    oasEndpoint.pathParts.length - docEndpoint.pathParts.length;
+  const server = docHasServer
+    ? oasEndpoint.servers.find(
+        s =>
+          (!scheme || s.schemes?.includes(scheme)) &&
+          (!host || s.host?.includes(host)) &&
+          (oasEndpoint.pathParts.length === docEndpoint.pathParts.length ||
+            (s.basePath &&
+              basePathStart < 0 &&
+              areEqualPaths(
+                s.basePath.slice(basePathStart),
+                docEndpoint.pathParts.slice(0, -oasEndpoint.pathParts.length),
+              ))),
+      )
+    : null;
+
+  if (docHasServer && !server) return false;
+  return areEqualPaths(
+    [
+      ...(server?.basePath?.slice(basePathStart) ?? []),
+      ...oasEndpoint.pathParts,
+    ],
+    docEndpoint.pathParts,
+  );
 };

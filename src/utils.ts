@@ -52,3 +52,12 @@ export const mapGetOrSetDefault = <K, V>(map: Map<K, V>, key: K, def: V) => {
 
 export const makeKey = ([i1, i2]: [string | number, string | number]): string =>
   `${i1.toString()} ${i2.toString()}`;
+
+export const shuffle = <T>(array: T[], random: () => number) => {
+  for (let i = array.length - 1; i > 0; ) {
+    const j = Math.floor(random() * i--);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    [array[i], array[j]] = [array[j]!, array[i]!];
+  }
+  return array;
+};

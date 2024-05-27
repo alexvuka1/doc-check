@@ -5,13 +5,12 @@ import { writeFile } from 'fs/promises';
 import { differenceWith, isEqual } from 'lodash-es';
 import { Literal, Node, Nodes, Parent, Parents } from 'mdast';
 import { join } from 'path';
-import { singular } from 'pluralize';
 import { selectAll } from 'unist-util-select';
 import { visit } from 'unist-util-visit';
 import { visitParents } from 'unist-util-visit-parents';
 import { isLiteralNode, literalsToCheck, shouldSkipLiteral } from './ast';
 import { formatOutput } from './formatOutput';
-import { areEqualParams, areEqualPaths, findBestMatches } from './matching';
+import { areEqualEndpoints, areEqualParams, findBestMatches } from './matching';
 import {
   DocEndpoint,
   FailOutput,
@@ -127,28 +126,36 @@ export const run = async () => {
 
     const docIdToUnmatchedEndpoint = new Map<string, DocEndpoint>();
 
+    const handleFindDocEndpoint = (
+      method: Method,
+      path: string,
+      literal: Literal,
+    ) => {
+      const id = `${method} ${path.split('?')[0]}`;
+      if (docIdToUnmatchedEndpoint.has(id)) return;
+      const { position } = literal;
+      assert(position, 'All nodes should have a position');
+      const endpoint = docCreateEndpoint(method, path, position.start.line);
+      docIdToUnmatchedEndpoint.set(id, endpoint);
+    };
+
+    const searchLiteralForEndpoint = (literal: Literal) => {
+      if (shouldSkipLiteral(literal)) return;
+      const paths = extractPaths(literal.value);
+      const foundMethods =
+        literal.value
+          .match(getMethodRegex(methods))
+          ?.flatMap(m => (m ? [m.toLowerCase() as Method] : [])) ?? [];
+      for (const path of paths) {
+        for (const method of foundMethods) {
+          handleFindDocEndpoint(method, path, literal);
+        }
+      }
+    };
+
     if (structuredParents.size === 0 && docSelectors.size === 0) {
       for (const literal of literalsToCheck) {
-        visit(tree, literal, node => {
-          if (shouldSkipLiteral(node)) return;
-          const method = getMethodRegex(methods)
-            .exec(node.value)?.[0]
-            .toLowerCase() as Method | undefined;
-          if (!method) return;
-          const paths = extractPaths(node.value);
-          for (const path of paths) {
-            const id = `${method} ${path}`;
-            if (docIdToUnmatchedEndpoint.has(id)) continue;
-            const { position } = node;
-            assert(position, 'All nodes should have a position');
-            const endpoint = docCreateEndpoint(
-              method,
-              path,
-              position.start.line,
-            );
-            docIdToUnmatchedEndpoint.set(id, endpoint);
-          }
-        });
+        visit(tree, literal, searchLiteralForEndpoint);
       }
     } else {
       for (const parentSelector of docSelectors) {
@@ -160,25 +167,7 @@ export const run = async () => {
           if (!isLiteralNode(sibling)) {
             throw new Error('Expected literal node');
           }
-          if (shouldSkipLiteral(sibling)) continue;
-          if (matchedNodes.has(sibling)) continue;
-          const paths = extractPaths(sibling.value);
-          for (const path of paths) {
-            const method = getMethodRegex(methods)
-              .exec(sibling.value)?.[0]
-              .toLowerCase() as Method | undefined;
-            if (!method) continue;
-            const id = `${method} ${path}`;
-            if (docIdToUnmatchedEndpoint.has(id)) continue;
-            const { position } = sibling;
-            assert(position, 'All nodes should have a position');
-            const endpoint = docCreateEndpoint(
-              method,
-              path,
-              position.start.line,
-            );
-            docIdToUnmatchedEndpoint.set(id, endpoint);
-          }
+          searchLiteralForEndpoint(sibling);
         }
       }
 
@@ -200,16 +189,7 @@ export const run = async () => {
               if (shouldSkipLiteral(node) || node === methodLiteral) return;
               const paths = extractPaths(node.value);
               for (const path of paths) {
-                const id = `${method} ${path}`;
-                if (docIdToUnmatchedEndpoint.has(id)) continue;
-                const { position } = node;
-                assert(position, 'All nodes should have a position');
-                const endpoint = docCreateEndpoint(
-                  method,
-                  path,
-                  position.start.line,
-                );
-                docIdToUnmatchedEndpoint.set(id, endpoint);
+                handleFindDocEndpoint(method, path, node);
               }
             });
           }
@@ -229,39 +209,6 @@ export const run = async () => {
       return oasEndpoint;
     });
     let unmatchedDocEndpoints = [...docIdToUnmatchedEndpoint.values()];
-
-    const areEqualEndpoints = (
-      oasEndpoint: OasEndpoint,
-      docEndpoint: DocEndpoint,
-    ) => {
-      if (oasEndpoint.method !== docEndpoint.method) return false;
-      const { scheme, host } = docEndpoint;
-      const docHasServer =
-        scheme ||
-        host ||
-        oasEndpoint.pathParts.length < docEndpoint.pathParts.length;
-      const server = docHasServer
-        ? oasEndpoint.servers.find(
-            s =>
-              (!scheme || s.schemes?.includes(scheme)) &&
-              (!host || s.host?.includes(host)) &&
-              (oasEndpoint.pathParts.length === docEndpoint.pathParts.length ||
-                (s.basePath &&
-                  s.basePath.length + oasEndpoint.pathParts.length ===
-                    docEndpoint.pathParts.length &&
-                  areEqualPaths(
-                    s.basePath,
-                    docEndpoint.pathParts.slice(0, s.basePath.length),
-                  ))),
-          )
-        : null;
-      if (docHasServer && !server) return false;
-
-      return isEqual(
-        [...(server?.basePath ?? []), ...oasEndpoint.pathParts],
-        docEndpoint.pathParts,
-      );
-    };
 
     const matchedOasIndices = new Set<number>();
     const matchedDocIndices = new Set<number>();
@@ -377,7 +324,7 @@ export const run = async () => {
               if (
                 docEndpoint.scheme &&
                 schemes &&
-                schemes.includes(docEndpoint.scheme)
+                !schemes.includes(docEndpoint.scheme)
               ) {
                 serverInconsistencies.push({
                   type: 'doc-scheme-not-supported-by-oas-server',
@@ -405,25 +352,10 @@ export const run = async () => {
                   throw new Error('Expected doc path part to be defined');
                 }
                 if (isEqual(oasPart, docPart)) continue;
-                const prevOasPart = oasFullPathParts[k - 1];
-                const prevDocPart = docEndpoint.pathParts[k - 1];
                 if (
                   oasPart.type === 'parameter' &&
                   docPart.type === 'parameter' &&
-                  !(
-                    areEqualParams(oasPart.name, docPart.name) ||
-                    (k > 1 &&
-                      ((prevOasPart?.type === 'literal' &&
-                        areEqualParams(
-                          `${singular(prevOasPart.value)} ${oasPart.name}`,
-                          docPart.name,
-                        )) ||
-                        (prevDocPart?.type === 'literal' &&
-                          areEqualParams(
-                            `${singular(prevDocPart.value)} ${docPart.name}`,
-                            oasPart.name,
-                          ))))
-                  )
+                  !areEqualParams(oasFullPathParts, k, docEndpoint.pathParts, k)
                 ) {
                   serverInconsistencies.push({
                     type: 'path-path-parameter-name-mismatch',
@@ -441,11 +373,9 @@ export const run = async () => {
           (si1, si2) => {
             const [s1, i1] = si1;
             const [, i2] = si2;
-            if (i1 === null || i1.length === 0) return si2;
-            if (i2 === null || i2.length === 0) return si1;
-            if (i1.length === i2.length) {
-              return s1 === void 0 ? si1 : si2;
-            }
+            if (i1 === null) return si2;
+            if (i2 === null) return si1;
+            if (i1.length === i2.length) return s1 === void 0 ? si2 : si1;
             return i1.length > i2.length ? si2 : si1;
           },
         )?.[1];

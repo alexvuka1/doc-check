@@ -97,7 +97,7 @@ export const getMethodRegex = (
       options.onlyUppercase ? [m.toUpperCase()] : [m, m.toUpperCase()],
     )
     .join('|');
-  return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`);
+  return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`, 'g');
 };
 
 const pathPartsToRegexStr = (pathParts: PathPart[]) =>
@@ -150,10 +150,9 @@ export const oasEndpointToDocRegex = (endpoint: OasEndpoint) => {
 export const extractPaths = (str: string) => {
   const optionalParamPatern = `\\[(\\/:\\w+)\\]`;
   const reg = new RegExp(
-    // `(?<=\\s|^)((http[s]?|ws[s]?):)?((\\/([\\w\\-]*|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\]))|${optionalParamPatern})+(?=\\s|$)`,
-    `(?<=\\s|^)(((http[s]?|ws[s]?):\\/\\/)?(\\w+\\.)+\\w+)?((\\/([\\w\\-]+|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\])|${optionalParamPatern})+\\/?|\\/)(\\?.*)?(?=\\s|$)`,
+    `(?<=\\s|^)(((http[s]?|ws[s]?):\\/\\/)?([\\w\\-]+\\.)+\\w+)?((\\/([\\w\\-]+|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\])|${optionalParamPatern})+\\/?|\\/)(\\?.*)?(?=\\s|$)`,
   );
-  const match = reg.exec(str);
+  const match = str.match(reg);
   if (!match) return [];
   const [path] = match;
   if (path.includes('[/:')) {

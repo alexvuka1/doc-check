@@ -514,28 +514,6 @@ describe('action', () => {
       {
         type: 'only-in-oas',
         endpoint: {
-          method: 'put',
-          servers: [
-            {
-              schemes: ['https'],
-              basePath: [
-                { type: 'literal', value: 'auth' },
-                { type: 'literal', value: 'v1' },
-              ],
-              host: '{project}.supabase.co',
-            },
-          ],
-          pathParts: [
-            { type: 'literal', value: 'admin' },
-            { type: 'literal', value: 'users' },
-            { type: 'parameter', name: 'userId' },
-          ],
-          queryParameters: [],
-        },
-      },
-      {
-        type: 'only-in-oas',
-        endpoint: {
           method: 'delete',
           servers: [
             {

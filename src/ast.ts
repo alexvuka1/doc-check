@@ -1,4 +1,4 @@
-import { Code, Literals, Node, Root } from 'mdast';
+import { Code, Literal, Literals, Node, Root } from 'mdast';
 import type { InclusiveDescendant, Matches } from 'unist-util-visit-parents';
 import { Permutations, UnionToArray } from './utils';
 
@@ -25,9 +25,9 @@ type LiteralNode = Matches<
   (typeof literalsToCheck)[number]
 >;
 
-export const shouldSkipLiteral = (node: LiteralNode) => {
-  return node.type === 'code' && !codeLangsToCheck.some(l => l === node.lang);
-};
+export const shouldSkipLiteral = (node: Literal) =>
+  !isLiteralNode(node) ||
+  (node.type === 'code' && !codeLangsToCheck.some(l => l === node.lang));
 
 export const isLiteralNode = (node: Node): node is LiteralNode =>
   literalsToCheck.some(l => l === node.type);

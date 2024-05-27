@@ -57,6 +57,7 @@
     "unist-util-filter": "^5.0.1",
     "unist-util-find-after": "^5.0.0",
     "unist-util-map": "^4.0.0",
+    "unist-util-remove": "^4.0.0",
     "unist-util-select": "^5.1.0",
     "unist-util-visit": "^5.0.0",
     "unist-util-visit-children": "^3.0.0",

@@ -57773,7 +57773,7 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-/* harmony import */ var _main__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(4127);
+/* harmony import */ var _main__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2628);
 /**
  * The entrypoint for the action.
  */
@@ -57785,7 +57785,7 @@ __webpack_async_result__();
 
 /***/ }),
 
-/***/ 4127:
+/***/ 2628:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -64700,7 +64700,11 @@ const literalsToCheck = [
     'inlineCode',
     'text',
 ];
-const codeLangsToCheck = [void 0, null];
+const codeLangsToCheck = [
+    void 0,
+    null,
+    'yaml',
+];
 const shouldSkipLiteral = (node) => !isLiteralNode(node) ||
     (node.type === 'code' && !codeLangsToCheck.some(l => l === node.lang));
 const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
@@ -65502,6 +65506,316 @@ function includes(collection, value, fromIndex, guard) {
 
 /* harmony default export */ const lodash_es_includes = (includes);
 
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseToString.js
+
+
+
+
+
+/** Used as references for various `Number` constants. */
+var _baseToString_INFINITY = 1 / 0;
+
+/** Used to convert symbols to primitives and strings. */
+var _baseToString_symbolProto = _Symbol ? _Symbol.prototype : undefined,
+    symbolToString = _baseToString_symbolProto ? _baseToString_symbolProto.toString : undefined;
+
+/**
+ * The base implementation of `_.toString` which doesn't convert nullish
+ * values to empty strings.
+ *
+ * @private
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ */
+function baseToString(value) {
+  // Exit early for strings to avoid a performance hit in some environments.
+  if (typeof value == 'string') {
+    return value;
+  }
+  if (lodash_es_isArray(value)) {
+    // Recursively convert values (susceptible to call stack limits).
+    return _arrayMap(value, baseToString) + '';
+  }
+  if (lodash_es_isSymbol(value)) {
+    return symbolToString ? symbolToString.call(value) : '';
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -_baseToString_INFINITY) ? '-0' : result;
+}
+
+/* harmony default export */ const _baseToString = (baseToString);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/toString.js
+
+
+/**
+ * Converts `value` to a string. An empty string is returned for `null`
+ * and `undefined` values. The sign of `-0` is preserved.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ * @example
+ *
+ * _.toString(null);
+ * // => ''
+ *
+ * _.toString(-0);
+ * // => '-0'
+ *
+ * _.toString([1, 2, 3]);
+ * // => '1,2,3'
+ */
+function toString_toString(value) {
+  return value == null ? '' : _baseToString(value);
+}
+
+/* harmony default export */ const lodash_es_toString = (toString_toString);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseSlice.js
+/**
+ * The base implementation of `_.slice` without an iteratee call guard.
+ *
+ * @private
+ * @param {Array} array The array to slice.
+ * @param {number} [start=0] The start position.
+ * @param {number} [end=array.length] The end position.
+ * @returns {Array} Returns the slice of `array`.
+ */
+function baseSlice(array, start, end) {
+  var index = -1,
+      length = array.length;
+
+  if (start < 0) {
+    start = -start > length ? 0 : (length + start);
+  }
+  end = end > length ? length : end;
+  if (end < 0) {
+    end += length;
+  }
+  length = start > end ? 0 : ((end - start) >>> 0);
+  start >>>= 0;
+
+  var result = Array(length);
+  while (++index < length) {
+    result[index] = array[index + start];
+  }
+  return result;
+}
+
+/* harmony default export */ const _baseSlice = (baseSlice);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_castSlice.js
+
+
+/**
+ * Casts `array` to a slice if it's needed.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {number} start The start position.
+ * @param {number} [end=array.length] The end position.
+ * @returns {Array} Returns the cast slice.
+ */
+function castSlice(array, start, end) {
+  var length = array.length;
+  end = end === undefined ? length : end;
+  return (!start && end >= length) ? array : _baseSlice(array, start, end);
+}
+
+/* harmony default export */ const _castSlice = (castSlice);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_hasUnicode.js
+/** Used to compose unicode character classes. */
+var rsAstralRange = '\\ud800-\\udfff',
+    rsComboMarksRange = '\\u0300-\\u036f',
+    reComboHalfMarksRange = '\\ufe20-\\ufe2f',
+    rsComboSymbolsRange = '\\u20d0-\\u20ff',
+    rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange,
+    rsVarRange = '\\ufe0e\\ufe0f';
+
+/** Used to compose unicode capture groups. */
+var rsZWJ = '\\u200d';
+
+/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
+var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboRange + rsVarRange + ']');
+
+/**
+ * Checks if `string` contains Unicode symbols.
+ *
+ * @private
+ * @param {string} string The string to inspect.
+ * @returns {boolean} Returns `true` if a symbol is found, else `false`.
+ */
+function hasUnicode(string) {
+  return reHasUnicode.test(string);
+}
+
+/* harmony default export */ const _hasUnicode = (hasUnicode);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_asciiToArray.js
+/**
+ * Converts an ASCII `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function asciiToArray(string) {
+  return string.split('');
+}
+
+/* harmony default export */ const _asciiToArray = (asciiToArray);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_unicodeToArray.js
+/** Used to compose unicode character classes. */
+var _unicodeToArray_rsAstralRange = '\\ud800-\\udfff',
+    _unicodeToArray_rsComboMarksRange = '\\u0300-\\u036f',
+    _unicodeToArray_reComboHalfMarksRange = '\\ufe20-\\ufe2f',
+    _unicodeToArray_rsComboSymbolsRange = '\\u20d0-\\u20ff',
+    _unicodeToArray_rsComboRange = _unicodeToArray_rsComboMarksRange + _unicodeToArray_reComboHalfMarksRange + _unicodeToArray_rsComboSymbolsRange,
+    _unicodeToArray_rsVarRange = '\\ufe0e\\ufe0f';
+
+/** Used to compose unicode capture groups. */
+var rsAstral = '[' + _unicodeToArray_rsAstralRange + ']',
+    rsCombo = '[' + _unicodeToArray_rsComboRange + ']',
+    rsFitz = '\\ud83c[\\udffb-\\udfff]',
+    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
+    rsNonAstral = '[^' + _unicodeToArray_rsAstralRange + ']',
+    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+    _unicodeToArray_rsZWJ = '\\u200d';
+
+/** Used to compose unicode regexes. */
+var reOptMod = rsModifier + '?',
+    rsOptVar = '[' + _unicodeToArray_rsVarRange + ']?',
+    rsOptJoin = '(?:' + _unicodeToArray_rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
+    rsSeq = rsOptVar + reOptMod + rsOptJoin,
+    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
+
+/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
+var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
+
+/**
+ * Converts a Unicode `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function unicodeToArray(string) {
+  return string.match(reUnicode) || [];
+}
+
+/* harmony default export */ const _unicodeToArray = (unicodeToArray);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_stringToArray.js
+
+
+
+
+/**
+ * Converts `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function stringToArray(string) {
+  return _hasUnicode(string)
+    ? _unicodeToArray(string)
+    : _asciiToArray(string);
+}
+
+/* harmony default export */ const _stringToArray = (stringToArray);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_createCaseFirst.js
+
+
+
+
+
+/**
+ * Creates a function like `_.lowerFirst`.
+ *
+ * @private
+ * @param {string} methodName The name of the `String` case method to use.
+ * @returns {Function} Returns the new case function.
+ */
+function createCaseFirst(methodName) {
+  return function(string) {
+    string = lodash_es_toString(string);
+
+    var strSymbols = _hasUnicode(string)
+      ? _stringToArray(string)
+      : undefined;
+
+    var chr = strSymbols
+      ? strSymbols[0]
+      : string.charAt(0);
+
+    var trailing = strSymbols
+      ? _castSlice(strSymbols, 1).join('')
+      : string.slice(1);
+
+    return chr[methodName]() + trailing;
+  };
+}
+
+/* harmony default export */ const _createCaseFirst = (createCaseFirst);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/upperFirst.js
+
+
+/**
+ * Converts the first character of `string` to upper case.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category String
+ * @param {string} [string=''] The string to convert.
+ * @returns {string} Returns the converted string.
+ * @example
+ *
+ * _.upperFirst('fred');
+ * // => 'Fred'
+ *
+ * _.upperFirst('FRED');
+ * // => 'FRED'
+ */
+var upperFirst = _createCaseFirst('toUpperCase');
+
+/* harmony default export */ const lodash_es_upperFirst = (upperFirst);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/capitalize.js
+
+
+
+/**
+ * Converts the first character of `string` to upper case and the remaining
+ * to lower case.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category String
+ * @param {string} [string=''] The string to capitalize.
+ * @returns {string} Returns the capitalized string.
+ * @example
+ *
+ * _.capitalize('FRED');
+ * // => 'Fred'
+ */
+function capitalize(string) {
+  return lodash_es_upperFirst(lodash_es_toString(string).toLowerCase());
+}
+
+/* harmony default export */ const lodash_es_capitalize = (capitalize);
+
 ;// CONCATENATED MODULE: ./node_modules/lodash-es/_arrayReduce.js
 /**
  * A specialized version of `_.reduce` for arrays without support for
@@ -65958,75 +66272,6 @@ var stringToPath = _memoizeCapped(function(string) {
 });
 
 /* harmony default export */ const _stringToPath = (stringToPath);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseToString.js
-
-
-
-
-
-/** Used as references for various `Number` constants. */
-var _baseToString_INFINITY = 1 / 0;
-
-/** Used to convert symbols to primitives and strings. */
-var _baseToString_symbolProto = _Symbol ? _Symbol.prototype : undefined,
-    symbolToString = _baseToString_symbolProto ? _baseToString_symbolProto.toString : undefined;
-
-/**
- * The base implementation of `_.toString` which doesn't convert nullish
- * values to empty strings.
- *
- * @private
- * @param {*} value The value to process.
- * @returns {string} Returns the string.
- */
-function baseToString(value) {
-  // Exit early for strings to avoid a performance hit in some environments.
-  if (typeof value == 'string') {
-    return value;
-  }
-  if (lodash_es_isArray(value)) {
-    // Recursively convert values (susceptible to call stack limits).
-    return _arrayMap(value, baseToString) + '';
-  }
-  if (lodash_es_isSymbol(value)) {
-    return symbolToString ? symbolToString.call(value) : '';
-  }
-  var result = (value + '');
-  return (result == '0' && (1 / value) == -_baseToString_INFINITY) ? '-0' : result;
-}
-
-/* harmony default export */ const _baseToString = (baseToString);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/toString.js
-
-
-/**
- * Converts `value` to a string. An empty string is returned for `null`
- * and `undefined` values. The sign of `-0` is preserved.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Lang
- * @param {*} value The value to convert.
- * @returns {string} Returns the converted string.
- * @example
- *
- * _.toString(null);
- * // => ''
- *
- * _.toString(-0);
- * // => '-0'
- *
- * _.toString([1, 2, 3]);
- * // => '1,2,3'
- */
-function toString_toString(value) {
-  return value == null ? '' : _baseToString(value);
-}
-
-/* harmony default export */ const lodash_es_toString = (toString_toString);
 
 ;// CONCATENATED MODULE: ./node_modules/lodash-es/_castPath.js
 
@@ -91538,7 +91783,9 @@ const docCreateEndpoint = (method, originalPath, line) => {
 const escapeRegexSpecial = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const getMethodRegex = (matchMethods, options = {}) => {
     const matchUnionStr = matchMethods
-        .flatMap(m => options.onlyUppercase ? [m.toUpperCase()] : [m, m.toUpperCase()])
+        .flatMap(m => options.onlyUppercase
+        ? [m.toUpperCase()]
+        : [m, m.toUpperCase(), lodash_es_capitalize(m)])
         .join('|');
     return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`, 'g');
 };

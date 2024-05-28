@@ -18,7 +18,11 @@ export const literalsToCheck = [
   'text',
 ] as const satisfies (typeof mdastLiterals)[number][];
 
-const codeLangsToCheck = [void 0, null] as const satisfies Code['lang'][];
+const codeLangsToCheck = [
+  void 0,
+  null,
+  'yaml',
+] as const satisfies Code['lang'][];
 
 type LiteralNode = Matches<
   InclusiveDescendant<Root>,

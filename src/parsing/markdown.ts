@@ -1,4 +1,4 @@
-import { includes, reduce } from 'lodash-es';
+import { capitalize, includes, reduce } from 'lodash-es';
 import { Root } from 'mdast';
 import { remark } from 'remark';
 import remarkGfm from 'remark-gfm';
@@ -94,7 +94,9 @@ export const getMethodRegex = (
 ) => {
   const matchUnionStr = matchMethods
     .flatMap(m =>
-      options.onlyUppercase ? [m.toUpperCase()] : [m, m.toUpperCase()],
+      options.onlyUppercase
+        ? [m.toUpperCase()]
+        : [m, m.toUpperCase(), capitalize(m)],
     )
     .join('|');
   return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`, 'g');

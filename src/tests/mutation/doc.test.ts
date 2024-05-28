@@ -1,17 +1,11 @@
 import * as core from '@actions/core';
-import assert from 'assert';
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
-import { mkdir, rm, writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 import { join } from 'path';
 import seedrandom from 'seedrandom';
-import { remove } from 'unist-util-remove';
-import { selectAll } from 'unist-util-select';
-import * as main from '../../main';
-import { FailOutput, methods } from '../../parsing';
 import { docParse, docStringify } from '../../parsing/markdown';
-import { oasParse, oasPathPartsToPath } from '../../parsing/openapi';
-import { objectEntries, shuffle } from '../../utils';
-import { getOrDownload } from '../utils';
+import { RepoInfo, getOrDownload } from '../utils';
+import { evaluateDocMutations } from '../utils/mutation/doc';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -28,21 +22,19 @@ describe('action', () => {
     rng = seedrandom(seed);
   });
 
-  const repoName = 'gothinkster/realworld';
-  const sha = '11c81f64f04fff8cfcd60ddf4eb0064c01fa1730';
-  const pathOas = 'api/openapi.yml';
-  const pathDoc = 'apps/documentation/docs/specs/backend-specs/endpoints.md';
-
-  const githubBase = `https://github.com/${repoName}/blob/${sha}`;
-  const pathOasGithub = `${githubBase}/${pathOas}`;
-  const pathDocGithub = `${githubBase}/${pathDoc}`;
-
-  const baseDirPath = join(
-    import.meta.dir,
-    `../data/mutation/doc/${repoName.replace('/', '__')}`,
-  );
-
   it('handles identity doc mutation', async () => {
+    const repoName = 'gothinkster/realworld';
+    const sha = '11c81f64f04fff8cfcd60ddf4eb0064c01fa1730';
+    const pathDoc = 'apps/documentation/docs/specs/backend-specs/endpoints.md';
+
+    const githubBase = `https://github.com/${repoName}/blob/${sha}`;
+    const pathDocGithub = `${githubBase}/${pathDoc}`;
+
+    const baseDirPath = join(
+      import.meta.dir,
+      `../data/mutation/doc/${repoName.replace('/', '__')}`,
+    );
+
     const pathDocLocal = await getOrDownload(pathDocGithub, baseDirPath);
     const dirPath = join(baseDirPath, 'doc');
     await mkdir(dirPath, { recursive: true });
@@ -59,98 +51,52 @@ describe('action', () => {
   it(
     'handles doc mutations',
     async () => {
-      const [pathOasLocal, pathDocLocal] = await Promise.all([
-        getOrDownload(pathOasGithub, baseDirPath),
-        getOrDownload(pathDocGithub, baseDirPath),
-      ]);
+      const repoInfos: RepoInfo[] = [
+        {
+          repoName: 'gothinkster/realworld',
+          sha: '11c81f64f04fff8cfcd60ddf4eb0064c01fa1730',
+          pathOas: 'api/openapi.yml',
+          pathDoc: 'apps/documentation/docs/specs/backend-specs/endpoints.md',
+        },
+        {
+          repoName: 'fleetdm/fleet',
+          sha: '2dd7b6e5644fc8fea045b0ea37f51225b801f105',
+          pathOas: 'server/mdm/nanodep/docs/openapi.yaml',
+          pathDoc: 'server/mdm/nanodep/docs/operations-guide.md',
+        },
+        {
+          repoName: 'omarciovsena/abibliadigital',
+          sha: 'fc31798a790c1c36d072d2e422dba82fa1a74bcd',
+          pathOas: 'docs/openapi.yaml',
+          pathDoc: 'DOCUMENTATION.md',
+        },
+        {
+          repoName: 'alextselegidis/easyappointments',
+          sha: '06fddd49f4f6a98a4a90307c1812dd06caa6551b',
+          pathOas: 'swagger.yml',
+          pathDoc: 'docs/rest-api.md',
+        },
+        {
+          repoName: 'sunflower-land/sunflower-land',
+          sha: '877234bda1c498505a9be75b83affb487285af5c',
+          pathOas: 'docs/openapi.json',
+          pathDoc: 'docs/OFFCHAIN_API.md',
+        },
+      ];
 
-      let correctCount = 0;
-      const scenarios = 100;
-
-      for (let i = 1; i <= scenarios; i++) {
-        const tree = await docParse(pathDocLocal);
-        const nParts = 2 + Math.round(rng.quick() * 3);
-        const sections = selectAll('section', tree);
-        const parts = shuffle(sections, rng.quick).slice(0, nParts - 1);
-        const partsSet = new Set(parts);
-
-        const dirPath = join(baseDirPath, `iteration_${i}`);
-        await mkdir(dirPath, { recursive: true });
-
-        const accFailOutput: FailOutput = [];
-        for (const [j, mutatedTree] of [tree, ...parts].entries()) {
-          remove(mutatedTree, node => partsSet.has(node));
-
-          const mutatedDocPath = join(dirPath, `doc_${j}.md`);
-          await writeFile(
-            mutatedDocPath,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            docStringify({ type: 'root', children: [mutatedTree as any] }),
-          );
-
-          getInputMock.mockImplementation((name: string): string => {
-            switch (name) {
-              case 'openapi-path':
-                return pathOasLocal;
-              case 'doc-path':
-                return mutatedDocPath;
-              default:
-                return '';
-            }
-          });
-
-          await main.run();
-
-          if (setFailedMock.mock.calls.length === 0) continue;
-          const failOutput: FailOutput = JSON.parse(
-            setFailedMock.mock.calls[0][0] as string,
-          );
-          accFailOutput.push(...failOutput);
-
-          getInputMock.mockReset();
-          setFailedMock.mockReset();
-        }
-
-        const oasPathToNFails = new Map<string, number>();
-
-        const oas = await oasParse(pathOasLocal);
-        const { paths } = oas;
-        assert(paths);
-        for (const [path, pathItem] of objectEntries(paths)) {
-          if (!pathItem) continue;
-          for (const method of methods) {
-            const operation = pathItem[method];
-            if (!operation) continue;
-            oasPathToNFails.set(`${method} ${path}`, 0);
-          }
-        }
-
-        let hasUnexpectedFail = false;
-        for (const fail of accFailOutput) {
-          if (fail.type !== 'only-in-oas') {
-            hasUnexpectedFail = true;
-            break;
-          }
-          const key = `${fail.endpoint.method} ${oasPathPartsToPath(fail.endpoint.pathParts)}`;
-          const nFails = oasPathToNFails.get(key);
-          if (nFails === void 0) {
-            hasUnexpectedFail = true;
-            break;
-          }
-          oasPathToNFails.set(key, nFails + 1);
-        }
-
-        if (
-          !hasUnexpectedFail &&
-          [...oasPathToNFails.values()].every(n => n === nParts - 1)
-        ) {
-          correctCount++;
-          await rm(dirPath, { recursive: true, force: true });
-        }
+      for (const repoInfo of repoInfos) {
+        await evaluateDocMutations(
+          repoInfo,
+          {
+            getInputMock,
+            setFailedMock,
+            rng: () => rng.quick(),
+          },
+          {
+            scenarios: 100,
+          },
+        );
       }
-      console.info(
-        `Got ${correctCount}/${scenarios} correct (${Math.floor((correctCount / scenarios) * 100)}%)`,
-      );
     },
     { timeout: 120_000 },
   );

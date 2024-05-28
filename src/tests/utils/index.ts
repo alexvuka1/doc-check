@@ -6,8 +6,8 @@ import { existsSync, mkdirSync } from 'fs';
 import { join, resolve } from 'path';
 import { FailOutput } from '../../parsing';
 
-type GetInputMock = Mock<typeof getInput>;
-type SetFailedMock = Mock<typeof setFailed>;
+export type GetInputMock = Mock<typeof getInput>;
+export type SetFailedMock = Mock<typeof setFailed>;
 
 export const setupInput = (
   getInputMock: GetInputMock,

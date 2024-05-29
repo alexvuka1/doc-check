@@ -1,8 +1,10 @@
 import { capitalize, includes, reduce } from 'lodash-es';
 import { Root } from 'mdast';
 import { remark } from 'remark';
+import remarkFrontmatter from 'remark-frontmatter';
 import remarkGfm from 'remark-gfm';
 import remarkSectionize from 'remark-sectionize';
+import remarkStringify from 'remark-stringify';
 import { read } from 'to-vfile';
 import {
   DocEndpoint,
@@ -12,8 +14,6 @@ import {
   Scheme,
   validSchemes,
 } from '.';
-import remarkStringify from 'remark-stringify';
-import remarkFrontmatter from 'remark-frontmatter';
 
 export const docCreateEndpoint = (
   method: Method,

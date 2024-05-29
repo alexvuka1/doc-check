@@ -5,7 +5,10 @@ import { join } from 'path';
 import seedrandom from 'seedrandom';
 import { docParse, docStringify } from '../../parsing/markdown';
 import { RepoInfo, getOrDownload } from '../utils';
-import { evaluateDocMutations } from '../utils/mutation/doc';
+import {
+  DocMutationsOptions,
+  evaluateDocMutations,
+} from '../utils/mutation/doc';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -51,40 +54,62 @@ describe('action', () => {
   it(
     'handles doc mutations',
     async () => {
-      const repoInfos: RepoInfo[] = [
-        {
-          repoName: 'gothinkster/realworld',
-          sha: '11c81f64f04fff8cfcd60ddf4eb0064c01fa1730',
-          pathOas: 'api/openapi.yml',
-          pathDoc: 'apps/documentation/docs/specs/backend-specs/endpoints.md',
-        },
-        {
-          repoName: 'fleetdm/fleet',
-          sha: '2dd7b6e5644fc8fea045b0ea37f51225b801f105',
-          pathOas: 'server/mdm/nanodep/docs/openapi.yaml',
-          pathDoc: 'server/mdm/nanodep/docs/operations-guide.md',
-        },
-        {
-          repoName: 'omarciovsena/abibliadigital',
-          sha: 'fc31798a790c1c36d072d2e422dba82fa1a74bcd',
-          pathOas: 'docs/openapi.yaml',
-          pathDoc: 'DOCUMENTATION.md',
-        },
-        {
-          repoName: 'alextselegidis/easyappointments',
-          sha: '06fddd49f4f6a98a4a90307c1812dd06caa6551b',
-          pathOas: 'swagger.yml',
-          pathDoc: 'docs/rest-api.md',
-        },
-        {
-          repoName: 'sunflower-land/sunflower-land',
-          sha: '877234bda1c498505a9be75b83affb487285af5c',
-          pathOas: 'docs/openapi.json',
-          pathDoc: 'docs/OFFCHAIN_API.md',
-        },
-      ];
+      const mutationInfos: (
+        | [RepoInfo]
+        | [RepoInfo, Partial<DocMutationsOptions>]
+      )[] = [
+        [
+          {
+            repoName: 'gothinkster/realworld',
+            sha: '11c81f64f04fff8cfcd60ddf4eb0064c01fa1730',
+            pathOas: 'api/openapi.yml',
+            pathDoc: 'apps/documentation/docs/specs/backend-specs/endpoints.md',
+          },
+        ],
+        [
+          {
+            repoName: 'fleetdm/fleet',
+            sha: '2dd7b6e5644fc8fea045b0ea37f51225b801f105',
+            pathOas: 'server/mdm/nanodep/docs/openapi.yaml',
+            pathDoc: 'server/mdm/nanodep/docs/operations-guide.md',
+          },
+        ],
+        [
+          {
+            repoName: 'omarciovsena/abibliadigital',
+            sha: 'fc31798a790c1c36d072d2e422dba82fa1a74bcd',
+            pathOas: 'docs/openapi.yaml',
+            pathDoc: 'DOCUMENTATION.md',
+          },
+        ],
+        [
+          {
+            repoName: 'alextselegidis/easyappointments',
+            sha: '06fddd49f4f6a98a4a90307c1812dd06caa6551b',
+            pathOas: 'swagger.yml',
+            pathDoc: 'docs/rest-api.md',
+          },
+        ],
+        [
+          {
+            repoName: 'sunflower-land/sunflower-land',
+            sha: '877234bda1c498505a9be75b83affb487285af5c',
+            pathOas: 'docs/openapi.json',
+            pathDoc: 'docs/OFFCHAIN_API.md',
+          },
+          {
+            multiInstanceEndpoints: [
+              {
+                method: 'get',
+                path: '/community/farms',
+                instancesPos: [22, 56],
+              },
+            ],
+          },
+        ],
+      ] as const;
 
-      for (const repoInfo of repoInfos) {
+      for (const [repoInfo, overrideOptions] of mutationInfos) {
         await evaluateDocMutations(
           repoInfo,
           {
@@ -93,7 +118,10 @@ describe('action', () => {
             rng: () => rng.quick(),
           },
           {
-            scenarios: 100,
+            ...{
+              scenarios: 100,
+            },
+            ...overrideOptions,
           },
         );
       }

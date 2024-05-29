@@ -48,7 +48,7 @@
     "remark-frontmatter": "^5.0.0",
     "remark-gfm": "^4.0.0",
     "remark-parse": "^11.0.0",
-    "remark-sectionize": "^2.0.0",
+    "remark-sectionize": "github:alexvuka1/remark-sectionize#d0ecde2",
     "remark-stringify": "^11.0.0",
     "seedrandom": "^3.0.5",
     "swagger2openapi": "^7.0.8",

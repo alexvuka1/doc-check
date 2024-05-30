@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
 import * as main from '../../main';
 import { expectFail, setupInputRepo } from '../utils';
+import { repoInfos } from '../data/repoInfos';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -15,12 +16,7 @@ describe('action', () => {
   });
 
   it('handles DeviceFarmer/stf', async () => {
-    await setupInputRepo(getInputMock, {
-      repoName: 'DeviceFarmer/stf',
-      sha: '7553c8b88df68bfba60e36d3abd6f9deb8a4ce65',
-      pathOas: 'lib/units/api/swagger/api_v1_generated.json',
-      pathDoc: 'doc/API.md',
-    });
+    await setupInputRepo(getInputMock, repoInfos['DeviceFarmer/stf']);
 
     await main.run();
 

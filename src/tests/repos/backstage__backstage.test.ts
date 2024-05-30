@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
 import * as main from '../../main';
 import { expectFail, setupInputRepo } from '../utils';
+import { repoInfos } from '../data/repoInfos';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -15,12 +16,7 @@ describe('action', () => {
   });
 
   it('handles backstage/backstage', async () => {
-    await setupInputRepo(getInputMock, {
-      repoName: 'backstage/backstage',
-      sha: '2c3f493ee32d67d3a300d13e73e352f91145a3ee',
-      pathOas: 'plugins/catalog-backend/src/schema/openapi.yaml',
-      pathDoc: 'docs/features/software-catalog/api.md',
-    });
+    await setupInputRepo(getInputMock, repoInfos['backstage/backstage']);
 
     await main.run();
 

@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
 import * as main from '../../main';
 import { expectFail, setupInputRepo } from '../utils';
+import { repoInfos } from '../data/repoInfos';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -15,12 +16,7 @@ describe('action', () => {
   });
 
   it('handles alibaba/GraphScope', async () => {
-    await setupInputRepo(getInputMock, {
-      repoName: 'alibaba/GraphScope',
-      sha: 'bf4bd712041a04ce3adba56939a5bccaad13e137',
-      pathOas: 'flex/openapi/openapi_interactive.yaml',
-      pathDoc: 'docs/flex/interactive/development/restful_api.md',
-    });
+    await setupInputRepo(getInputMock, repoInfos['alibaba/GraphScope']);
 
     await main.run();
 

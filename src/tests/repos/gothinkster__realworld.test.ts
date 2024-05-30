@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
 import * as main from '../../main';
 import { setupInputRepo } from '../utils';
+import { repoInfos } from '../data/repoInfos';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -15,12 +16,7 @@ describe('action', () => {
   });
 
   it('handles gothinkster/realworld', async () => {
-    await setupInputRepo(getInputMock, {
-      repoName: 'gothinkster/realworld',
-      sha: '11c81f64f04fff8cfcd60ddf4eb0064c01fa1730',
-      pathOas: 'api/openapi.yml',
-      pathDoc: 'apps/documentation/docs/specs/backend-specs/endpoints.md',
-    });
+    await setupInputRepo(getInputMock, repoInfos['gothinkster/realworld']);
 
     await main.run();
 

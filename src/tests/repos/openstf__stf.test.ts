@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
 import * as main from '../../main';
 import { expectFail, setupInputRepo } from '../utils';
+import { repoInfos } from '../data/repoInfos';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -15,12 +16,7 @@ describe('action', () => {
   });
 
   it('handles openstf/stf', async () => {
-    await setupInputRepo(getInputMock, {
-      repoName: 'openstf/stf',
-      sha: '2b9649009722794dee9efd32b71bccbcbfe9d794',
-      pathOas: 'lib/units/api/swagger/api_v1_generated.json',
-      pathDoc: 'doc/API.md',
-    });
+    await setupInputRepo(getInputMock, repoInfos['openstf/stf']);
 
     await main.run();
 

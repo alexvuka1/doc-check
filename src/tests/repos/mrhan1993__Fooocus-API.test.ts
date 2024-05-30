@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
 import * as main from '../../main';
 import { expectFail, setupInputRepo } from '../utils';
+import { repoInfos } from '../data/repoInfos';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -15,12 +16,7 @@ describe('action', () => {
   });
 
   it('handles mrhan1993/Fooocus-API', async () => {
-    await setupInputRepo(getInputMock, {
-      repoName: 'mrhan1993/Fooocus-API',
-      sha: '4d4c8633b964abb1f1845d5ed98b0d53c7edfe10',
-      pathOas: 'docs/openapi.json',
-      pathDoc: 'docs/api_doc_en.md',
-    });
+    await setupInputRepo(getInputMock, repoInfos['mrhan1993/Fooocus-API']);
 
     await main.run();
 

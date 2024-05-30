@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
 import * as main from '../../main';
 import { expectFail, setupInputRepo } from '../utils';
+import { repoInfos } from '../data/repoInfos';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -15,12 +16,10 @@ describe('action', () => {
   });
 
   it('handles aldinokemal/go-whatsapp-web-multidevice', async () => {
-    await setupInputRepo(getInputMock, {
-      repoName: 'aldinokemal/go-whatsapp-web-multidevice',
-      sha: '7292058718a0441cfa75bb05b8ff0475999e1acc',
-      pathOas: 'docs/openapi.yaml',
-      pathDoc: 'readme.md',
-    });
+    await setupInputRepo(
+      getInputMock,
+      repoInfos['aldinokemal/go-whatsapp-web-multidevice'],
+    );
 
     await main.run();
 

@@ -129,5 +129,5 @@ export const oasPathPartsToPath = (pathParts: OasEndpoint['pathParts']) => {
         break;
     }
   }
-  return path;
+  return path === '' ? '/' : path;
 };

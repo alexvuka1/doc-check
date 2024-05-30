@@ -10,6 +10,7 @@ import { FailOutput, Method, methods } from '../../../parsing';
 import { docParse, docStringify } from '../../../parsing/markdown';
 import { oasParse, oasPathPartsToPath } from '../../../parsing/openapi';
 import { objectEntries, shuffle } from '../../../utils';
+import { isEqual } from 'lodash-es';
 
 export type DocMutationsOptions = {
   scenarios: number;
@@ -43,9 +44,59 @@ export const evaluateDocMutations = async (
     getOrDownload(pathDocGithub, baseDirPath),
   ]);
 
+  getInputMock.mockReset();
+  setFailedMock.mockReset();
+
+  getInputMock.mockImplementation((name: string): string => {
+    switch (name) {
+      case 'openapi-path':
+        return pathOasLocal;
+      case 'doc-path':
+        return pathDocLocal;
+      default:
+        return '';
+    }
+  });
+
+  await main.run();
+
+  const nonMutatedFailOutput: FailOutput =
+    setFailedMock.mock.calls.length === 0
+      ? []
+      : JSON.parse(setFailedMock.mock.calls[0][0] as string);
+  const nonMutatedOnlyInDoc = new Map<string, number>();
+  const nonMutatedOnlyInOas = new Map<string, number>();
+  const nonMutatedFailsWithIncs: (FailOutput[number] & {
+    type: 'match-with-inconsistenties';
+  })[] = [];
+  for (const fail of nonMutatedFailOutput) {
+    switch (fail.type) {
+      case 'only-in-doc':
+        nonMutatedOnlyInDoc.set(
+          `${fail.endpoint.method} ${fail.endpoint.originalPath}`,
+          0,
+        );
+        break;
+      case 'only-in-oas':
+        nonMutatedOnlyInOas.set(
+          `${fail.endpoint.method} ${oasPathPartsToPath(fail.endpoint.pathParts)}`,
+          0,
+        );
+        break;
+      case 'match-with-inconsistenties':
+        nonMutatedFailsWithIncs.push(fail);
+    }
+  }
+
   let correctCount = 0;
 
   for (let i = 1; i <= scenarios; i++) {
+    nonMutatedOnlyInOas.forEach((_, k, map) => map.set(k, 0));
+    nonMutatedOnlyInDoc.forEach((_, k, map) => map.set(k, 0));
+    const nNonMutatedFailsWithIncs = Array(nonMutatedFailsWithIncs.length).fill(
+      0,
+    );
+
     const tree = await docParse(pathDocLocal);
     const nParts = 2 + Math.round(rng() * 3);
     const sections = selectAll('section', tree);
@@ -112,6 +163,9 @@ export const evaluateDocMutations = async (
         docStringify({ type: 'root', children: [mutatedTree as any] }),
       );
 
+      getInputMock.mockReset();
+      setFailedMock.mockReset();
+
       getInputMock.mockImplementation((name: string): string => {
         switch (name) {
           case 'openapi-path':
@@ -130,9 +184,6 @@ export const evaluateDocMutations = async (
         setFailedMock.mock.calls[0][0] as string,
       );
       accFailOutput.push(...failOutput);
-
-      getInputMock.mockReset();
-      setFailedMock.mockReset();
     }
 
     const endpointKeyToNFails = new Map<string, number>();
@@ -145,30 +196,66 @@ export const evaluateDocMutations = async (
       for (const method of methods) {
         const operation = pathItem[method];
         if (!operation) continue;
-        endpointKeyToNFails.set(`${method} ${path}`, 0);
+        const key = `${method} ${path}`;
+        if (nonMutatedOnlyInOas.has(key)) continue;
+        endpointKeyToNFails.set(key, 0);
       }
     }
 
     let hasUnexpectedFail = false;
     for (const fail of accFailOutput) {
-      if (fail.type !== 'only-in-oas') {
-        hasUnexpectedFail = true;
-        break;
+      if (hasUnexpectedFail) break;
+      switch (fail.type) {
+        case 'only-in-oas':
+          {
+            const key = `${fail.endpoint.method} ${oasPathPartsToPath(fail.endpoint.pathParts)}`;
+            const nFails = endpointKeyToNFails.get(key);
+            const nonMutatedNFails = nonMutatedOnlyInOas.get(key);
+            if (nFails === void 0 && nonMutatedNFails === void 0) {
+              hasUnexpectedFail = true;
+            }
+            if (nFails !== void 0) endpointKeyToNFails.set(key, nFails + 1);
+            if (nonMutatedNFails !== void 0) {
+              nonMutatedOnlyInOas.set(key, nonMutatedNFails + 1);
+            }
+          }
+          break;
+        case 'only-in-doc':
+          {
+            const key = `${fail.endpoint.method} ${fail.endpoint.originalPath}`;
+            const nonMutatedNFails = nonMutatedOnlyInDoc.get(key);
+            if (nonMutatedNFails === void 0) hasUnexpectedFail = true;
+            else nonMutatedOnlyInDoc.set(key, nonMutatedNFails + 1);
+          }
+          break;
+        case 'match-with-inconsistenties':
+          {
+            const failWithIncsIndex = nonMutatedFailsWithIncs.findIndex(
+              f =>
+                fail.oasEndpoint.method === f.oasEndpoint.method &&
+                isEqual(fail.oasEndpoint.pathParts, f.oasEndpoint.pathParts) &&
+                fail.docEndpoint.method === f.docEndpoint.method &&
+                fail.docEndpoint.originalPath === f.docEndpoint.originalPath,
+            );
+            if (failWithIncsIndex === -1) {
+              hasUnexpectedFail = true;
+              break;
+            }
+            nNonMutatedFailsWithIncs[failWithIncsIndex]++;
+          }
+          break;
       }
-      const key = `${fail.endpoint.method} ${oasPathPartsToPath(fail.endpoint.pathParts)}`;
-      const nFails = endpointKeyToNFails.get(key);
-      if (nFails === void 0) {
-        hasUnexpectedFail = true;
-        break;
-      }
-      endpointKeyToNFails.set(key, nFails + 1);
     }
 
     if (
-      !hasUnexpectedFail &&
-      [...endpointKeyToNFails.entries()].every(
-        ([k, n]) => n === nParts - (endpointKeyToNSection.get(k) ?? 1),
-      )
+      (!hasUnexpectedFail &&
+        [...endpointKeyToNFails.entries()].every(
+          ([k, n]) => n === nParts - (endpointKeyToNSection.get(k) ?? 1),
+        ) &&
+        [...nonMutatedOnlyInOas.values()].every(n => n === nParts),
+      [...nonMutatedOnlyInDoc.values(), ...nNonMutatedFailsWithIncs].every(
+        n => n === 1,
+      ))
     ) {
       correctCount++;
       await rm(dirPath, { recursive: true, force: true });

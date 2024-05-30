@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
 import * as main from '../../main';
 import { expectFail, setupInputRepo } from '../utils';
+import { repoInfos } from '../data/repoInfos';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -15,12 +16,7 @@ describe('action', () => {
   });
 
   it('handles supabase/auth', async () => {
-    await setupInputRepo(getInputMock, {
-      repoName: 'supabase/auth',
-      sha: 'b954a485096cddfd1eef4d582034a99eff95fa6f',
-      pathOas: 'openapi.yaml',
-      pathDoc: 'README.md',
-    });
+    await setupInputRepo(getInputMock, repoInfos['supabase/auth']);
 
     await main.run();
 

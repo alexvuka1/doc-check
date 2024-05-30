@@ -2,6 +2,7 @@ import * as core from '@actions/core';
 import { beforeEach, describe, it, spyOn } from 'bun:test';
 import * as main from '../../main';
 import { expectFail, setupInputRepo } from '../utils';
+import { repoInfos } from '../data/repoInfos';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -15,12 +16,7 @@ describe('action', () => {
   });
 
   it('handles huggingface/dataset-viewer', async () => {
-    await setupInputRepo(getInputMock, {
-      repoName: 'huggingface/dataset-viewer',
-      sha: 'd1c56d3d0f59996110abf7334fc807f9db8bc8ff',
-      pathOas: 'docs/source/openapi.json',
-      pathDoc: 'docs/source/quick_start.md',
-    });
+    await setupInputRepo(getInputMock, repoInfos['huggingface/dataset-viewer']);
 
     await main.run();
 

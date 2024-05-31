@@ -51,49 +51,47 @@ describe('action', () => {
     expect(mutatedTreeParsed).toEqual(tree);
   });
 
-  it(
-    'handles doc mutations',
-    async () => {
-      const mutationInfos = objectEntries(repoInfos).map(
-        ([repoName, repoInfo]) => {
-          switch (repoName) {
-            case 'backstage/backstage':
-              return [
-                repoInfo,
-                {
-                  multiInstanceEndpoints: [
-                    {
-                      method: 'get',
-                      path: '/entities',
-                      instancesPos: [213, 444],
-                    },
-                    {
-                      method: 'get',
-                      path: '/entities/by-query',
-                      instancesPos: [40, 217],
-                    },
-                  ],
-                } satisfies Partial<DocMutationsOptions>,
-              ] as const;
-            case 'sunflower-land/sunflower-land':
-              return [
-                repoInfo,
-                {
-                  multiInstanceEndpoints: [
-                    {
-                      method: 'get',
-                      path: '/community/farms',
-                      instancesPos: [22, 56],
-                    },
-                  ],
-                } satisfies Partial<DocMutationsOptions>,
-              ] as const;
-            default:
-              return [repoInfo] as const;
-          }
-        },
-      );
+  const mutationInfos = objectEntries(repoInfos).map(([repoName, repoInfo]) => {
+    switch (repoName) {
+      case 'backstage/backstage':
+        return [
+          repoInfo,
+          {
+            multiInstanceEndpoints: [
+              {
+                method: 'get',
+                path: '/entities',
+                instancesPos: [213, 444],
+              },
+              {
+                method: 'get',
+                path: '/entities/by-query',
+                instancesPos: [40, 217],
+              },
+            ],
+          } satisfies Partial<DocMutationsOptions>,
+        ] as const;
+      case 'sunflower-land/sunflower-land':
+        return [
+          repoInfo,
+          {
+            multiInstanceEndpoints: [
+              {
+                method: 'get',
+                path: '/community/farms',
+                instancesPos: [22, 56],
+              },
+            ],
+          } satisfies Partial<DocMutationsOptions>,
+        ] as const;
+      default:
+        return [repoInfo] as const;
+    }
+  });
 
+  it(
+    'handles doc section mutations',
+    async () => {
       for (const [repoInfo, overrideOptions] of mutationInfos) {
         await evaluateDocMutations(
           repoInfo,
@@ -104,6 +102,31 @@ describe('action', () => {
           },
           {
             ...{
+              splitType: 'section',
+              scenarios: 100,
+            },
+            ...overrideOptions,
+          },
+        );
+      }
+    },
+    { timeout: 10 * 60 * 1000 },
+  );
+
+  it(
+    'handles doc heading mutations',
+    async () => {
+      for (const [repoInfo, overrideOptions] of mutationInfos) {
+        await evaluateDocMutations(
+          repoInfo,
+          {
+            getInputMock,
+            setFailedMock,
+            rng: () => rng.quick(),
+          },
+          {
+            ...{
+              splitType: 'heading',
               scenarios: 100,
             },
             ...overrideOptions,

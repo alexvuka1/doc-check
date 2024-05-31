@@ -4,6 +4,7 @@ import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import * as main from '../../main';
 import { expectFail, getOrDownload, setupInputRepo } from '../utils';
+import assert from 'assert';
 
 const getInputMock = spyOn(core, 'getInput');
 const setFailedMock = spyOn(core, 'setFailed');
@@ -26,7 +27,7 @@ describe('action', () => {
       pathDoc: 'docs/rpc-endpoints.md',
     });
 
-    const apiDirs = ['contract', 'core-node', 'trait', 'transaction'];
+    const apiDirs = ['contract', 'core-node', 'trait', 'transaction'] as const;
     const [contractDir, coreNodeDir, traitDir, transactionDir] =
       await Promise.all(
         apiDirs.map(async apiDir => {
@@ -39,6 +40,12 @@ describe('action', () => {
           return apiDirPath;
         }),
       );
+    assert(
+      contractDir !== void 0 &&
+        coreNodeDir !== void 0 &&
+        traitDir !== void 0 &&
+        transactionDir !== void 0,
+    );
 
     const entitiesContractsDir = join(
       import.meta.dir,
@@ -90,7 +97,7 @@ describe('action', () => {
         transactionDir,
         'transaction/post-core-node-transactions-error.schema.json',
       ],
-    ];
+    ] as const;
 
     await Promise.all([
       ...dirToFile.map(([dir, filePath]) =>

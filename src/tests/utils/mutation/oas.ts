@@ -38,10 +38,10 @@ export const oasMutate = (oas: OasDocument, oasMutations: OasMutations) => {
   assert(paths !== void 0);
 
   const pathsToRemove = new Set<string>(oasMutations.removePaths);
-  const pathToMethodsToRemove = new Map<string, Set<string>>(
+  const pathToMethodsToRemove = new Map<string, Set<Method>>(
     oasMutations.removeEndpoints.map(re => [re.path, new Set(re.methods)]),
   );
-  const pathToMethodsToChange = new Map<string, Map<string, string>>(
+  const pathToMethodsToChange = new Map<string, Map<Method, Method>>(
     oasMutations.changeMethods.map(cm => [
       cm.path,
       new Map(cm.changes.map(c => [c.oldMethod, c.newMethod])),
@@ -145,7 +145,7 @@ export const evaluateOasMutations = async (
   const nonMutatedFailOutput: FailOutput =
     setFailedMock.mock.calls.length === 0
       ? []
-      : JSON.parse(setFailedMock.mock.calls[0][0] as string);
+      : JSON.parse(setFailedMock.mock.calls[0]?.[0] as string);
 
   const oas = await oasParse(pathOasLocal);
   const { paths } = oas;
@@ -211,7 +211,8 @@ export const evaluateOasMutations = async (
           path,
           changes: methodsToChange.map((m, i) => ({
             oldMethod: m,
-            newMethod: shuffledNonExistingMethods[i],
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            newMethod: shuffledNonExistingMethods[i]!,
           })),
         });
 
@@ -220,6 +221,7 @@ export const evaluateOasMutations = async (
 
         for (const [i, method] of methodsToChange.entries()) {
           const newMethod = shuffledNonExistingMethods[i];
+          assert(newMethod !== void 0);
 
           removedMethods.add(method);
           addedMethods.add(newMethod);
@@ -310,12 +312,14 @@ export const evaluateOasMutations = async (
       ]);
 
       if (newOnlyInOasMethods.size === 1 && newOnlyInDocMethods.size === 1) {
-        const oasMethod = newOnlyInOasMethods[0];
-        const docMethod = newOnlyInDocMethods[0];
+        const oasMethod = [...newOnlyInOasMethods][0];
+        const docMethod = [...newOnlyInDocMethods][0];
+        assert(oasMethod !== void 0);
+        assert(docMethod !== void 0);
         if (oasMethod === docMethod) continue;
         expectedMatchWithMethodMismatch.push({
-          oasMethod: newOnlyInOasMethods[0],
-          docMethod: newOnlyInDocMethods[0],
+          oasMethod,
+          docMethod,
           pathParts,
         });
         continue;
@@ -387,7 +391,7 @@ export const evaluateOasMutations = async (
     }
     if (setFailedMock.mock.calls.length === 1) {
       const failOutput: FailOutput = JSON.parse(
-        setFailedMock.mock.calls[0][0] as string,
+        setFailedMock.mock.calls[0]?.[0] as string,
       );
 
       const matchedOnlyInOasIndices = new Set<number>();

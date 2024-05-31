@@ -85,7 +85,7 @@ export const getOrDownload = async (
 
 export const expectFail = (setFailedMock: SetFailedMock) => ({
   toEqual: (expectedFail: FailOutput) => {
-    const fail = setFailedMock.mock.calls[0][0];
+    const fail = setFailedMock.mock.calls[0]?.[0];
     expect(fail).toBeString();
     let failOutput: FailOutput;
     try {

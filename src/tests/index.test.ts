@@ -1,5 +1,5 @@
+import { expect, spyOn, test } from 'bun:test';
 import * as main from '../main';
-import { expect, test, spyOn } from 'bun:test';
 
 // Mock the action's entrypoint
 const runMock = spyOn(main, 'run');

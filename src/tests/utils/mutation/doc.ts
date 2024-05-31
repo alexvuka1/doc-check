@@ -1,5 +1,7 @@
 import assert from 'assert';
 import { mkdir, rm, writeFile } from 'fs/promises';
+import { isEqual, sortBy } from 'lodash-es';
+import { Nodes } from 'mdast';
 import { join } from 'path';
 import { remove } from 'unist-util-remove';
 import { selectAll } from 'unist-util-select';
@@ -10,10 +12,10 @@ import { FailOutput, Method, methods } from '../../../parsing';
 import { docParse, docStringify } from '../../../parsing/markdown';
 import { oasParse, oasPathPartsToPath } from '../../../parsing/openapi';
 import { objectEntries, shuffle } from '../../../utils';
-import { isEqual, sortBy } from 'lodash-es';
 
 export type DocMutationsOptions = {
   scenarios: number;
+  splitType: Nodes['type'];
   multiInstanceEndpoints?: {
     method: Method;
     path: string;
@@ -27,7 +29,7 @@ export const evaluateDocMutations = async (
   options: DocMutationsOptions,
 ) => {
   const { repoName, sha, pathOas, pathDoc } = repoInfo;
-  const { scenarios, multiInstanceEndpoints = [] } = options;
+  const { scenarios, splitType, multiInstanceEndpoints = [] } = options;
   const { getInputMock, setFailedMock, rng } = testEnv;
 
   const githubBase = `https://github.com/${repoName}/blob/${sha}`;
@@ -63,7 +65,7 @@ export const evaluateDocMutations = async (
   const nonMutatedFailOutput: FailOutput =
     setFailedMock.mock.calls.length === 0
       ? []
-      : JSON.parse(setFailedMock.mock.calls[0][0] as string);
+      : JSON.parse(setFailedMock.mock.calls[0]?.[0] as string);
   const nonMutatedOnlyInDoc = new Map<string, number>();
   const nonMutatedOnlyInOas = new Map<string, number>();
   const nonMutatedFailsWithIncs: (FailOutput[number] & {
@@ -99,8 +101,7 @@ export const evaluateDocMutations = async (
 
     const tree = await docParse(pathDocLocal);
     const nParts = 2 + Math.round(rng() * 3);
-    const sections = selectAll('section', tree);
-    const parts = shuffle(sections, rng).slice(0, nParts - 1);
+    const parts = shuffle(selectAll(splitType, tree), rng).slice(0, nParts - 1);
     const partsSet = new Set(parts);
     const splits = [tree, ...parts];
 
@@ -109,7 +110,7 @@ export const evaluateDocMutations = async (
         const { position } = part;
         assert(position);
         const { start, end } = position;
-        return [start.line, end.line];
+        return [start.line, end.line] as const;
       }),
       ([start]) => start,
     );
@@ -184,7 +185,7 @@ export const evaluateDocMutations = async (
 
       if (setFailedMock.mock.calls.length === 0) continue;
       const failOutput: FailOutput = JSON.parse(
-        setFailedMock.mock.calls[0][0] as string,
+        setFailedMock.mock.calls[0]?.[0] as string,
       );
       accFailOutput.push(...failOutput);
     }

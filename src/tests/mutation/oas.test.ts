@@ -2,7 +2,6 @@ import * as core from '@actions/core';
 import SwaggerParser from '@apidevtools/swagger-parser';
 import { beforeEach, describe, expect, it, spyOn } from 'bun:test';
 import { mkdir, writeFile } from 'fs/promises';
-import { pick } from 'lodash-es';
 import { join } from 'path';
 import seedrandom from 'seedrandom';
 import { oasParse } from '../../parsing/openapi';
@@ -52,17 +51,7 @@ describe('action', () => {
   it(
     'handles oas mutations',
     async () => {
-      const mutationRepoInfos = Object.values(
-        pick(repoInfos, [
-          'gothinkster/realworld',
-          'fleetdm/fleet',
-          'omarciovsena/abibliadigital',
-          'alextselegidis/easyappointments',
-          'sunflower-land/sunflower-land',
-        ]),
-      );
-
-      for (const repoInfo of mutationRepoInfos) {
+      for (const repoInfo of Object.values(repoInfos)) {
         await evaluateOasMutations(
           repoInfo,
           {

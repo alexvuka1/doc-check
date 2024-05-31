@@ -64973,21 +64973,20 @@ const getGroups = (oasIndexToDocIndices, docIndexToOasIndices) => {
 };
 const evaluateConfiguration = (config, isOasIndexFirst, inconsistencyMap) => {
     let totalInconsistencies = 0;
-    let everyHasMethodMismatch = true;
+    let nMethodMismatch = 0;
     for (const [i1, i2] of config) {
-        if (i1 === void 0 || i2 === void 0)
+        if (i1 === void 0 || i2 === void 0) {
+            nMethodMismatch++;
             continue;
+        }
         const key = makeKey(isOasIndexFirst ? [i1, i2] : [i2, i1]);
         const inconsistencies = inconsistencyMap.get(key) || [];
-        if (everyHasMethodMismatch &&
-            !inconsistencies.find(i => i.type === 'method-mismatch')) {
-            everyHasMethodMismatch = false;
+        if (inconsistencies.find(i => i.type === 'method-mismatch')) {
+            nMethodMismatch++;
         }
         totalInconsistencies += inconsistencies.length;
     }
-    return config.length > 1 && everyHasMethodMismatch
-        ? Infinity
-        : totalInconsistencies;
+    return nMethodMismatch > 1 ? Infinity : totalInconsistencies;
 };
 const permute = (arr) => {
     if (arr.length <= 1)
@@ -91831,18 +91830,22 @@ const oasEndpointToDocRegex = (endpoint) => {
 // Extracts an API path from a string.
 const extractPaths = (str) => {
     const optionalParamPatern = `\\[(\\/:\\w+)\\]`;
-    const reg = new RegExp(`(?<=\\s|^)(((http[s]?|ws[s]?):\\/\\/)?([\\w\\-]+\\.)+\\w+)?((\\/([\\w\\-]+|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\])|${optionalParamPatern})+\\/?|\\/)(\\?.*)?(?=\\s|$)`);
+    const reg = new RegExp(`(?<=\\s|^)(((http[s]?|ws[s]?):\\/\\/)?([\\w\\-]+\\.)+\\w+)?((\\/([\\w\\-]+|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\])|${optionalParamPatern})+\\/?|\\/)(\\?.*)?(?=\\s|$)`, 'g');
     const match = str.match(reg);
     if (!match)
         return [];
-    const [path] = match;
-    if (path.includes('[/:')) {
+    const res = [];
+    for (const path of match) {
+        if (!path.includes('[/:')) {
+            res.push(path);
+            continue;
+        }
         const optionalParamRegex = new RegExp(optionalParamPatern);
         const path1 = path.replace(optionalParamRegex, '');
         const path2 = path.replace(optionalParamRegex, '$1');
-        return [path1, path2];
+        res.push(path1, path2);
     }
-    return [path];
+    return res;
 };
 const docParse = async (docPath) => {
     const docFile = await read(docPath);
@@ -91965,9 +91968,11 @@ const oasParseEndpoints = (oas) => {
     }
     return oasIdToEndpoint;
 };
-const oasParse = async (oasPath) => {
+const oasParse = async (oasPath, shouldDereference = true) => {
     // TODO changed this from validate, should maybe show warnings if oas not valid
-    const oasDoc = await lib_default().dereference(oasPath);
+    const oasDoc = shouldDereference
+        ? await lib_default().dereference(oasPath)
+        : await lib_default().bundle(oasPath);
     const oas = isV2(oasDoc) ? (await (0,swagger2openapi.convertFile)(oasPath, {})).openapi : oasDoc;
     return oas;
 };

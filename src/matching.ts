@@ -88,23 +88,21 @@ const evaluateConfiguration = (
   inconsistencyMap: Map<string, Inconsistency[]>,
 ) => {
   let totalInconsistencies = 0;
-  let everyHasMethodMismatch = true;
+  let nMethodMismatch = 0;
 
   for (const [i1, i2] of config) {
-    if (i1 === void 0 || i2 === void 0) continue;
+    if (i1 === void 0 || i2 === void 0) {
+      nMethodMismatch++;
+      continue;
+    }
     const key = makeKey(isOasIndexFirst ? [i1, i2] : [i2, i1]);
     const inconsistencies = inconsistencyMap.get(key) || [];
-    if (
-      everyHasMethodMismatch &&
-      !inconsistencies.find(i => i.type === 'method-mismatch')
-    ) {
-      everyHasMethodMismatch = false;
+    if (inconsistencies.find(i => i.type === 'method-mismatch')) {
+      nMethodMismatch++;
     }
     totalInconsistencies += inconsistencies.length;
   }
-  return config.length > 1 && everyHasMethodMismatch
-    ? Infinity
-    : totalInconsistencies;
+  return nMethodMismatch > 1 ? Infinity : totalInconsistencies;
 };
 
 const permute = (arr: number[]): number[][] => {

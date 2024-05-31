@@ -57,11 +57,28 @@ describe('action', () => {
       const mutationInfos = objectEntries(repoInfos).map(
         ([repoName, repoInfo]) => {
           switch (repoName) {
+            case 'backstage/backstage':
+              return [
+                repoInfo,
+                {
+                  multiInstanceEndpoints: [
+                    {
+                      method: 'get',
+                      path: '/entities',
+                      instancesPos: [213, 444],
+                    },
+                    {
+                      method: 'get',
+                      path: '/entities/by-query',
+                      instancesPos: [40, 217],
+                    },
+                  ],
+                } satisfies Partial<DocMutationsOptions>,
+              ] as const;
             case 'sunflower-land/sunflower-land':
               return [
                 repoInfo,
                 {
-                  scenarios: 100,
                   multiInstanceEndpoints: [
                     {
                       method: 'get',

@@ -1,21 +1,26 @@
 import assert from 'assert';
 import { mkdir, rm, writeFile } from 'fs/promises';
-import { partition } from 'lodash-es';
+import { isEqual, partition } from 'lodash-es';
 import { OpenAPIV3 } from 'openapi-types';
 import { join } from 'path';
 import { MutationTestEnv } from '.';
 import { RepoInfo, getOrDownload } from '..';
 import * as main from '../../../main';
-import { areEqualPaths } from '../../../matching';
+import { areEqualEndpoints, areEqualPaths } from '../../../matching';
 import {
   FailOutput,
-  Inconsistency,
   Method,
   OasDocument,
   OasEndpoint,
+  PathPart,
   methods,
 } from '../../../parsing';
-import { oasParse, oasParsePath } from '../../../parsing/openapi';
+import {
+  oasParse,
+  oasParseEndpoints,
+  oasParsePath,
+  oasPathPartsToPath,
+} from '../../../parsing/openapi';
 import { objectEntries, shuffle } from '../../../utils';
 
 export type OasMutations = {
@@ -74,7 +79,7 @@ export const oasMutate = (oas: OasDocument, oasMutations: OasMutations) => {
           ]),
         ),
       ]),
-    ]),
+    ]) as NonNullable<OasDocument['paths']>,
   };
 
   return mutatedOas;
@@ -121,48 +126,63 @@ export const evaluateOasMutations = async (
     getOrDownload(pathDocGithub, baseDirPath),
   ]);
 
+  getInputMock.mockReset();
+  setFailedMock.mockReset();
+
+  getInputMock.mockImplementation((name: string): string => {
+    switch (name) {
+      case 'openapi-path':
+        return pathOasLocal;
+      case 'doc-path':
+        return pathDocLocal;
+      default:
+        return '';
+    }
+  });
+
+  await main.run();
+
+  const nonMutatedFailOutput: FailOutput =
+    setFailedMock.mock.calls.length === 0
+      ? []
+      : JSON.parse(setFailedMock.mock.calls[0][0] as string);
+
   const oas = await oasParse(pathOasLocal);
   const { paths } = oas;
   assert(paths !== void 0);
 
+  const oasNoCircular = await oasParse(pathOasLocal, false);
+
   let correctCount = 0;
 
   for (let i = 1; i <= scenarios; i++) {
-    const removedEndpoints: [
-      OasEndpoint['method'],
-      OasEndpoint['pathParts'],
-    ][] = [];
-    const addedEndpoints: [OasEndpoint['method'], OasEndpoint['pathParts']][] =
-      [];
-    const methodMismatched: {
-      oldMethod: OasEndpoint['method'];
-      newMethod: OasEndpoint['method'];
-      pathParts: OasEndpoint['pathParts'];
-    }[] = [];
+    const pathToRemovedMethods = new Map<string, Set<Method>>();
+    const pathToAddedMethods = new Map<string, Set<Method>>();
+
     const mutations: OasMutations = {
       removePaths: [],
       removeEndpoints: [],
       addEndpoints: [],
       changeMethods: [],
     };
+
     for (const [path, pathItem] of objectEntries(paths)) {
-      const pathParts = oasParsePath(path);
       if (rng() < probRemovePath) {
         mutations.removePaths.push(path);
-        for (const method of methods) {
-          if (!pathItem?.[method]) continue;
-          removedEndpoints.push([method, pathParts]);
-        }
+        pathToRemovedMethods.set(
+          path,
+          new Set(methods.filter(m => pathItem?.[m])),
+        );
         continue;
       }
-
-      const methodsToRemove: OasEndpoint['method'][] = [];
-      const methodsToChange: OasEndpoint['method'][] = [];
 
       const [existingMethods, nonExistingMethods] = partition(
         methods,
         m => pathItem?.[m],
       );
+
+      const methodsToRemove: OasEndpoint['method'][] = [];
+      const methodsToChange: OasEndpoint['method'][] = [];
 
       for (const method of existingMethods) {
         assert(pathItem?.[method]);
@@ -182,9 +202,7 @@ export const evaluateOasMutations = async (
           path,
           methods: methodsToRemove,
         });
-        for (const method of methodsToRemove) {
-          removedEndpoints.push([method, pathParts]);
-        }
+        pathToRemovedMethods.set(path, new Set(methodsToRemove));
       }
 
       if (methodsToChange.length > 0) {
@@ -196,20 +214,130 @@ export const evaluateOasMutations = async (
             newMethod: shuffledNonExistingMethods[i],
           })),
         });
-        if (methodsToRemove.length === 0 && methodsToChange.length === 1) {
-          methodMismatched.push({
-            oldMethod: methodsToChange[0],
-            newMethod: shuffledNonExistingMethods[0],
-            pathParts,
-          });
-        } else {
-          for (const [i, method] of methodsToChange.entries()) {
-            removedEndpoints.push([method, pathParts]);
-            addedEndpoints.push([shuffledNonExistingMethods[i], pathParts]);
-          }
+
+        const removedMethods = pathToRemovedMethods.get(path) ?? new Set();
+        const addedMethods = pathToAddedMethods.get(path) ?? new Set<Method>();
+
+        for (const [i, method] of methodsToChange.entries()) {
+          const newMethod = shuffledNonExistingMethods[i];
+
+          removedMethods.add(method);
+          addedMethods.add(newMethod);
         }
+
+        pathToRemovedMethods.set(path, removedMethods);
+        pathToAddedMethods.set(path, addedMethods);
       }
     }
+
+    const handledFailIndices = new Set<number>();
+    const oasIdToEndpoint = oasParseEndpoints(oas);
+
+    const expectedOnlyInOas: { method: Method; pathParts: PathPart[] }[] = [];
+    const expectedOnlyInDoc: (
+      | {
+          type: 'oas-equivalent';
+          method: Method;
+          pathParts: PathPart[];
+        }
+      | { type: 'doc-endpoint'; method: Method; originalPath: string }
+    )[] = [];
+    const expectedMatchWithMethodMismatch: {
+      oasMethod: Method;
+      docMethod: Method;
+      pathParts: PathPart[];
+    }[] = [];
+
+    for (const [path, pathItem] of objectEntries(paths)) {
+      const removedMethods = pathToRemovedMethods.get(path) ?? new Set();
+      const addedMethods = pathToAddedMethods.get(path) ?? new Set();
+
+      const onlyInOasMethods = new Set<Method>();
+      const onlyInDocMethods = new Set<Method>();
+      const docMethodToPath = new Map<Method, string>();
+
+      for (const [i, fail] of nonMutatedFailOutput.entries()) {
+        switch (fail.type) {
+          case 'only-in-oas':
+            if (oasPathPartsToPath(fail.endpoint.pathParts) !== path) continue;
+            onlyInOasMethods.add(fail.endpoint.method);
+            handledFailIndices.add(i);
+            break;
+          case 'only-in-doc':
+            const method = methods.find(m => pathItem?.[m]);
+            assert(method !== void 0);
+            const oasEndpoint = oasIdToEndpoint.get(`${method} ${path}`);
+            assert(oasEndpoint !== void 0);
+            if (!areEqualEndpoints(oasEndpoint, { ...fail.endpoint, method })) {
+              continue;
+            }
+            onlyInDocMethods.add(fail.endpoint.method);
+            handledFailIndices.add(i);
+            break;
+          case 'match-with-inconsistenties':
+            if (oasPathPartsToPath(fail.oasEndpoint.pathParts) !== path) {
+              continue;
+            }
+            docMethodToPath.set(
+              fail.docEndpoint.method,
+              fail.docEndpoint.originalPath,
+            );
+            for (const inc of fail.inconsistencies) {
+              switch (inc.type) {
+                case 'method-mismatch':
+                  onlyInOasMethods.add(fail.oasEndpoint.method);
+                  onlyInDocMethods.add(fail.docEndpoint.method);
+                  break;
+              }
+            }
+            handledFailIndices.add(i);
+            break;
+          default:
+            throw new Error(`Unknown fail type: ${fail}`);
+        }
+      }
+
+      const pathParts = oasParsePath(path);
+
+      const newOnlyInOasMethods = new Set([
+        ...[...onlyInOasMethods].filter(m => !removedMethods.has(m)),
+        ...[...addedMethods].filter(m => !onlyInDocMethods.has(m)),
+      ]);
+
+      const newOnlyInDocMethods = new Set([
+        ...[...onlyInDocMethods].filter(m => !addedMethods.has(m)),
+        ...[...removedMethods].filter(m => !onlyInOasMethods.has(m)),
+      ]);
+
+      if (newOnlyInOasMethods.size === 1 && newOnlyInDocMethods.size === 1) {
+        const oasMethod = newOnlyInOasMethods[0];
+        const docMethod = newOnlyInDocMethods[0];
+        if (oasMethod === docMethod) continue;
+        expectedMatchWithMethodMismatch.push({
+          oasMethod: newOnlyInOasMethods[0],
+          docMethod: newOnlyInDocMethods[0],
+          pathParts,
+        });
+        continue;
+      }
+
+      for (const method of newOnlyInOasMethods) {
+        expectedOnlyInOas.push({ method, pathParts });
+      }
+
+      for (const method of newOnlyInDocMethods) {
+        const docPath = docMethodToPath.get(method);
+        expectedOnlyInDoc.push(
+          docPath
+            ? { type: 'doc-endpoint', method, originalPath: docPath }
+            : { type: 'oas-equivalent', method, pathParts },
+        );
+      }
+    }
+
+    const nonHandledFails = nonMutatedFailOutput.filter(
+      (_, i) => !handledFailIndices.has(i),
+    );
 
     for (let i = 0; i < maxAddPath; i++) {
       if (rng() < probAddPath) continue;
@@ -219,17 +347,20 @@ export const evaluateOasMutations = async (
       mutations.addEndpoints.push({ path, methods: methodsToAdd });
       const pathParts = oasParsePath(path);
       for (const method of methodsToAdd) {
-        addedEndpoints.push([method, pathParts]);
+        expectedOnlyInOas.push({ method, pathParts });
       }
     }
 
-    const mutatedOas = oasMutate(oas, mutations);
+    const mutatedOas = oasMutate(oasNoCircular, mutations);
 
     const dirPath = join(baseDirPath, `iteration_${i}`);
     await mkdir(dirPath, { recursive: true });
 
     const mutatedOasPath = join(dirPath, 'oas.json');
     await writeFile(mutatedOasPath, JSON.stringify(mutatedOas, null, 2));
+
+    getInputMock.mockReset();
+    setFailedMock.mockReset();
 
     getInputMock.mockImplementation((name: string): string => {
       switch (name) {
@@ -248,7 +379,8 @@ export const evaluateOasMutations = async (
       mutations.removeEndpoints.length === 0 &&
       mutations.removePaths.length === 0 &&
       mutations.addEndpoints.length === 0 &&
-      setFailedMock.mock.calls.length === 0
+      setFailedMock.mock.calls.length === 0 &&
+      nonMutatedFailOutput.length === 0
     ) {
       correctCount++;
       await rm(dirPath, { recursive: true, force: true });
@@ -258,65 +390,109 @@ export const evaluateOasMutations = async (
         setFailedMock.mock.calls[0][0] as string,
       );
 
-      const matchedRemovedIndices = new Set<number>();
-      const matchedAddedIndices = new Set<number>();
-      const matchedMethodMismatchedIndices = new Set<number>();
-
-      const unhandledInconsistencies: Inconsistency[] = [];
+      const matchedOnlyInOasIndices = new Set<number>();
+      const matchedOnlyInDocIndices = new Set<number>();
+      const matchedWithInconsistenciesIndices = new Set<number>();
+      const matchedNonHandledIndices = new Set<number>();
 
       for (const fail of failOutput) {
         switch (fail.type) {
-          case 'only-in-doc':
-            const removedEndpointIndex = removedEndpoints.findIndex(
-              ([m, pp], idx) =>
-                !matchedRemovedIndices.has(idx) &&
-                fail.endpoint.method === m &&
-                areEqualPaths(
-                  fail.endpoint.pathParts.slice(
-                    fail.endpoint.pathParts.length - pp.length,
-                  ),
-                  pp,
-                ),
-            );
-            if (removedEndpointIndex === -1) {
-              console.log(fail);
-              continue;
-            }
-            matchedRemovedIndices.add(removedEndpointIndex);
-            break;
           case 'only-in-oas':
-            const addedEndpointIndex = addedEndpoints.findIndex(
-              ([method, pathParts], idx) =>
-                !matchedAddedIndices.has(idx) &&
-                fail.endpoint.method === method &&
-                areEqualPaths(fail.endpoint.pathParts, pathParts),
-            );
-            if (addedEndpointIndex === -1) continue;
-            matchedAddedIndices.add(addedEndpointIndex);
+            {
+              const i = expectedOnlyInOas.findIndex(
+                expectedFail =>
+                  expectedFail.method === fail.endpoint.method &&
+                  isEqual(expectedFail.pathParts, fail.endpoint.pathParts),
+              );
+              if (i !== -1) {
+                matchedOnlyInOasIndices.add(i);
+                break;
+              }
+              const j = nonHandledFails.findIndex(
+                expectedFail =>
+                  expectedFail.type === 'only-in-oas' &&
+                  expectedFail.endpoint.method === fail.endpoint.method &&
+                  isEqual(
+                    expectedFail.endpoint.pathParts,
+                    fail.endpoint.pathParts,
+                  ),
+              );
+              if (j !== -1) {
+                matchedNonHandledIndices.add(j);
+                break;
+              }
+            }
+            break;
+          case 'only-in-doc':
+            {
+              const index = expectedOnlyInDoc.findIndex(expectedFail =>
+                expectedFail.type === 'oas-equivalent'
+                  ? expectedFail.method === fail.endpoint.method &&
+                    areEqualPaths(
+                      expectedFail.pathParts,
+                      fail.endpoint.pathParts.slice(
+                        fail.endpoint.pathParts.length -
+                          expectedFail.pathParts.length,
+                      ),
+                    )
+                  : expectedFail.method === fail.endpoint.method &&
+                    expectedFail.originalPath === fail.endpoint.originalPath,
+              );
+              if (index !== -1) {
+                matchedOnlyInDocIndices.add(index);
+                break;
+              }
+
+              const j = nonHandledFails.findIndex(
+                expectedFail =>
+                  expectedFail.type === 'only-in-doc' &&
+                  expectedFail.endpoint.method === fail.endpoint.method &&
+                  areEqualPaths(
+                    expectedFail.endpoint.pathParts,
+                    fail.endpoint.pathParts.slice(
+                      fail.endpoint.pathParts.length -
+                        expectedFail.endpoint.pathParts.length,
+                    ),
+                  ),
+              );
+              if (j !== -1) {
+                matchedNonHandledIndices.add(j);
+                break;
+              }
+            }
             break;
           case 'match-with-inconsistenties':
-            for (const i of fail.inconsistencies) {
-              switch (i.type) {
-                case 'method-mismatch':
-                  const methodMismatchedIndex = methodMismatched.findIndex(
-                    ({ newMethod, oldMethod, pathParts }, idx) =>
-                      !matchedMethodMismatchedIndices.has(idx) &&
-                      fail.oasEndpoint.method === newMethod &&
-                      fail.docEndpoint.method === oldMethod &&
-                      areEqualPaths(fail.oasEndpoint.pathParts, pathParts) &&
-                      areEqualPaths(
-                        fail.docEndpoint.pathParts.slice(
-                          fail.docEndpoint.pathParts.length - pathParts.length,
-                        ),
-                        pathParts,
-                      ),
-                  );
-                  if (methodMismatchedIndex === -1) continue;
-                  matchedMethodMismatchedIndices.add(methodMismatchedIndex);
-                  break;
-                default:
-                  unhandledInconsistencies.push(i);
-              }
+            const j = nonHandledFails.findIndex(expectedFail =>
+              isEqual(expectedFail, fail),
+            );
+
+            if (j !== -1) {
+              matchedNonHandledIndices.add(j);
+              break;
+            }
+
+            const methodMismatch = fail.inconsistencies.find(
+              i => i.type === 'method-mismatch',
+            );
+            if (methodMismatch === void 0) continue;
+            const index = expectedMatchWithMethodMismatch.findIndex(
+              expectedFail =>
+                expectedFail.oasMethod === fail.oasEndpoint.method &&
+                expectedFail.docMethod === fail.docEndpoint.method &&
+                areEqualPaths(
+                  expectedFail.pathParts,
+                  fail.oasEndpoint.pathParts,
+                ) &&
+                areEqualPaths(
+                  expectedFail.pathParts,
+                  fail.oasEndpoint.pathParts.slice(
+                    fail.oasEndpoint.pathParts.length -
+                      expectedFail.pathParts.length,
+                  ),
+                ),
+            );
+            if (index !== -1) {
+              matchedWithInconsistenciesIndices.add(index);
             }
             break;
           default:
@@ -325,22 +501,17 @@ export const evaluateOasMutations = async (
       }
 
       if (
-        failOutput.length ===
-          removedEndpoints.length +
-            addedEndpoints.length +
-            methodMismatched.length &&
-        removedEndpoints.length === matchedRemovedIndices.size &&
-        addedEndpoints.length === matchedAddedIndices.size &&
-        methodMismatched.length === matchedMethodMismatchedIndices.size &&
-        unhandledInconsistencies.length === 0
+        expectedOnlyInOas.every((_, i) => matchedOnlyInOasIndices.has(i)) &&
+        expectedOnlyInDoc.every((_, i) => matchedOnlyInDocIndices.has(i)) &&
+        expectedMatchWithMethodMismatch.every((_, i) =>
+          matchedWithInconsistenciesIndices.has(i),
+        ) &&
+        nonHandledFails.every((_, i) => matchedNonHandledIndices.has(i))
       ) {
         correctCount++;
         await rm(dirPath, { recursive: true, force: true });
       }
     }
-
-    getInputMock.mockReset();
-    setFailedMock.mockReset();
   }
   console.info(
     `Got ${correctCount}/${scenarios} correct (${Math.floor((correctCount / scenarios) * 100)}%) on ${repoName}`,

@@ -153,17 +153,22 @@ export const extractPaths = (str: string) => {
   const optionalParamPatern = `\\[(\\/:\\w+)\\]`;
   const reg = new RegExp(
     `(?<=\\s|^)(((http[s]?|ws[s]?):\\/\\/)?([\\w\\-]+\\.)+\\w+)?((\\/([\\w\\-]+|:\\w+|\\{\\w+\\}|<\\w+>|\\[[\\w\\s]+\\])|${optionalParamPatern})+\\/?|\\/)(\\?.*)?(?=\\s|$)`,
+    'g',
   );
   const match = str.match(reg);
   if (!match) return [];
-  const [path] = match;
-  if (path.includes('[/:')) {
+  const res: string[] = [];
+  for (const path of match) {
+    if (!path.includes('[/:')) {
+      res.push(path);
+      continue;
+    }
     const optionalParamRegex = new RegExp(optionalParamPatern);
     const path1 = path.replace(optionalParamRegex, '');
     const path2 = path.replace(optionalParamRegex, '$1');
-    return [path1, path2];
+    res.push(path1, path2);
   }
-  return [path];
+  return res;
 };
 
 export const docParse = async (docPath: string) => {

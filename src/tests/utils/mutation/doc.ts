@@ -10,7 +10,7 @@ import { FailOutput, Method, methods } from '../../../parsing';
 import { docParse, docStringify } from '../../../parsing/markdown';
 import { oasParse, oasPathPartsToPath } from '../../../parsing/openapi';
 import { objectEntries, shuffle } from '../../../utils';
-import { isEqual } from 'lodash-es';
+import { isEqual, sortBy } from 'lodash-es';
 
 export type DocMutationsOptions = {
   scenarios: number;
@@ -93,9 +93,9 @@ export const evaluateDocMutations = async (
   for (let i = 1; i <= scenarios; i++) {
     nonMutatedOnlyInOas.forEach((_, k, map) => map.set(k, 0));
     nonMutatedOnlyInDoc.forEach((_, k, map) => map.set(k, 0));
-    const nNonMutatedFailsWithIncs = Array(nonMutatedFailsWithIncs.length).fill(
-      0,
-    );
+    const nNonMutatedFailsWithIncs = Array<number>(
+      nonMutatedFailsWithIncs.length,
+    ).fill(0);
 
     const tree = await docParse(pathDocLocal);
     const nParts = 2 + Math.round(rng() * 3);
@@ -104,12 +104,15 @@ export const evaluateDocMutations = async (
     const partsSet = new Set(parts);
     const splits = [tree, ...parts];
 
-    const partsPositions = splits.map(part => {
-      const { position } = part;
-      assert(position);
-      const { start, end } = position;
-      return [start.line, end.line];
-    });
+    const partsPositions = sortBy(
+      splits.map(part => {
+        const { position } = part;
+        assert(position);
+        const { start, end } = position;
+        return [start.line, end.line];
+      }),
+      ([start]) => start,
+    );
 
     const partsRanges: (readonly [number, number])[][] = [];
     for (const [i, [startI, endI]] of partsPositions.entries()) {
@@ -248,14 +251,14 @@ export const evaluateDocMutations = async (
     }
 
     if (
-      (!hasUnexpectedFail &&
-        [...endpointKeyToNFails.entries()].every(
-          ([k, n]) => n === nParts - (endpointKeyToNSection.get(k) ?? 1),
-        ) &&
-        [...nonMutatedOnlyInOas.values()].every(n => n === nParts),
+      !hasUnexpectedFail &&
+      [...endpointKeyToNFails.entries()].every(
+        ([k, n]) => n === nParts - (endpointKeyToNSection.get(k) ?? 1),
+      ) &&
+      [...nonMutatedOnlyInOas.values()].every(n => n === nParts) &&
       [...nonMutatedOnlyInDoc.values(), ...nNonMutatedFailsWithIncs].every(
         n => n === 1,
-      ))
+      )
     ) {
       correctCount++;
       await rm(dirPath, { recursive: true, force: true });

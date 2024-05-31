@@ -110,9 +110,11 @@ export const oasParseEndpoints = (oas: OasDocument) => {
   return oasIdToEndpoint;
 };
 
-export const oasParse = async (oasPath: string) => {
+export const oasParse = async (oasPath: string, shouldDereference = true) => {
   // TODO changed this from validate, should maybe show warnings if oas not valid
-  const oasDoc = await SwaggerParser.dereference(oasPath);
+  const oasDoc = shouldDereference
+    ? await SwaggerParser.dereference(oasPath)
+    : await SwaggerParser.bundle(oasPath);
   const oas = isV2(oasDoc) ? (await convertFile(oasPath, {})).openapi : oasDoc;
   return oas;
 };

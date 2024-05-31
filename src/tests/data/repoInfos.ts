@@ -25,6 +25,12 @@ export const repoInfos = {
     pathOas: 'plugins/catalog-backend/src/schema/openapi.yaml',
     pathDoc: 'docs/features/software-catalog/api.md',
   },
+  'backstage/backstage_2': {
+    repoName: 'backstage/backstage',
+    sha: '055adf01258c555ce38a702ec96d3e3ab5f2f6f2',
+    pathOas: 'plugins/catalog-backend/src/schema/openapi.yaml',
+    pathDoc: 'docs/features/software-catalog/api.md',
+  },
   'DeviceFarmer/stf': {
     repoName: 'DeviceFarmer/stf',
     sha: '7553c8b88df68bfba60e36d3abd6f9deb8a4ce65',

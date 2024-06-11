@@ -1,7 +1,12 @@
 import assert from 'assert';
-import { zip } from 'lodash-es';
+import { isEqual, zip } from 'lodash-es';
 import { singular } from 'pluralize';
-import { DocEndpoint, Inconsistency, OasEndpoint, PathPart } from './parsing';
+import {
+  DocRequestConfig,
+  Inconsistency,
+  OasRequestConfig,
+  PathSeg,
+} from './parsing';
 import { makeKey, mapGetOrSetDefault } from './utils';
 
 const addEdges = (
@@ -157,7 +162,7 @@ type MatchResult = {
   unmatchedDoc: number[];
 };
 
-const matchEndpoints = (
+const matchRequestConfigs = (
   groups: [number[], number[]][],
   inconsistencyMap: Map<string, Inconsistency[]>,
 ) => {
@@ -176,11 +181,11 @@ const matchEndpoints = (
       const doc = docGroup[0];
       assert(
         oas !== void 0 && unmatchedOas.has(oas),
-        `Oas endpoint with index ${oas} should be defined and unmatched`,
+        `Oas requestConfig with index ${oas} should be defined and unmatched`,
       );
       assert(
         doc !== void 0 && unmatchedDoc.has(doc),
-        `Doc endpoint with index ${doc} should be defined and unmatched`,
+        `Doc requestConfig with index ${doc} should be defined and unmatched`,
       );
       res.bestMatchesOasToDoc.push([oas, doc]);
       unmatchedOas.delete(oas);
@@ -198,11 +203,11 @@ const matchEndpoints = (
       if (i1 === void 0 || i2 === void 0) continue;
       assert(
         unmatchedOas.has(i1),
-        `Oas endpoint with index ${i1} should be unmatched`,
+        `Oas requestConfig with index ${i1} should be unmatched`,
       );
       assert(
         unmatchedDoc.has(i2),
-        `Doc endpoint with index ${i2} should be unmatched`,
+        `Doc requestConfig with index ${i2} should be unmatched`,
       );
       res.bestMatchesOasToDoc.push([i1, i2]);
       unmatchedOas.delete(i1);
@@ -229,7 +234,7 @@ export const findBestMatches = (
   inconsistenciesMap: Map<string, Inconsistency[]>,
 ) => {
   const groups = getGroups(oasIndexToDocIndices, docIndexToOasIndices);
-  return matchEndpoints(groups, inconsistenciesMap);
+  return matchRequestConfigs(groups, inconsistenciesMap);
 };
 
 const normalizeParam = (param: string) =>
@@ -241,9 +246,9 @@ const normalizeParam = (param: string) =>
     .trim();
 
 export const areEqualParams = (
-  path1: PathPart[],
+  path1: PathSeg[],
   index1: number,
-  path2: PathPart[],
+  path2: PathSeg[],
   index2: number,
 ) => {
   const param1 = path1[index1];
@@ -273,7 +278,7 @@ export const areEqualParams = (
   );
 };
 
-export const areEqualPaths = (path1: PathPart[], path2: PathPart[]) => {
+export const areEqualPaths = (path1: PathSeg[], path2: PathSeg[]) => {
   if (path1.length !== path2.length) return false;
   return path1.every((p1, i) => {
     const p2 = path2[i];
@@ -287,29 +292,33 @@ export const areEqualPaths = (path1: PathPart[], path2: PathPart[]) => {
   });
 };
 
-export const areEqualEndpoints = (
-  oasEndpoint: OasEndpoint,
-  docEndpoint: DocEndpoint,
+export const areEqualRequestConfig = (
+  oasRequestConfig: OasRequestConfig,
+  docRequestConfig: DocRequestConfig,
 ) => {
-  if (oasEndpoint.method !== docEndpoint.method) return false;
-  const { scheme, host } = docEndpoint;
+  if (oasRequestConfig.method !== docRequestConfig.method) return false;
+  const { scheme, host } = docRequestConfig;
   const docHasServer =
     scheme ||
     host ||
-    oasEndpoint.pathParts.length < docEndpoint.pathParts.length;
+    oasRequestConfig.pathSegs.length < docRequestConfig.pathSegs.length;
   const basePathStart =
-    oasEndpoint.pathParts.length - docEndpoint.pathParts.length;
+    oasRequestConfig.pathSegs.length - docRequestConfig.pathSegs.length;
   const server = docHasServer
-    ? oasEndpoint.servers.find(
+    ? oasRequestConfig.servers.find(
         s =>
-          (!scheme || s.schemes?.includes(scheme)) &&
+          (!scheme || s.scheme === scheme) &&
           (!host || s.host?.includes(host)) &&
-          (oasEndpoint.pathParts.length === docEndpoint.pathParts.length ||
+          (oasRequestConfig.pathSegs.length ===
+            docRequestConfig.pathSegs.length ||
             (s.basePath &&
               basePathStart < 0 &&
               areEqualPaths(
                 s.basePath.slice(basePathStart),
-                docEndpoint.pathParts.slice(0, -oasEndpoint.pathParts.length),
+                docRequestConfig.pathSegs.slice(
+                  0,
+                  -oasRequestConfig.pathSegs.length,
+                ),
               ))),
       )
     : null;
@@ -318,8 +327,39 @@ export const areEqualEndpoints = (
   return areEqualPaths(
     [
       ...(server?.basePath?.slice(basePathStart) ?? []),
-      ...oasEndpoint.pathParts,
+      ...oasRequestConfig.pathSegs,
     ],
-    docEndpoint.pathParts,
+    docRequestConfig.pathSegs,
   );
 };
+
+export const areDifferentPaths = (
+  oasRequestConfig: OasRequestConfig,
+  docRequestConfig: DocRequestConfig,
+) =>
+  ![
+    ...oasRequestConfig.servers,
+    { basePath: [] } satisfies (typeof oasRequestConfig.servers)[number],
+  ].some(s => {
+    const { basePath } = s;
+    if (oasRequestConfig.pathSegs.length > docRequestConfig.pathSegs.length) {
+      return false;
+    }
+    const lengthDiff =
+      basePath.length +
+      oasRequestConfig.pathSegs.length -
+      docRequestConfig.pathSegs.length;
+    if (lengthDiff < 0) return false;
+    const partialBasePath = basePath.slice(lengthDiff);
+    const oasPath = [...partialBasePath, ...oasRequestConfig.pathSegs];
+    return (
+      oasPath.length === docRequestConfig.pathSegs.length &&
+      oasPath.every((oasP, i) => {
+        const docP = docRequestConfig.pathSegs[i];
+        return (
+          (docP && oasP.type === 'parameter' && docP.type === 'parameter') ||
+          isEqual(oasP, docP)
+        );
+      })
+    );
+  });

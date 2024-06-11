@@ -10,13 +10,13 @@ import { RepoInfo, getOrDownload } from '..';
 import * as main from '../../../main';
 import { FailOutput, Method, methods } from '../../../parsing';
 import { docParse, docStringify } from '../../../parsing/markdown';
-import { oasParse, oasPathPartsToPath } from '../../../parsing/openapi';
+import { oasParse, oasPathSegsToPath } from '../../../parsing/openapi';
 import { objectEntries, shuffle } from '../../../utils';
 
 export type DocMutationsOptions = {
   scenarios: number;
   splitType: Nodes['type'];
-  multiInstanceEndpoints?: {
+  multiInstanceRequestConfigs?: {
     method: Method;
     path: string;
     instancesPos: number[];
@@ -29,7 +29,7 @@ export const evaluateDocMutations = async (
   options: DocMutationsOptions,
 ) => {
   const { repoName, sha, pathOas, pathDoc } = repoInfo;
-  const { scenarios, splitType, multiInstanceEndpoints = [] } = options;
+  const { scenarios, splitType, multiInstanceRequestConfigs = [] } = options;
   const { getInputMock, setFailedMock, rng } = testEnv;
 
   const githubBase = `https://github.com/${repoName}/blob/${sha}`;
@@ -75,13 +75,13 @@ export const evaluateDocMutations = async (
     switch (fail.type) {
       case 'only-in-doc':
         nonMutatedOnlyInDoc.set(
-          `${fail.endpoint.method} ${fail.endpoint.originalPath}`,
+          `${fail.requestConfig.method} ${fail.requestConfig.originalPath}`,
           0,
         );
         break;
       case 'only-in-oas':
         nonMutatedOnlyInOas.set(
-          `${fail.endpoint.method} ${oasPathPartsToPath(fail.endpoint.pathParts)}`,
+          `${fail.requestConfig.method} ${oasPathSegsToPath(fail.requestConfig.pathSegs)}`,
           0,
         );
         break;
@@ -140,8 +140,8 @@ export const evaluateDocMutations = async (
       partsRanges.push(range);
     }
 
-    const endpointKeyToNSection = new Map(
-      multiInstanceEndpoints.map(e => {
+    const requestConfigKeyToNSection = new Map(
+      multiInstanceRequestConfigs.map(e => {
         const nSections = new Set(
           e.instancesPos.map(p =>
             partsRanges.findIndex(rs =>
@@ -190,7 +190,7 @@ export const evaluateDocMutations = async (
       accFailOutput.push(...failOutput);
     }
 
-    const endpointKeyToNFails = new Map<string, number>();
+    const requestConfigKeyToNFails = new Map<string, number>();
 
     const oas = await oasParse(pathOasLocal);
     const { paths } = oas;
@@ -198,11 +198,11 @@ export const evaluateDocMutations = async (
     for (const [path, pathItem] of objectEntries(paths)) {
       if (!pathItem) continue;
       for (const method of methods) {
-        const operation = pathItem[method];
-        if (!operation) continue;
+        const requestConfig = pathItem[method];
+        if (!requestConfig) continue;
         const key = `${method} ${path}`;
         if (nonMutatedOnlyInOas.has(key)) continue;
-        endpointKeyToNFails.set(key, 0);
+        requestConfigKeyToNFails.set(key, 0);
       }
     }
 
@@ -212,13 +212,15 @@ export const evaluateDocMutations = async (
       switch (fail.type) {
         case 'only-in-oas':
           {
-            const key = `${fail.endpoint.method} ${oasPathPartsToPath(fail.endpoint.pathParts)}`;
-            const nFails = endpointKeyToNFails.get(key);
+            const key = `${fail.requestConfig.method} ${oasPathSegsToPath(fail.requestConfig.pathSegs)}`;
+            const nFails = requestConfigKeyToNFails.get(key);
             const nonMutatedNFails = nonMutatedOnlyInOas.get(key);
             if (nFails === void 0 && nonMutatedNFails === void 0) {
               hasUnexpectedFail = true;
             }
-            if (nFails !== void 0) endpointKeyToNFails.set(key, nFails + 1);
+            if (nFails !== void 0) {
+              requestConfigKeyToNFails.set(key, nFails + 1);
+            }
             if (nonMutatedNFails !== void 0) {
               nonMutatedOnlyInOas.set(key, nonMutatedNFails + 1);
             }
@@ -226,7 +228,7 @@ export const evaluateDocMutations = async (
           break;
         case 'only-in-doc':
           {
-            const key = `${fail.endpoint.method} ${fail.endpoint.originalPath}`;
+            const key = `${fail.requestConfig.method} ${fail.requestConfig.originalPath}`;
             const nonMutatedNFails = nonMutatedOnlyInDoc.get(key);
             if (nonMutatedNFails === void 0) hasUnexpectedFail = true;
             else nonMutatedOnlyInDoc.set(key, nonMutatedNFails + 1);
@@ -236,10 +238,14 @@ export const evaluateDocMutations = async (
           {
             const failWithIncsIndex = nonMutatedFailsWithIncs.findIndex(
               f =>
-                fail.oasEndpoint.method === f.oasEndpoint.method &&
-                isEqual(fail.oasEndpoint.pathParts, f.oasEndpoint.pathParts) &&
-                fail.docEndpoint.method === f.docEndpoint.method &&
-                fail.docEndpoint.originalPath === f.docEndpoint.originalPath,
+                fail.oasRequestConfig.method === f.oasRequestConfig.method &&
+                isEqual(
+                  fail.oasRequestConfig.pathSegs,
+                  f.oasRequestConfig.pathSegs,
+                ) &&
+                fail.docRequestConfig.method === f.docRequestConfig.method &&
+                fail.docRequestConfig.originalPath ===
+                  f.docRequestConfig.originalPath,
             );
             if (failWithIncsIndex === -1) {
               hasUnexpectedFail = true;
@@ -253,8 +259,8 @@ export const evaluateDocMutations = async (
 
     if (
       !hasUnexpectedFail &&
-      [...endpointKeyToNFails.entries()].every(
-        ([k, n]) => n === nParts - (endpointKeyToNSection.get(k) ?? 1),
+      [...requestConfigKeyToNFails.entries()].every(
+        ([k, n]) => n === nParts - (requestConfigKeyToNSection.get(k) ?? 1),
       ) &&
       [...nonMutatedOnlyInOas.values()].every(n => n === nParts) &&
       [...nonMutatedOnlyInDoc.values(), ...nNonMutatedFailsWithIncs].every(

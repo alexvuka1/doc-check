@@ -62,7 +62,7 @@ describe('action', () => {
           {
             scenarios: 100,
             probRemovePath: 0.1,
-            probRemoveEndpoint: 0.2,
+            probRemoveRequestConfig: 0.2,
             maxAddPath: 3,
             probAddPath: 0.3,
             probAddPathMethod: 0.1,

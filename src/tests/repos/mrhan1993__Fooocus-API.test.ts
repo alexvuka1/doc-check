@@ -23,19 +23,19 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [],
-          pathParts: [],
+          pathSegs: [],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'generation' },
             { type: 'literal', value: 'job-queue' },
@@ -45,10 +45,10 @@ describe('action', () => {
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/v1/engines/refresh-models',
           method: 'post',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'engines' },
             { type: 'literal', value: 'refresh-models' },
@@ -59,10 +59,10 @@ describe('action', () => {
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/v1/engines/job-queue',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'engines' },
             { type: 'literal', value: 'job-queue' },

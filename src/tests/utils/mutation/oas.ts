@@ -6,31 +6,31 @@ import { join } from 'path';
 import { MutationTestEnv } from '.';
 import { RepoInfo, getOrDownload } from '..';
 import * as main from '../../../main';
-import { areEqualEndpoints, areEqualPaths } from '../../../matching';
+import { areEqualRequestConfig, areEqualPaths } from '../../../matching';
 import {
   FailOutput,
   Method,
   OasDocument,
-  OasEndpoint,
-  PathPart,
+  OasRequestConfig,
+  PathSeg,
   methods,
 } from '../../../parsing';
 import {
   oasParse,
-  oasParseEndpoints,
+  oasParseRequestConfigs,
   oasParsePath,
-  oasPathPartsToPath,
+  oasPathSegsToPath,
 } from '../../../parsing/openapi';
 import { objectEntries, shuffle } from '../../../utils';
 
 export type OasMutations = {
   removePaths: string[];
-  removeEndpoints: { path: string; methods: Method[] }[];
+  removeRequestConfigs: { path: string; methods: Method[] }[];
   changeMethods: {
     path: string;
     changes: { oldMethod: Method; newMethod: Method }[];
   }[];
-  addEndpoints: { path: string; methods: Method[] }[];
+  addRequestConfigs: { path: string; methods: Method[] }[];
 };
 
 export const oasMutate = (oas: OasDocument, oasMutations: OasMutations) => {
@@ -39,7 +39,7 @@ export const oasMutate = (oas: OasDocument, oasMutations: OasMutations) => {
 
   const pathsToRemove = new Set<string>(oasMutations.removePaths);
   const pathToMethodsToRemove = new Map<string, Set<Method>>(
-    oasMutations.removeEndpoints.map(re => [re.path, new Set(re.methods)]),
+    oasMutations.removeRequestConfigs.map(re => [re.path, new Set(re.methods)]),
   );
   const pathToMethodsToChange = new Map<string, Map<Method, Method>>(
     oasMutations.changeMethods.map(cm => [
@@ -68,7 +68,7 @@ export const oasMutate = (oas: OasDocument, oasMutations: OasMutations) => {
         }
         return [[path, newPathItem]];
       }),
-      ...oasMutations.addEndpoints.map(({ path, methods }) => [
+      ...oasMutations.addRequestConfigs.map(({ path, methods }) => [
         path,
         Object.fromEntries(
           methods.map(m => [
@@ -88,7 +88,7 @@ export const oasMutate = (oas: OasDocument, oasMutations: OasMutations) => {
 type OasMutationsOptions = {
   scenarios: number;
   probRemovePath: number;
-  probRemoveEndpoint: number;
+  probRemoveRequestConfig: number;
   maxAddPath: number;
   probAddPath: number;
   probAddPathMethod: number;
@@ -104,7 +104,7 @@ export const evaluateOasMutations = async (
   const {
     scenarios,
     probRemovePath,
-    probRemoveEndpoint,
+    probRemoveRequestConfig,
     maxAddPath,
     probAddPath,
     probAddPathMethod,
@@ -161,8 +161,8 @@ export const evaluateOasMutations = async (
 
     const mutations: OasMutations = {
       removePaths: [],
-      removeEndpoints: [],
-      addEndpoints: [],
+      removeRequestConfigs: [],
+      addRequestConfigs: [],
       changeMethods: [],
     };
 
@@ -181,24 +181,24 @@ export const evaluateOasMutations = async (
         m => pathItem?.[m],
       );
 
-      const methodsToRemove: OasEndpoint['method'][] = [];
-      const methodsToChange: OasEndpoint['method'][] = [];
+      const methodsToRemove: OasRequestConfig['method'][] = [];
+      const methodsToChange: OasRequestConfig['method'][] = [];
 
       for (const method of existingMethods) {
         assert(pathItem?.[method]);
         const x = rng();
-        if (x < probRemoveEndpoint) {
+        if (x < probRemoveRequestConfig) {
           methodsToRemove.push(method);
         } else if (
           nonExistingMethods.length > methodsToChange.length &&
-          x < probRemoveEndpoint + probChangeMethod
+          x < probRemoveRequestConfig + probChangeMethod
         ) {
           methodsToChange.push(method);
         }
       }
 
       if (methodsToRemove.length > 0) {
-        mutations.removeEndpoints.push({
+        mutations.removeRequestConfigs.push({
           path,
           methods: methodsToRemove,
         });
@@ -233,21 +233,21 @@ export const evaluateOasMutations = async (
     }
 
     const handledFailIndices = new Set<number>();
-    const oasIdToEndpoint = oasParseEndpoints(oas);
+    const oasIdToRequestConfig = oasParseRequestConfigs(oas);
 
-    const expectedOnlyInOas: { method: Method; pathParts: PathPart[] }[] = [];
+    const expectedOnlyInOas: { method: Method; pathSegs: PathSeg[] }[] = [];
     const expectedOnlyInDoc: (
       | {
           type: 'oas-equivalent';
           method: Method;
-          pathParts: PathPart[];
+          pathSegs: PathSeg[];
         }
-      | { type: 'doc-endpoint'; method: Method; originalPath: string }
+      | { type: 'doc-requestConfig'; method: Method; originalPath: string }
     )[] = [];
     const expectedMatchWithMethodMismatch: {
       oasMethod: Method;
       docMethod: Method;
-      pathParts: PathPart[];
+      pathSegs: PathSeg[];
     }[] = [];
 
     for (const [path, pathItem] of objectEntries(paths)) {
@@ -261,34 +261,43 @@ export const evaluateOasMutations = async (
       for (const [i, fail] of nonMutatedFailOutput.entries()) {
         switch (fail.type) {
           case 'only-in-oas':
-            if (oasPathPartsToPath(fail.endpoint.pathParts) !== path) continue;
-            onlyInOasMethods.add(fail.endpoint.method);
+            if (oasPathSegsToPath(fail.requestConfig.pathSegs) !== path) {
+              continue;
+            }
+            onlyInOasMethods.add(fail.requestConfig.method);
             handledFailIndices.add(i);
             break;
           case 'only-in-doc':
             const method = methods.find(m => pathItem?.[m]);
             assert(method !== void 0);
-            const oasEndpoint = oasIdToEndpoint.get(`${method} ${path}`);
-            assert(oasEndpoint !== void 0);
-            if (!areEqualEndpoints(oasEndpoint, { ...fail.endpoint, method })) {
+            const oasRequestConfig = oasIdToRequestConfig.get(
+              `${method} ${path}`,
+            );
+            assert(oasRequestConfig !== void 0);
+            if (
+              !areEqualRequestConfig(oasRequestConfig, {
+                ...fail.requestConfig,
+                method,
+              })
+            ) {
               continue;
             }
-            onlyInDocMethods.add(fail.endpoint.method);
+            onlyInDocMethods.add(fail.requestConfig.method);
             handledFailIndices.add(i);
             break;
           case 'match-with-inconsistenties':
-            if (oasPathPartsToPath(fail.oasEndpoint.pathParts) !== path) {
+            if (oasPathSegsToPath(fail.oasRequestConfig.pathSegs) !== path) {
               continue;
             }
             docMethodToPath.set(
-              fail.docEndpoint.method,
-              fail.docEndpoint.originalPath,
+              fail.docRequestConfig.method,
+              fail.docRequestConfig.originalPath,
             );
             for (const inc of fail.inconsistencies) {
               switch (inc.type) {
                 case 'method-mismatch':
-                  onlyInOasMethods.add(fail.oasEndpoint.method);
-                  onlyInDocMethods.add(fail.docEndpoint.method);
+                  onlyInOasMethods.add(fail.oasRequestConfig.method);
+                  onlyInDocMethods.add(fail.docRequestConfig.method);
                   break;
               }
             }
@@ -299,7 +308,7 @@ export const evaluateOasMutations = async (
         }
       }
 
-      const pathParts = oasParsePath(path);
+      const pathSegs = oasParsePath(path);
 
       const newOnlyInOasMethods = new Set([
         ...[...onlyInOasMethods].filter(m => !removedMethods.has(m)),
@@ -320,21 +329,21 @@ export const evaluateOasMutations = async (
         expectedMatchWithMethodMismatch.push({
           oasMethod,
           docMethod,
-          pathParts,
+          pathSegs,
         });
         continue;
       }
 
       for (const method of newOnlyInOasMethods) {
-        expectedOnlyInOas.push({ method, pathParts });
+        expectedOnlyInOas.push({ method, pathSegs });
       }
 
       for (const method of newOnlyInDocMethods) {
         const docPath = docMethodToPath.get(method);
         expectedOnlyInDoc.push(
           docPath
-            ? { type: 'doc-endpoint', method, originalPath: docPath }
-            : { type: 'oas-equivalent', method, pathParts },
+            ? { type: 'doc-requestConfig', method, originalPath: docPath }
+            : { type: 'oas-equivalent', method, pathSegs },
         );
       }
     }
@@ -348,10 +357,10 @@ export const evaluateOasMutations = async (
       const methodsToAdd = methods.filter(() => rng() < probAddPathMethod);
       if (methodsToAdd.length === 0) continue;
       const path = `/doc-check/mutation-test/${i}`;
-      mutations.addEndpoints.push({ path, methods: methodsToAdd });
-      const pathParts = oasParsePath(path);
+      mutations.addRequestConfigs.push({ path, methods: methodsToAdd });
+      const pathSegs = oasParsePath(path);
       for (const method of methodsToAdd) {
-        expectedOnlyInOas.push({ method, pathParts });
+        expectedOnlyInOas.push({ method, pathSegs });
       }
     }
 
@@ -380,9 +389,9 @@ export const evaluateOasMutations = async (
     await main.run();
 
     if (
-      mutations.removeEndpoints.length === 0 &&
+      mutations.removeRequestConfigs.length === 0 &&
       mutations.removePaths.length === 0 &&
-      mutations.addEndpoints.length === 0 &&
+      mutations.addRequestConfigs.length === 0 &&
       setFailedMock.mock.calls.length === 0 &&
       nonMutatedFailOutput.length === 0
     ) {
@@ -405,8 +414,8 @@ export const evaluateOasMutations = async (
             {
               const i = expectedOnlyInOas.findIndex(
                 expectedFail =>
-                  expectedFail.method === fail.endpoint.method &&
-                  isEqual(expectedFail.pathParts, fail.endpoint.pathParts),
+                  expectedFail.method === fail.requestConfig.method &&
+                  isEqual(expectedFail.pathSegs, fail.requestConfig.pathSegs),
               );
               if (i !== -1) {
                 matchedOnlyInOasIndices.add(i);
@@ -415,10 +424,11 @@ export const evaluateOasMutations = async (
               const j = nonHandledFails.findIndex(
                 expectedFail =>
                   expectedFail.type === 'only-in-oas' &&
-                  expectedFail.endpoint.method === fail.endpoint.method &&
+                  expectedFail.requestConfig.method ===
+                    fail.requestConfig.method &&
                   isEqual(
-                    expectedFail.endpoint.pathParts,
-                    fail.endpoint.pathParts,
+                    expectedFail.requestConfig.pathSegs,
+                    fail.requestConfig.pathSegs,
                   ),
               );
               if (j !== -1) {
@@ -431,16 +441,17 @@ export const evaluateOasMutations = async (
             {
               const index = expectedOnlyInDoc.findIndex(expectedFail =>
                 expectedFail.type === 'oas-equivalent'
-                  ? expectedFail.method === fail.endpoint.method &&
+                  ? expectedFail.method === fail.requestConfig.method &&
                     areEqualPaths(
-                      expectedFail.pathParts,
-                      fail.endpoint.pathParts.slice(
-                        fail.endpoint.pathParts.length -
-                          expectedFail.pathParts.length,
+                      expectedFail.pathSegs,
+                      fail.requestConfig.pathSegs.slice(
+                        fail.requestConfig.pathSegs.length -
+                          expectedFail.pathSegs.length,
                       ),
                     )
-                  : expectedFail.method === fail.endpoint.method &&
-                    expectedFail.originalPath === fail.endpoint.originalPath,
+                  : expectedFail.method === fail.requestConfig.method &&
+                    expectedFail.originalPath ===
+                      fail.requestConfig.originalPath,
               );
               if (index !== -1) {
                 matchedOnlyInDocIndices.add(index);
@@ -450,12 +461,13 @@ export const evaluateOasMutations = async (
               const j = nonHandledFails.findIndex(
                 expectedFail =>
                   expectedFail.type === 'only-in-doc' &&
-                  expectedFail.endpoint.method === fail.endpoint.method &&
+                  expectedFail.requestConfig.method ===
+                    fail.requestConfig.method &&
                   areEqualPaths(
-                    expectedFail.endpoint.pathParts,
-                    fail.endpoint.pathParts.slice(
-                      fail.endpoint.pathParts.length -
-                        expectedFail.endpoint.pathParts.length,
+                    expectedFail.requestConfig.pathSegs,
+                    fail.requestConfig.pathSegs.slice(
+                      fail.requestConfig.pathSegs.length -
+                        expectedFail.requestConfig.pathSegs.length,
                     ),
                   ),
               );
@@ -481,17 +493,17 @@ export const evaluateOasMutations = async (
             if (methodMismatch === void 0) continue;
             const index = expectedMatchWithMethodMismatch.findIndex(
               expectedFail =>
-                expectedFail.oasMethod === fail.oasEndpoint.method &&
-                expectedFail.docMethod === fail.docEndpoint.method &&
+                expectedFail.oasMethod === fail.oasRequestConfig.method &&
+                expectedFail.docMethod === fail.docRequestConfig.method &&
                 areEqualPaths(
-                  expectedFail.pathParts,
-                  fail.oasEndpoint.pathParts,
+                  expectedFail.pathSegs,
+                  fail.oasRequestConfig.pathSegs,
                 ) &&
                 areEqualPaths(
-                  expectedFail.pathParts,
-                  fail.oasEndpoint.pathParts.slice(
-                    fail.oasEndpoint.pathParts.length -
-                      expectedFail.pathParts.length,
+                  expectedFail.pathSegs,
+                  fail.oasRequestConfig.pathSegs.slice(
+                    fail.oasRequestConfig.pathSegs.length -
+                      expectedFail.pathSegs.length,
                   ),
                 ),
             );

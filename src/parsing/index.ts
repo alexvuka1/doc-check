@@ -8,29 +8,34 @@ export type Method = (typeof methods)[number];
 export const validSchemes = ['https', 'http', 'ws', 'wss'] as const;
 export type Scheme = (typeof validSchemes)[number];
 
-export type PathPart =
+export type PathSeg =
   | { type: 'literal'; value: string }
   | { type: 'parameter'; name: string };
 
-export type BaseEndpoint = {
-  pathParts: PathPart[];
+export type BaseRequestConfig = {
+  pathSegs: PathSeg[];
   method: Method;
 };
 
 export type OasDocument = OpenAPIV3.Document | OpenAPIV3_1.Document;
 
-export type OasServerInfo = Partial<{
-  schemes: Scheme[];
-  host: string;
-  basePath: PathPart[];
-}>;
-
-export type OasEndpoint = BaseEndpoint & {
-  servers: OasServerInfo[];
-  queryParameters: { name: string; required: boolean }[];
+export type OasServerInfo = {
+  scheme?: Scheme | undefined;
+  host?: string | undefined;
+  basePath: PathSeg[];
 };
 
-export type DocEndpoint = BaseEndpoint & {
+type OasQueryParam = {
+  name: string;
+  required: boolean;
+};
+
+export type OasRequestConfig = BaseRequestConfig & {
+  servers: OasServerInfo[];
+  queryParameters: OasQueryParam[];
+};
+
+export type DocRequestConfig = BaseRequestConfig & {
   originalPath: string;
   scheme?: Scheme;
   host?: string;
@@ -49,7 +54,7 @@ export type Inconsistency =
     }
   | {
       type: 'host-mismatch';
-      oasHost: OasEndpoint['servers'][number]['host'];
+      oasHost: OasRequestConfig['servers'][number]['host'];
     }
   | {
       type: 'doc-scheme-not-supported-by-oas-server';
@@ -58,16 +63,16 @@ export type Inconsistency =
 export type OutputInconsistency =
   | {
       type: 'only-in-doc';
-      endpoint: DocEndpoint;
+      requestConfig: DocRequestConfig;
     }
   | {
       type: 'only-in-oas';
-      endpoint: OasEndpoint;
+      requestConfig: OasRequestConfig;
     }
   | {
       type: 'match-with-inconsistenties';
-      oasEndpoint: OasEndpoint;
-      docEndpoint: DocEndpoint;
+      oasRequestConfig: OasRequestConfig;
+      docRequestConfig: DocRequestConfig;
       inconsistencies: Inconsistency[];
     };
 

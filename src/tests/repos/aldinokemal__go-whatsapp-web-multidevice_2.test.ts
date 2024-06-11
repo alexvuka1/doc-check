@@ -15,54 +15,16 @@ describe('action', () => {
     debugMock.mockReset();
   });
 
-  it('handles aldinokemal/go-whatsapp-web-multidevice', async () => {
+  it('handles aldinokemal/go-whatsapp-web-multidevice_2', async () => {
     await setupInputRepo(
       getInputMock,
-      repoInfos['aldinokemal/go-whatsapp-web-multidevice'],
+      repoInfos['aldinokemal/go-whatsapp-web-multidevice_2'],
     );
 
     await main.run();
 
+    // console.log(setFailedMock.mock.calls[0]?.[0]);
     expectFail(setFailedMock).toEqual([
-      {
-        type: 'only-in-oas',
-        requestConfig: {
-          method: 'get',
-          servers: [{ scheme: 'http', basePath: [], host: 'localhost:3000' }],
-          pathSegs: [
-            { type: 'literal', value: 'app' },
-            { type: 'literal', value: 'devices' },
-          ],
-          queryParameters: [],
-        },
-      },
-      {
-        type: 'only-in-oas',
-        requestConfig: {
-          method: 'post',
-          servers: [{ scheme: 'http', basePath: [], host: 'localhost:3000' }],
-          pathSegs: [
-            { type: 'literal', value: 'message' },
-            { type: 'parameter', name: 'message_id' },
-            { type: 'literal', value: 'reaction' },
-          ],
-          queryParameters: [],
-        },
-      },
-      {
-        type: 'only-in-doc',
-        requestConfig: {
-          originalPath: '/message/:message_id/react',
-          method: 'post',
-          pathSegs: [
-            { type: 'literal', value: 'message' },
-            { type: 'parameter', name: 'message_id' },
-            { type: 'literal', value: 'react' },
-          ],
-          queryParameters: [],
-          line: 118,
-        },
-      },
       {
         type: 'only-in-doc',
         requestConfig: {
@@ -73,7 +35,7 @@ describe('action', () => {
             { type: 'literal', value: 'participants' },
           ],
           queryParameters: [],
-          line: 124,
+          line: 128,
         },
       },
       {
@@ -87,7 +49,7 @@ describe('action', () => {
             { type: 'literal', value: 'promote' },
           ],
           queryParameters: [],
-          line: 125,
+          line: 129,
         },
       },
       {
@@ -101,7 +63,7 @@ describe('action', () => {
             { type: 'literal', value: 'demote' },
           ],
           queryParameters: [],
-          line: 126,
+          line: 130,
         },
       },
     ]);

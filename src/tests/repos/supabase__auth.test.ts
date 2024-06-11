@@ -23,11 +23,11 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -35,17 +35,17 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'resend' }],
+          pathSegs: [{ type: 'literal', value: 'resend' }],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -53,17 +53,17 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'factors' }],
+          pathSegs: [{ type: 'literal', value: 'factors' }],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -71,7 +71,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'factors' },
             { type: 'parameter', name: 'factorId' },
             { type: 'literal', value: 'challenge' },
@@ -81,11 +81,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -93,7 +93,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'factors' },
             { type: 'parameter', name: 'factorId' },
             { type: 'literal', value: 'verify' },
@@ -103,11 +103,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'delete',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -115,7 +115,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'factors' },
             { type: 'parameter', name: 'factorId' },
           ],
@@ -124,11 +124,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -136,17 +136,17 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'callback' }],
+          pathSegs: [{ type: 'literal', value: 'callback' }],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -154,17 +154,17 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'sso' }],
+          pathSegs: [{ type: 'literal', value: 'sso' }],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -172,7 +172,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'saml' },
             { type: 'literal', value: 'metadata' },
           ],
@@ -181,11 +181,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -193,7 +193,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'saml' },
             { type: 'literal', value: 'acs' },
           ],
@@ -206,11 +206,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -218,17 +218,17 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'generate_link' }],
+          pathSegs: [{ type: 'literal', value: 'generate_link' }],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -236,7 +236,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'audit' },
           ],
@@ -248,11 +248,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -260,7 +260,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'users' },
           ],
@@ -272,11 +272,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -284,7 +284,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'users' },
             { type: 'parameter', name: 'userId' },
@@ -295,11 +295,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'put',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -307,7 +307,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'users' },
             { type: 'parameter', name: 'userId' },
@@ -319,11 +319,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'delete',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -331,7 +331,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'users' },
             { type: 'parameter', name: 'userId' },
@@ -343,11 +343,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -355,7 +355,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'sso' },
             { type: 'literal', value: 'providers' },
@@ -365,11 +365,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -377,7 +377,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'sso' },
             { type: 'literal', value: 'providers' },
@@ -387,11 +387,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -399,7 +399,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'sso' },
             { type: 'literal', value: 'providers' },
@@ -410,11 +410,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'put',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -422,7 +422,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'sso' },
             { type: 'literal', value: 'providers' },
@@ -433,11 +433,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'delete',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -445,7 +445,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'sso' },
             { type: 'literal', value: 'providers' },
@@ -456,11 +456,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -468,16 +468,16 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'health' }],
+          pathSegs: [{ type: 'literal', value: 'health' }],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/admin/generate_link',
           method: 'post',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'generate_link' },
           ],
@@ -487,11 +487,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -499,7 +499,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'users' },
             { type: 'parameter', name: 'userId' },
@@ -509,11 +509,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'delete',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -521,7 +521,7 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'users' },
             { type: 'parameter', name: 'userId' },
@@ -531,10 +531,10 @@ describe('action', () => {
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/admin/users/<user_id>',
           method: 'post',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'admin' },
             { type: 'literal', value: 'users' },
             { type: 'parameter', name: 'user_id' },
@@ -545,11 +545,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'auth' },
                 { type: 'literal', value: 'v1' },
@@ -557,13 +557,13 @@ describe('action', () => {
               host: '{project}.supabase.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'reauthenticate' }],
+          pathSegs: [{ type: 'literal', value: 'reauthenticate' }],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/reauthenticate',
           method: 'get',
-          pathParts: [{ type: 'literal', value: 'reauthenticate' }],
+          pathSegs: [{ type: 'literal', value: 'reauthenticate' }],
           queryParameters: [],
           line: 1163,
         },

@@ -23,19 +23,19 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [{ basePath: [] }],
-          pathParts: [{ type: 'literal', value: 'refresh' }],
+          pathSegs: [{ type: 'literal', value: 'refresh' }],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [{ basePath: [] }],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'entities' },
             { type: 'literal', value: 'by-name' },
             { type: 'parameter', name: 'kind' },
@@ -48,10 +48,10 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [{ basePath: [] }],
-          pathParts: [{ type: 'literal', value: 'entity-facets' }],
+          pathSegs: [{ type: 'literal', value: 'entity-facets' }],
           queryParameters: [
             { name: 'facet', required: true },
             { name: 'filter', required: false },
@@ -60,37 +60,37 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [{ basePath: [] }],
-          pathParts: [{ type: 'literal', value: 'analyze-location' }],
+          pathSegs: [{ type: 'literal', value: 'analyze-location' }],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [{ basePath: [] }],
-          pathParts: [{ type: 'literal', value: 'validate-entity' }],
+          pathSegs: [{ type: 'literal', value: 'validate-entity' }],
           queryParameters: [],
         },
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'delete',
           servers: [{ basePath: [] }],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'locations' },
             { type: 'parameter', name: 'id' },
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/locations/<uid>',
           method: 'delete',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'locations' },
             { type: 'parameter', name: 'uid' },
           ],

@@ -23,11 +23,11 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -36,7 +36,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -45,7 +45,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -59,11 +59,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'put',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -72,7 +72,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -81,7 +81,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -92,11 +92,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -105,7 +105,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -114,7 +114,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -125,11 +125,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'delete',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -138,7 +138,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -147,7 +147,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -161,11 +161,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -174,7 +174,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -183,7 +183,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -200,11 +200,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'put',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -213,7 +213,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -222,7 +222,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -233,11 +233,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -246,7 +246,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -255,7 +255,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -266,11 +266,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'delete',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -279,7 +279,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -288,7 +288,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -304,11 +304,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -317,7 +317,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -326,7 +326,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -337,10 +337,10 @@ describe('action', () => {
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/v1/node/status',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'node' },
             { type: 'literal', value: 'status' },
@@ -351,11 +351,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -364,7 +364,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -373,7 +373,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -383,11 +383,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'delete',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -396,7 +396,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -405,17 +405,17 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v1/graph/{graph}',
           method: 'delete',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph' },
@@ -433,11 +433,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -446,7 +446,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -455,7 +455,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -463,10 +463,10 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v1/graph/{graph}/schema',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph' },
@@ -485,11 +485,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -498,7 +498,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -507,7 +507,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -515,10 +515,10 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v1/graph/{graph}/dataloading',
           method: 'post',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph' },
@@ -537,11 +537,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -550,7 +550,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -559,7 +559,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -567,10 +567,10 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v1/graph/{graph}/procedure',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph' },
@@ -589,11 +589,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -602,7 +602,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -611,7 +611,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -619,10 +619,10 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v1/graph/{graph}/procedure',
           method: 'post',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph' },
@@ -641,11 +641,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -654,7 +654,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -663,7 +663,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -672,10 +672,10 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v1/graph/{graph}/procedure/{proc_name}',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph' },
@@ -700,11 +700,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'put',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -713,7 +713,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -722,7 +722,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -731,10 +731,10 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v1/graph/{graph}/procedure/{proc_name}',
           method: 'put',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph' },
@@ -759,11 +759,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'delete',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -772,7 +772,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -781,7 +781,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph_id' },
@@ -790,10 +790,10 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v1/graph/{graph}/procedure/{proc_name}',
           method: 'delete',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'graph' },
             { type: 'parameter', name: 'graph' },
@@ -818,11 +818,11 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'post',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'InteractiveAPI' },
@@ -831,7 +831,7 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [
                 { type: 'literal', value: 'GRAPHSCOPE' },
                 { type: 'literal', value: 'interactive' },
@@ -840,17 +840,17 @@ describe('action', () => {
               host: 'virtserver.swaggerhub.com',
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'service' },
             { type: 'literal', value: 'stop' },
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v1/service/stop',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v1' },
             { type: 'literal', value: 'service' },
             { type: 'literal', value: 'stop' },

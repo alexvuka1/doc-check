@@ -30,19 +30,19 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [],
-          pathParts: [],
+          pathSegs: [],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/hello',
           method: 'get',
-          pathParts: [{ type: 'literal', value: 'hello' }],
+          pathSegs: [{ type: 'literal', value: 'hello' }],
           queryParameters: [],
           line: 5,
         },
@@ -58,10 +58,10 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/hello',
           method: 'get',
-          pathParts: [{ type: 'literal', value: 'hello' }],
+          pathSegs: [{ type: 'literal', value: 'hello' }],
           queryParameters: [],
           line: 7,
         },
@@ -77,38 +77,38 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [],
-          pathParts: [],
+          pathSegs: [],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'put',
           servers: [],
-          pathParts: [],
+          pathSegs: [],
           queryParameters: [],
         },
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/',
           method: 'delete',
-          pathParts: [],
+          pathSegs: [],
           queryParameters: [],
           line: 5,
         },
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/',
           method: 'post',
-          pathParts: [],
+          pathSegs: [],
           queryParameters: [],
           line: 7,
         },

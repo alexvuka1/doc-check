@@ -7,23 +7,23 @@ import remarkSectionize from 'remark-sectionize';
 import remarkStringify from 'remark-stringify';
 import { read } from 'to-vfile';
 import {
-  DocEndpoint,
+  DocRequestConfig,
   Method,
-  OasEndpoint,
-  PathPart,
+  OasRequestConfig,
+  PathSeg,
   Scheme,
   validSchemes,
 } from '.';
 
-export const docCreateEndpoint = (
+export const docCreateRequestConfig = (
   method: Method,
   originalPath: string,
   line: number,
-): DocEndpoint => {
-  const pathParts: DocEndpoint['pathParts'] = [];
-  const queryParameters: DocEndpoint['queryParameters'] = [];
-  let scheme: DocEndpoint['scheme'];
-  let host: DocEndpoint['host'];
+): DocRequestConfig => {
+  const pathSegs: DocRequestConfig['pathSegs'] = [];
+  const queryParameters: DocRequestConfig['queryParameters'] = [];
+  let scheme: DocRequestConfig['scheme'];
+  let host: DocRequestConfig['host'];
   let path: string | undefined = originalPath;
 
   const protocolSeparator = '://';
@@ -57,19 +57,19 @@ export const docCreateEndpoint = (
       case s.startsWith('{') && s.endsWith('}'):
       case s.startsWith('<') && s.endsWith('>'):
       case s.startsWith('[') && s.endsWith(']'):
-        pathParts.push({
+        pathSegs.push({
           type: 'parameter',
           name: s.substring(1, s.length - 1),
         });
         break;
       case s.startsWith(':'):
-        pathParts.push({
+        pathSegs.push({
           type: 'parameter',
           name: s.substring(1),
         });
         break;
       default:
-        if (s !== '') pathParts.push({ type: 'literal', value: s });
+        if (s !== '') pathSegs.push({ type: 'literal', value: s });
         break;
     }
   }
@@ -77,7 +77,7 @@ export const docCreateEndpoint = (
   return {
     originalPath,
     method,
-    pathParts,
+    pathSegs,
     queryParameters,
     scheme,
     host,
@@ -102,8 +102,8 @@ export const getMethodRegex = (
   return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`, 'g');
 };
 
-const pathPartsToRegexStr = (pathParts: PathPart[]) =>
-  pathParts
+const pathSegsToRegexStr = (pathSegs: PathSeg[]) =>
+  pathSegs
     .map(p => {
       switch (p.type) {
         case 'literal':
@@ -114,18 +114,18 @@ const pathPartsToRegexStr = (pathParts: PathPart[]) =>
     })
     .join('/');
 
-export const oasEndpointToDocRegex = (endpoint: OasEndpoint) => {
-  const serverRegex = endpoint.servers
+export const oasRequestConfigToDocRegex = (requestConfig: OasRequestConfig) => {
+  const serverRegex = requestConfig.servers
     .flatMap(s => {
       const serverStart =
-        s.schemes && s.host
-          ? `(${s.schemes.join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
+        s.scheme && s.host
+          ? `(${[s.scheme].join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
           : '';
       const serverEnd = s.basePath
         ? reduce(
             s.basePath,
             (acc, p, i, ps) => {
-              const regexStr = escapeRegexSpecial(pathPartsToRegexStr([p]));
+              const regexStr = escapeRegexSpecial(pathSegsToRegexStr([p]));
               return acc === ''
                 ? `(/${regexStr})?`
                 : `(${acc}/${regexStr})${i === ps.length - 1 ? '' : '?'}`;
@@ -143,7 +143,7 @@ export const oasEndpointToDocRegex = (endpoint: OasEndpoint) => {
     })
     .join('|');
   const regex = new RegExp(
-    `(?<=\\s|^)(${serverRegex})?/${pathPartsToRegexStr(endpoint.pathParts)}(?=\\s|$)`,
+    `(?<=\\s|^)(${serverRegex})?/${pathSegsToRegexStr(requestConfig.pathSegs)}(?=\\s|$)`,
   );
   return regex;
 };

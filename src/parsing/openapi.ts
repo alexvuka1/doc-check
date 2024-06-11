@@ -5,7 +5,7 @@ import { objectEntries } from 'src/utils';
 import { convertFile } from 'swagger2openapi';
 import {
   OasDocument,
-  OasEndpoint,
+  OasRequestConfig,
   OasServerInfo,
   Scheme,
   methods,
@@ -23,14 +23,18 @@ const oasParseServers = (servers?: OasDocument['servers']) => {
       const url = new URL(s.url);
       const protocol = url.protocol.replace(':', '');
       return {
-        schemes: includes(validSchemes, protocol)
-          ? [protocol as Scheme]
+        scheme: includes(validSchemes, protocol)
+          ? (protocol as Scheme)
           : void 0,
         basePath: oasParsePath(url.pathname),
         host: url.host,
       };
     } catch (_) {
+      const protocol = s.url.includes('://') ? s.url.split('://')[0] : void 0;
       return {
+        scheme: includes(validSchemes, protocol)
+          ? (protocol as Scheme)
+          : void 0,
         basePath: oasParsePath(s.url.match(/(?<!\/)\/.+/g)?.[0]),
         host: s.url.match(/(?<=\/\/)(.*?)(?=\/|$)/g)?.[0] ?? void 0,
       };
@@ -43,7 +47,7 @@ const isRefObject = (
 ): obj is OpenAPIV3.ReferenceObject => Object.hasOwn(obj, '$ref');
 
 const oasParseQueryParams = (parameters: OpenAPI.Parameters) => {
-  const queryParameters: OasEndpoint['queryParameters'] = [];
+  const queryParameters: OasRequestConfig['queryParameters'] = [];
   for (const p of parameters) {
     if (isRefObject(p)) {
       throw new Error('Parameters should have been dereferenced');
@@ -58,56 +62,58 @@ const oasParseQueryParams = (parameters: OpenAPI.Parameters) => {
 };
 
 export const oasParsePath = (path?: string) => {
-  const pathParts: OasEndpoint['pathParts'] = [];
-  if (!path) return pathParts;
+  const pathSegs: OasRequestConfig['pathSegs'] = [];
+  if (!path) return pathSegs;
   if (!path.startsWith('/')) throw new Error('Path must start with /');
   path = path.substring(1);
-  if (path === '') return pathParts;
+  if (path === '') return pathSegs;
   for (const part of path.split('/')) {
     switch (true) {
       case part.startsWith('{') && part.endsWith('}'):
-        pathParts.push({
+        pathSegs.push({
           type: 'parameter',
           name: part.substring(1, part.length - 1),
         });
         break;
       default:
-        pathParts.push({ type: 'literal', value: part });
+        pathSegs.push({ type: 'literal', value: part });
         break;
     }
   }
-  return pathParts;
+  return pathSegs;
 };
 
-export const oasParseEndpoints = (oas: OasDocument) => {
-  const oasIdToEndpoint = new Map<string, OasEndpoint>();
-  if (!oas.paths) return oasIdToEndpoint;
+export const oasParseRequestConfigs = (oas: OasDocument) => {
+  const oasIdToRequestConfig = new Map<string, OasRequestConfig>();
+  if (!oas.paths) return oasIdToRequestConfig;
   const oasServers = oasParseServers(oas.servers);
   for (const [path, pathItem] of objectEntries(oas.paths)) {
     if (!pathItem) continue;
     for (const method of methods) {
-      const operation = pathItem[method];
-      if (!operation) continue;
+      const requestConfigItem = pathItem[method];
+      if (!requestConfigItem) continue;
 
-      const pathParts = oasParsePath(path);
+      const pathSegs = oasParsePath(path);
 
-      const servers = operation.servers
-        ? oasParseServers(operation.servers)
+      const servers = requestConfigItem.servers
+        ? oasParseServers(requestConfigItem.servers)
         : pathItem.servers
           ? oasParseServers(pathItem.servers)
           : oasServers;
 
-      const queryParameters = oasParseQueryParams(operation.parameters ?? []);
+      const queryParameters = oasParseQueryParams(
+        requestConfigItem.parameters ?? [],
+      );
 
-      oasIdToEndpoint.set(`${method} ${path}`, {
+      oasIdToRequestConfig.set(`${method} ${path}`, {
         method,
         servers,
-        pathParts,
+        pathSegs,
         queryParameters,
       });
     }
   }
-  return oasIdToEndpoint;
+  return oasIdToRequestConfig;
 };
 
 export const oasParse = async (oasPath: string, shouldDereference = true) => {
@@ -119,9 +125,9 @@ export const oasParse = async (oasPath: string, shouldDereference = true) => {
   return oas;
 };
 
-export const oasPathPartsToPath = (pathParts: OasEndpoint['pathParts']) => {
+export const oasPathSegsToPath = (pathSegs: OasRequestConfig['pathSegs']) => {
   let path = '';
-  for (const part of pathParts) {
+  for (const part of pathSegs) {
     switch (part.type) {
       case 'parameter':
         path += `/{${part.name}}`;

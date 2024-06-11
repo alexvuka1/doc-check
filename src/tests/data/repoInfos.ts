@@ -7,6 +7,12 @@ export const repoInfos = {
     pathOas: 'docs/openapi.yaml',
     pathDoc: 'readme.md',
   },
+  'aldinokemal/go-whatsapp-web-multidevice_2': {
+    repoName: 'aldinokemal/go-whatsapp-web-multidevice',
+    sha: '1f3948ea4df9bf9fd343ef2de6d17f35ce9fdcdd',
+    pathOas: 'docs/openapi.yaml',
+    pathDoc: 'readme.md',
+  },
   'alextselegidis/easyappointments': {
     repoName: 'alextselegidis/easyappointments',
     sha: '06fddd49f4f6a98a4a90307c1812dd06caa6551b',

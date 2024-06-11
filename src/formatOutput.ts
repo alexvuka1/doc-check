@@ -1,8 +1,8 @@
 import assert from 'assert';
-import { FailOutput, OasEndpoint } from './parsing';
+import { FailOutput, OasRequestConfig } from './parsing';
 
-const oasPathPartsToPath = (pathParts: OasEndpoint['pathParts']) =>
-  `/${pathParts
+const oasPathSegsToPath = (pathSegs: OasRequestConfig['pathSegs']) =>
+  `/${pathSegs
     .map(p => {
       switch (p.type) {
         case 'literal':
@@ -30,7 +30,7 @@ export const formatOutput = (
     .flatMap(fail => {
       if (fail.type !== 'only-in-oas') return [];
       return [
-        `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.endpoint.pathParts)}\`](${options.oasPath})`,
+        `- [ ] [\`${fail.requestConfig.method.toUpperCase()} ${oasPathSegsToPath(fail.requestConfig.pathSegs)}\`](${options.oasPath})`,
       ];
     })
     .join('\n\t');
@@ -44,7 +44,7 @@ export const formatOutput = (
     .flatMap(fail => {
       if (fail.type !== 'only-in-doc') return [];
       return [
-        `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.endpoint.line})`,
+        `- [ ] [\`${fail.requestConfig.method.toUpperCase()} ${fail.requestConfig.originalPath}\`](${options.docPath}?plain=1#L${fail.requestConfig.line})`,
       ];
     })
     .join('\n\t');
@@ -58,25 +58,25 @@ export const formatOutput = (
     .flatMap(fail => {
       if (fail.type !== 'match-with-inconsistenties') return [];
       const inconsistencies = [
-        `- | Inconsistency type | Open API specification <br /> [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.docEndpoint.line}) |`,
+        `- | Inconsistency type | Open API specification <br /> [\`${fail.oasRequestConfig.method.toUpperCase()} ${oasPathSegsToPath(fail.oasRequestConfig.pathSegs)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docRequestConfig.method.toUpperCase()} ${fail.docRequestConfig.originalPath}\`](${options.docPath}?plain=1#L${fail.docRequestConfig.line}) |`,
         '| --- | --- | --- |',
         ...fail.inconsistencies.map(i => {
           switch (i.type) {
             case 'method-mismatch':
-              return `| Method mismatch | \`${fail.oasEndpoint.method.toUpperCase()}\` | \`${fail.docEndpoint.method.toUpperCase()}\` |`;
+              return `| Method mismatch | \`${fail.oasRequestConfig.method.toUpperCase()}\` | \`${fail.docRequestConfig.method.toUpperCase()}\` |`;
             case 'path-path-parameter-name-mismatch':
               const oasServerBasePath =
                 (i.oasServerIndex
-                  ? fail.oasEndpoint.servers[i.oasServerIndex]?.basePath
+                  ? fail.oasRequestConfig.servers[i.oasServerIndex]?.basePath
                   : null) ?? [];
               const oasFullPath = [
                 ...oasServerBasePath,
-                ...fail.oasEndpoint.pathParts,
+                ...fail.oasRequestConfig.pathSegs,
               ];
               const oasMismatchedParam = oasFullPath.flatMap(p =>
                 p.type === 'parameter' ? [p.name] : [],
               )[i.parameterIndex];
-              const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(
+              const docMismatchedParam = fail.docRequestConfig.pathSegs.flatMap(
                 p => (p.type === 'parameter' ? [p.name] : []),
               )[i.parameterIndex];
               assert(

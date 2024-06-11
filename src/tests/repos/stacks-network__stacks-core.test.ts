@@ -117,12 +117,10 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'burn_ops' },
             { type: 'parameter', name: 'burn_height' },
@@ -133,12 +131,10 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'post',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'fees' },
             { type: 'literal', value: 'transaction' },
@@ -148,12 +144,10 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'info' },
           ],
@@ -162,12 +156,10 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'stacker_set' },
             { type: 'parameter', name: 'cycle_number' },
@@ -177,10 +169,10 @@ describe('action', () => {
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/v2/headers/[Count]',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'headers' },
             { type: 'parameter', name: 'Count' },
@@ -191,11 +183,11 @@ describe('action', () => {
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath:
             '/v2/data_var/[Stacks Address]/[Contract Name]/[Var Name]',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'data_var' },
             { type: 'parameter', name: 'Stacks Address' },
@@ -208,12 +200,10 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'get',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'contracts' },
             { type: 'literal', value: 'interface' },
@@ -222,11 +212,11 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath:
             '/v2/contracts/interface/[Stacks Address]/[Contract Name]',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'contracts' },
             { type: 'literal', value: 'interface' },
@@ -246,12 +236,10 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'post',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'map_entry' },
             { type: 'parameter', name: 'contract_address' },
@@ -263,11 +251,11 @@ describe('action', () => {
             { name: 'tip', required: false },
           ],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath:
             '/v2/map_entry/[Stacks Address]/[Contract Name]/[Map Name]',
           method: 'post',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'map_entry' },
             { type: 'parameter', name: 'Stacks Address' },
@@ -287,12 +275,10 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'get',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'contracts' },
             { type: 'literal', value: 'source' },
@@ -301,10 +287,10 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath: '/v2/contracts/source/[Stacks Address]/[Contract Name]',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'contracts' },
             { type: 'literal', value: 'source' },
@@ -324,12 +310,10 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'post',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'contracts' },
             { type: 'literal', value: 'call-read' },
@@ -339,11 +323,11 @@ describe('action', () => {
           ],
           queryParameters: [{ name: 'tip', required: false }],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath:
             '/v2/contracts/call-read/[Stacks Address]/[Contract Name]/[Function Name]',
           method: 'post',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'contracts' },
             { type: 'literal', value: 'call-read' },
@@ -364,12 +348,10 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'get',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'traits' },
             { type: 'parameter', name: 'contract_address' },
@@ -380,11 +362,11 @@ describe('action', () => {
           ],
           queryParameters: [],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath:
             '/v2/traits/[Stacks Address]/[Contract Name]/[Trait Stacks Address]/[Trait Contract Name]/[Trait Name]',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'traits' },
             { type: 'parameter', name: 'Stacks Address' },
@@ -411,12 +393,10 @@ describe('action', () => {
       },
       {
         type: 'match-with-inconsistenties',
-        oasEndpoint: {
+        oasRequestConfig: {
           method: 'post',
-          servers: [
-            { schemes: ['http'], basePath: [], host: 'localhost:20443' },
-          ],
-          pathParts: [
+          servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'constant_val' },
             { type: 'parameter', name: 'contract_address' },
@@ -425,11 +405,11 @@ describe('action', () => {
           ],
           queryParameters: [{ name: 'tip', required: false }],
         },
-        docEndpoint: {
+        docRequestConfig: {
           originalPath:
             '/v2/constant_val/[Stacks Address]/[Contract Name]/[Constant Name]',
           method: 'get',
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'v2' },
             { type: 'literal', value: 'constant_val' },
             { type: 'parameter', name: 'Stacks Address' },

@@ -23,16 +23,16 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [],
               host: 'datasets-server.huggingface.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'info' }],
+          pathSegs: [{ type: 'literal', value: 'info' }],
           queryParameters: [
             { name: 'dataset', required: true },
             { name: 'config', required: false },
@@ -41,16 +41,16 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [],
               host: 'datasets-server.huggingface.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'opt-in-out-urls' }],
+          pathSegs: [{ type: 'literal', value: 'opt-in-out-urls' }],
           queryParameters: [
             { name: 'dataset', required: true },
             { name: 'config', required: false },
@@ -60,25 +60,25 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
-              schemes: ['https'],
+              scheme: 'https',
               basePath: [],
               host: 'datasets-server.huggingface.co',
             },
           ],
-          pathParts: [{ type: 'literal', value: 'presidio-entities' }],
+          pathSegs: [{ type: 'literal', value: 'presidio-entities' }],
           queryParameters: [{ name: 'dataset', required: true }],
         },
       },
       {
         type: 'only-in-doc',
-        endpoint: {
+        requestConfig: {
           originalPath: '/croissant',
           method: 'get',
-          pathParts: [{ type: 'literal', value: 'croissant' }],
+          pathSegs: [{ type: 'literal', value: 'croissant' }],
           queryParameters: [],
           line: 32,
         },

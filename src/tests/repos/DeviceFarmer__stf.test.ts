@@ -23,7 +23,7 @@ describe('action', () => {
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
@@ -33,7 +33,7 @@ describe('action', () => {
               ],
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'user' },
             { type: 'literal', value: 'devices' },
             { type: 'parameter', name: 'serial' },
@@ -43,7 +43,7 @@ describe('action', () => {
       },
       {
         type: 'only-in-oas',
-        endpoint: {
+        requestConfig: {
           method: 'get',
           servers: [
             {
@@ -53,7 +53,7 @@ describe('action', () => {
               ],
             },
           ],
-          pathParts: [
+          pathSegs: [
             { type: 'literal', value: 'user' },
             { type: 'literal', value: 'accessTokens' },
           ],

@@ -57,7 +57,7 @@ describe('action', () => {
         return [
           repoInfo,
           {
-            multiInstanceEndpoints: [
+            multiInstanceRequestConfigs: [
               {
                 method: 'get',
                 path: '/entities',
@@ -75,7 +75,7 @@ describe('action', () => {
         return [
           repoInfo,
           {
-            multiInstanceEndpoints: [
+            multiInstanceRequestConfigs: [
               {
                 method: 'get',
                 path: '/community/farms',

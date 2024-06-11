@@ -64711,7 +64711,7 @@ const isLiteralNode = (node) => literalsToCheck.some(l => l === node.type);
 
 ;// CONCATENATED MODULE: ./src/formatOutput.ts
 
-const oasPathPartsToPath = (pathParts) => `/${pathParts
+const oasPathSegsToPath = (pathSegs) => `/${pathSegs
     .map(p => {
     switch (p.type) {
         case 'literal':
@@ -64730,7 +64730,7 @@ const formatOutput = (failOutput, options) => {
         if (fail.type !== 'only-in-oas')
             return [];
         return [
-            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.endpoint.pathParts)}\`](${options.oasPath})`,
+            `- [ ] [\`${fail.requestConfig.method.toUpperCase()} ${oasPathSegsToPath(fail.requestConfig.pathSegs)}\`](${options.oasPath})`,
         ];
     })
         .join('\n\t');
@@ -64742,7 +64742,7 @@ const formatOutput = (failOutput, options) => {
         if (fail.type !== 'only-in-doc')
             return [];
         return [
-            `- [ ] [\`${fail.endpoint.method.toUpperCase()} ${fail.endpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.endpoint.line})`,
+            `- [ ] [\`${fail.requestConfig.method.toUpperCase()} ${fail.requestConfig.originalPath}\`](${options.docPath}?plain=1#L${fail.requestConfig.line})`,
         ];
     })
         .join('\n\t');
@@ -64754,22 +64754,22 @@ const formatOutput = (failOutput, options) => {
         if (fail.type !== 'match-with-inconsistenties')
             return [];
         const inconsistencies = [
-            `- | Inconsistency type | Open API specification <br /> [\`${fail.oasEndpoint.method.toUpperCase()} ${oasPathPartsToPath(fail.oasEndpoint.pathParts)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docEndpoint.method.toUpperCase()} ${fail.docEndpoint.originalPath}\`](${options.docPath}?plain=1#L${fail.docEndpoint.line}) |`,
+            `- | Inconsistency type | Open API specification <br /> [\`${fail.oasRequestConfig.method.toUpperCase()} ${oasPathSegsToPath(fail.oasRequestConfig.pathSegs)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docRequestConfig.method.toUpperCase()} ${fail.docRequestConfig.originalPath}\`](${options.docPath}?plain=1#L${fail.docRequestConfig.line}) |`,
             '| --- | --- | --- |',
             ...fail.inconsistencies.map(i => {
                 switch (i.type) {
                     case 'method-mismatch':
-                        return `| Method mismatch | \`${fail.oasEndpoint.method.toUpperCase()}\` | \`${fail.docEndpoint.method.toUpperCase()}\` |`;
+                        return `| Method mismatch | \`${fail.oasRequestConfig.method.toUpperCase()}\` | \`${fail.docRequestConfig.method.toUpperCase()}\` |`;
                     case 'path-path-parameter-name-mismatch':
                         const oasServerBasePath = (i.oasServerIndex
-                            ? fail.oasEndpoint.servers[i.oasServerIndex]?.basePath
+                            ? fail.oasRequestConfig.servers[i.oasServerIndex]?.basePath
                             : null) ?? [];
                         const oasFullPath = [
                             ...oasServerBasePath,
-                            ...fail.oasEndpoint.pathParts,
+                            ...fail.oasRequestConfig.pathSegs,
                         ];
                         const oasMismatchedParam = oasFullPath.flatMap(p => p.type === 'parameter' ? [p.name] : [])[i.parameterIndex];
-                        const docMismatchedParam = fail.docEndpoint.pathParts.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
+                        const docMismatchedParam = fail.docRequestConfig.pathSegs.flatMap(p => (p.type === 'parameter' ? [p.name] : []))[i.parameterIndex];
                         external_assert_default()(oasMismatchedParam, `No path parameter with index ${i.parameterIndex} in oas path`);
                         external_assert_default()(docMismatchedParam, `No path parameter with index ${i.parameterIndex} in doc path`);
                         return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
@@ -65019,7 +65019,7 @@ const getBestMatches = (oasGroup, docGroup, inconsistencyMap) => {
     }
     return bestConfiguration;
 };
-const matchEndpoints = (groups, inconsistencyMap) => {
+const matchRequestConfigs = (groups, inconsistencyMap) => {
     const res = {
         bestMatchesOasToDoc: [],
         unmatchedOas: [],
@@ -65031,8 +65031,8 @@ const matchEndpoints = (groups, inconsistencyMap) => {
         if (oasGroup.length === 1 && docGroup.length === 1) {
             const oas = oasGroup[0];
             const doc = docGroup[0];
-            external_assert_default()(oas !== void 0 && unmatchedOas.has(oas), `Oas endpoint with index ${oas} should be defined and unmatched`);
-            external_assert_default()(doc !== void 0 && unmatchedDoc.has(doc), `Doc endpoint with index ${doc} should be defined and unmatched`);
+            external_assert_default()(oas !== void 0 && unmatchedOas.has(oas), `Oas requestConfig with index ${oas} should be defined and unmatched`);
+            external_assert_default()(doc !== void 0 && unmatchedDoc.has(doc), `Doc requestConfig with index ${doc} should be defined and unmatched`);
             res.bestMatchesOasToDoc.push([oas, doc]);
             unmatchedOas.delete(oas);
             unmatchedDoc.delete(doc);
@@ -65047,8 +65047,8 @@ const matchEndpoints = (groups, inconsistencyMap) => {
         for (const [i1, i2] of bestMatches) {
             if (i1 === void 0 || i2 === void 0)
                 continue;
-            external_assert_default()(unmatchedOas.has(i1), `Oas endpoint with index ${i1} should be unmatched`);
-            external_assert_default()(unmatchedDoc.has(i2), `Doc endpoint with index ${i2} should be unmatched`);
+            external_assert_default()(unmatchedOas.has(i1), `Oas requestConfig with index ${i1} should be unmatched`);
+            external_assert_default()(unmatchedDoc.has(i2), `Doc requestConfig with index ${i2} should be unmatched`);
             res.bestMatchesOasToDoc.push([i1, i2]);
             unmatchedOas.delete(i1);
             unmatchedDoc.delete(i2);
@@ -65064,7 +65064,7 @@ const matchEndpoints = (groups, inconsistencyMap) => {
 };
 const findBestMatches = (oasIndexToDocIndices, docIndexToOasIndices, inconsistenciesMap) => {
     const groups = getGroups(oasIndexToDocIndices, docIndexToOasIndices);
-    return matchEndpoints(groups, inconsistenciesMap);
+    return matchRequestConfigs(groups, inconsistenciesMap);
 };
 const normalizeParam = (param) => param
     .replace(/([a-z])([A-Z])/g, '$1 $2')
@@ -65109,29 +65109,52 @@ const areEqualPaths = (path1, path2) => {
             areEqualParams(path1, i, path2, i));
     });
 };
-const areEqualEndpoints = (oasEndpoint, docEndpoint) => {
-    if (oasEndpoint.method !== docEndpoint.method)
+const areEqualRequestConfig = (oasRequestConfig, docRequestConfig) => {
+    if (oasRequestConfig.method !== docRequestConfig.method)
         return false;
-    const { scheme, host } = docEndpoint;
+    const { scheme, host } = docRequestConfig;
     const docHasServer = scheme ||
         host ||
-        oasEndpoint.pathParts.length < docEndpoint.pathParts.length;
-    const basePathStart = oasEndpoint.pathParts.length - docEndpoint.pathParts.length;
+        oasRequestConfig.pathSegs.length < docRequestConfig.pathSegs.length;
+    const basePathStart = oasRequestConfig.pathSegs.length - docRequestConfig.pathSegs.length;
     const server = docHasServer
-        ? oasEndpoint.servers.find(s => (!scheme || s.schemes?.includes(scheme)) &&
+        ? oasRequestConfig.servers.find(s => (!scheme || s.scheme === scheme) &&
             (!host || s.host?.includes(host)) &&
-            (oasEndpoint.pathParts.length === docEndpoint.pathParts.length ||
+            (oasRequestConfig.pathSegs.length ===
+                docRequestConfig.pathSegs.length ||
                 (s.basePath &&
                     basePathStart < 0 &&
-                    areEqualPaths(s.basePath.slice(basePathStart), docEndpoint.pathParts.slice(0, -oasEndpoint.pathParts.length)))))
+                    areEqualPaths(s.basePath.slice(basePathStart), docRequestConfig.pathSegs.slice(0, -oasRequestConfig.pathSegs.length)))))
         : null;
     if (docHasServer && !server)
         return false;
     return areEqualPaths([
         ...(server?.basePath?.slice(basePathStart) ?? []),
-        ...oasEndpoint.pathParts,
-    ], docEndpoint.pathParts);
+        ...oasRequestConfig.pathSegs,
+    ], docRequestConfig.pathSegs);
 };
+const areDifferentPaths = (oasRequestConfig, docRequestConfig) => ![
+    ...oasRequestConfig.servers,
+    { basePath: [] },
+].some(s => {
+    const { basePath } = s;
+    if (oasRequestConfig.pathSegs.length > docRequestConfig.pathSegs.length) {
+        return false;
+    }
+    const lengthDiff = basePath.length +
+        oasRequestConfig.pathSegs.length -
+        docRequestConfig.pathSegs.length;
+    if (lengthDiff < 0)
+        return false;
+    const partialBasePath = basePath.slice(lengthDiff);
+    const oasPath = [...partialBasePath, ...oasRequestConfig.pathSegs];
+    return (oasPath.length === docRequestConfig.pathSegs.length &&
+        oasPath.every((oasP, i) => {
+            const docP = docRequestConfig.pathSegs[i];
+            return ((docP && oasP.type === 'parameter' && docP.type === 'parameter') ||
+                lodash_es_isEqual(oasP, docP));
+        }));
+});
 
 // EXTERNAL MODULE: ./node_modules/openapi-types/dist/index.js
 var dist = __nccwpck_require__(5194);
@@ -91721,8 +91744,8 @@ function to_vfile_lib_isUint8Array(value) {
 
 
 
-const docCreateEndpoint = (method, originalPath, line) => {
-    const pathParts = [];
+const docCreateRequestConfig = (method, originalPath, line) => {
+    const pathSegs = [];
     const queryParameters = [];
     let scheme;
     let host;
@@ -91756,27 +91779,27 @@ const docCreateEndpoint = (method, originalPath, line) => {
             case s.startsWith('{') && s.endsWith('}'):
             case s.startsWith('<') && s.endsWith('>'):
             case s.startsWith('[') && s.endsWith(']'):
-                pathParts.push({
+                pathSegs.push({
                     type: 'parameter',
                     name: s.substring(1, s.length - 1),
                 });
                 break;
             case s.startsWith(':'):
-                pathParts.push({
+                pathSegs.push({
                     type: 'parameter',
                     name: s.substring(1),
                 });
                 break;
             default:
                 if (s !== '')
-                    pathParts.push({ type: 'literal', value: s });
+                    pathSegs.push({ type: 'literal', value: s });
                 break;
         }
     }
     return {
         originalPath,
         method,
-        pathParts,
+        pathSegs,
         queryParameters,
         scheme,
         host,
@@ -91792,7 +91815,7 @@ const getMethodRegex = (matchMethods, options = {}) => {
         .join('|');
     return new RegExp(`\\b(?<!\\/)(${matchUnionStr})(?!\\/)\\b`, 'g');
 };
-const pathPartsToRegexStr = (pathParts) => pathParts
+const pathSegsToRegexStr = (pathSegs) => pathSegs
     .map(p => {
     switch (p.type) {
         case 'literal':
@@ -91802,15 +91825,15 @@ const pathPartsToRegexStr = (pathParts) => pathParts
     }
 })
     .join('/');
-const oasEndpointToDocRegex = (endpoint) => {
-    const serverRegex = endpoint.servers
+const oasRequestConfigToDocRegex = (requestConfig) => {
+    const serverRegex = requestConfig.servers
         .flatMap(s => {
-        const serverStart = s.schemes && s.host
-            ? `(${s.schemes.join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
+        const serverStart = s.scheme && s.host
+            ? `(${[s.scheme].join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
             : '';
         const serverEnd = s.basePath
             ? lodash_es_reduce(s.basePath, (acc, p, i, ps) => {
-                const regexStr = escapeRegexSpecial(pathPartsToRegexStr([p]));
+                const regexStr = escapeRegexSpecial(pathSegsToRegexStr([p]));
                 return acc === ''
                     ? `(/${regexStr})?`
                     : `(${acc}/${regexStr})${i === ps.length - 1 ? '' : '?'}`;
@@ -91824,7 +91847,7 @@ const oasEndpointToDocRegex = (endpoint) => {
         return server === '' ? [] : server;
     })
         .join('|');
-    const regex = new RegExp(`(?<=\\s|^)(${serverRegex})?/${pathPartsToRegexStr(endpoint.pathParts)}(?=\\s|$)`);
+    const regex = new RegExp(`(?<=\\s|^)(${serverRegex})?/${pathSegsToRegexStr(requestConfig.pathSegs)}(?=\\s|$)`);
     return regex;
 };
 // Extracts an API path from a string.
@@ -91884,15 +91907,19 @@ const oasParseServers = (servers) => {
             const url = new URL(s.url);
             const protocol = url.protocol.replace(':', '');
             return {
-                schemes: lodash_es_includes(validSchemes, protocol)
-                    ? [protocol]
+                scheme: lodash_es_includes(validSchemes, protocol)
+                    ? protocol
                     : void 0,
                 basePath: oasParsePath(url.pathname),
                 host: url.host,
             };
         }
         catch (_) {
+            const protocol = s.url.includes('://') ? s.url.split('://')[0] : void 0;
             return {
+                scheme: lodash_es_includes(validSchemes, protocol)
+                    ? protocol
+                    : void 0,
                 basePath: oasParsePath(s.url.match(/(?<!\/)\/.+/g)?.[0]),
                 host: s.url.match(/(?<=\/\/)(.*?)(?=\/|$)/g)?.[0] ?? void 0,
             };
@@ -91916,57 +91943,57 @@ const oasParseQueryParams = (parameters) => {
     return queryParameters;
 };
 const oasParsePath = (path) => {
-    const pathParts = [];
+    const pathSegs = [];
     if (!path)
-        return pathParts;
+        return pathSegs;
     if (!path.startsWith('/'))
         throw new Error('Path must start with /');
     path = path.substring(1);
     if (path === '')
-        return pathParts;
+        return pathSegs;
     for (const part of path.split('/')) {
         switch (true) {
             case part.startsWith('{') && part.endsWith('}'):
-                pathParts.push({
+                pathSegs.push({
                     type: 'parameter',
                     name: part.substring(1, part.length - 1),
                 });
                 break;
             default:
-                pathParts.push({ type: 'literal', value: part });
+                pathSegs.push({ type: 'literal', value: part });
                 break;
         }
     }
-    return pathParts;
+    return pathSegs;
 };
-const oasParseEndpoints = (oas) => {
-    const oasIdToEndpoint = new Map();
+const oasParseRequestConfigs = (oas) => {
+    const oasIdToRequestConfig = new Map();
     if (!oas.paths)
-        return oasIdToEndpoint;
+        return oasIdToRequestConfig;
     const oasServers = oasParseServers(oas.servers);
     for (const [path, pathItem] of objectEntries(oas.paths)) {
         if (!pathItem)
             continue;
         for (const method of methods) {
-            const operation = pathItem[method];
-            if (!operation)
+            const requestConfigItem = pathItem[method];
+            if (!requestConfigItem)
                 continue;
-            const pathParts = oasParsePath(path);
-            const servers = operation.servers
-                ? oasParseServers(operation.servers)
+            const pathSegs = oasParsePath(path);
+            const servers = requestConfigItem.servers
+                ? oasParseServers(requestConfigItem.servers)
                 : pathItem.servers
                     ? oasParseServers(pathItem.servers)
                     : oasServers;
-            const queryParameters = oasParseQueryParams(operation.parameters ?? []);
-            oasIdToEndpoint.set(`${method} ${path}`, {
+            const queryParameters = oasParseQueryParams(requestConfigItem.parameters ?? []);
+            oasIdToRequestConfig.set(`${method} ${path}`, {
                 method,
                 servers,
-                pathParts,
+                pathSegs,
                 queryParameters,
             });
         }
     }
-    return oasIdToEndpoint;
+    return oasIdToRequestConfig;
 };
 const oasParse = async (oasPath, shouldDereference = true) => {
     // TODO changed this from validate, should maybe show warnings if oas not valid
@@ -91976,9 +92003,9 @@ const oasParse = async (oasPath, shouldDereference = true) => {
     const oas = isV2(oasDoc) ? (await (0,swagger2openapi.convertFile)(oasPath, {})).openapi : oasDoc;
     return oas;
 };
-const openapi_oasPathPartsToPath = (pathParts) => {
+const openapi_oasPathSegsToPath = (pathSegs) => {
     let path = '';
-    for (const part of pathParts) {
+    for (const part of pathSegs) {
         switch (part.type) {
             case 'parameter':
                 path += `/{${part.name}}`;
@@ -92014,9 +92041,9 @@ const run = async () => {
         const docPath = core.getInput('doc-path', { required: true });
         const token = core.getInput('token');
         const oas = await oasParse(oasPath);
-        const oasIdToEndpoint = oasParseEndpoints(oas);
+        const oasIdToRequestConfig = oasParseRequestConfigs(oas);
         const tree = await docParse(docPath);
-        const oasIdToDocMatches = new Map([...oasIdToEndpoint.keys()].map(k => [k, []]));
+        const oasIdToDocMatches = new Map([...oasIdToRequestConfig.keys()].map(k => [k, []]));
         const docSelectors = new Set();
         const structuredParents = new Set();
         const structuredParentSelectors = new Set();
@@ -92044,20 +92071,22 @@ const run = async () => {
                 if (shouldSkipLiteral(node))
                     return;
                 const parentSelector = ancestors.map(a => a.type).join(' > ');
-                for (const [endpointId, endpoint] of oasIdToEndpoint.entries()) {
-                    const containsPath = oasEndpointToDocRegex(endpoint).test(node.value);
+                for (const [requestConfigId, requestConfig,] of oasIdToRequestConfig.entries()) {
+                    const containsPath = oasRequestConfigToDocRegex(requestConfig).test(node.value);
                     if (!containsPath)
                         continue;
-                    const containsMethod = getMethodRegex([endpoint.method]).test(node.value);
+                    const containsMethod = getMethodRegex([requestConfig.method]).test(node.value);
                     const structuredParent = !containsMethod
                         ? getStructuredParent(ancestors)
                         : null;
                     const siblingWithMethod = structuredParent
-                        ? getStructureMethodLiteral(structuredParent, [endpoint.method])
+                        ? getStructureMethodLiteral(structuredParent, [
+                            requestConfig.method,
+                        ])
                         : null;
                     if (!containsMethod && !siblingWithMethod)
                         continue;
-                    const docMatches = oasIdToDocMatches.get(endpointId);
+                    const docMatches = oasIdToDocMatches.get(requestConfigId);
                     external_assert_default()(docMatches, 'Map should have been initialised to have entries for all oas paths');
                     docMatches.push({ node, siblingWithMethod });
                     if (!structuredParent)
@@ -92073,17 +92102,17 @@ const run = async () => {
                 }
             });
         }
-        const docIdToUnmatchedEndpoint = new Map();
-        const handleFindDocEndpoint = (method, path, literal) => {
+        const docIdToUnmatchedRequestConfig = new Map();
+        const handleFindDocRequestConfig = (method, path, literal) => {
             const id = `${method} ${path.split('?')[0]}`;
-            if (docIdToUnmatchedEndpoint.has(id))
+            if (docIdToUnmatchedRequestConfig.has(id))
                 return;
             const { position } = literal;
             external_assert_default()(position, 'All nodes should have a position');
-            const endpoint = docCreateEndpoint(method, path, position.start.line);
-            docIdToUnmatchedEndpoint.set(id, endpoint);
+            const requestConfig = docCreateRequestConfig(method, path, position.start.line);
+            docIdToUnmatchedRequestConfig.set(id, requestConfig);
         };
-        const searchLiteralForEndpoint = (literal) => {
+        const searchLiteralForRequestConfig = (literal) => {
             if (shouldSkipLiteral(literal))
                 return;
             const paths = extractPaths(literal.value);
@@ -92092,13 +92121,13 @@ const run = async () => {
                 ?.flatMap(m => (m ? [m.toLowerCase()] : [])) ?? [];
             for (const path of paths) {
                 for (const method of foundMethods) {
-                    handleFindDocEndpoint(method, path, literal);
+                    handleFindDocRequestConfig(method, path, literal);
                 }
             }
         };
         if (structuredParents.size === 0 && docSelectors.size === 0) {
             for (const literal of literalsToCheck) {
-                visit(tree, literal, searchLiteralForEndpoint);
+                visit(tree, literal, searchLiteralForRequestConfig);
             }
         }
         else {
@@ -92110,7 +92139,7 @@ const run = async () => {
                     if (!isLiteralNode(sibling)) {
                         throw new Error('Expected literal node');
                     }
-                    searchLiteralForEndpoint(sibling);
+                    searchLiteralForRequestConfig(sibling);
                 }
             }
             for (const structuredParentSelector of structuredParentSelectors) {
@@ -92128,105 +92157,86 @@ const run = async () => {
                                 return;
                             const paths = extractPaths(node.value);
                             for (const path of paths) {
-                                handleFindDocEndpoint(method, path, node);
+                                handleFindDocRequestConfig(method, path, node);
                             }
                         });
                     }
                 }
             }
         }
-        let unmatchedOasEndpoints = lodash_es_differenceWith([...oasIdToEndpoint.keys()], [...oasIdToDocMatches.entries()]
+        let unmatchedOasRequestConfigs = lodash_es_differenceWith([...oasIdToRequestConfig.keys()], [...oasIdToDocMatches.entries()]
             .filter(([, docMatches]) => docMatches.length > 0)
             .map(([id]) => id), lodash_es_isEqual).map(id => {
-            const oasEndpoint = oasIdToEndpoint.get(id);
-            if (!oasEndpoint)
+            const oasRequestConfig = oasIdToRequestConfig.get(id);
+            if (!oasRequestConfig)
                 throw new Error('Expected oas path to be defined');
-            return oasEndpoint;
+            return oasRequestConfig;
         });
-        let unmatchedDocEndpoints = [...docIdToUnmatchedEndpoint.values()];
+        let unmatchedDocRequestConfigs = [
+            ...docIdToUnmatchedRequestConfig.values(),
+        ];
         const matchedOasIndices = new Set();
         const matchedDocIndices = new Set();
-        for (const [i, oasEndpoint] of unmatchedOasEndpoints.entries()) {
+        for (const [i, oasRequestConfig] of unmatchedOasRequestConfigs.entries()) {
             if (matchedOasIndices.has(i))
                 continue;
-            for (const [j, docEndpoint] of unmatchedDocEndpoints.entries()) {
+            for (const [j, docRequestConfig,] of unmatchedDocRequestConfigs.entries()) {
                 if (matchedOasIndices.has(i) ||
                     matchedDocIndices.has(j) ||
-                    !areEqualEndpoints(oasEndpoint, docEndpoint)) {
+                    !areEqualRequestConfig(oasRequestConfig, docRequestConfig)) {
                     continue;
                 }
                 matchedOasIndices.add(i);
                 matchedDocIndices.add(j);
             }
         }
-        unmatchedOasEndpoints = unmatchedOasEndpoints.filter((_, i) => !matchedOasIndices.has(i));
-        unmatchedDocEndpoints = unmatchedDocEndpoints.filter((_, i) => !matchedDocIndices.has(i));
+        unmatchedOasRequestConfigs = unmatchedOasRequestConfigs.filter((_, i) => !matchedOasIndices.has(i));
+        unmatchedDocRequestConfigs = unmatchedDocRequestConfigs.filter((_, i) => !matchedDocIndices.has(i));
         matchedDocIndices.clear();
-        for (const [i, docEndpoint] of unmatchedDocEndpoints.entries()) {
+        for (const [i, docRequestConfig] of unmatchedDocRequestConfigs.entries()) {
             if (matchedDocIndices.has(i))
                 continue;
-            for (const oasEndpoint of oasIdToEndpoint.values()) {
-                if (!areEqualEndpoints(oasEndpoint, docEndpoint)) {
+            for (const oasRequestConfig of oasIdToRequestConfig.values()) {
+                if (!areEqualRequestConfig(oasRequestConfig, docRequestConfig)) {
                     continue;
                 }
                 matchedDocIndices.add(i);
             }
         }
-        unmatchedDocEndpoints = unmatchedDocEndpoints.filter((_, i) => !matchedDocIndices.has(i));
-        const unmatchedEndpointsTable = [...Array(unmatchedOasEndpoints.length)].map(() => Array(unmatchedDocEndpoints.length).fill('different-endpoints'));
-        const areDifferentPaths = (oasEndpoint, docEndpoint) => ![
-            ...oasEndpoint.servers,
-            {},
-        ].some(s => {
-            const basePath = s.basePath ?? [];
-            if (oasEndpoint.pathParts.length > docEndpoint.pathParts.length) {
-                return false;
-            }
-            const lengthDiff = basePath.length +
-                oasEndpoint.pathParts.length -
-                docEndpoint.pathParts.length;
-            if (lengthDiff < 0)
-                return false;
-            const partialBasePath = basePath.slice(lengthDiff);
-            const oasPath = [...partialBasePath, ...oasEndpoint.pathParts];
-            return (oasPath.length === docEndpoint.pathParts.length &&
-                oasPath.every((oasP, i) => {
-                    const docP = docEndpoint.pathParts[i];
-                    return ((docP &&
-                        oasP.type === 'parameter' &&
-                        docP.type === 'parameter') ||
-                        lodash_es_isEqual(oasP, docP));
-                }));
-        });
-        for (const [i, oasEndpoint] of unmatchedOasEndpoints.entries()) {
-            for (const [j, docEndpoint] of unmatchedDocEndpoints.entries()) {
-                if (areDifferentPaths(oasEndpoint, docEndpoint))
+        unmatchedDocRequestConfigs = unmatchedDocRequestConfigs.filter((_, i) => !matchedDocIndices.has(i));
+        const unmatchedRequestConfigsTable = [...Array(unmatchedOasRequestConfigs.length)].map(() => Array(unmatchedDocRequestConfigs.length).fill('different-requestConfigs'));
+        for (const [i, oasRequestConfig] of unmatchedOasRequestConfigs.entries()) {
+            for (const [j, docRequestConfig,] of unmatchedDocRequestConfigs.entries()) {
+                if (areDifferentPaths(oasRequestConfig, docRequestConfig))
                     continue;
                 const inconsistencies = [];
-                if (oasEndpoint.method !== docEndpoint.method) {
+                if (oasRequestConfig.method !== docRequestConfig.method) {
                     inconsistencies.push({ type: 'method-mismatch' });
                 }
-                const serversInconsistencies = [...oasEndpoint.servers, void 0].map((s, i, arr) => {
+                const serversInconsistencies = [
+                    ...oasRequestConfig.servers,
+                    void 0,
+                ].map((s, i, arr) => {
                     if (s &&
-                        !((docEndpoint.scheme &&
-                            s.schemes?.includes(docEndpoint.scheme)) ||
-                            (docEndpoint.host && s.host === docEndpoint.host) ||
+                        !((docRequestConfig.scheme &&
+                            s.scheme === docRequestConfig.scheme) ||
+                            (docRequestConfig.host && s.host === docRequestConfig.host) ||
                             (s.basePath &&
-                                s.basePath.some(sPart => docEndpoint.pathParts.some(dPart => lodash_es_isEqual(sPart, dPart)))))) {
+                                s.basePath.some(sPart => docRequestConfig.pathSegs.some(dPart => lodash_es_isEqual(sPart, dPart)))))) {
                         return [s, null];
                     }
                     const serverInconsistencies = [];
                     if (s) {
-                        const { host, schemes } = s;
-                        if (docEndpoint.host && host !== docEndpoint.host) {
+                        const { host, scheme } = s;
+                        if (docRequestConfig.host && host !== docRequestConfig.host) {
                             serverInconsistencies.push({
                                 type: 'host-mismatch',
                                 oasHost: host,
                             });
                         }
-                        if (docEndpoint.scheme &&
-                            schemes &&
-                            !schemes.includes(docEndpoint.scheme)) {
+                        if (docRequestConfig.scheme &&
+                            scheme &&
+                            scheme !== docRequestConfig.scheme) {
                             serverInconsistencies.push({
                                 type: 'doc-scheme-not-supported-by-oas-server',
                             });
@@ -92234,19 +92244,19 @@ const run = async () => {
                     }
                     const basePath = s?.basePath ?? [];
                     const lengthDiff = basePath.length +
-                        oasEndpoint.pathParts.length -
-                        docEndpoint.pathParts.length;
+                        oasRequestConfig.pathSegs.length -
+                        docRequestConfig.pathSegs.length;
                     if (lengthDiff >= 0) {
                         const partialBasePath = basePath.slice(lengthDiff);
-                        const oasFullPathParts = [
+                        const oasFullPathSegs = [
                             ...partialBasePath,
-                            ...oasEndpoint.pathParts,
+                            ...oasRequestConfig.pathSegs,
                         ];
                         let parameterIndex = -1;
-                        for (const [k, oasPart] of oasFullPathParts.entries()) {
+                        for (const [k, oasPart] of oasFullPathSegs.entries()) {
                             if (oasPart.type === 'parameter')
                                 parameterIndex++;
-                            const docPart = docEndpoint.pathParts[k];
+                            const docPart = docRequestConfig.pathSegs[k];
                             if (!docPart) {
                                 throw new Error('Expected doc path part to be defined');
                             }
@@ -92254,7 +92264,7 @@ const run = async () => {
                                 continue;
                             if (oasPart.type === 'parameter' &&
                                 docPart.type === 'parameter' &&
-                                !areEqualParams(oasFullPathParts, k, docEndpoint.pathParts, k)) {
+                                !areEqualParams(oasFullPathSegs, k, docRequestConfig.pathSegs, k)) {
                                 serverInconsistencies.push({
                                     type: 'path-path-parameter-name-mismatch',
                                     parameterIndex,
@@ -92276,11 +92286,11 @@ const run = async () => {
                         return s1 === void 0 ? si2 : si1;
                     return i1.length > i2.length ? si2 : si1;
                 })?.[1];
-                const oasEndpointInconsistencies = unmatchedEndpointsTable[i];
-                if (!oasEndpointInconsistencies) {
+                const oasRequestConfigInconsistencies = unmatchedRequestConfigsTable[i];
+                if (!oasRequestConfigInconsistencies) {
                     throw new Error('Expected inconsistencies to be defined');
                 }
-                oasEndpointInconsistencies[j] = [
+                oasRequestConfigInconsistencies[j] = [
                     ...inconsistencies,
                     ...(serverInconsistencies ?? []),
                 ];
@@ -92289,50 +92299,50 @@ const run = async () => {
         const failOutput = [];
         const handledOasIndices = new Set();
         const handledDocIndices = new Set();
-        for (const [index, unmatchedOasEndpoint,] of unmatchedOasEndpoints.entries()) {
-            const oasEndpointInconsistencies = unmatchedEndpointsTable[index];
-            if (!oasEndpointInconsistencies) {
+        for (const [index, unmatchedOasRequestConfig,] of unmatchedOasRequestConfigs.entries()) {
+            const oasRequestConfigInconsistencies = unmatchedRequestConfigsTable[index];
+            if (!oasRequestConfigInconsistencies) {
                 throw new Error('Inconsistency table is not instantiated fully');
             }
-            const onlyInOas = oasEndpointInconsistencies.every(i => i === 'different-endpoints');
+            const onlyInOas = oasRequestConfigInconsistencies.every(i => i === 'different-requestConfigs');
             if (onlyInOas) {
                 failOutput.push({
                     type: 'only-in-oas',
-                    endpoint: unmatchedOasEndpoint,
+                    requestConfig: unmatchedOasRequestConfig,
                 });
             }
-            const hasFullMatch = oasEndpointInconsistencies.some(i => i !== 'different-endpoints' && i.length === 0);
+            const hasFullMatch = oasRequestConfigInconsistencies.some(i => i !== 'different-requestConfigs' && i.length === 0);
             if (onlyInOas || hasFullMatch)
                 handledOasIndices.add(index);
         }
-        for (const [index, unmatchedDocEndpoint,] of unmatchedDocEndpoints.entries()) {
-            const docEnpointInconsistencies = unmatchedEndpointsTable.map(row => {
-                const docEnpointInconsistency = row[index];
-                if (!docEnpointInconsistency) {
+        for (const [index, unmatchedDocRequestConfig,] of unmatchedDocRequestConfigs.entries()) {
+            const docRequestConfigInconsistencies = unmatchedRequestConfigsTable.map(row => {
+                const docRequestConfigInconsistency = row[index];
+                if (!docRequestConfigInconsistency) {
                     throw new Error('Inconsistency table is not instantiated fully');
                 }
-                return docEnpointInconsistency;
+                return docRequestConfigInconsistency;
             });
-            const onlyInDoc = docEnpointInconsistencies.every(i => i === 'different-endpoints');
+            const onlyInDoc = docRequestConfigInconsistencies.every(i => i === 'different-requestConfigs');
             if (onlyInDoc) {
                 failOutput.push({
                     type: 'only-in-doc',
-                    endpoint: unmatchedDocEndpoint,
+                    requestConfig: unmatchedDocRequestConfig,
                 });
             }
-            const hasFullMatch = docEnpointInconsistencies.some(i => i !== 'different-endpoints' && i.length === 0);
+            const hasFullMatch = docRequestConfigInconsistencies.some(i => i !== 'different-requestConfigs' && i.length === 0);
             if (onlyInDoc || hasFullMatch)
                 handledDocIndices.add(index);
         }
         const inconsistenciesMap = new Map();
         const oasIndexToDocIndicesInconsistencyMatches = new Map();
         const docIndexToOasIndicesInconsistencyMatches = new Map();
-        for (const [i, row] of unmatchedEndpointsTable.entries()) {
+        for (const [i, row] of unmatchedRequestConfigsTable.entries()) {
             if (handledOasIndices.has(i))
                 continue;
             for (const [j, inconsistencies] of row.entries()) {
                 if (handledDocIndices.has(j) ||
-                    inconsistencies === 'different-endpoints') {
+                    inconsistencies === 'different-requestConfigs') {
                     continue;
                 }
                 inconsistenciesMap.set(makeKey([i, j]), inconsistencies);
@@ -92342,26 +92352,26 @@ const run = async () => {
         }
         const bestMatches = findBestMatches(oasIndexToDocIndicesInconsistencyMatches, docIndexToOasIndicesInconsistencyMatches, inconsistenciesMap);
         for (const i of bestMatches.unmatchedOas) {
-            const endpoint = unmatchedOasEndpoints[i];
-            external_assert_default()(endpoint, `No unmatched oas endpoint with index ${i}`);
-            failOutput.push({ type: 'only-in-oas', endpoint });
+            const requestConfig = unmatchedOasRequestConfigs[i];
+            external_assert_default()(requestConfig, `No unmatched oas requestConfig with index ${i}`);
+            failOutput.push({ type: 'only-in-oas', requestConfig });
         }
         for (const i of bestMatches.unmatchedDoc) {
-            const endpoint = unmatchedDocEndpoints[i];
-            external_assert_default()(endpoint, `No unmatched doc endpoint with index ${i}`);
-            failOutput.push({ type: 'only-in-doc', endpoint });
+            const requestConfig = unmatchedDocRequestConfigs[i];
+            external_assert_default()(requestConfig, `No unmatched doc requestConfig with index ${i}`);
+            failOutput.push({ type: 'only-in-doc', requestConfig });
         }
         for (const [i, j] of bestMatches.bestMatchesOasToDoc) {
-            const oasEndpoint = unmatchedOasEndpoints[i];
-            external_assert_default()(oasEndpoint, `No unmatched oas endpoint with index ${i}`);
-            const docEndpoint = unmatchedDocEndpoints[j];
-            external_assert_default()(docEndpoint, `No unmatched doc endpoint with index ${i}`);
+            const oasRequestConfig = unmatchedOasRequestConfigs[i];
+            external_assert_default()(oasRequestConfig, `No unmatched oas requestConfig with index ${i}`);
+            const docRequestConfig = unmatchedDocRequestConfigs[j];
+            external_assert_default()(docRequestConfig, `No unmatched doc requestConfig with index ${i}`);
             const inconsistencies = inconsistenciesMap.get(makeKey([i, j]));
             external_assert_default()(inconsistencies, `No inconsistencies for [${i}, ${j}]`);
             failOutput.push({
                 type: 'match-with-inconsistenties',
-                oasEndpoint,
-                docEndpoint,
+                oasRequestConfig,
+                docRequestConfig,
                 inconsistencies,
             });
         }

@@ -1,7 +1,6 @@
 import assert from 'assert';
 import { mkdir, rm, writeFile } from 'fs/promises';
 import { isEqual, sortBy } from 'lodash-es';
-import { Nodes } from 'mdast';
 import { join } from 'path';
 import { remove } from 'unist-util-remove';
 import { selectAll } from 'unist-util-select';
@@ -15,7 +14,7 @@ import { objectEntries, shuffle } from '../../../utils';
 
 export type DocMutationsOptions = {
   scenarios: number;
-  splitType: Nodes['type'];
+  mutationType: 'split-section' | 'split-heading';
   multiInstanceRequestConfigs?: {
     method: Method;
     path: string;
@@ -29,7 +28,7 @@ export const evaluateDocMutations = async (
   options: DocMutationsOptions,
 ) => {
   const { repoName, sha, pathOas, pathDoc } = repoInfo;
-  const { scenarios, splitType, multiInstanceRequestConfigs = [] } = options;
+  const { scenarios, mutationType, multiInstanceRequestConfigs = [] } = options;
   const { getInputMock, setFailedMock, rng } = testEnv;
 
   const githubBase = `https://github.com/${repoName}/blob/${sha}`;
@@ -38,7 +37,7 @@ export const evaluateDocMutations = async (
 
   const baseDirPath = join(
     import.meta.dir,
-    `../../data/mutation/doc/${repoName.replace('/', '__')}`,
+    `../../data/mutation/doc/${repoName.replace('/', '__')}/${sha}/${mutationType}`,
   );
 
   const [pathOasLocal, pathDocLocal] = await Promise.all([
@@ -101,7 +100,17 @@ export const evaluateDocMutations = async (
 
     const tree = await docParse(pathDocLocal);
     const nParts = 2 + Math.round(rng() * 3);
-    const parts = shuffle(selectAll(splitType, tree), rng).slice(0, nParts - 1);
+    const parts = shuffle(
+      selectAll(
+        mutationType === 'split-heading'
+          ? 'heading'
+          : mutationType === 'split-section'
+            ? 'section'
+            : '',
+        tree,
+      ),
+      rng,
+    ).slice(0, nParts - 1);
     const partsSet = new Set(parts);
     const splits = [tree, ...parts];
 
@@ -206,9 +215,8 @@ export const evaluateDocMutations = async (
       }
     }
 
-    let hasUnexpectedFail = false;
+    const unexpectedFails: FailOutput = [];
     for (const fail of accFailOutput) {
-      if (hasUnexpectedFail) break;
       switch (fail.type) {
         case 'only-in-oas':
           {
@@ -216,7 +224,7 @@ export const evaluateDocMutations = async (
             const nFails = requestConfigKeyToNFails.get(key);
             const nonMutatedNFails = nonMutatedOnlyInOas.get(key);
             if (nFails === void 0 && nonMutatedNFails === void 0) {
-              hasUnexpectedFail = true;
+              unexpectedFails.push(fail);
             }
             if (nFails !== void 0) {
               requestConfigKeyToNFails.set(key, nFails + 1);
@@ -230,8 +238,9 @@ export const evaluateDocMutations = async (
           {
             const key = `${fail.requestConfig.method} ${fail.requestConfig.originalPath}`;
             const nonMutatedNFails = nonMutatedOnlyInDoc.get(key);
-            if (nonMutatedNFails === void 0) hasUnexpectedFail = true;
-            else nonMutatedOnlyInDoc.set(key, nonMutatedNFails + 1);
+            if (nonMutatedNFails === void 0) {
+              unexpectedFails.push(fail);
+            } else nonMutatedOnlyInDoc.set(key, nonMutatedNFails + 1);
           }
           break;
         case 'match-with-inconsistenties':
@@ -248,8 +257,7 @@ export const evaluateDocMutations = async (
                   f.docRequestConfig.originalPath,
             );
             if (failWithIncsIndex === -1) {
-              hasUnexpectedFail = true;
-              break;
+              unexpectedFails.push(fail);
             }
             nNonMutatedFailsWithIncs[failWithIncsIndex]++;
           }
@@ -258,7 +266,7 @@ export const evaluateDocMutations = async (
     }
 
     if (
-      !hasUnexpectedFail &&
+      unexpectedFails.length === 0 &&
       [...requestConfigKeyToNFails.entries()].every(
         ([k, n]) => n === nParts - (requestConfigKeyToNSection.get(k) ?? 1),
       ) &&
@@ -269,6 +277,27 @@ export const evaluateDocMutations = async (
     ) {
       correctCount++;
       await rm(dirPath, { recursive: true, force: true });
+    } else {
+      await writeFile(
+        join(dirPath, 'result.json'),
+        JSON.stringify({
+          unexpectedFails,
+          requestConfigKeyToNFails: [
+            ...requestConfigKeyToNFails.entries(),
+          ].filter(
+            ([k, n]) => n !== nParts - (requestConfigKeyToNSection.get(k) ?? 1),
+          ),
+          nonMutatedOnlyInOas: [...nonMutatedOnlyInOas.entries()].filter(
+            ([, n]) => n !== nParts,
+          ),
+          nonMutatedOnlyInDoc: [...nonMutatedOnlyInDoc.entries()].filter(
+            ([, n]) => n !== 1,
+          ),
+          nonMutatedFailsWithIncs: nNonMutatedFailsWithIncs.filter(
+            n => n !== 1,
+          ),
+        }),
+      );
     }
   }
   console.info(

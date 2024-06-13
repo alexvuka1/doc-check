@@ -62,8 +62,6 @@ export const setupInputRepo = async (
         return '';
     }
   });
-  process.env.OAS_PATH = pathOasGithub;
-  process.env.DOC_PATH = pathDocGithub;
 };
 
 export const getOrDownload = async (

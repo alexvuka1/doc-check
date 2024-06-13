@@ -52,6 +52,7 @@ describe('action', () => {
     'handles oas mutations',
     async () => {
       for (const repoInfo of Object.values(repoInfos)) {
+        rng = seedrandom(seed);
         await evaluateOasMutations(
           repoInfo,
           {

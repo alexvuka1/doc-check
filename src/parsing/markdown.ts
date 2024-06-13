@@ -1,4 +1,4 @@
-import { capitalize, includes, reduce } from 'lodash-es';
+import { capitalize, includes } from 'lodash-es';
 import { Root } from 'mdast';
 import { remark } from 'remark';
 import remarkFrontmatter from 'remark-frontmatter';
@@ -119,31 +119,22 @@ export const oasRequestConfigToDocRegex = (requestConfig: OasRequestConfig) => {
     .flatMap(s => {
       const serverStart =
         s.scheme && s.host
-          ? `(${[s.scheme].join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
-          : '';
-      const serverEnd = s.basePath
-        ? reduce(
-            s.basePath,
-            (acc, p, i, ps) => {
-              const regexStr = escapeRegexSpecial(pathSegsToRegexStr([p]));
-              return acc === ''
-                ? `(/${regexStr})?`
-                : `(${acc}/${regexStr})${i === ps.length - 1 ? '' : '?'}`;
-            },
-            '',
-          )
-        : '';
+          ? `(${s.scheme})?:\\/\\/${escapeRegexSpecial(s.host)}`
+          : s.host
+            ? `${escapeRegexSpecial(s.host)}`
+            : '';
+      const serverEnd = `\\/${s.basePath.map(p => escapeRegexSpecial(pathSegsToRegexStr([p]))).join('\\/')}`;
       const server =
         Boolean(serverStart) && Boolean(serverEnd)
           ? `((${serverStart})?${serverEnd})`
-          : Boolean(serverStart)
-            ? `((${serverStart})?)`
-            : serverEnd;
+          : Boolean(serverEnd)
+            ? `(${serverEnd})`
+            : '';
       return server === '' ? [] : server;
     })
     .join('|');
   const regex = new RegExp(
-    `(?<=\\s|^)(${serverRegex})?/${pathSegsToRegexStr(requestConfig.pathSegs)}(?=\\s|$)`,
+    `(?<=\\s|^)(${serverRegex})?/${pathSegsToRegexStr(requestConfig.pathSegs)}/?(?=\\s|$)`,
   );
   return regex;
 };
@@ -159,13 +150,14 @@ export const extractPaths = (str: string) => {
   if (!match) return [];
   const res: string[] = [];
   for (const path of match) {
-    if (!path.includes('[/:')) {
-      res.push(path);
+    const normalisedPath = path.endsWith('/') ? path.slice(0, -1) : path;
+    if (!normalisedPath.includes('[/:')) {
+      res.push(normalisedPath);
       continue;
     }
     const optionalParamRegex = new RegExp(optionalParamPatern);
-    const path1 = path.replace(optionalParamRegex, '');
-    const path2 = path.replace(optionalParamRegex, '$1');
+    const path1 = normalisedPath.replace(optionalParamRegex, '');
+    const path2 = normalisedPath.replace(optionalParamRegex, '$1');
     res.push(path1, path2);
   }
   return res;

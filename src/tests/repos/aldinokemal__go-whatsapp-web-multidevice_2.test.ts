@@ -23,7 +23,6 @@ describe('action', () => {
 
     await main.run();
 
-    // console.log(setFailedMock.mock.calls[0]?.[0]);
     expectFail(setFailedMock).toEqual([
       {
         type: 'only-in-doc',

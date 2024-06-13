@@ -14891,7 +14891,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.getSchemaRefs = exports.resolveUrl = exports.normalizeId = exports._getFullPath = exports.getFullPath = exports.inlineRef = void 0;
 const util_1 = __nccwpck_require__(9858);
 const equal = __nccwpck_require__(8206);
-const traverse = __nccwpck_require__(2533);
+const traverse = __nccwpck_require__(2958);
 // TODO refactor to use keyword definitions
 const SIMPLE_INLINED = new Set([
     "type",
@@ -19403,6 +19403,106 @@ const def = {
 };
 exports["default"] = def;
 //# sourceMappingURL=uniqueItems.js.map
+
+/***/ }),
+
+/***/ 2958:
+/***/ ((module) => {
+
+
+
+var traverse = module.exports = function (schema, opts, cb) {
+  // Legacy support for v0.3.1 and earlier.
+  if (typeof opts == 'function') {
+    cb = opts;
+    opts = {};
+  }
+
+  cb = opts.cb || cb;
+  var pre = (typeof cb == 'function') ? cb : cb.pre || function() {};
+  var post = cb.post || function() {};
+
+  _traverse(opts, pre, post, schema, '', schema);
+};
+
+
+traverse.keywords = {
+  additionalItems: true,
+  items: true,
+  contains: true,
+  additionalProperties: true,
+  propertyNames: true,
+  not: true,
+  if: true,
+  then: true,
+  else: true
+};
+
+traverse.arrayKeywords = {
+  items: true,
+  allOf: true,
+  anyOf: true,
+  oneOf: true
+};
+
+traverse.propsKeywords = {
+  $defs: true,
+  definitions: true,
+  properties: true,
+  patternProperties: true,
+  dependencies: true
+};
+
+traverse.skipKeywords = {
+  default: true,
+  enum: true,
+  const: true,
+  required: true,
+  maximum: true,
+  minimum: true,
+  exclusiveMaximum: true,
+  exclusiveMinimum: true,
+  multipleOf: true,
+  maxLength: true,
+  minLength: true,
+  pattern: true,
+  format: true,
+  maxItems: true,
+  minItems: true,
+  uniqueItems: true,
+  maxProperties: true,
+  minProperties: true
+};
+
+
+function _traverse(opts, pre, post, schema, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex) {
+  if (schema && typeof schema == 'object' && !Array.isArray(schema)) {
+    pre(schema, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex);
+    for (var key in schema) {
+      var sch = schema[key];
+      if (Array.isArray(sch)) {
+        if (key in traverse.arrayKeywords) {
+          for (var i=0; i<sch.length; i++)
+            _traverse(opts, pre, post, sch[i], jsonPtr + '/' + key + '/' + i, rootSchema, jsonPtr, key, schema, i);
+        }
+      } else if (key in traverse.propsKeywords) {
+        if (sch && typeof sch == 'object') {
+          for (var prop in sch)
+            _traverse(opts, pre, post, sch[prop], jsonPtr + '/' + key + '/' + escapeJsonPtr(prop), rootSchema, jsonPtr, key, schema, prop);
+        }
+      } else if (key in traverse.keywords || (opts.allKeys && !(key in traverse.skipKeywords))) {
+        _traverse(opts, pre, post, sch, jsonPtr + '/' + key, rootSchema, jsonPtr, key, schema);
+      }
+    }
+    post(schema, jsonPtr, rootSchema, parentJsonPtr, parentKeyword, parentSchema, keyIndex);
+  }
+}
+
+
+function escapeJsonPtr(str) {
+  return str.replace(/~/g, '~0').replace(/\//g, '~1');
+}
+
 
 /***/ }),
 
@@ -26038,6 +26138,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 const codegen_1 = __nccwpck_require__(9179);
 const types_1 = __nccwpck_require__(8374);
 const compile_1 = __nccwpck_require__(813);
+const ref_error_1 = __nccwpck_require__(8190);
 const util_1 = __nccwpck_require__(3439);
 const error = {
     message: ({ params: { discrError, tagName } }) => discrError === types_1.DiscrError.Tag
@@ -26092,9 +26193,12 @@ const def = {
             for (let i = 0; i < oneOf.length; i++) {
                 let sch = oneOf[i];
                 if ((sch === null || sch === void 0 ? void 0 : sch.$ref) && !(0, util_1.schemaHasRulesButRef)(sch, it.self.RULES)) {
-                    sch = compile_1.resolveRef.call(it.self, it.schemaEnv.root, it.baseId, sch === null || sch === void 0 ? void 0 : sch.$ref);
+                    const ref = sch.$ref;
+                    sch = compile_1.resolveRef.call(it.self, it.schemaEnv.root, it.baseId, ref);
                     if (sch instanceof compile_1.SchemaEnv)
                         sch = sch.schema;
+                    if (sch === undefined)
+                        throw new ref_error_1.default(it.opts.uriResolver, it.baseId, ref);
                 }
                 const propSch = (_a = sch === null || sch === void 0 ? void 0 : sch.properties) === null || _a === void 0 ? void 0 : _a[tagName];
                 if (typeof propSch != "object") {
@@ -57773,7 +57877,7 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-/* harmony import */ var _main__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(2628);
+/* harmony import */ var _main__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(9418);
 /**
  * The entrypoint for the action.
  */
@@ -57785,7 +57889,7 @@ __webpack_async_result__();
 
 /***/ }),
 
-/***/ 2628:
+/***/ 9418:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -65837,860 +65941,6 @@ function capitalize(string) {
 }
 
 /* harmony default export */ const lodash_es_capitalize = (capitalize);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_arrayReduce.js
-/**
- * A specialized version of `_.reduce` for arrays without support for
- * iteratee shorthands.
- *
- * @private
- * @param {Array} [array] The array to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @param {*} [accumulator] The initial value.
- * @param {boolean} [initAccum] Specify using the first element of `array` as
- *  the initial value.
- * @returns {*} Returns the accumulated value.
- */
-function arrayReduce(array, iteratee, accumulator, initAccum) {
-  var index = -1,
-      length = array == null ? 0 : array.length;
-
-  if (initAccum && length) {
-    accumulator = array[++index];
-  }
-  while (++index < length) {
-    accumulator = iteratee(accumulator, array[index], index, array);
-  }
-  return accumulator;
-}
-
-/* harmony default export */ const _arrayReduce = (arrayReduce);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_createBaseFor.js
-/**
- * Creates a base function for methods like `_.forIn` and `_.forOwn`.
- *
- * @private
- * @param {boolean} [fromRight] Specify iterating from right to left.
- * @returns {Function} Returns the new base function.
- */
-function createBaseFor(fromRight) {
-  return function(object, iteratee, keysFunc) {
-    var index = -1,
-        iterable = Object(object),
-        props = keysFunc(object),
-        length = props.length;
-
-    while (length--) {
-      var key = props[fromRight ? length : ++index];
-      if (iteratee(iterable[key], key, iterable) === false) {
-        break;
-      }
-    }
-    return object;
-  };
-}
-
-/* harmony default export */ const _createBaseFor = (createBaseFor);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseFor.js
-
-
-/**
- * The base implementation of `baseForOwn` which iterates over `object`
- * properties returned by `keysFunc` and invokes `iteratee` for each property.
- * Iteratee functions may exit iteration early by explicitly returning `false`.
- *
- * @private
- * @param {Object} object The object to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @param {Function} keysFunc The function to get the keys of `object`.
- * @returns {Object} Returns `object`.
- */
-var baseFor = _createBaseFor();
-
-/* harmony default export */ const _baseFor = (baseFor);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseForOwn.js
-
-
-
-/**
- * The base implementation of `_.forOwn` without support for iteratee shorthands.
- *
- * @private
- * @param {Object} object The object to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Object} Returns `object`.
- */
-function baseForOwn(object, iteratee) {
-  return object && _baseFor(object, iteratee, lodash_es_keys);
-}
-
-/* harmony default export */ const _baseForOwn = (baseForOwn);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_createBaseEach.js
-
-
-/**
- * Creates a `baseEach` or `baseEachRight` function.
- *
- * @private
- * @param {Function} eachFunc The function to iterate over a collection.
- * @param {boolean} [fromRight] Specify iterating from right to left.
- * @returns {Function} Returns the new base function.
- */
-function createBaseEach(eachFunc, fromRight) {
-  return function(collection, iteratee) {
-    if (collection == null) {
-      return collection;
-    }
-    if (!lodash_es_isArrayLike(collection)) {
-      return eachFunc(collection, iteratee);
-    }
-    var length = collection.length,
-        index = fromRight ? length : -1,
-        iterable = Object(collection);
-
-    while ((fromRight ? index-- : ++index < length)) {
-      if (iteratee(iterable[index], index, iterable) === false) {
-        break;
-      }
-    }
-    return collection;
-  };
-}
-
-/* harmony default export */ const _createBaseEach = (createBaseEach);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseEach.js
-
-
-
-/**
- * The base implementation of `_.forEach` without support for iteratee shorthands.
- *
- * @private
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @returns {Array|Object} Returns `collection`.
- */
-var baseEach = _createBaseEach(_baseForOwn);
-
-/* harmony default export */ const _baseEach = (baseEach);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseIsMatch.js
-
-
-
-/** Used to compose bitmasks for value comparisons. */
-var _baseIsMatch_COMPARE_PARTIAL_FLAG = 1,
-    _baseIsMatch_COMPARE_UNORDERED_FLAG = 2;
-
-/**
- * The base implementation of `_.isMatch` without support for iteratee shorthands.
- *
- * @private
- * @param {Object} object The object to inspect.
- * @param {Object} source The object of property values to match.
- * @param {Array} matchData The property names, values, and compare flags to match.
- * @param {Function} [customizer] The function to customize comparisons.
- * @returns {boolean} Returns `true` if `object` is a match, else `false`.
- */
-function baseIsMatch(object, source, matchData, customizer) {
-  var index = matchData.length,
-      length = index,
-      noCustomizer = !customizer;
-
-  if (object == null) {
-    return !length;
-  }
-  object = Object(object);
-  while (index--) {
-    var data = matchData[index];
-    if ((noCustomizer && data[2])
-          ? data[1] !== object[data[0]]
-          : !(data[0] in object)
-        ) {
-      return false;
-    }
-  }
-  while (++index < length) {
-    data = matchData[index];
-    var key = data[0],
-        objValue = object[key],
-        srcValue = data[1];
-
-    if (noCustomizer && data[2]) {
-      if (objValue === undefined && !(key in object)) {
-        return false;
-      }
-    } else {
-      var stack = new _Stack;
-      if (customizer) {
-        var result = customizer(objValue, srcValue, key, object, source, stack);
-      }
-      if (!(result === undefined
-            ? _baseIsEqual(srcValue, objValue, _baseIsMatch_COMPARE_PARTIAL_FLAG | _baseIsMatch_COMPARE_UNORDERED_FLAG, customizer, stack)
-            : result
-          )) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-/* harmony default export */ const _baseIsMatch = (baseIsMatch);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_isStrictComparable.js
-
-
-/**
- * Checks if `value` is suitable for strict equality comparisons, i.e. `===`.
- *
- * @private
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` if suitable for strict
- *  equality comparisons, else `false`.
- */
-function isStrictComparable(value) {
-  return value === value && !lodash_es_isObject(value);
-}
-
-/* harmony default export */ const _isStrictComparable = (isStrictComparable);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_getMatchData.js
-
-
-
-/**
- * Gets the property names, values, and compare flags of `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @returns {Array} Returns the match data of `object`.
- */
-function getMatchData(object) {
-  var result = lodash_es_keys(object),
-      length = result.length;
-
-  while (length--) {
-    var key = result[length],
-        value = object[key];
-
-    result[length] = [key, value, _isStrictComparable(value)];
-  }
-  return result;
-}
-
-/* harmony default export */ const _getMatchData = (getMatchData);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_matchesStrictComparable.js
-/**
- * A specialized version of `matchesProperty` for source values suitable
- * for strict equality comparisons, i.e. `===`.
- *
- * @private
- * @param {string} key The key of the property to get.
- * @param {*} srcValue The value to match.
- * @returns {Function} Returns the new spec function.
- */
-function matchesStrictComparable(key, srcValue) {
-  return function(object) {
-    if (object == null) {
-      return false;
-    }
-    return object[key] === srcValue &&
-      (srcValue !== undefined || (key in Object(object)));
-  };
-}
-
-/* harmony default export */ const _matchesStrictComparable = (matchesStrictComparable);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseMatches.js
-
-
-
-
-/**
- * The base implementation of `_.matches` which doesn't clone `source`.
- *
- * @private
- * @param {Object} source The object of property values to match.
- * @returns {Function} Returns the new spec function.
- */
-function baseMatches(source) {
-  var matchData = _getMatchData(source);
-  if (matchData.length == 1 && matchData[0][2]) {
-    return _matchesStrictComparable(matchData[0][0], matchData[0][1]);
-  }
-  return function(object) {
-    return object === source || _baseIsMatch(object, source, matchData);
-  };
-}
-
-/* harmony default export */ const _baseMatches = (baseMatches);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_isKey.js
-
-
-
-/** Used to match property names within property paths. */
-var reIsDeepProp = /\.|\[(?:[^[\]]*|(["'])(?:(?!\1)[^\\]|\\.)*?\1)\]/,
-    reIsPlainProp = /^\w*$/;
-
-/**
- * Checks if `value` is a property name and not a property path.
- *
- * @private
- * @param {*} value The value to check.
- * @param {Object} [object] The object to query keys on.
- * @returns {boolean} Returns `true` if `value` is a property name, else `false`.
- */
-function isKey(value, object) {
-  if (lodash_es_isArray(value)) {
-    return false;
-  }
-  var type = typeof value;
-  if (type == 'number' || type == 'symbol' || type == 'boolean' ||
-      value == null || lodash_es_isSymbol(value)) {
-    return true;
-  }
-  return reIsPlainProp.test(value) || !reIsDeepProp.test(value) ||
-    (object != null && value in Object(object));
-}
-
-/* harmony default export */ const _isKey = (isKey);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/memoize.js
-
-
-/** Error message constants. */
-var FUNC_ERROR_TEXT = 'Expected a function';
-
-/**
- * Creates a function that memoizes the result of `func`. If `resolver` is
- * provided, it determines the cache key for storing the result based on the
- * arguments provided to the memoized function. By default, the first argument
- * provided to the memoized function is used as the map cache key. The `func`
- * is invoked with the `this` binding of the memoized function.
- *
- * **Note:** The cache is exposed as the `cache` property on the memoized
- * function. Its creation may be customized by replacing the `_.memoize.Cache`
- * constructor with one whose instances implement the
- * [`Map`](http://ecma-international.org/ecma-262/7.0/#sec-properties-of-the-map-prototype-object)
- * method interface of `clear`, `delete`, `get`, `has`, and `set`.
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Function
- * @param {Function} func The function to have its output memoized.
- * @param {Function} [resolver] The function to resolve the cache key.
- * @returns {Function} Returns the new memoized function.
- * @example
- *
- * var object = { 'a': 1, 'b': 2 };
- * var other = { 'c': 3, 'd': 4 };
- *
- * var values = _.memoize(_.values);
- * values(object);
- * // => [1, 2]
- *
- * values(other);
- * // => [3, 4]
- *
- * object.a = 2;
- * values(object);
- * // => [1, 2]
- *
- * // Modify the result cache.
- * values.cache.set(object, ['a', 'b']);
- * values(object);
- * // => ['a', 'b']
- *
- * // Replace `_.memoize.Cache`.
- * _.memoize.Cache = WeakMap;
- */
-function memoize(func, resolver) {
-  if (typeof func != 'function' || (resolver != null && typeof resolver != 'function')) {
-    throw new TypeError(FUNC_ERROR_TEXT);
-  }
-  var memoized = function() {
-    var args = arguments,
-        key = resolver ? resolver.apply(this, args) : args[0],
-        cache = memoized.cache;
-
-    if (cache.has(key)) {
-      return cache.get(key);
-    }
-    var result = func.apply(this, args);
-    memoized.cache = cache.set(key, result) || cache;
-    return result;
-  };
-  memoized.cache = new (memoize.Cache || _MapCache);
-  return memoized;
-}
-
-// Expose `MapCache`.
-memoize.Cache = _MapCache;
-
-/* harmony default export */ const lodash_es_memoize = (memoize);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_memoizeCapped.js
-
-
-/** Used as the maximum memoize cache size. */
-var MAX_MEMOIZE_SIZE = 500;
-
-/**
- * A specialized version of `_.memoize` which clears the memoized function's
- * cache when it exceeds `MAX_MEMOIZE_SIZE`.
- *
- * @private
- * @param {Function} func The function to have its output memoized.
- * @returns {Function} Returns the new memoized function.
- */
-function memoizeCapped(func) {
-  var result = lodash_es_memoize(func, function(key) {
-    if (cache.size === MAX_MEMOIZE_SIZE) {
-      cache.clear();
-    }
-    return key;
-  });
-
-  var cache = result.cache;
-  return result;
-}
-
-/* harmony default export */ const _memoizeCapped = (memoizeCapped);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_stringToPath.js
-
-
-/** Used to match property names within property paths. */
-var rePropName = /[^.[\]]+|\[(?:(-?\d+(?:\.\d+)?)|(["'])((?:(?!\2)[^\\]|\\.)*?)\2)\]|(?=(?:\.|\[\])(?:\.|\[\]|$))/g;
-
-/** Used to match backslashes in property paths. */
-var reEscapeChar = /\\(\\)?/g;
-
-/**
- * Converts `string` to a property path array.
- *
- * @private
- * @param {string} string The string to convert.
- * @returns {Array} Returns the property path array.
- */
-var stringToPath = _memoizeCapped(function(string) {
-  var result = [];
-  if (string.charCodeAt(0) === 46 /* . */) {
-    result.push('');
-  }
-  string.replace(rePropName, function(match, number, quote, subString) {
-    result.push(quote ? subString.replace(reEscapeChar, '$1') : (number || match));
-  });
-  return result;
-});
-
-/* harmony default export */ const _stringToPath = (stringToPath);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_castPath.js
-
-
-
-
-
-/**
- * Casts `value` to a path array if it's not one.
- *
- * @private
- * @param {*} value The value to inspect.
- * @param {Object} [object] The object to query keys on.
- * @returns {Array} Returns the cast property path array.
- */
-function castPath(value, object) {
-  if (lodash_es_isArray(value)) {
-    return value;
-  }
-  return _isKey(value, object) ? [value] : _stringToPath(lodash_es_toString(value));
-}
-
-/* harmony default export */ const _castPath = (castPath);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_toKey.js
-
-
-/** Used as references for various `Number` constants. */
-var _toKey_INFINITY = 1 / 0;
-
-/**
- * Converts `value` to a string key if it's not a string or symbol.
- *
- * @private
- * @param {*} value The value to inspect.
- * @returns {string|symbol} Returns the key.
- */
-function toKey(value) {
-  if (typeof value == 'string' || lodash_es_isSymbol(value)) {
-    return value;
-  }
-  var result = (value + '');
-  return (result == '0' && (1 / value) == -_toKey_INFINITY) ? '-0' : result;
-}
-
-/* harmony default export */ const _toKey = (toKey);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseGet.js
-
-
-
-/**
- * The base implementation of `_.get` without support for default values.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array|string} path The path of the property to get.
- * @returns {*} Returns the resolved value.
- */
-function baseGet(object, path) {
-  path = _castPath(path, object);
-
-  var index = 0,
-      length = path.length;
-
-  while (object != null && index < length) {
-    object = object[_toKey(path[index++])];
-  }
-  return (index && index == length) ? object : undefined;
-}
-
-/* harmony default export */ const _baseGet = (baseGet);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/get.js
-
-
-/**
- * Gets the value at `path` of `object`. If the resolved value is
- * `undefined`, the `defaultValue` is returned in its place.
- *
- * @static
- * @memberOf _
- * @since 3.7.0
- * @category Object
- * @param {Object} object The object to query.
- * @param {Array|string} path The path of the property to get.
- * @param {*} [defaultValue] The value returned for `undefined` resolved values.
- * @returns {*} Returns the resolved value.
- * @example
- *
- * var object = { 'a': [{ 'b': { 'c': 3 } }] };
- *
- * _.get(object, 'a[0].b.c');
- * // => 3
- *
- * _.get(object, ['a', '0', 'b', 'c']);
- * // => 3
- *
- * _.get(object, 'a.b.c', 'default');
- * // => 'default'
- */
-function get(object, path, defaultValue) {
-  var result = object == null ? undefined : _baseGet(object, path);
-  return result === undefined ? defaultValue : result;
-}
-
-/* harmony default export */ const lodash_es_get = (get);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseHasIn.js
-/**
- * The base implementation of `_.hasIn` without support for deep paths.
- *
- * @private
- * @param {Object} [object] The object to query.
- * @param {Array|string} key The key to check.
- * @returns {boolean} Returns `true` if `key` exists, else `false`.
- */
-function baseHasIn(object, key) {
-  return object != null && key in Object(object);
-}
-
-/* harmony default export */ const _baseHasIn = (baseHasIn);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_hasPath.js
-
-
-
-
-
-
-
-/**
- * Checks if `path` exists on `object`.
- *
- * @private
- * @param {Object} object The object to query.
- * @param {Array|string} path The path to check.
- * @param {Function} hasFunc The function to check properties.
- * @returns {boolean} Returns `true` if `path` exists, else `false`.
- */
-function hasPath(object, path, hasFunc) {
-  path = _castPath(path, object);
-
-  var index = -1,
-      length = path.length,
-      result = false;
-
-  while (++index < length) {
-    var key = _toKey(path[index]);
-    if (!(result = object != null && hasFunc(object, key))) {
-      break;
-    }
-    object = object[key];
-  }
-  if (result || ++index != length) {
-    return result;
-  }
-  length = object == null ? 0 : object.length;
-  return !!length && lodash_es_isLength(length) && _isIndex(key, length) &&
-    (lodash_es_isArray(object) || lodash_es_isArguments(object));
-}
-
-/* harmony default export */ const _hasPath = (hasPath);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/hasIn.js
-
-
-
-/**
- * Checks if `path` is a direct or inherited property of `object`.
- *
- * @static
- * @memberOf _
- * @since 4.0.0
- * @category Object
- * @param {Object} object The object to query.
- * @param {Array|string} path The path to check.
- * @returns {boolean} Returns `true` if `path` exists, else `false`.
- * @example
- *
- * var object = _.create({ 'a': _.create({ 'b': 2 }) });
- *
- * _.hasIn(object, 'a');
- * // => true
- *
- * _.hasIn(object, 'a.b');
- * // => true
- *
- * _.hasIn(object, ['a', 'b']);
- * // => true
- *
- * _.hasIn(object, 'b');
- * // => false
- */
-function hasIn(object, path) {
-  return object != null && _hasPath(object, path, _baseHasIn);
-}
-
-/* harmony default export */ const lodash_es_hasIn = (hasIn);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseMatchesProperty.js
-
-
-
-
-
-
-
-
-/** Used to compose bitmasks for value comparisons. */
-var _baseMatchesProperty_COMPARE_PARTIAL_FLAG = 1,
-    _baseMatchesProperty_COMPARE_UNORDERED_FLAG = 2;
-
-/**
- * The base implementation of `_.matchesProperty` which doesn't clone `srcValue`.
- *
- * @private
- * @param {string} path The path of the property to get.
- * @param {*} srcValue The value to match.
- * @returns {Function} Returns the new spec function.
- */
-function baseMatchesProperty(path, srcValue) {
-  if (_isKey(path) && _isStrictComparable(srcValue)) {
-    return _matchesStrictComparable(_toKey(path), srcValue);
-  }
-  return function(object) {
-    var objValue = lodash_es_get(object, path);
-    return (objValue === undefined && objValue === srcValue)
-      ? lodash_es_hasIn(object, path)
-      : _baseIsEqual(srcValue, objValue, _baseMatchesProperty_COMPARE_PARTIAL_FLAG | _baseMatchesProperty_COMPARE_UNORDERED_FLAG);
-  };
-}
-
-/* harmony default export */ const _baseMatchesProperty = (baseMatchesProperty);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_basePropertyDeep.js
-
-
-/**
- * A specialized version of `baseProperty` which supports deep paths.
- *
- * @private
- * @param {Array|string} path The path of the property to get.
- * @returns {Function} Returns the new accessor function.
- */
-function basePropertyDeep(path) {
-  return function(object) {
-    return _baseGet(object, path);
-  };
-}
-
-/* harmony default export */ const _basePropertyDeep = (basePropertyDeep);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/property.js
-
-
-
-
-
-/**
- * Creates a function that returns the value at `path` of a given object.
- *
- * @static
- * @memberOf _
- * @since 2.4.0
- * @category Util
- * @param {Array|string} path The path of the property to get.
- * @returns {Function} Returns the new accessor function.
- * @example
- *
- * var objects = [
- *   { 'a': { 'b': 2 } },
- *   { 'a': { 'b': 1 } }
- * ];
- *
- * _.map(objects, _.property('a.b'));
- * // => [2, 1]
- *
- * _.map(_.sortBy(objects, _.property(['a', 'b'])), 'a.b');
- * // => [1, 2]
- */
-function property(path) {
-  return _isKey(path) ? _baseProperty(_toKey(path)) : _basePropertyDeep(path);
-}
-
-/* harmony default export */ const lodash_es_property = (property);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseIteratee.js
-
-
-
-
-
-
-/**
- * The base implementation of `_.iteratee`.
- *
- * @private
- * @param {*} [value=_.identity] The value to convert to an iteratee.
- * @returns {Function} Returns the iteratee.
- */
-function baseIteratee(value) {
-  // Don't store the `typeof` result in a variable to avoid a JIT bug in Safari 9.
-  // See https://bugs.webkit.org/show_bug.cgi?id=156034 for more details.
-  if (typeof value == 'function') {
-    return value;
-  }
-  if (value == null) {
-    return lodash_es_identity;
-  }
-  if (typeof value == 'object') {
-    return lodash_es_isArray(value)
-      ? _baseMatchesProperty(value[0], value[1])
-      : _baseMatches(value);
-  }
-  return lodash_es_property(value);
-}
-
-/* harmony default export */ const _baseIteratee = (baseIteratee);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/_baseReduce.js
-/**
- * The base implementation of `_.reduce` and `_.reduceRight`, without support
- * for iteratee shorthands, which iterates over `collection` using `eachFunc`.
- *
- * @private
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} iteratee The function invoked per iteration.
- * @param {*} accumulator The initial value.
- * @param {boolean} initAccum Specify using the first or last element of
- *  `collection` as the initial value.
- * @param {Function} eachFunc The function to iterate over `collection`.
- * @returns {*} Returns the accumulated value.
- */
-function baseReduce(collection, iteratee, accumulator, initAccum, eachFunc) {
-  eachFunc(collection, function(value, index, collection) {
-    accumulator = initAccum
-      ? (initAccum = false, value)
-      : iteratee(accumulator, value, index, collection);
-  });
-  return accumulator;
-}
-
-/* harmony default export */ const _baseReduce = (baseReduce);
-
-;// CONCATENATED MODULE: ./node_modules/lodash-es/reduce.js
-
-
-
-
-
-
-/**
- * Reduces `collection` to a value which is the accumulated result of running
- * each element in `collection` thru `iteratee`, where each successive
- * invocation is supplied the return value of the previous. If `accumulator`
- * is not given, the first element of `collection` is used as the initial
- * value. The iteratee is invoked with four arguments:
- * (accumulator, value, index|key, collection).
- *
- * Many lodash methods are guarded to work as iteratees for methods like
- * `_.reduce`, `_.reduceRight`, and `_.transform`.
- *
- * The guarded methods are:
- * `assign`, `defaults`, `defaultsDeep`, `includes`, `merge`, `orderBy`,
- * and `sortBy`
- *
- * @static
- * @memberOf _
- * @since 0.1.0
- * @category Collection
- * @param {Array|Object} collection The collection to iterate over.
- * @param {Function} [iteratee=_.identity] The function invoked per iteration.
- * @param {*} [accumulator] The initial value.
- * @returns {*} Returns the accumulated value.
- * @see _.reduceRight
- * @example
- *
- * _.reduce([1, 2], function(sum, n) {
- *   return sum + n;
- * }, 0);
- * // => 3
- *
- * _.reduce({ 'a': 1, 'b': 2, 'c': 1 }, function(result, value, key) {
- *   (result[value] || (result[value] = [])).push(key);
- *   return result;
- * }, {});
- * // => { '1': ['a', 'c'], '2': ['b'] } (iteration order is not guaranteed)
- */
-function reduce(collection, iteratee, accumulator) {
-  var func = lodash_es_isArray(collection) ? _arrayReduce : _baseReduce,
-      initAccum = arguments.length < 3;
-
-  return func(collection, _baseIteratee(iteratee, 4), accumulator, initAccum, _baseEach);
-}
-
-/* harmony default export */ const lodash_es_reduce = (reduce);
 
 ;// CONCATENATED MODULE: ./node_modules/mdast-util-to-string/lib/index.js
 /**
@@ -91829,25 +91079,20 @@ const oasRequestConfigToDocRegex = (requestConfig) => {
     const serverRegex = requestConfig.servers
         .flatMap(s => {
         const serverStart = s.scheme && s.host
-            ? `(${[s.scheme].join('|')}):\\/\\/${escapeRegexSpecial(s.host)}`
-            : '';
-        const serverEnd = s.basePath
-            ? lodash_es_reduce(s.basePath, (acc, p, i, ps) => {
-                const regexStr = escapeRegexSpecial(pathSegsToRegexStr([p]));
-                return acc === ''
-                    ? `(/${regexStr})?`
-                    : `(${acc}/${regexStr})${i === ps.length - 1 ? '' : '?'}`;
-            }, '')
-            : '';
+            ? `(${s.scheme})?:\\/\\/${escapeRegexSpecial(s.host)}`
+            : s.host
+                ? `${escapeRegexSpecial(s.host)}`
+                : '';
+        const serverEnd = `\\/${s.basePath.map(p => escapeRegexSpecial(pathSegsToRegexStr([p]))).join('\\/')}`;
         const server = Boolean(serverStart) && Boolean(serverEnd)
             ? `((${serverStart})?${serverEnd})`
-            : Boolean(serverStart)
-                ? `((${serverStart})?)`
-                : serverEnd;
+            : Boolean(serverEnd)
+                ? `(${serverEnd})`
+                : '';
         return server === '' ? [] : server;
     })
         .join('|');
-    const regex = new RegExp(`(?<=\\s|^)(${serverRegex})?/${pathSegsToRegexStr(requestConfig.pathSegs)}(?=\\s|$)`);
+    const regex = new RegExp(`(?<=\\s|^)(${serverRegex})?/${pathSegsToRegexStr(requestConfig.pathSegs)}/?(?=\\s|$)`);
     return regex;
 };
 // Extracts an API path from a string.
@@ -91859,13 +91104,14 @@ const extractPaths = (str) => {
         return [];
     const res = [];
     for (const path of match) {
-        if (!path.includes('[/:')) {
-            res.push(path);
+        const normalisedPath = path.endsWith('/') ? path.slice(0, -1) : path;
+        if (!normalisedPath.includes('[/:')) {
+            res.push(normalisedPath);
             continue;
         }
         const optionalParamRegex = new RegExp(optionalParamPatern);
-        const path1 = path.replace(optionalParamRegex, '');
-        const path2 = path.replace(optionalParamRegex, '$1');
+        const path1 = normalisedPath.replace(optionalParamRegex, '');
+        const path2 = normalisedPath.replace(optionalParamRegex, '$1');
         res.push(path1, path2);
     }
     return res;
@@ -92046,7 +91292,8 @@ const run = async () => {
         const oasIdToDocMatches = new Map([...oasIdToRequestConfig.keys()].map(k => [k, []]));
         const docSelectors = new Set();
         const structuredParents = new Set();
-        const structuredParentSelectors = new Set();
+        const structuredParentToRelativeSelector = new Map();
+        const matchedRequestKeys = new Set();
         const matchedNodes = new Set();
         const getStructuredParent = (ancestors) => ancestors.findLast(a => (['list', 'tableRow']).some(t => t === a.type)) ?? null;
         const getStructureMethodLiteral = (structuredParent, possibleMethods) => {
@@ -92058,7 +91305,9 @@ const run = async () => {
                     if (methodLiteral || shouldSkipLiteral(node)) {
                         return;
                     }
-                    const isValueMethod = possibleMethods.some(m => m.toUpperCase() === node.value);
+                    const isValueMethod = getMethodRegex(possibleMethods, {
+                        onlyUppercase: true,
+                    }).test(node.value);
                     if (!isValueMethod)
                         return;
                     methodLiteral = node;
@@ -92092,12 +91341,19 @@ const run = async () => {
                     if (!structuredParent)
                         docSelectors.add(parentSelector);
                     else {
+                        const tableIndex = structuredParent.type === 'tableRow'
+                            ? ancestors.findLastIndex(n => n.type === 'table')
+                            : -1;
+                        const structure = tableIndex !== -1 ? ancestors[tableIndex] : null;
+                        if (structure) {
+                            structuredParentToRelativeSelector.set(structure, 'tableRow');
+                        }
+                        else {
+                            structuredParentToRelativeSelector.set(tree, parentSelector);
+                        }
                         structuredParents.add(structuredParent);
-                        structuredParentSelectors.add(ancestors
-                            .splice(0, ancestors.findIndex(n => n === structuredParent) + 1)
-                            .map(n => n.type)
-                            .join(' > '));
                     }
+                    matchedRequestKeys.add(requestConfigId);
                     matchedNodes.add(node);
                 }
             });
@@ -92105,8 +91361,9 @@ const run = async () => {
         const docIdToUnmatchedRequestConfig = new Map();
         const handleFindDocRequestConfig = (method, path, literal) => {
             const id = `${method} ${path.split('?')[0]}`;
-            if (docIdToUnmatchedRequestConfig.has(id))
+            if (docIdToUnmatchedRequestConfig.has(id) || matchedRequestKeys.has(id)) {
                 return;
+            }
             const { position } = literal;
             external_assert_default()(position, 'All nodes should have a position');
             const requestConfig = docCreateRequestConfig(method, path, position.start.line);
@@ -92125,7 +91382,8 @@ const run = async () => {
                 }
             }
         };
-        if (structuredParents.size === 0 && docSelectors.size === 0) {
+        if (structuredParentToRelativeSelector.size === 0 &&
+            docSelectors.size === 0) {
             for (const literal of literalsToCheck) {
                 visit(tree, literal, searchLiteralForRequestConfig);
             }
@@ -92142,11 +91400,12 @@ const run = async () => {
                     searchLiteralForRequestConfig(sibling);
                 }
             }
-            for (const structuredParentSelector of structuredParentSelectors) {
-                const structuredParentSiblings = selectAll(structuredParentSelector, tree);
+            for (const [structure, relativeParentSelector,] of structuredParentToRelativeSelector.entries()) {
+                const structuredParentSiblings = selectAll(relativeParentSelector, structure);
                 for (const structuredParentSibling of structuredParentSiblings) {
-                    if (structuredParents.has(structuredParentSibling))
+                    if (structuredParents.has(structuredParentSibling)) {
                         continue;
+                    }
                     const methodLiteral = getStructureMethodLiteral(structuredParentSibling, methods);
                     if (!methodLiteral)
                         continue;
@@ -92204,8 +91463,9 @@ const run = async () => {
             }
         }
         unmatchedDocRequestConfigs = unmatchedDocRequestConfigs.filter((_, i) => !matchedDocIndices.has(i));
-        const unmatchedRequestConfigsTable = [...Array(unmatchedOasRequestConfigs.length)].map(() => Array(unmatchedDocRequestConfigs.length).fill('different-requestConfigs'));
-        for (const [i, oasRequestConfig] of unmatchedOasRequestConfigs.entries()) {
+        const allOasRequestConfigs = [...oasIdToRequestConfig.values()];
+        const unmatchedRequestConfigsTable = [...Array(allOasRequestConfigs.length)].map(() => Array(unmatchedDocRequestConfigs.length).fill('different-request-configs'));
+        for (const [i, oasRequestConfig] of allOasRequestConfigs.entries()) {
             for (const [j, docRequestConfig,] of unmatchedDocRequestConfigs.entries()) {
                 if (areDifferentPaths(oasRequestConfig, docRequestConfig))
                     continue;
@@ -92299,19 +91559,21 @@ const run = async () => {
         const failOutput = [];
         const handledOasIndices = new Set();
         const handledDocIndices = new Set();
-        for (const [index, unmatchedOasRequestConfig,] of unmatchedOasRequestConfigs.entries()) {
+        for (const unmatchedOasRequestConfig of unmatchedOasRequestConfigs) {
+            const index = allOasRequestConfigs.findIndex(c => lodash_es_isEqual(c, unmatchedOasRequestConfig));
+            external_assert_default()(index !== -1, 'Expected index to be defined');
             const oasRequestConfigInconsistencies = unmatchedRequestConfigsTable[index];
             if (!oasRequestConfigInconsistencies) {
                 throw new Error('Inconsistency table is not instantiated fully');
             }
-            const onlyInOas = oasRequestConfigInconsistencies.every(i => i === 'different-requestConfigs');
+            const onlyInOas = oasRequestConfigInconsistencies.every(i => i === 'different-request-configs');
             if (onlyInOas) {
                 failOutput.push({
                     type: 'only-in-oas',
                     requestConfig: unmatchedOasRequestConfig,
                 });
             }
-            const hasFullMatch = oasRequestConfigInconsistencies.some(i => i !== 'different-requestConfigs' && i.length === 0);
+            const hasFullMatch = oasRequestConfigInconsistencies.some(i => i !== 'different-request-configs' && i.length === 0);
             if (onlyInOas || hasFullMatch)
                 handledOasIndices.add(index);
         }
@@ -92323,14 +91585,14 @@ const run = async () => {
                 }
                 return docRequestConfigInconsistency;
             });
-            const onlyInDoc = docRequestConfigInconsistencies.every(i => i === 'different-requestConfigs');
+            const onlyInDoc = docRequestConfigInconsistencies.every(i => i === 'different-request-configs');
             if (onlyInDoc) {
                 failOutput.push({
                     type: 'only-in-doc',
                     requestConfig: unmatchedDocRequestConfig,
                 });
             }
-            const hasFullMatch = docRequestConfigInconsistencies.some(i => i !== 'different-requestConfigs' && i.length === 0);
+            const hasFullMatch = docRequestConfigInconsistencies.some(i => i !== 'different-request-configs' && i.length === 0);
             if (onlyInDoc || hasFullMatch)
                 handledDocIndices.add(index);
         }
@@ -92342,7 +91604,7 @@ const run = async () => {
                 continue;
             for (const [j, inconsistencies] of row.entries()) {
                 if (handledDocIndices.has(j) ||
-                    inconsistencies === 'different-requestConfigs') {
+                    inconsistencies === 'different-request-configs') {
                     continue;
                 }
                 inconsistenciesMap.set(makeKey([i, j]), inconsistencies);
@@ -92352,7 +91614,7 @@ const run = async () => {
         }
         const bestMatches = findBestMatches(oasIndexToDocIndicesInconsistencyMatches, docIndexToOasIndicesInconsistencyMatches, inconsistenciesMap);
         for (const i of bestMatches.unmatchedOas) {
-            const requestConfig = unmatchedOasRequestConfigs[i];
+            const requestConfig = allOasRequestConfigs[i];
             external_assert_default()(requestConfig, `No unmatched oas requestConfig with index ${i}`);
             failOutput.push({ type: 'only-in-oas', requestConfig });
         }
@@ -92362,7 +91624,7 @@ const run = async () => {
             failOutput.push({ type: 'only-in-doc', requestConfig });
         }
         for (const [i, j] of bestMatches.bestMatchesOasToDoc) {
-            const oasRequestConfig = unmatchedOasRequestConfigs[i];
+            const oasRequestConfig = allOasRequestConfigs[i];
             external_assert_default()(oasRequestConfig, `No unmatched oas requestConfig with index ${i}`);
             const docRequestConfig = unmatchedDocRequestConfigs[j];
             external_assert_default()(docRequestConfig, `No unmatched doc requestConfig with index ${i}`);
@@ -92402,7 +91664,7 @@ const run = async () => {
                 });
             }
         }
-        if (isTestEnv) {
+        if (isTestEnv && !process.env.OAS_PATH && !process.env.DOC_PATH) {
             await (0,promises_namespaceObject.writeFile)((0,external_path_.join)(import.meta.dir, 'tests', 'output.md'), output);
         }
         if (failOutput.length > 0) {

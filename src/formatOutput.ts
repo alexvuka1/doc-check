@@ -19,14 +19,14 @@ export type FormatOutputOptions = {
 };
 
 export const formatOutput = (
-  failOutput: FailOutput,
+  inconsistencies: FailOutput,
   options: FormatOutputOptions,
 ) => {
-  if (failOutput.length === 0) {
-    return '### ✅No inconsistencies found between Open API specifiaction and Documentation!';
+  if (inconsistencies.length === 0) {
+    return `### ✅No inconsistencies found between the [OpenAPI Specification](${options.oasPath}) and the [Documentation](${options.docPath})!`;
   }
 
-  const oasOnly = failOutput
+  const oasOnly = inconsistencies
     .flatMap(fail => {
       if (fail.type !== 'only-in-oas') return [];
       return [
@@ -37,10 +37,10 @@ export const formatOutput = (
 
   const oasOnlySection =
     oasOnly.length > 0
-      ? `- ### 🟩Found in Open API specification, 🟥Not found in Documentation\n\t${oasOnly}`
+      ? `- ### 🟩Found in OpenAPI Specification, 🟥Not found in Documentation\n\t${oasOnly}`
       : '';
 
-  const docOnly = failOutput
+  const docOnly = inconsistencies
     .flatMap(fail => {
       if (fail.type !== 'only-in-doc') return [];
       return [
@@ -51,41 +51,41 @@ export const formatOutput = (
 
   const docOnlySection =
     docOnly.length > 0
-      ? `- ### 🟥Not found in Open API specification, 🟩Found in Documentation\n\t${docOnly}`
+      ? `- ### 🟥Not found in OpenAPI Specification, 🟩Found in Documentation\n\t${docOnly}`
       : '';
 
-  const matchesWithInconsistencies = failOutput
-    .flatMap(fail => {
-      if (fail.type !== 'match-with-inconsistenties') return [];
-      const inconsistencies = [
-        `- | Inconsistency type | Open API specification <br /> [\`${fail.oasRequestConfig.method.toUpperCase()} ${oasPathSegsToPath(fail.oasRequestConfig.pathSegs)}\`](${options.oasPath}) | Documentation <br /> [\`${fail.docRequestConfig.method.toUpperCase()} ${fail.docRequestConfig.originalPath}\`](${options.docPath}?plain=1#L${fail.docRequestConfig.line}) |`,
+  const matchesWithConflicts = inconsistencies
+    .flatMap(i => {
+      if (i.type !== 'match-with-conflicts') return [];
+      const conflicts = [
+        `- | Conflict type | OpenAPI Specification <br /> [\`${i.oasRequestConfig.method.toUpperCase()} ${oasPathSegsToPath(i.oasRequestConfig.pathSegs)}\`](${options.oasPath}) | Documentation <br /> [\`${i.docRequestConfig.method.toUpperCase()} ${i.docRequestConfig.originalPath}\`](${options.docPath}?plain=1#L${i.docRequestConfig.line}) |`,
         '| --- | --- | --- |',
-        ...fail.inconsistencies.map(i => {
-          switch (i.type) {
+        ...i.conflicts.map(c => {
+          switch (c.type) {
             case 'method-mismatch':
-              return `| Method mismatch | \`${fail.oasRequestConfig.method.toUpperCase()}\` | \`${fail.docRequestConfig.method.toUpperCase()}\` |`;
-            case 'path-path-parameter-name-mismatch':
+              return `| Method mismatch | \`${i.oasRequestConfig.method.toUpperCase()}\` | \`${i.docRequestConfig.method.toUpperCase()}\` |`;
+            case 'path-parameter-name-mismatch':
               const oasServerBasePath =
-                (i.oasServerIndex
-                  ? fail.oasRequestConfig.servers[i.oasServerIndex]?.basePath
+                (c.oasServerIndex
+                  ? i.oasRequestConfig.servers[c.oasServerIndex]?.basePath
                   : null) ?? [];
               const oasFullPath = [
                 ...oasServerBasePath,
-                ...fail.oasRequestConfig.pathSegs,
+                ...i.oasRequestConfig.pathSegs,
               ];
               const oasMismatchedParam = oasFullPath.flatMap(p =>
                 p.type === 'parameter' ? [p.name] : [],
-              )[i.parameterIndex];
-              const docMismatchedParam = fail.docRequestConfig.pathSegs.flatMap(
+              )[c.parameterIndex];
+              const docMismatchedParam = i.docRequestConfig.pathSegs.flatMap(
                 p => (p.type === 'parameter' ? [p.name] : []),
-              )[i.parameterIndex];
+              )[c.parameterIndex];
               assert(
                 oasMismatchedParam,
-                `No path parameter with index ${i.parameterIndex} in oas path`,
+                `No path parameter with index ${c.parameterIndex} in oas path`,
               );
               assert(
                 docMismatchedParam,
-                `No path parameter with index ${i.parameterIndex} in doc path`,
+                `No path parameter with index ${c.parameterIndex} in doc path`,
               );
               return `| Path parameter name mismatch | \`${oasMismatchedParam}\` | \`${docMismatchedParam}\` |`;
             case 'host-mismatch':
@@ -97,21 +97,21 @@ export const formatOutput = (
           }
         }),
       ].join('\n\t\t');
-      return inconsistencies;
+      return conflicts;
     })
     .join('\n\t');
 
-  const matchesWithInconsistenciesSection =
-    matchesWithInconsistencies.length > 0
-      ? `- ### 🟩Found in Open API specification, 🟩Found in Documentation, 🟥Have Inconsistencies\n\t${matchesWithInconsistencies}`
+  const matchesWithConflictsSection =
+    matchesWithConflicts.length > 0
+      ? `- ### 🟩Found in OpenAPI Specification, 🟩Found in Documentation, 🟥Have Conflicts\n\t${matchesWithConflicts}`
       : '';
 
   return `\
-I have identified the following possible instances of inconsistencies between [Open API specification](${options.oasPath}) and [Documentation](${options.docPath}):
+The following possible instances of inconsistencies between [OpenAPI Specification](${options.oasPath}) and [Documentation](${options.docPath}) has been identified:
 
 ${oasOnlySection}
 ${docOnlySection}
-${matchesWithInconsistenciesSection}
+${matchesWithConflictsSection}
 
 **About**
 

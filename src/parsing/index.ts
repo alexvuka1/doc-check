@@ -43,9 +43,9 @@ export type DocRequestConfig = BaseRequestConfig & {
   line: number;
 };
 
-export type Inconsistency =
+export type Conflict =
   | {
-      type: 'path-path-parameter-name-mismatch';
+      type: 'path-parameter-name-mismatch';
       parameterIndex: number;
       oasServerIndex: number | null;
     }
@@ -60,7 +60,7 @@ export type Inconsistency =
       type: 'doc-scheme-not-supported-by-oas-server';
     };
 
-export type OutputInconsistency =
+export type Inconsistency =
   | {
       type: 'only-in-doc';
       requestConfig: DocRequestConfig;
@@ -70,10 +70,10 @@ export type OutputInconsistency =
       requestConfig: OasRequestConfig;
     }
   | {
-      type: 'match-with-inconsistenties';
+      type: 'match-with-conflicts';
       oasRequestConfig: OasRequestConfig;
       docRequestConfig: DocRequestConfig;
-      inconsistencies: Inconsistency[];
+      conflicts: Conflict[];
     };
 
-export type FailOutput = OutputInconsistency[];
+export type FailOutput = Inconsistency[];

@@ -350,39 +350,7 @@ describe('action', () => {
         },
       },
       {
-        type: 'only-in-oas',
-        requestConfig: {
-          method: 'get',
-          servers: [
-            {
-              scheme: 'https',
-              basePath: [
-                { type: 'literal', value: 'GRAPHSCOPE' },
-                { type: 'literal', value: 'InteractiveAPI' },
-                { type: 'literal', value: '1.0.0' },
-              ],
-              host: 'virtserver.swaggerhub.com',
-            },
-            {
-              scheme: 'https',
-              basePath: [
-                { type: 'literal', value: 'GRAPHSCOPE' },
-                { type: 'literal', value: 'interactive' },
-                { type: 'literal', value: '1.0.0' },
-              ],
-              host: 'virtserver.swaggerhub.com',
-            },
-          ],
-          pathSegs: [
-            { type: 'literal', value: 'v1' },
-            { type: 'literal', value: 'graph' },
-            { type: 'parameter', name: 'graph_id' },
-          ],
-          queryParameters: [],
-        },
-      },
-      {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'delete',
           servers: [
@@ -423,16 +391,16 @@ describe('action', () => {
           queryParameters: [],
           line: 17,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'get',
           servers: [
@@ -475,16 +443,16 @@ describe('action', () => {
           queryParameters: [],
           line: 15,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'post',
           servers: [
@@ -527,16 +495,16 @@ describe('action', () => {
           queryParameters: [],
           line: 18,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'get',
           servers: [
@@ -579,16 +547,16 @@ describe('action', () => {
           queryParameters: [],
           line: 20,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'post',
           servers: [
@@ -631,16 +599,16 @@ describe('action', () => {
           queryParameters: [],
           line: 19,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'get',
           servers: [
@@ -685,21 +653,21 @@ describe('action', () => {
           queryParameters: [],
           line: 21,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 1,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'put',
           servers: [
@@ -744,21 +712,21 @@ describe('action', () => {
           queryParameters: [],
           line: 23,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 1,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'delete',
           servers: [
@@ -803,21 +771,21 @@ describe('action', () => {
           queryParameters: [],
           line: 22,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 1,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'post',
           servers: [
@@ -858,7 +826,7 @@ describe('action', () => {
           queryParameters: [],
           line: 26,
         },
-        inconsistencies: [{ type: 'method-mismatch' }],
+        conflicts: [{ type: 'method-mismatch' }],
       },
     ]);
   });

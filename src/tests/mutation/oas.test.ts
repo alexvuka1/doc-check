@@ -32,7 +32,7 @@ describe('action', () => {
 
     const baseDirPath = join(
       import.meta.dir,
-      `../data/mutation/oas/${repoName.replace('/', '__')}`,
+      `../data/mutation/oas/${repoName.replace('/', '__')}/${sha}/identity`,
     );
 
     const pathOasLocal = await getOrDownload(pathOasGithub, baseDirPath);

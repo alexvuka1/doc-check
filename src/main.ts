@@ -19,7 +19,7 @@ import {
 import {
   DocRequestConfig,
   FailOutput,
-  Inconsistency,
+  Conflict,
   Method,
   methods,
 } from './parsing';
@@ -30,7 +30,11 @@ import {
   getMethodRegex,
   oasRequestConfigToDocRegex,
 } from './parsing/markdown';
-import { oasParse, oasParseRequestConfigs } from './parsing/openapi';
+import {
+  oasParse,
+  oasParseRequestConfigs,
+  oasPathSegsToPath,
+} from './parsing/openapi';
 import { makeKey, mapGetOrSetDefault } from './utils';
 
 export const run = async () => {
@@ -54,8 +58,11 @@ export const run = async () => {
     >([...oasIdToRequestConfig.keys()].map(k => [k, []] as const));
 
     const docSelectors = new Set<string>();
-    const structuredParents = new Set<Node>();
-    const structuredParentToRelativeSelector = new Map<Node, string>();
+    const matchedStructures = new Set<Node>();
+    const tablesToCheck = new Set<Node>();
+    const listSelectorsToCheck = new Set<string>();
+    const tableToRequestKeys = new Map<Node, string[]>();
+    const oasKeyToDocKey = new Map<string, string>();
 
     const matchedRequestKeys = new Set<string>();
     const matchedNodes = new Set<
@@ -122,19 +129,28 @@ export const run = async () => {
           );
           docMatches.push({ node, siblingWithMethod });
           if (!structuredParent) docSelectors.add(parentSelector);
-          else {
-            const tableIndex =
-              structuredParent.type === 'tableRow'
-                ? ancestors.findLastIndex(n => n.type === 'table')
-                : -1;
-            const structure = tableIndex !== -1 ? ancestors[tableIndex] : null;
-
-            if (structure) {
-              structuredParentToRelativeSelector.set(structure, 'tableRow');
-            } else {
-              structuredParentToRelativeSelector.set(tree, parentSelector);
-            }
-            structuredParents.add(structuredParent);
+          else if (structuredParent.type === 'tableRow') {
+            const tableIndex = ancestors.findLastIndex(n => n.type === 'table');
+            const tableNode = tableIndex !== -1 ? ancestors[tableIndex] : null;
+            assert(tableNode, 'Expected table node');
+            tablesToCheck.add(tableNode);
+            matchedStructures.add(structuredParent);
+            const docKey = `${requestConfig.method} ${node.value.match(oasRequestConfigToDocRegex(requestConfig))}`;
+            oasKeyToDocKey.set(requestConfigId, docKey);
+            mapGetOrSetDefault(tableToRequestKeys, tableNode, []).push(docKey);
+          } else {
+            const listNodeIndex = ancestors.findLastIndex(
+              n => n.type === 'list',
+            );
+            assert(listNodeIndex !== -1, 'Expected list node');
+            const parentListSelector = ancestors
+              .slice(0, listNodeIndex)
+              .map(a => a.type)
+              .join(' > ');
+            listSelectorsToCheck.add(parentListSelector);
+            const listNode = ancestors[listNodeIndex];
+            assert(listNode, 'Expected list node');
+            matchedStructures.add(listNode);
           }
           matchedRequestKeys.add(requestConfigId);
           matchedNodes.add(node);
@@ -177,10 +193,7 @@ export const run = async () => {
       }
     };
 
-    if (
-      structuredParentToRelativeSelector.size === 0 &&
-      docSelectors.size === 0
-    ) {
+    if (matchedNodes.size === 0) {
       for (const literal of literalsToCheck) {
         visit(tree, literal, searchLiteralForRequestConfig);
       }
@@ -198,26 +211,24 @@ export const run = async () => {
         }
       }
 
-      for (const [
-        structure,
-        relativeParentSelector,
-      ] of structuredParentToRelativeSelector.entries()) {
-        const structuredParentSiblings = selectAll(
-          relativeParentSelector,
-          structure,
-        ) as Parent[];
-        for (const structuredParentSibling of structuredParentSiblings) {
-          if (structuredParents.has(structuredParentSibling)) {
+      for (const listSelector of listSelectorsToCheck.values()) {
+        const listSiblings = selectAll(listSelector, tree) as Parent[];
+        for (const listSibling of listSiblings) {
+          if (matchedStructures.has(listSibling)) {
             continue;
           }
-          const methodLiteral = getStructureMethodLiteral(
-            structuredParentSibling,
-            methods,
-          );
+          const methodLiteral = getStructureMethodLiteral(listSibling, methods);
           if (!methodLiteral) continue;
-          const method = methodLiteral.value.toLowerCase() as Method;
+
+          const method = methodLiteral.value
+            .match(
+              getMethodRegex(methods, {
+                onlyUppercase: true,
+              }),
+            )?.[0]
+            .toLowerCase() as Method;
           for (const literal of literalsToCheck) {
-            visit(structuredParentSibling, literal, node => {
+            visit(listSibling, literal, node => {
               if (shouldSkipLiteral(node) || node === methodLiteral) return;
               const paths = extractPaths(node.value);
               for (const path of paths) {
@@ -227,19 +238,48 @@ export const run = async () => {
           }
         }
       }
+
+      for (const tableToCheck of tablesToCheck.values()) {
+        const tableRowSiblings = selectAll(
+          'tableRow',
+          tableToCheck,
+        ) as Parent[];
+        for (const tableRowSibling of tableRowSiblings) {
+          if (matchedStructures.has(tableRowSibling)) {
+            continue;
+          }
+          const methodLiteral = getStructureMethodLiteral(
+            tableRowSibling,
+            methods,
+          );
+          if (!methodLiteral) continue;
+          const method = methodLiteral.value.toLowerCase() as Method;
+          for (const literal of literalsToCheck) {
+            visit(tableRowSibling, literal, node => {
+              if (shouldSkipLiteral(node) || node === methodLiteral) return;
+              const paths = extractPaths(node.value);
+              for (const path of paths) {
+                handleFindDocRequestConfig(method, path, node);
+                mapGetOrSetDefault(tableToRequestKeys, tableToCheck, []).push(
+                  `${method} ${path}`,
+                );
+              }
+            });
+          }
+        }
+      }
     }
 
     let unmatchedOasRequestConfigs = differenceWith(
       [...oasIdToRequestConfig.keys()],
-      [...oasIdToDocMatches.entries()]
-        .filter(([, docMatches]) => docMatches.length > 0)
-        .map(([id]) => id),
+      [...matchedRequestKeys.values()],
       isEqual,
     ).map(id => {
       const oasRequestConfig = oasIdToRequestConfig.get(id);
       if (!oasRequestConfig) throw new Error('Expected oas path to be defined');
       return oasRequestConfig;
     });
+
     let unmatchedDocRequestConfigs = [
       ...docIdToUnmatchedRequestConfig.values(),
     ];
@@ -259,6 +299,12 @@ export const run = async () => {
         ) {
           continue;
         }
+
+        matchedRequestKeys.add(
+          `${oasRequestConfig.method} ${oasPathSegsToPath(
+            oasRequestConfig.pathSegs,
+          )}`,
+        );
         matchedOasIndices.add(i);
         matchedDocIndices.add(j);
       }
@@ -286,7 +332,7 @@ export const run = async () => {
 
     const allOasRequestConfigs = [...oasIdToRequestConfig.values()];
     const unmatchedRequestConfigsTable: (
-      | Inconsistency[]
+      | Conflict[]
       | 'different-request-configs'
     )[][] = [...Array(allOasRequestConfigs.length)].map(() =>
       Array(unmatchedDocRequestConfigs.length).fill(
@@ -301,110 +347,107 @@ export const run = async () => {
       ] of unmatchedDocRequestConfigs.entries()) {
         if (areDifferentPaths(oasRequestConfig, docRequestConfig)) continue;
 
-        const inconsistencies: Inconsistency[] = [];
+        const conflicts: Conflict[] = [];
         if (oasRequestConfig.method !== docRequestConfig.method) {
-          inconsistencies.push({ type: 'method-mismatch' });
+          conflicts.push({ type: 'method-mismatch' });
         }
 
-        const serversInconsistencies = [
-          ...oasRequestConfig.servers,
-          void 0,
-        ].map((s, i, arr) => {
-          if (
-            s &&
-            !(
-              (docRequestConfig.scheme &&
-                s.scheme === docRequestConfig.scheme) ||
-              (docRequestConfig.host && s.host === docRequestConfig.host) ||
-              (s.basePath &&
-                s.basePath.some(sPart =>
-                  docRequestConfig.pathSegs.some(dPart =>
-                    isEqual(sPart, dPart),
-                  ),
-                ))
-            )
-          ) {
-            return [s, null] as const;
-          }
-          const serverInconsistencies: Inconsistency[] = [];
-          if (s) {
-            const { host, scheme } = s;
-            if (docRequestConfig.host && host !== docRequestConfig.host) {
-              serverInconsistencies.push({
-                type: 'host-mismatch',
-                oasHost: host,
-              });
-            }
+        const serversConflicts = [...oasRequestConfig.servers, void 0].map(
+          (s, i, arr) => {
             if (
-              docRequestConfig.scheme &&
-              scheme &&
-              scheme !== docRequestConfig.scheme
+              s &&
+              !(
+                (docRequestConfig.scheme &&
+                  s.scheme === docRequestConfig.scheme) ||
+                (docRequestConfig.host && s.host === docRequestConfig.host) ||
+                (s.basePath &&
+                  s.basePath.some(sPart =>
+                    docRequestConfig.pathSegs.some(dPart =>
+                      isEqual(sPart, dPart),
+                    ),
+                  ))
+              )
             ) {
-              serverInconsistencies.push({
-                type: 'doc-scheme-not-supported-by-oas-server',
-              });
+              return [s, null] as const;
             }
-          }
-
-          const basePath = s?.basePath ?? [];
-          const lengthDiff =
-            basePath.length +
-            oasRequestConfig.pathSegs.length -
-            docRequestConfig.pathSegs.length;
-
-          if (lengthDiff >= 0) {
-            const partialBasePath = basePath.slice(lengthDiff);
-            const oasFullPathSegs = [
-              ...partialBasePath,
-              ...oasRequestConfig.pathSegs,
-            ];
-            let parameterIndex = -1;
-            for (const [k, oasPart] of oasFullPathSegs.entries()) {
-              if (oasPart.type === 'parameter') parameterIndex++;
-              const docPart = docRequestConfig.pathSegs[k];
-              if (!docPart) {
-                throw new Error('Expected doc path part to be defined');
+            const serverConflicts: Conflict[] = [];
+            if (s) {
+              const { host, scheme } = s;
+              if (docRequestConfig.host && host !== docRequestConfig.host) {
+                serverConflicts.push({
+                  type: 'host-mismatch',
+                  oasHost: host,
+                });
               }
-              if (isEqual(oasPart, docPart)) continue;
               if (
-                oasPart.type === 'parameter' &&
-                docPart.type === 'parameter' &&
-                !areEqualParams(
-                  oasFullPathSegs,
-                  k,
-                  docRequestConfig.pathSegs,
-                  k,
-                )
+                docRequestConfig.scheme &&
+                scheme &&
+                scheme !== docRequestConfig.scheme
               ) {
-                serverInconsistencies.push({
-                  type: 'path-path-parameter-name-mismatch',
-                  parameterIndex,
-                  oasServerIndex: i === arr.length - 1 ? null : i,
+                serverConflicts.push({
+                  type: 'doc-scheme-not-supported-by-oas-server',
                 });
               }
             }
-          }
-          return [s, serverInconsistencies] as const;
-        });
 
-        const serverInconsistencies = serversInconsistencies.reduce(
-          (si1, si2) => {
-            const [s1, i1] = si1;
-            const [, i2] = si2;
-            if (i1 === null) return si2;
-            if (i2 === null) return si1;
-            if (i1.length === i2.length) return s1 === void 0 ? si2 : si1;
-            return i1.length > i2.length ? si2 : si1;
+            const basePath = s?.basePath ?? [];
+            const lengthDiff =
+              basePath.length +
+              oasRequestConfig.pathSegs.length -
+              docRequestConfig.pathSegs.length;
+
+            if (lengthDiff >= 0) {
+              const partialBasePath = basePath.slice(lengthDiff);
+              const oasFullPathSegs = [
+                ...partialBasePath,
+                ...oasRequestConfig.pathSegs,
+              ];
+              let parameterIndex = -1;
+              for (const [k, oasPart] of oasFullPathSegs.entries()) {
+                if (oasPart.type === 'parameter') parameterIndex++;
+                const docPart = docRequestConfig.pathSegs[k];
+                if (!docPart) {
+                  throw new Error('Expected doc path part to be defined');
+                }
+                if (isEqual(oasPart, docPart)) continue;
+                if (
+                  oasPart.type === 'parameter' &&
+                  docPart.type === 'parameter' &&
+                  !areEqualParams(
+                    oasFullPathSegs,
+                    k,
+                    docRequestConfig.pathSegs,
+                    k,
+                  )
+                ) {
+                  serverConflicts.push({
+                    type: 'path-parameter-name-mismatch',
+                    parameterIndex,
+                    oasServerIndex: i === arr.length - 1 ? null : i,
+                  });
+                }
+              }
+            }
+            return [s, serverConflicts] as const;
           },
-        )?.[1];
+        );
 
-        const oasRequestConfigInconsistencies = unmatchedRequestConfigsTable[i];
-        if (!oasRequestConfigInconsistencies) {
-          throw new Error('Expected inconsistencies to be defined');
+        const serverConflicts = serversConflicts.reduce((si1, si2) => {
+          const [s1, i1] = si1;
+          const [, i2] = si2;
+          if (i1 === null) return si2;
+          if (i2 === null) return si1;
+          if (i1.length === i2.length) return s1 === void 0 ? si2 : si1;
+          return i1.length > i2.length ? si2 : si1;
+        })?.[1];
+
+        const oasRequestConfigConflicts = unmatchedRequestConfigsTable[i];
+        if (!oasRequestConfigConflicts) {
+          throw new Error('Expected conflicts to be defined');
         }
-        oasRequestConfigInconsistencies[j] = [
-          ...inconsistencies,
-          ...(serverInconsistencies ?? []),
+        oasRequestConfigConflicts[j] = [
+          ...conflicts,
+          ...(serverConflicts ?? []),
         ];
       }
     }
@@ -419,12 +462,11 @@ export const run = async () => {
         isEqual(c, unmatchedOasRequestConfig),
       );
       assert(index !== -1, 'Expected index to be defined');
-      const oasRequestConfigInconsistencies =
-        unmatchedRequestConfigsTable[index];
-      if (!oasRequestConfigInconsistencies) {
+      const oasRequestConfigConflicts = unmatchedRequestConfigsTable[index];
+      if (!oasRequestConfigConflicts) {
         throw new Error('Inconsistency table is not instantiated fully');
       }
-      const onlyInOas = oasRequestConfigInconsistencies.every(
+      const onlyInOas = oasRequestConfigConflicts.every(
         i => i === 'different-request-configs',
       );
       if (onlyInOas) {
@@ -433,7 +475,7 @@ export const run = async () => {
           requestConfig: unmatchedOasRequestConfig,
         });
       }
-      const hasFullMatch = oasRequestConfigInconsistencies.some(
+      const hasFullMatch = oasRequestConfigConflicts.some(
         i => i !== 'different-request-configs' && i.length === 0,
       );
       if (onlyInOas || hasFullMatch) handledOasIndices.add(index);
@@ -443,7 +485,7 @@ export const run = async () => {
       index,
       unmatchedDocRequestConfig,
     ] of unmatchedDocRequestConfigs.entries()) {
-      const docRequestConfigInconsistencies = unmatchedRequestConfigsTable.map(
+      const docRequestConfigConflicts = unmatchedRequestConfigsTable.map(
         row => {
           const docRequestConfigInconsistency = row[index];
           if (!docRequestConfigInconsistency) {
@@ -452,22 +494,51 @@ export const run = async () => {
           return docRequestConfigInconsistency;
         },
       );
-      const onlyInDoc = docRequestConfigInconsistencies.every(
-        i => i === 'different-request-configs',
+
+      const notDifferent = docRequestConfigConflicts.flatMap((i, index) =>
+        i === 'different-request-configs' ? [] : [index],
       );
+
+      const onlyInDoc =
+        notDifferent.length === 0 ||
+        notDifferent.every(i => {
+          const oasRequestConfig = allOasRequestConfigs[i];
+          assert(
+            oasRequestConfig,
+            `No unmatched oas requestConfig with index ${i}`,
+          );
+          const oasKey = `${oasRequestConfig.method} ${oasPathSegsToPath(
+            oasRequestConfig.pathSegs,
+          )}`;
+          return (
+            matchedRequestKeys.has(oasKey) &&
+            [...tableToRequestKeys.values()].some(
+              keys =>
+                keys.some(
+                  requestKey => requestKey === oasKeyToDocKey.get(oasKey),
+                ) &&
+                keys.some(
+                  requestKey =>
+                    requestKey ===
+                    `${unmatchedDocRequestConfig.method} ${unmatchedDocRequestConfig.originalPath}`,
+                ),
+            )
+          );
+        });
+
       if (onlyInDoc) {
         failOutput.push({
           type: 'only-in-doc',
           requestConfig: unmatchedDocRequestConfig,
         });
       }
-      const hasFullMatch = docRequestConfigInconsistencies.some(
+      const hasFullMatch = docRequestConfigConflicts.some(
         i => i !== 'different-request-configs' && i.length === 0,
       );
       if (onlyInDoc || hasFullMatch) handledDocIndices.add(index);
     }
 
-    const inconsistenciesMap = new Map<string, Inconsistency[]>();
+    const conflictsMap = new Map<string, Conflict[]>();
     const oasIndexToDocIndicesInconsistencyMatches = new Map<
       number,
       number[]
@@ -476,16 +547,24 @@ export const run = async () => {
       number,
       number[]
     >();
+
     for (const [i, row] of unmatchedRequestConfigsTable.entries()) {
-      if (handledOasIndices.has(i)) continue;
-      for (const [j, inconsistencies] of row.entries()) {
+      const oasRequestConfig = allOasRequestConfigs[i];
+      assert(
+        oasRequestConfig,
+        `No unmatched oas requestConfig with index ${i}`,
+      );
+      if (handledOasIndices.has(i)) {
+        continue;
+      }
+      for (const [j, conflicts] of row.entries()) {
         if (
           handledDocIndices.has(j) ||
-          inconsistencies === 'different-request-configs'
+          conflicts === 'different-request-configs'
         ) {
           continue;
         }
-        inconsistenciesMap.set(makeKey([i, j]), inconsistencies);
+        conflictsMap.set(makeKey([i, j]), conflicts);
         mapGetOrSetDefault(
           oasIndexToDocIndicesInconsistencyMatches,
           i,
@@ -502,12 +581,15 @@ export const run = async () => {
     const bestMatches = findBestMatches(
       oasIndexToDocIndicesInconsistencyMatches,
       docIndexToOasIndicesInconsistencyMatches,
-      inconsistenciesMap,
+      conflictsMap,
     );
 
     for (const i of bestMatches.unmatchedOas) {
       const requestConfig = allOasRequestConfigs[i];
       assert(requestConfig, `No unmatched oas requestConfig with index ${i}`);
+      if (!unmatchedOasRequestConfigs.some(c => isEqual(c, requestConfig))) {
+        continue;
+      }
       failOutput.push({ type: 'only-in-oas', requestConfig });
     }
 
@@ -528,13 +610,14 @@ export const run = async () => {
         docRequestConfig,
         `No unmatched doc requestConfig with index ${i}`,
       );
-      const inconsistencies = inconsistenciesMap.get(makeKey([i, j]));
-      assert(inconsistencies, `No inconsistencies for [${i}, ${j}]`);
+      const conflicts = conflictsMap.get(makeKey([i, j]));
+      assert(conflicts, `No conflicts for [${i}, ${j}]`);
+      if (!conflicts) continue;
       failOutput.push({
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig,
         docRequestConfig,
-        inconsistencies,
+        conflicts,
       });
     }
 

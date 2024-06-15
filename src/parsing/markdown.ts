@@ -150,7 +150,8 @@ export const extractPaths = (str: string) => {
   if (!match) return [];
   const res: string[] = [];
   for (const path of match) {
-    const normalisedPath = path.endsWith('/') ? path.slice(0, -1) : path;
+    const normalisedPath =
+      path.length > 1 && path.endsWith('/') ? path.slice(0, -1) : path;
     if (!normalisedPath.includes('[/:')) {
       res.push(normalisedPath);
       continue;

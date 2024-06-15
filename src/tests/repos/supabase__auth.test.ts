@@ -544,7 +544,7 @@ describe('action', () => {
         },
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'post',
           servers: [
@@ -567,7 +567,7 @@ describe('action', () => {
           queryParameters: [],
           line: 1163,
         },
-        inconsistencies: [{ type: 'method-mismatch' }],
+        conflicts: [{ type: 'method-mismatch' }],
       },
     ]);
   });

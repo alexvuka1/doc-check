@@ -115,4 +115,63 @@ describe('action', () => {
       },
     ]);
   });
+
+  it('handles basic fail 4', async () => {
+    setupInput(getInputMock, '../data/custom/basic-fail-4');
+
+    await main.run();
+
+    expectFail(setFailedMock).toEqual([
+      {
+        type: 'match-with-conflicts',
+        oasRequestConfig: {
+          method: 'delete',
+          servers: [
+            {
+              scheme: 'https',
+              basePath: [
+                { type: 'literal', value: 'GRAPHSCOPE' },
+                { type: 'literal', value: 'InteractiveAPI' },
+                { type: 'literal', value: '1.0.0' },
+              ],
+              host: 'virtserver.swaggerhub.com',
+            },
+            {
+              scheme: 'https',
+              basePath: [
+                { type: 'literal', value: 'GRAPHSCOPE' },
+                { type: 'literal', value: 'interactive' },
+                { type: 'literal', value: '1.0.0' },
+              ],
+              host: 'virtserver.swaggerhub.com',
+            },
+          ],
+          pathSegs: [
+            { type: 'literal', value: 'v1' },
+            { type: 'literal', value: 'graph' },
+            { type: 'parameter', name: 'graph_id' },
+          ],
+          queryParameters: [],
+        },
+        docRequestConfig: {
+          originalPath: '/v1/graph/{graph}',
+          method: 'delete',
+          pathSegs: [
+            { type: 'literal', value: 'v1' },
+            { type: 'literal', value: 'graph' },
+            { type: 'parameter', name: 'graph' },
+          ],
+          queryParameters: [],
+          line: 20,
+        },
+        conflicts: [
+          {
+            type: 'path-parameter-name-mismatch',
+            parameterIndex: 0,
+            oasServerIndex: null,
+          },
+        ],
+      },
+    ]);
+  });
 });

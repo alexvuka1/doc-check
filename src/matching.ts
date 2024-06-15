@@ -3,7 +3,7 @@ import { isEqual, zip } from 'lodash-es';
 import { singular } from 'pluralize';
 import {
   DocRequestConfig,
-  Inconsistency,
+  Conflict,
   OasRequestConfig,
   PathSeg,
 } from './parsing';
@@ -90,9 +90,9 @@ const getGroups = (
 const evaluateConfiguration = (
   config: [number | undefined, number | undefined][],
   isOasIndexFirst: boolean,
-  inconsistencyMap: Map<string, Inconsistency[]>,
+  conflictsMap: Map<string, Conflict[]>,
 ) => {
-  let totalInconsistencies = 0;
+  let totalConflicts = 0;
   let nMethodMismatch = 0;
 
   for (const [i1, i2] of config) {
@@ -101,13 +101,13 @@ const evaluateConfiguration = (
       continue;
     }
     const key = makeKey(isOasIndexFirst ? [i1, i2] : [i2, i1]);
-    const inconsistencies = inconsistencyMap.get(key) || [];
-    if (inconsistencies.find(i => i.type === 'method-mismatch')) {
+    const conflicts = conflictsMap.get(key) || [];
+    if (conflicts.find(i => i.type === 'method-mismatch')) {
       nMethodMismatch++;
     }
-    totalInconsistencies += inconsistencies.length;
+    totalConflicts += conflicts.length;
   }
-  return nMethodMismatch > 1 ? Infinity : totalInconsistencies;
+  return nMethodMismatch > 1 ? Infinity : totalConflicts;
 };
 
 const permute = (arr: number[]): number[][] => {
@@ -125,29 +125,29 @@ const permute = (arr: number[]): number[][] => {
 const getBestMatches = (
   oasGroup: number[],
   docGroup: number[],
-  inconsistencyMap: Map<string, Inconsistency[]>,
+  inconsistencyMap: Map<string, Conflict[]>,
 ) => {
   const areMoreInOas = oasGroup.length > docGroup.length;
   const perms = permute(areMoreInOas ? oasGroup : docGroup);
 
-  let minTotalInconsistencies = Infinity;
+  let minTotalConflicts = Infinity;
   let bestConfiguration: [number | undefined, number | undefined][] | null =
     null;
 
   for (const perm of perms) {
     const currentConfig = zip(perm, areMoreInOas ? docGroup : oasGroup);
-    const totalInconsistencies = evaluateConfiguration(
+    const totalConflicts = evaluateConfiguration(
       currentConfig,
       areMoreInOas,
       inconsistencyMap,
     );
     if (
-      !Number.isFinite(totalInconsistencies) ||
-      totalInconsistencies >= minTotalInconsistencies
+      !Number.isFinite(totalConflicts) ||
+      totalConflicts >= minTotalConflicts
     ) {
       continue;
     }
-    minTotalInconsistencies = totalInconsistencies;
+    minTotalConflicts = totalConflicts;
     bestConfiguration = areMoreInOas
       ? currentConfig
       : currentConfig.map(([i2, i1]) => [i1, i2]);
@@ -164,7 +164,7 @@ type MatchResult = {
 
 const matchRequestConfigs = (
   groups: [number[], number[]][],
-  inconsistencyMap: Map<string, Inconsistency[]>,
+  inconsistencyMap: Map<string, Conflict[]>,
 ) => {
   const res: MatchResult = {
     bestMatchesOasToDoc: [],
@@ -231,10 +231,10 @@ const matchRequestConfigs = (
 export const findBestMatches = (
   oasIndexToDocIndices: Map<number, number[]>,
   docIndexToOasIndices: Map<number, number[]>,
-  inconsistenciesMap: Map<string, Inconsistency[]>,
+  conflictsMap: Map<string, Conflict[]>,
 ) => {
   const groups = getGroups(oasIndexToDocIndices, docIndexToOasIndices);
-  return matchRequestConfigs(groups, inconsistenciesMap);
+  return matchRequestConfigs(groups, conflictsMap);
 };
 
 const normalizeParam = (param: string) =>

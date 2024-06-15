@@ -199,7 +199,7 @@ describe('action', () => {
         },
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'get',
           servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
@@ -226,16 +226,16 @@ describe('action', () => {
           queryParameters: [],
           line: 217,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'post',
           servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
@@ -265,16 +265,16 @@ describe('action', () => {
           queryParameters: [],
           line: 189,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'get',
           servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
@@ -300,16 +300,16 @@ describe('action', () => {
           queryParameters: [],
           line: 368,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'post',
           servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
@@ -338,16 +338,16 @@ describe('action', () => {
           queryParameters: [],
           line: 385,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'get',
           servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
@@ -378,21 +378,21 @@ describe('action', () => {
           queryParameters: [],
           line: 424,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 2,
             oasServerIndex: null,
           },
         ],
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'post',
           servers: [{ scheme: 'http', basePath: [], host: 'localhost:20443' }],
@@ -419,10 +419,10 @@ describe('action', () => {
           queryParameters: [],
           line: 175,
         },
-        inconsistencies: [
+        conflicts: [
           { type: 'method-mismatch' },
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },

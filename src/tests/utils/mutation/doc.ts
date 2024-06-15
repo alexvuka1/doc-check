@@ -68,7 +68,7 @@ export const evaluateDocMutations = async (
   const nonMutatedOnlyInDoc = new Map<string, number>();
   const nonMutatedOnlyInOas = new Map<string, number>();
   const nonMutatedFailsWithIncs: (FailOutput[number] & {
-    type: 'match-with-inconsistenties';
+    type: 'match-with-conflicts';
   })[] = [];
   for (const fail of nonMutatedFailOutput) {
     switch (fail.type) {
@@ -84,7 +84,7 @@ export const evaluateDocMutations = async (
           0,
         );
         break;
-      case 'match-with-inconsistenties':
+      case 'match-with-conflicts':
         nonMutatedFailsWithIncs.push(fail);
     }
   }
@@ -243,7 +243,7 @@ export const evaluateDocMutations = async (
             } else nonMutatedOnlyInDoc.set(key, nonMutatedNFails + 1);
           }
           break;
-        case 'match-with-inconsistenties':
+        case 'match-with-conflicts':
           {
             const failWithIncsIndex = nonMutatedFailsWithIncs.findIndex(
               f =>

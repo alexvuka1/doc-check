@@ -77,7 +77,7 @@ describe('action', () => {
         },
       },
       {
-        type: 'match-with-inconsistenties',
+        type: 'match-with-conflicts',
         oasRequestConfig: {
           method: 'delete',
           servers: [{ basePath: [] }],
@@ -97,9 +97,9 @@ describe('action', () => {
           queryParameters: [],
           line: 545,
         },
-        inconsistencies: [
+        conflicts: [
           {
-            type: 'path-path-parameter-name-mismatch',
+            type: 'path-parameter-name-mismatch',
             parameterIndex: 0,
             oasServerIndex: null,
           },

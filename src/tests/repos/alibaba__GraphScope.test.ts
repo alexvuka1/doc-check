@@ -338,6 +338,20 @@ describe('action', () => {
       {
         type: 'only-in-doc',
         requestConfig: {
+          originalPath: '/v1/service/stop',
+          method: 'get',
+          pathSegs: [
+            { type: 'literal', value: 'v1' },
+            { type: 'literal', value: 'service' },
+            { type: 'literal', value: 'stop' },
+          ],
+          queryParameters: [],
+          line: 26,
+        },
+      },
+      {
+        type: 'only-in-doc',
+        requestConfig: {
           originalPath: '/v1/node/status',
           method: 'get',
           pathSegs: [
@@ -783,50 +797,6 @@ describe('action', () => {
             oasServerIndex: null,
           },
         ],
-      },
-      {
-        type: 'match-with-conflicts',
-        oasRequestConfig: {
-          method: 'post',
-          servers: [
-            {
-              scheme: 'https',
-              basePath: [
-                { type: 'literal', value: 'GRAPHSCOPE' },
-                { type: 'literal', value: 'InteractiveAPI' },
-                { type: 'literal', value: '1.0.0' },
-              ],
-              host: 'virtserver.swaggerhub.com',
-            },
-            {
-              scheme: 'https',
-              basePath: [
-                { type: 'literal', value: 'GRAPHSCOPE' },
-                { type: 'literal', value: 'interactive' },
-                { type: 'literal', value: '1.0.0' },
-              ],
-              host: 'virtserver.swaggerhub.com',
-            },
-          ],
-          pathSegs: [
-            { type: 'literal', value: 'v1' },
-            { type: 'literal', value: 'service' },
-            { type: 'literal', value: 'stop' },
-          ],
-          queryParameters: [],
-        },
-        docRequestConfig: {
-          originalPath: '/v1/service/stop',
-          method: 'get',
-          pathSegs: [
-            { type: 'literal', value: 'v1' },
-            { type: 'literal', value: 'service' },
-            { type: 'literal', value: 'stop' },
-          ],
-          queryParameters: [],
-          line: 26,
-        },
-        conflicts: [{ type: 'method-mismatch' }],
       },
     ]);
   });

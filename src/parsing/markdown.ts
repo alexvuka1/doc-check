@@ -1,4 +1,10 @@
-import { capitalize, includes } from 'lodash-es';
+import {
+  capitalize,
+  includes,
+  kebabCase,
+  snakeCase,
+  startCase,
+} from 'lodash-es';
 import { Root } from 'mdast';
 import { remark } from 'remark';
 import remarkFrontmatter from 'remark-frontmatter';
@@ -109,7 +115,14 @@ const pathSegsToRegexStr = (pathSegs: PathSeg[]) =>
         case 'literal':
           return p.value;
         case 'parameter':
-          return p.name.replace(/(.*)/, `(\\{$1\\}|<$1>|:$1|\\[$1\\])`);
+          const pNames = [
+            p.name,
+            capitalize(p.name),
+            snakeCase(p.name),
+            kebabCase(p.name),
+            startCase(p.name),
+          ];
+          return `${pNames.join('|').replace(/(.*)/, `(\\{$1\\}|<$1>|:$1|\\[$1\\])`)}`;
       }
     })
     .join('/');

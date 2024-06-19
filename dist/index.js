@@ -57777,7 +57777,7 @@ function wrappy (fn, cb) {
 /***/ ((module, __unused_webpack___webpack_exports__, __nccwpck_require__) => {
 
 __nccwpck_require__.a(module, async (__webpack_handle_async_dependencies__, __webpack_async_result__) => { try {
-/* harmony import */ var _main__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(9418);
+/* harmony import */ var _main__WEBPACK_IMPORTED_MODULE_0__ = __nccwpck_require__(4076);
 /**
  * The entrypoint for the action.
  */
@@ -57789,7 +57789,7 @@ __webpack_async_result__();
 
 /***/ }),
 
-/***/ 9418:
+/***/ 4076:
 /***/ ((__unused_webpack_module, __webpack_exports__, __nccwpck_require__) => {
 
 
@@ -60903,6 +60903,38 @@ function isEqual(value, other) {
 }
 
 /* harmony default export */ const lodash_es_isEqual = (isEqual);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/isString.js
+
+
+
+
+/** `Object#toString` result references. */
+var isString_stringTag = '[object String]';
+
+/**
+ * Checks if `value` is classified as a `String` primitive or object.
+ *
+ * @static
+ * @since 0.1.0
+ * @memberOf _
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a string, else `false`.
+ * @example
+ *
+ * _.isString('abc');
+ * // => true
+ *
+ * _.isString(1);
+ * // => false
+ */
+function isString(value) {
+  return typeof value == 'string' ||
+    (!lodash_es_isArray(value) && lodash_es_isObjectLike(value) && _baseGetTag(value) == isString_stringTag);
+}
+
+/* harmony default export */ const lodash_es_isString = (isString);
 
 // EXTERNAL MODULE: external "path"
 var external_path_ = __nccwpck_require__(1017);
@@ -65167,38 +65199,6 @@ var dist = __nccwpck_require__(5194);
 const methods = Object.values(dist/* OpenAPIV3.HttpMethods */.ZT.HttpMethods);
 const validSchemes = ['https', 'http', 'ws', 'wss'];
 
-;// CONCATENATED MODULE: ./node_modules/lodash-es/isString.js
-
-
-
-
-/** `Object#toString` result references. */
-var isString_stringTag = '[object String]';
-
-/**
- * Checks if `value` is classified as a `String` primitive or object.
- *
- * @static
- * @since 0.1.0
- * @memberOf _
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is a string, else `false`.
- * @example
- *
- * _.isString('abc');
- * // => true
- *
- * _.isString(1);
- * // => false
- */
-function isString(value) {
-  return typeof value == 'string' ||
-    (!lodash_es_isArray(value) && lodash_es_isObjectLike(value) && _baseGetTag(value) == isString_stringTag);
-}
-
-/* harmony default export */ const lodash_es_isString = (isString);
-
 ;// CONCATENATED MODULE: ./node_modules/lodash-es/_trimmedEndIndex.js
 /** Used to match a single whitespace character. */
 var reWhitespace = /\s/;
@@ -65841,6 +65841,429 @@ function capitalize(string) {
 }
 
 /* harmony default export */ const lodash_es_capitalize = (capitalize);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_arrayReduce.js
+/**
+ * A specialized version of `_.reduce` for arrays without support for
+ * iteratee shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @param {*} [accumulator] The initial value.
+ * @param {boolean} [initAccum] Specify using the first element of `array` as
+ *  the initial value.
+ * @returns {*} Returns the accumulated value.
+ */
+function arrayReduce(array, iteratee, accumulator, initAccum) {
+  var index = -1,
+      length = array == null ? 0 : array.length;
+
+  if (initAccum && length) {
+    accumulator = array[++index];
+  }
+  while (++index < length) {
+    accumulator = iteratee(accumulator, array[index], index, array);
+  }
+  return accumulator;
+}
+
+/* harmony default export */ const _arrayReduce = (arrayReduce);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_basePropertyOf.js
+/**
+ * The base implementation of `_.propertyOf` without support for deep paths.
+ *
+ * @private
+ * @param {Object} object The object to query.
+ * @returns {Function} Returns the new accessor function.
+ */
+function basePropertyOf(object) {
+  return function(key) {
+    return object == null ? undefined : object[key];
+  };
+}
+
+/* harmony default export */ const _basePropertyOf = (basePropertyOf);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_deburrLetter.js
+
+
+/** Used to map Latin Unicode letters to basic Latin letters. */
+var deburredLetters = {
+  // Latin-1 Supplement block.
+  '\xc0': 'A',  '\xc1': 'A', '\xc2': 'A', '\xc3': 'A', '\xc4': 'A', '\xc5': 'A',
+  '\xe0': 'a',  '\xe1': 'a', '\xe2': 'a', '\xe3': 'a', '\xe4': 'a', '\xe5': 'a',
+  '\xc7': 'C',  '\xe7': 'c',
+  '\xd0': 'D',  '\xf0': 'd',
+  '\xc8': 'E',  '\xc9': 'E', '\xca': 'E', '\xcb': 'E',
+  '\xe8': 'e',  '\xe9': 'e', '\xea': 'e', '\xeb': 'e',
+  '\xcc': 'I',  '\xcd': 'I', '\xce': 'I', '\xcf': 'I',
+  '\xec': 'i',  '\xed': 'i', '\xee': 'i', '\xef': 'i',
+  '\xd1': 'N',  '\xf1': 'n',
+  '\xd2': 'O',  '\xd3': 'O', '\xd4': 'O', '\xd5': 'O', '\xd6': 'O', '\xd8': 'O',
+  '\xf2': 'o',  '\xf3': 'o', '\xf4': 'o', '\xf5': 'o', '\xf6': 'o', '\xf8': 'o',
+  '\xd9': 'U',  '\xda': 'U', '\xdb': 'U', '\xdc': 'U',
+  '\xf9': 'u',  '\xfa': 'u', '\xfb': 'u', '\xfc': 'u',
+  '\xdd': 'Y',  '\xfd': 'y', '\xff': 'y',
+  '\xc6': 'Ae', '\xe6': 'ae',
+  '\xde': 'Th', '\xfe': 'th',
+  '\xdf': 'ss',
+  // Latin Extended-A block.
+  '\u0100': 'A',  '\u0102': 'A', '\u0104': 'A',
+  '\u0101': 'a',  '\u0103': 'a', '\u0105': 'a',
+  '\u0106': 'C',  '\u0108': 'C', '\u010a': 'C', '\u010c': 'C',
+  '\u0107': 'c',  '\u0109': 'c', '\u010b': 'c', '\u010d': 'c',
+  '\u010e': 'D',  '\u0110': 'D', '\u010f': 'd', '\u0111': 'd',
+  '\u0112': 'E',  '\u0114': 'E', '\u0116': 'E', '\u0118': 'E', '\u011a': 'E',
+  '\u0113': 'e',  '\u0115': 'e', '\u0117': 'e', '\u0119': 'e', '\u011b': 'e',
+  '\u011c': 'G',  '\u011e': 'G', '\u0120': 'G', '\u0122': 'G',
+  '\u011d': 'g',  '\u011f': 'g', '\u0121': 'g', '\u0123': 'g',
+  '\u0124': 'H',  '\u0126': 'H', '\u0125': 'h', '\u0127': 'h',
+  '\u0128': 'I',  '\u012a': 'I', '\u012c': 'I', '\u012e': 'I', '\u0130': 'I',
+  '\u0129': 'i',  '\u012b': 'i', '\u012d': 'i', '\u012f': 'i', '\u0131': 'i',
+  '\u0134': 'J',  '\u0135': 'j',
+  '\u0136': 'K',  '\u0137': 'k', '\u0138': 'k',
+  '\u0139': 'L',  '\u013b': 'L', '\u013d': 'L', '\u013f': 'L', '\u0141': 'L',
+  '\u013a': 'l',  '\u013c': 'l', '\u013e': 'l', '\u0140': 'l', '\u0142': 'l',
+  '\u0143': 'N',  '\u0145': 'N', '\u0147': 'N', '\u014a': 'N',
+  '\u0144': 'n',  '\u0146': 'n', '\u0148': 'n', '\u014b': 'n',
+  '\u014c': 'O',  '\u014e': 'O', '\u0150': 'O',
+  '\u014d': 'o',  '\u014f': 'o', '\u0151': 'o',
+  '\u0154': 'R',  '\u0156': 'R', '\u0158': 'R',
+  '\u0155': 'r',  '\u0157': 'r', '\u0159': 'r',
+  '\u015a': 'S',  '\u015c': 'S', '\u015e': 'S', '\u0160': 'S',
+  '\u015b': 's',  '\u015d': 's', '\u015f': 's', '\u0161': 's',
+  '\u0162': 'T',  '\u0164': 'T', '\u0166': 'T',
+  '\u0163': 't',  '\u0165': 't', '\u0167': 't',
+  '\u0168': 'U',  '\u016a': 'U', '\u016c': 'U', '\u016e': 'U', '\u0170': 'U', '\u0172': 'U',
+  '\u0169': 'u',  '\u016b': 'u', '\u016d': 'u', '\u016f': 'u', '\u0171': 'u', '\u0173': 'u',
+  '\u0174': 'W',  '\u0175': 'w',
+  '\u0176': 'Y',  '\u0177': 'y', '\u0178': 'Y',
+  '\u0179': 'Z',  '\u017b': 'Z', '\u017d': 'Z',
+  '\u017a': 'z',  '\u017c': 'z', '\u017e': 'z',
+  '\u0132': 'IJ', '\u0133': 'ij',
+  '\u0152': 'Oe', '\u0153': 'oe',
+  '\u0149': "'n", '\u017f': 's'
+};
+
+/**
+ * Used by `_.deburr` to convert Latin-1 Supplement and Latin Extended-A
+ * letters to basic Latin letters.
+ *
+ * @private
+ * @param {string} letter The matched letter to deburr.
+ * @returns {string} Returns the deburred letter.
+ */
+var deburrLetter = _basePropertyOf(deburredLetters);
+
+/* harmony default export */ const _deburrLetter = (deburrLetter);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/deburr.js
+
+
+
+/** Used to match Latin Unicode letters (excluding mathematical operators). */
+var reLatin = /[\xc0-\xd6\xd8-\xf6\xf8-\xff\u0100-\u017f]/g;
+
+/** Used to compose unicode character classes. */
+var deburr_rsComboMarksRange = '\\u0300-\\u036f',
+    deburr_reComboHalfMarksRange = '\\ufe20-\\ufe2f',
+    deburr_rsComboSymbolsRange = '\\u20d0-\\u20ff',
+    deburr_rsComboRange = deburr_rsComboMarksRange + deburr_reComboHalfMarksRange + deburr_rsComboSymbolsRange;
+
+/** Used to compose unicode capture groups. */
+var deburr_rsCombo = '[' + deburr_rsComboRange + ']';
+
+/**
+ * Used to match [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks) and
+ * [combining diacritical marks for symbols](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks_for_Symbols).
+ */
+var reComboMark = RegExp(deburr_rsCombo, 'g');
+
+/**
+ * Deburrs `string` by converting
+ * [Latin-1 Supplement](https://en.wikipedia.org/wiki/Latin-1_Supplement_(Unicode_block)#Character_table)
+ * and [Latin Extended-A](https://en.wikipedia.org/wiki/Latin_Extended-A)
+ * letters to basic Latin letters and removing
+ * [combining diacritical marks](https://en.wikipedia.org/wiki/Combining_Diacritical_Marks).
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category String
+ * @param {string} [string=''] The string to deburr.
+ * @returns {string} Returns the deburred string.
+ * @example
+ *
+ * _.deburr('déjà vu');
+ * // => 'deja vu'
+ */
+function deburr(string) {
+  string = lodash_es_toString(string);
+  return string && string.replace(reLatin, _deburrLetter).replace(reComboMark, '');
+}
+
+/* harmony default export */ const lodash_es_deburr = (deburr);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_asciiWords.js
+/** Used to match words composed of alphanumeric characters. */
+var reAsciiWord = /[^\x00-\x2f\x3a-\x40\x5b-\x60\x7b-\x7f]+/g;
+
+/**
+ * Splits an ASCII `string` into an array of its words.
+ *
+ * @private
+ * @param {string} The string to inspect.
+ * @returns {Array} Returns the words of `string`.
+ */
+function asciiWords(string) {
+  return string.match(reAsciiWord) || [];
+}
+
+/* harmony default export */ const _asciiWords = (asciiWords);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_hasUnicodeWord.js
+/** Used to detect strings that need a more robust regexp to match words. */
+var reHasUnicodeWord = /[a-z][A-Z]|[A-Z]{2}[a-z]|[0-9][a-zA-Z]|[a-zA-Z][0-9]|[^a-zA-Z0-9 ]/;
+
+/**
+ * Checks if `string` contains a word composed of Unicode symbols.
+ *
+ * @private
+ * @param {string} string The string to inspect.
+ * @returns {boolean} Returns `true` if a word is found, else `false`.
+ */
+function hasUnicodeWord(string) {
+  return reHasUnicodeWord.test(string);
+}
+
+/* harmony default export */ const _hasUnicodeWord = (hasUnicodeWord);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_unicodeWords.js
+/** Used to compose unicode character classes. */
+var _unicodeWords_rsAstralRange = '\\ud800-\\udfff',
+    _unicodeWords_rsComboMarksRange = '\\u0300-\\u036f',
+    _unicodeWords_reComboHalfMarksRange = '\\ufe20-\\ufe2f',
+    _unicodeWords_rsComboSymbolsRange = '\\u20d0-\\u20ff',
+    _unicodeWords_rsComboRange = _unicodeWords_rsComboMarksRange + _unicodeWords_reComboHalfMarksRange + _unicodeWords_rsComboSymbolsRange,
+    rsDingbatRange = '\\u2700-\\u27bf',
+    rsLowerRange = 'a-z\\xdf-\\xf6\\xf8-\\xff',
+    rsMathOpRange = '\\xac\\xb1\\xd7\\xf7',
+    rsNonCharRange = '\\x00-\\x2f\\x3a-\\x40\\x5b-\\x60\\x7b-\\xbf',
+    rsPunctuationRange = '\\u2000-\\u206f',
+    rsSpaceRange = ' \\t\\x0b\\f\\xa0\\ufeff\\n\\r\\u2028\\u2029\\u1680\\u180e\\u2000\\u2001\\u2002\\u2003\\u2004\\u2005\\u2006\\u2007\\u2008\\u2009\\u200a\\u202f\\u205f\\u3000',
+    rsUpperRange = 'A-Z\\xc0-\\xd6\\xd8-\\xde',
+    _unicodeWords_rsVarRange = '\\ufe0e\\ufe0f',
+    rsBreakRange = rsMathOpRange + rsNonCharRange + rsPunctuationRange + rsSpaceRange;
+
+/** Used to compose unicode capture groups. */
+var rsApos = "['\u2019]",
+    rsBreak = '[' + rsBreakRange + ']',
+    _unicodeWords_rsCombo = '[' + _unicodeWords_rsComboRange + ']',
+    rsDigits = '\\d+',
+    rsDingbat = '[' + rsDingbatRange + ']',
+    rsLower = '[' + rsLowerRange + ']',
+    rsMisc = '[^' + _unicodeWords_rsAstralRange + rsBreakRange + rsDigits + rsDingbatRange + rsLowerRange + rsUpperRange + ']',
+    _unicodeWords_rsFitz = '\\ud83c[\\udffb-\\udfff]',
+    _unicodeWords_rsModifier = '(?:' + _unicodeWords_rsCombo + '|' + _unicodeWords_rsFitz + ')',
+    _unicodeWords_rsNonAstral = '[^' + _unicodeWords_rsAstralRange + ']',
+    _unicodeWords_rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+    _unicodeWords_rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+    rsUpper = '[' + rsUpperRange + ']',
+    _unicodeWords_rsZWJ = '\\u200d';
+
+/** Used to compose unicode regexes. */
+var rsMiscLower = '(?:' + rsLower + '|' + rsMisc + ')',
+    rsMiscUpper = '(?:' + rsUpper + '|' + rsMisc + ')',
+    rsOptContrLower = '(?:' + rsApos + '(?:d|ll|m|re|s|t|ve))?',
+    rsOptContrUpper = '(?:' + rsApos + '(?:D|LL|M|RE|S|T|VE))?',
+    _unicodeWords_reOptMod = _unicodeWords_rsModifier + '?',
+    _unicodeWords_rsOptVar = '[' + _unicodeWords_rsVarRange + ']?',
+    _unicodeWords_rsOptJoin = '(?:' + _unicodeWords_rsZWJ + '(?:' + [_unicodeWords_rsNonAstral, _unicodeWords_rsRegional, _unicodeWords_rsSurrPair].join('|') + ')' + _unicodeWords_rsOptVar + _unicodeWords_reOptMod + ')*',
+    rsOrdLower = '\\d*(?:1st|2nd|3rd|(?![123])\\dth)(?=\\b|[A-Z_])',
+    rsOrdUpper = '\\d*(?:1ST|2ND|3RD|(?![123])\\dTH)(?=\\b|[a-z_])',
+    _unicodeWords_rsSeq = _unicodeWords_rsOptVar + _unicodeWords_reOptMod + _unicodeWords_rsOptJoin,
+    rsEmoji = '(?:' + [rsDingbat, _unicodeWords_rsRegional, _unicodeWords_rsSurrPair].join('|') + ')' + _unicodeWords_rsSeq;
+
+/** Used to match complex or compound words. */
+var reUnicodeWord = RegExp([
+  rsUpper + '?' + rsLower + '+' + rsOptContrLower + '(?=' + [rsBreak, rsUpper, '$'].join('|') + ')',
+  rsMiscUpper + '+' + rsOptContrUpper + '(?=' + [rsBreak, rsUpper + rsMiscLower, '$'].join('|') + ')',
+  rsUpper + '?' + rsMiscLower + '+' + rsOptContrLower,
+  rsUpper + '+' + rsOptContrUpper,
+  rsOrdUpper,
+  rsOrdLower,
+  rsDigits,
+  rsEmoji
+].join('|'), 'g');
+
+/**
+ * Splits a Unicode `string` into an array of its words.
+ *
+ * @private
+ * @param {string} The string to inspect.
+ * @returns {Array} Returns the words of `string`.
+ */
+function unicodeWords(string) {
+  return string.match(reUnicodeWord) || [];
+}
+
+/* harmony default export */ const _unicodeWords = (unicodeWords);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/words.js
+
+
+
+
+
+/**
+ * Splits `string` into an array of its words.
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category String
+ * @param {string} [string=''] The string to inspect.
+ * @param {RegExp|string} [pattern] The pattern to match words.
+ * @param- {Object} [guard] Enables use as an iteratee for methods like `_.map`.
+ * @returns {Array} Returns the words of `string`.
+ * @example
+ *
+ * _.words('fred, barney, & pebbles');
+ * // => ['fred', 'barney', 'pebbles']
+ *
+ * _.words('fred, barney, & pebbles', /[^, ]+/g);
+ * // => ['fred', 'barney', '&', 'pebbles']
+ */
+function words(string, pattern, guard) {
+  string = lodash_es_toString(string);
+  pattern = guard ? undefined : pattern;
+
+  if (pattern === undefined) {
+    return _hasUnicodeWord(string) ? _unicodeWords(string) : _asciiWords(string);
+  }
+  return string.match(pattern) || [];
+}
+
+/* harmony default export */ const lodash_es_words = (words);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/_createCompounder.js
+
+
+
+
+/** Used to compose unicode capture groups. */
+var _createCompounder_rsApos = "['\u2019]";
+
+/** Used to match apostrophes. */
+var reApos = RegExp(_createCompounder_rsApos, 'g');
+
+/**
+ * Creates a function like `_.camelCase`.
+ *
+ * @private
+ * @param {Function} callback The function to combine each word.
+ * @returns {Function} Returns the new compounder function.
+ */
+function createCompounder(callback) {
+  return function(string) {
+    return _arrayReduce(lodash_es_words(lodash_es_deburr(string).replace(reApos, '')), callback, '');
+  };
+}
+
+/* harmony default export */ const _createCompounder = (createCompounder);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/snakeCase.js
+
+
+/**
+ * Converts `string` to
+ * [snake case](https://en.wikipedia.org/wiki/Snake_case).
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category String
+ * @param {string} [string=''] The string to convert.
+ * @returns {string} Returns the snake cased string.
+ * @example
+ *
+ * _.snakeCase('Foo Bar');
+ * // => 'foo_bar'
+ *
+ * _.snakeCase('fooBar');
+ * // => 'foo_bar'
+ *
+ * _.snakeCase('--FOO-BAR--');
+ * // => 'foo_bar'
+ */
+var snakeCase = _createCompounder(function(result, word, index) {
+  return result + (index ? '_' : '') + word.toLowerCase();
+});
+
+/* harmony default export */ const lodash_es_snakeCase = (snakeCase);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/kebabCase.js
+
+
+/**
+ * Converts `string` to
+ * [kebab case](https://en.wikipedia.org/wiki/Letter_case#Special_case_styles).
+ *
+ * @static
+ * @memberOf _
+ * @since 3.0.0
+ * @category String
+ * @param {string} [string=''] The string to convert.
+ * @returns {string} Returns the kebab cased string.
+ * @example
+ *
+ * _.kebabCase('Foo Bar');
+ * // => 'foo-bar'
+ *
+ * _.kebabCase('fooBar');
+ * // => 'foo-bar'
+ *
+ * _.kebabCase('__FOO_BAR__');
+ * // => 'foo-bar'
+ */
+var kebabCase = _createCompounder(function(result, word, index) {
+  return result + (index ? '-' : '') + word.toLowerCase();
+});
+
+/* harmony default export */ const lodash_es_kebabCase = (kebabCase);
+
+;// CONCATENATED MODULE: ./node_modules/lodash-es/startCase.js
+
+
+
+/**
+ * Converts `string` to
+ * [start case](https://en.wikipedia.org/wiki/Letter_case#Stylistic_or_specialised_usage).
+ *
+ * @static
+ * @memberOf _
+ * @since 3.1.0
+ * @category String
+ * @param {string} [string=''] The string to convert.
+ * @returns {string} Returns the start cased string.
+ * @example
+ *
+ * _.startCase('--foo-bar--');
+ * // => 'Foo Bar'
+ *
+ * _.startCase('fooBar');
+ * // => 'Foo Bar'
+ *
+ * _.startCase('__FOO_BAR__');
+ * // => 'FOO BAR'
+ */
+var startCase = _createCompounder(function(result, word, index) {
+  return result + (index ? ' ' : '') + lodash_es_upperFirst(word);
+});
+
+/* harmony default export */ const lodash_es_startCase = (startCase);
 
 ;// CONCATENATED MODULE: ./node_modules/mdast-util-to-string/lib/index.js
 /**
@@ -90971,7 +91394,14 @@ const pathSegsToRegexStr = (pathSegs) => pathSegs
         case 'literal':
             return p.value;
         case 'parameter':
-            return p.name.replace(/(.*)/, `(\\{$1\\}|<$1>|:$1|\\[$1\\])`);
+            const pNames = [
+                p.name,
+                lodash_es_capitalize(p.name),
+                lodash_es_snakeCase(p.name),
+                lodash_es_kebabCase(p.name),
+                lodash_es_startCase(p.name),
+            ];
+            return `${pNames.join('|').replace(/(.*)/, `(\\{$1\\}|<$1>|:$1|\\[$1\\])`)}`;
     }
 })
     .join('/');
@@ -91142,7 +91572,6 @@ const oasParseRequestConfigs = (oas) => {
     return oasIdToRequestConfig;
 };
 const oasParse = async (oasPath, shouldDereference = true) => {
-    // TODO changed this from validate, should maybe show warnings if oas not valid
     const oasDoc = shouldDereference
         ? await lib_default().dereference(oasPath)
         : await lib_default().bundle(oasPath);
@@ -91521,15 +91950,21 @@ const run = async () => {
             });
             const notDifferent = docRequestConfigConflicts.flatMap((i, index) => i === 'different-request-configs' ? [] : [index]);
             const onlyInDoc = notDifferent.length === 0 ||
-                notDifferent.every(i => {
-                    const oasRequestConfig = allOasRequestConfigs[i];
-                    external_assert_default()(oasRequestConfig, `No unmatched oas requestConfig with index ${i}`);
-                    const oasKey = `${oasRequestConfig.method} ${openapi_oasPathSegsToPath(oasRequestConfig.pathSegs)}`;
-                    return (matchedRequestKeys.has(oasKey) &&
-                        [...tableToRequestKeys.values()].some(keys => keys.some(requestKey => requestKey === oasKeyToDocKey.get(oasKey)) &&
-                            keys.some(requestKey => requestKey ===
-                                `${unmatchedDocRequestConfig.method} ${unmatchedDocRequestConfig.originalPath}`)));
-                });
+                (!notDifferent.some(i => {
+                    const conflicts = docRequestConfigConflicts[i];
+                    return (!lodash_es_isString(conflicts) &&
+                        !conflicts?.some(c => c.type === 'method-mismatch'));
+                }) &&
+                    notDifferent.every(i => {
+                        const oasRequestConfig = allOasRequestConfigs[i];
+                        external_assert_default()(oasRequestConfig, `No unmatched oas requestConfig with index ${i}`);
+                        const oasKey = `${oasRequestConfig.method} ${openapi_oasPathSegsToPath(oasRequestConfig.pathSegs)}`;
+                        return (matchedRequestKeys.has(oasKey) &&
+                            (tableToRequestKeys.size === 0 ||
+                                [...tableToRequestKeys.values()].some(keys => keys.some(requestKey => requestKey === oasKeyToDocKey.get(oasKey)) &&
+                                    keys.some(requestKey => requestKey ===
+                                        `${unmatchedDocRequestConfig.method} ${unmatchedDocRequestConfig.originalPath}`))));
+                    }));
             if (onlyInDoc) {
                 failOutput.push({
                     type: 'only-in-doc',

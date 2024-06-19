@@ -62,11 +62,11 @@ describe('action', () => {
           },
           {
             scenarios: 100,
-            probRemovePath: 0.1,
+            probRemoveEndpoint: 0.1,
             probRemoveRequestConfig: 0.2,
-            maxAddPath: 3,
-            probAddPath: 0.3,
-            probAddPathMethod: 0.1,
+            retriesAddEndpoint: 3,
+            probAddEndpoint: 0.3,
+            probAddMethod: 0.1,
             probChangeMethod: 0.1,
           },
         );

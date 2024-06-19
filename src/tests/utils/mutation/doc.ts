@@ -1,6 +1,8 @@
 import assert from 'assert';
-import { mkdir, rm, writeFile } from 'fs/promises';
+import { appendFile, mkdir, rm, writeFile } from 'fs/promises';
+import { atomizeChangeset, diff } from 'json-diff-ts';
 import { isEqual, sortBy } from 'lodash-es';
+import { Heading, Node, Nodes } from 'mdast';
 import { join } from 'path';
 import { remove } from 'unist-util-remove';
 import { selectAll } from 'unist-util-select';
@@ -12,9 +14,9 @@ import { docParse, docStringify } from '../../../parsing/markdown';
 import { oasParse, oasPathSegsToPath } from '../../../parsing/openapi';
 import { objectEntries, shuffle } from '../../../utils';
 
-export type DocMutationsOptions = {
+export type DocSplitMutationsOptions = {
   scenarios: number;
-  mutationType: 'split-section' | 'split-heading';
+  splitNode: Nodes['type'];
   multiInstanceRequestConfigs?: {
     method: Method;
     path: string;
@@ -22,13 +24,13 @@ export type DocMutationsOptions = {
   }[];
 };
 
-export const evaluateDocMutations = async (
+export const evaluateDocSplitMutations = async (
   repoInfo: RepoInfo,
   testEnv: MutationTestEnv,
-  options: DocMutationsOptions,
+  options: DocSplitMutationsOptions,
 ) => {
   const { repoName, sha, pathOas, pathDoc } = repoInfo;
-  const { scenarios, mutationType, multiInstanceRequestConfigs = [] } = options;
+  const { scenarios, splitNode, multiInstanceRequestConfigs = [] } = options;
   const { getInputMock, setFailedMock, rng } = testEnv;
 
   const githubBase = `https://github.com/${repoName}/blob/${sha}`;
@@ -37,7 +39,7 @@ export const evaluateDocMutations = async (
 
   const baseDirPath = join(
     import.meta.dir,
-    `../../data/mutation/doc/${repoName.replace('/', '__')}/${sha}/${mutationType}`,
+    `../../data/mutation/doc/${repoName.replace('/', '__')}/${sha}/${splitNode}`,
   );
 
   const [pathOasLocal, pathDocLocal] = await Promise.all([
@@ -100,17 +102,7 @@ export const evaluateDocMutations = async (
 
     const tree = await docParse(pathDocLocal);
     const nParts = 2 + Math.round(rng() * 3);
-    const parts = shuffle(
-      selectAll(
-        mutationType === 'split-heading'
-          ? 'heading'
-          : mutationType === 'split-section'
-            ? 'section'
-            : '',
-        tree,
-      ),
-      rng,
-    ).slice(0, nParts - 1);
+    const parts = shuffle(selectAll(splitNode, tree), rng).slice(0, nParts - 1);
     const partsSet = new Set(parts);
     const splits = [tree, ...parts];
 
@@ -303,4 +295,134 @@ export const evaluateDocMutations = async (
   console.info(
     `Got ${correctCount}/${scenarios} correct (${Math.floor((correctCount / scenarios) * 100)}%) on ${repoName}`,
   );
+};
+
+export type DocSubtleMutationsOptions = {
+  scenarios: number;
+  subtleNode: Nodes['type'];
+  nToChange: number;
+};
+
+export const evaluateDocSubtleMutations = async (
+  repoInfo: RepoInfo,
+  testEnv: MutationTestEnv,
+  options: DocSubtleMutationsOptions,
+) => {
+  const { repoName, sha, pathOas, pathDoc } = repoInfo;
+  const { scenarios, subtleNode, nToChange } = options;
+  const { getInputMock, setFailedMock, rng } = testEnv;
+
+  const githubBase = `https://github.com/${repoName}/blob/${sha}`;
+  const pathOasGithub = `${githubBase}/${pathOas}`;
+  const pathDocGithub = `${githubBase}/${pathDoc}`;
+
+  const baseDirPath = join(
+    import.meta.dir,
+    `../../data/mutation/doc/${repoName.replace('/', '__')}/${sha}/${subtleNode}`,
+  );
+
+  const [pathOasLocal, pathDocLocal] = await Promise.all([
+    getOrDownload(pathOasGithub, baseDirPath),
+    getOrDownload(pathDocGithub, baseDirPath),
+  ]);
+
+  getInputMock.mockReset();
+  setFailedMock.mockReset();
+
+  getInputMock.mockImplementation((name: string): string => {
+    switch (name) {
+      case 'openapi-path':
+        return pathOasLocal;
+      case 'doc-path':
+        return pathDocLocal;
+      default:
+        return '';
+    }
+  });
+
+  await main.run();
+
+  const nonMutatedFailOutput: FailOutput =
+    setFailedMock.mock.calls.length === 0
+      ? []
+      : JSON.parse(setFailedMock.mock.calls[0]?.[0] as string);
+
+  let correctCount = 0;
+
+  const tree = await docParse(pathDocLocal);
+  const allHeadings = selectAll(subtleNode, tree);
+  const nChanges = Math.min(nToChange, allHeadings.length);
+  for (let i = 1; i <= (nChanges === 0 ? 1 : scenarios); i++) {
+    const treeCopy = structuredClone(tree);
+    const headingCopies = selectAll(subtleNode, treeCopy);
+    const headingsToChange = shuffle(headingCopies, rng).slice(0, nChanges);
+    type Change = {
+      type: 'update';
+      key: string;
+      oldValue: number;
+      value: number;
+    };
+    const changes: Change[] = [];
+    const isHeading = (node: Node): node is Heading => node.type === 'heading';
+    headingsToChange.forEach(node => {
+      if (!isHeading(node)) return;
+      const newDepth = node.depth + 1;
+      changes.push({
+        type: 'update',
+        key: 'depth',
+        oldValue: node.depth,
+        value: newDepth,
+      });
+      node.depth = newDepth as Heading['depth'];
+    });
+
+    const dirPath = join(baseDirPath, `iteration_${i}`);
+    await mkdir(dirPath, { recursive: true });
+
+    const mutatedDocPath = join(dirPath, `doc.md`);
+    await writeFile(mutatedDocPath, docStringify(treeCopy));
+
+    getInputMock.mockReset();
+    setFailedMock.mockReset();
+
+    getInputMock.mockImplementation((name: string): string => {
+      switch (name) {
+        case 'openapi-path':
+          return pathOasLocal;
+        case 'doc-path':
+          return mutatedDocPath;
+        default:
+          return '';
+      }
+    });
+
+    await main.run();
+
+    const failOutput: FailOutput =
+      setFailedMock.mock.calls.length === 0
+        ? []
+        : JSON.parse(setFailedMock.mock.calls[0]?.[0] as string);
+
+    const outputChanges = atomizeChangeset(
+      diff(nonMutatedFailOutput, failOutput),
+    ).filter(c => !(c.type === 'UPDATE' && c.key === 'line'));
+
+    if (outputChanges.length === 0) {
+      correctCount++;
+      await rm(dirPath, { recursive: true, force: true });
+    } else {
+      await writeFile(
+        join(dirPath, 'result.json'),
+        JSON.stringify({ changes, outputChanges }, null, 2),
+      );
+    }
+  }
+  await appendFile(
+    join(import.meta.dir, `../../data/headingMutOutput.csv`),
+    `${repoName}, ${sha}, ${nToChange}, ${nToChange / allHeadings.length}, ${scenarios}, ${nToChange === 0 ? scenarios : correctCount}, ${nToChange === 0 ? 1 : correctCount / scenarios}\n`,
+  );
+  console.info(
+    `Got ${correctCount}/${scenarios} correct (${((correctCount / scenarios) * 100).toFixed(2)}%) on ${repoName} (${nToChange} headings (${((nToChange / allHeadings.length) * 100).toFixed(2)}%))`,
+  );
+  return nToChange === allHeadings.length;
 };

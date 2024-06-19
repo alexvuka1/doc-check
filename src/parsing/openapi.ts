@@ -117,7 +117,6 @@ export const oasParseRequestConfigs = (oas: OasDocument) => {
 };
 
 export const oasParse = async (oasPath: string, shouldDereference = true) => {
-  // TODO changed this from validate, should maybe show warnings if oas not valid
   const oasDoc = shouldDereference
     ? await SwaggerParser.dereference(oasPath)
     : await SwaggerParser.bundle(oasPath);

@@ -87,11 +87,11 @@ export const oasMutate = (oas: OasDocument, oasMutations: OasMutations) => {
 
 type OasMutationsOptions = {
   scenarios: number;
-  probRemovePath: number;
+  probRemoveEndpoint: number;
   probRemoveRequestConfig: number;
-  maxAddPath: number;
-  probAddPath: number;
-  probAddPathMethod: number;
+  retriesAddEndpoint: number;
+  probAddEndpoint: number;
+  probAddMethod: number;
   probChangeMethod: number;
 };
 
@@ -103,11 +103,11 @@ export const evaluateOasMutations = async (
   const { repoName, sha, pathOas, pathDoc } = repoInfo;
   const {
     scenarios,
-    probRemovePath,
+    probRemoveEndpoint,
     probRemoveRequestConfig,
-    maxAddPath,
-    probAddPath,
-    probAddPathMethod,
+    retriesAddEndpoint,
+    probAddEndpoint,
+    probAddMethod,
     probChangeMethod,
   } = options;
   const { getInputMock, setFailedMock, rng } = testEnv;
@@ -167,7 +167,7 @@ export const evaluateOasMutations = async (
     };
 
     for (const [path, pathItem] of objectEntries(paths)) {
-      if (rng() < probRemovePath) {
+      if (rng() < probRemoveEndpoint) {
         mutations.removePaths.push(path);
         pathToRemovedMethods.set(
           path,
@@ -295,11 +295,12 @@ export const evaluateOasMutations = async (
               fail.docRequestConfig.method,
               fail.docRequestConfig.originalPath,
             );
-            for (const inc of fail.conflicts) {
-              switch (inc.type) {
+            for (const conflict of fail.conflicts) {
+              switch (conflict.type) {
                 case 'method-mismatch':
                   onlyInOasMethods.add(fail.oasRequestConfig.method);
                   onlyInDocMethods.add(fail.docRequestConfig.method);
+                  break;
                 default:
                   methodWithOtherConflicts.add(fail.oasRequestConfig.method);
                   break;
@@ -329,33 +330,21 @@ export const evaluateOasMutations = async (
       ]);
       const newDocMethods = [
         ...allMethods.filter(m => !onlyInOasMethods.has(m)),
-        ...[...onlyInDocMethods].filter(m => !addedMethods.has(m)),
+        ...onlyInDocMethods,
       ];
-      const diff = difference(newDocMethods, newOasMethods);
+      const diffOas = difference(newOasMethods, [...methodWithOtherConflicts]);
+      const diffDoc = difference(newDocMethods, [...methodWithOtherConflicts]);
 
       if (
-        newOasMethods.length === 1 &&
-        newDocMethods.length === 1 &&
-        newOasMethods[0] !== newDocMethods[0]
+        diffOas.length === 1 &&
+        diffDoc.length === 1 &&
+        diffOas[0] !== diffDoc[0]
       ) {
-        const oasMethod = [...newOasMethods][0];
-        const docMethod = [...newDocMethods][0];
+        const oasMethod = [...diffOas][0];
+        const docMethod = [...diffDoc][0];
         assert(oasMethod !== void 0);
         assert(docMethod !== void 0);
         if (oasMethod === docMethod) continue;
-        expectedMatchWithMethodMismatch.push({
-          oasMethod,
-          docMethod,
-          pathSegs,
-        });
-        continue;
-      }
-
-      if (newOasMethods.length === 1 && diff.length === 1) {
-        const oasMethod = [...newOasMethods][0];
-        const docMethod = [...diff][0];
-        assert(oasMethod !== void 0);
-        assert(docMethod !== void 0);
         expectedMatchWithMethodMismatch.push({
           oasMethod,
           docMethod,
@@ -382,9 +371,9 @@ export const evaluateOasMutations = async (
       (_, i) => !handledFailIndices.has(i),
     );
 
-    for (let i = 0; i < maxAddPath; i++) {
-      if (rng() < probAddPath) continue;
-      const methodsToAdd = methods.filter(() => rng() < probAddPathMethod);
+    for (let i = 0; i < retriesAddEndpoint; i++) {
+      if (rng() < probAddEndpoint) continue;
+      const methodsToAdd = methods.filter(() => rng() < probAddMethod);
       if (methodsToAdd.length === 0) continue;
       const path = `/doc-check/mutation-test/${i}`;
       mutations.addRequestConfigs.push({ path, methods: methodsToAdd });

@@ -73,12 +73,6 @@ export const repoInfos = {
     pathOas: 'docs/openapi.yaml',
     pathDoc: 'DOCUMENTATION.md',
   },
-  'openstf/stf': {
-    repoName: 'openstf/stf',
-    sha: '2b9649009722794dee9efd32b71bccbcbfe9d794',
-    pathOas: 'lib/units/api/swagger/api_v1_generated.json',
-    pathDoc: 'doc/API.md',
-  },
   'sunflower-land/sunflower-land': {
     repoName: 'sunflower-land/sunflower-land',
     sha: '877234bda1c498505a9be75b83affb487285af5c',

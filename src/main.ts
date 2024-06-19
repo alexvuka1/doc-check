@@ -2,7 +2,7 @@ import * as core from '@actions/core';
 import * as github from '@actions/github';
 import assert from 'assert';
 import { writeFile } from 'fs/promises';
-import { differenceWith, isEqual } from 'lodash-es';
+import { differenceWith, isEqual, isString } from 'lodash-es';
 import { Literal, Node, Nodes, Parent, Parents } from 'mdast';
 import { join } from 'path';
 import { selectAll } from 'unist-util-select';
@@ -501,30 +501,38 @@ export const run = async () => {
 
       const onlyInDoc =
         notDifferent.length === 0 ||
-        notDifferent.every(i => {
-          const oasRequestConfig = allOasRequestConfigs[i];
-          assert(
-            oasRequestConfig,
-            `No unmatched oas requestConfig with index ${i}`,
-          );
-          const oasKey = `${oasRequestConfig.method} ${oasPathSegsToPath(
-            oasRequestConfig.pathSegs,
-          )}`;
+        (!notDifferent.some(i => {
+          const conflicts = docRequestConfigConflicts[i];
           return (
-            matchedRequestKeys.has(oasKey) &&
-            [...tableToRequestKeys.values()].some(
-              keys =>
-                keys.some(
-                  requestKey => requestKey === oasKeyToDocKey.get(oasKey),
-                ) &&
-                keys.some(
-                  requestKey =>
-                    requestKey ===
-                    `${unmatchedDocRequestConfig.method} ${unmatchedDocRequestConfig.originalPath}`,
-                ),
-            )
+            !isString(conflicts) &&
+            !conflicts?.some(c => c.type === 'method-mismatch')
           );
-        });
+        }) &&
+          notDifferent.every(i => {
+            const oasRequestConfig = allOasRequestConfigs[i];
+            assert(
+              oasRequestConfig,
+              `No unmatched oas requestConfig with index ${i}`,
+            );
+            const oasKey = `${oasRequestConfig.method} ${oasPathSegsToPath(
+              oasRequestConfig.pathSegs,
+            )}`;
+            return (
+              matchedRequestKeys.has(oasKey) &&
+              (tableToRequestKeys.size === 0 ||
+                [...tableToRequestKeys.values()].some(
+                  keys =>
+                    keys.some(
+                      requestKey => requestKey === oasKeyToDocKey.get(oasKey),
+                    ) &&
+                    keys.some(
+                      requestKey =>
+                        requestKey ===
+                        `${unmatchedDocRequestConfig.method} ${unmatchedDocRequestConfig.originalPath}`,
+                    ),
+                ))
+            );
+          }));
 
       if (onlyInDoc) {
         failOutput.push({

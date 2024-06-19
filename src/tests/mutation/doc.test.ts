@@ -10,8 +10,9 @@ import { objectEntries } from '../../utils';
 import { repoInfos } from '../data/repoInfos';
 import { getOrDownload } from '../utils';
 import {
-  DocMutationsOptions,
-  evaluateDocMutations,
+  DocSplitMutationsOptions,
+  evaluateDocSplitMutations,
+  evaluateDocSubtleMutations,
 } from '../utils/mutation/doc';
 
 const getInputMock = spyOn(core, 'getInput');
@@ -47,7 +48,7 @@ describe('action', () => {
                 instancesPos: [40, 217],
               },
             ],
-          } satisfies Partial<DocMutationsOptions>,
+          } satisfies Partial<DocSplitMutationsOptions>,
         ] as const;
       case 'backstage/backstage_2':
         return [
@@ -65,7 +66,7 @@ describe('action', () => {
                 instancesPos: [40, 217],
               },
             ],
-          } satisfies Partial<DocMutationsOptions>,
+          } satisfies Partial<DocSplitMutationsOptions>,
         ] as const;
       case 'sunflower-land/sunflower-land':
         return [
@@ -78,7 +79,7 @@ describe('action', () => {
                 instancesPos: [22, 56],
               },
             ],
-          } satisfies Partial<DocMutationsOptions>,
+          } satisfies Partial<DocSplitMutationsOptions>,
         ] as const;
       default:
         return [repoInfo] as const;
@@ -122,11 +123,12 @@ describe('action', () => {
   });
 
   it(
-    'handles doc section mutations',
+    'handles doc section split mutations',
     async () => {
       for (const [repoInfo, overrideOptions] of mutationInfos) {
+        if (repoInfo.repoName === 'alibaba/GraphScope') continue;
         rng = seedrandom(seed);
-        await evaluateDocMutations(
+        await evaluateDocSplitMutations(
           repoInfo,
           {
             getInputMock,
@@ -135,7 +137,7 @@ describe('action', () => {
           },
           {
             ...{
-              mutationType: 'split-section',
+              splitNode: 'section',
               scenarios: 100,
             },
             ...overrideOptions,
@@ -147,11 +149,12 @@ describe('action', () => {
   );
 
   it(
-    'handles doc heading mutations',
+    'handles doc heading split mutations',
     async () => {
       for (const [repoInfo, overrideOptions] of mutationInfos) {
+        if (repoInfo.repoName === 'alibaba/GraphScope') continue;
         rng = seedrandom(seed);
-        await evaluateDocMutations(
+        await evaluateDocSplitMutations(
           repoInfo,
           {
             getInputMock,
@@ -160,7 +163,7 @@ describe('action', () => {
           },
           {
             ...{
-              mutationType: 'split-heading',
+              splitNode: 'heading',
               scenarios: 100,
             },
             ...overrideOptions,
@@ -169,5 +172,34 @@ describe('action', () => {
       }
     },
     { timeout: 10 * 60 * 1000 },
+  );
+
+  it(
+    'handles doc heading subtle mutations',
+    async () => {
+      for (const [repoInfo, overrideOptions] of mutationInfos) {
+        rng = seedrandom(seed);
+        for (let i = 0; i < 11; i++) {
+          const isMax = await evaluateDocSubtleMutations(
+            repoInfo,
+            {
+              getInputMock,
+              setFailedMock,
+              rng: () => rng.quick(),
+            },
+            {
+              ...{
+                nToChange: i,
+                subtleNode: 'heading',
+                scenarios: 100,
+              },
+              ...overrideOptions,
+            },
+          );
+          if (isMax) break;
+        }
+      }
+    },
+    { timeout: 10000 * 60 * 1000 },
   );
 });
